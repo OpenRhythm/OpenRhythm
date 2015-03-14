@@ -1,0 +1,49 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# vim swap files
+*.swp
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# ignore build folder
+build/
+
+# ignore generated header files
+src/core/config.hpp
+
+# ignore most of the extern folder
+extern/
+-extern/readme.txt
+
+# ignore cmake files if they end up in the root
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+musicgame
+
