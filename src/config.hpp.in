@@ -1,0 +1,19 @@
+#pragma once
+
+// Platforms
+#define PL_WINDOWS ${PL_WINDOWS}
+#define PL_LINUX ${PL_LINUX}
+#define PL_OSX ${PL_OSX}
+
+#define PLATFORM ${PLATFORM}
+
+#if PLATFORM==PL_WINDOWS
+	#define PLATFORM_WINDOWS
+#elif PLATFORM==PL_LINUX
+	#define PLATFORM_LINUX
+#elif PLATFORM==PL_OSX
+	#define PLATFORM_OSX
+#endif
+
+
+// will add version info here later on
