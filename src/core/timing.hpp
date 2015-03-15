@@ -17,7 +17,6 @@ namespace MgCore
         int m_frames;
         double m_currentTime;
         double m_previousTime;
-        double m_fpsTime;
         double m_delta;
         float m_fps;
 

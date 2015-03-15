@@ -12,7 +12,11 @@ namespace MgCore
 #if defined(PLATFORM_OSX)
         host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &m_cclock);
 #endif
-        tick();
+        m_frames = 1;
+        m_currentTime = get_time();
+        m_previousTime = m_currentTime;
+        m_delta = 0.0;
+        m_fps = 0.0f;
 
     }
 
@@ -25,27 +29,21 @@ namespace MgCore
 
     double FpsTimer::tick()
     {
-        
-
-        m_previousTime = m_currentTime;
-        m_currentTime = get_time();
-
-        m_delta = m_currentTime - m_previousTime;
-        m_fpsTime += m_delta;
         m_frames++;
-        return m_fpsTime;
+        return get_time() - m_previousTime;
 
     }
 
     float FpsTimer::get_fps()
     {
-        if (m_fpsTime == 0) {
-            m_fpsTime += 1;
-        }
+        m_currentTime = get_time();
 
-        m_fps = m_frames / m_fpsTime;
-        m_fpsTime = 0;
+        m_delta = m_currentTime - m_previousTime;
+
+
+        m_fps = m_frames / m_delta;
         m_frames = 0;
+        m_previousTime = m_currentTime;
         return m_fps;
     }
 }

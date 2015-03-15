@@ -1,3 +1,4 @@
+#include <ios>
 #include <iostream>
 
 #include "gl.hpp"
@@ -50,17 +51,21 @@ int main()
 
     double fpsTime;
 
+    std::streamsize ss = std::cout.precision();
+
     while (running) {
         //std::cout << "cow";
         fpsTime = tim.tick();
         eve.process();
         glClearColor(0.5, 0.5, 0.5, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         win.flip();
-        if (fpsTime > 2.0) {
+        if (fpsTime >= 2.0) {
+            std::cout.precision (5);
             std::cout << "FPS: " << tim.get_fps() << std::endl;
+            std::cout.precision (ss);
         }
 
     }
