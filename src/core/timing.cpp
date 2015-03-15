@@ -5,15 +5,6 @@
 
 namespace MgCore
 {
-    FpsTimer::FpsTimer()
-    {
-        host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &m_cclock);
-    }
-
-    FpsTimer::~FpsTimer()
-    {
-        mach_port_deallocate(mach_task_self(), m_cclock);
-    }
 
     double FpsTimer::tick()
     {

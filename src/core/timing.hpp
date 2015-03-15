@@ -50,8 +50,19 @@ namespace MgCore
 #endif
 
     public:
-        FpsTimer();
-        ~FpsTimer();
+
+#if defined(PLATFORM_OSX)
+        FpsTimer()
+        {
+            host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &m_cclock);
+        }
+
+        ~FpsTimer()
+        {
+            mach_port_deallocate(mach_task_self(), m_cclock);
+        }
+
+#endif
         double tick();
         float get_fps();
     };
