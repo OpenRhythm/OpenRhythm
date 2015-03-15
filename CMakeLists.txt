@@ -63,7 +63,10 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp)
 
 if(INC_PATH)
-    include_directories(${INC_PATH})
+    string(REPLACE ":" ";" _INC_PATH ${INC_PATH})
+    foreach(PATH ${_INC_PATH})
+        include_directories(${PATH})
+    endforeach()
 endif()
 
 source_group("src\\core" FILES ${CORE_SOURCE} ${CORE_HEADERS})
