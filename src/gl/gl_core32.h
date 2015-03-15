@@ -949,23 +949,6 @@ extern "C" {
 #define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY 0x910D
 #define GL_WAIT_FAILED 0x911D
 
-#define GL_ANY_SAMPLES_PASSED 0x8C2F
-#define GL_INT_2_10_10_10_REV 0x8D9F
-#define GL_MAX_DUAL_SOURCE_DRAW_BUFFERS 0x88FC
-#define GL_ONE_MINUS_SRC1_ALPHA 0x88FB
-#define GL_ONE_MINUS_SRC1_COLOR 0x88FA
-#define GL_RGB10_A2UI 0x906F
-#define GL_SAMPLER_BINDING 0x8919
-#define GL_SRC1_COLOR 0x88F9
-#define GL_TEXTURE_SWIZZLE_A 0x8E45
-#define GL_TEXTURE_SWIZZLE_B 0x8E44
-#define GL_TEXTURE_SWIZZLE_G 0x8E43
-#define GL_TEXTURE_SWIZZLE_R 0x8E42
-#define GL_TEXTURE_SWIZZLE_RGBA 0x8E46
-#define GL_TIMESTAMP 0x8E28
-#define GL_TIME_ELAPSED 0x88BF
-#define GL_VERTEX_ATTRIB_ARRAY_DIVISOR 0x88FE
-
 extern void (CODEGEN_FUNCPTR *_ptrc_glBlendFunc)(GLenum, GLenum);
 #define glBlendFunc _ptrc_glBlendFunc
 extern void (CODEGEN_FUNCPTR *_ptrc_glClear)(GLbitfield);
@@ -1604,63 +1587,6 @@ extern void (CODEGEN_FUNCPTR *_ptrc_glTexImage3DMultisample)(GLenum, GLsizei, GL
 #define glTexImage3DMultisample _ptrc_glTexImage3DMultisample
 extern void (CODEGEN_FUNCPTR *_ptrc_glWaitSync)(GLsync, GLbitfield, GLuint64);
 #define glWaitSync _ptrc_glWaitSync
-
-extern void (CODEGEN_FUNCPTR *_ptrc_glBindFragDataLocationIndexed)(GLuint, GLuint, GLuint, const GLchar *);
-#define glBindFragDataLocationIndexed _ptrc_glBindFragDataLocationIndexed
-extern void (CODEGEN_FUNCPTR *_ptrc_glBindSampler)(GLuint, GLuint);
-#define glBindSampler _ptrc_glBindSampler
-extern void (CODEGEN_FUNCPTR *_ptrc_glDeleteSamplers)(GLsizei, const GLuint *);
-#define glDeleteSamplers _ptrc_glDeleteSamplers
-extern void (CODEGEN_FUNCPTR *_ptrc_glGenSamplers)(GLsizei, GLuint *);
-#define glGenSamplers _ptrc_glGenSamplers
-extern GLint (CODEGEN_FUNCPTR *_ptrc_glGetFragDataIndex)(GLuint, const GLchar *);
-#define glGetFragDataIndex _ptrc_glGetFragDataIndex
-extern void (CODEGEN_FUNCPTR *_ptrc_glGetQueryObjecti64v)(GLuint, GLenum, GLint64 *);
-#define glGetQueryObjecti64v _ptrc_glGetQueryObjecti64v
-extern void (CODEGEN_FUNCPTR *_ptrc_glGetQueryObjectui64v)(GLuint, GLenum, GLuint64 *);
-#define glGetQueryObjectui64v _ptrc_glGetQueryObjectui64v
-extern void (CODEGEN_FUNCPTR *_ptrc_glGetSamplerParameterIiv)(GLuint, GLenum, GLint *);
-#define glGetSamplerParameterIiv _ptrc_glGetSamplerParameterIiv
-extern void (CODEGEN_FUNCPTR *_ptrc_glGetSamplerParameterIuiv)(GLuint, GLenum, GLuint *);
-#define glGetSamplerParameterIuiv _ptrc_glGetSamplerParameterIuiv
-extern void (CODEGEN_FUNCPTR *_ptrc_glGetSamplerParameterfv)(GLuint, GLenum, GLfloat *);
-#define glGetSamplerParameterfv _ptrc_glGetSamplerParameterfv
-extern void (CODEGEN_FUNCPTR *_ptrc_glGetSamplerParameteriv)(GLuint, GLenum, GLint *);
-#define glGetSamplerParameteriv _ptrc_glGetSamplerParameteriv
-extern GLboolean (CODEGEN_FUNCPTR *_ptrc_glIsSampler)(GLuint);
-#define glIsSampler _ptrc_glIsSampler
-extern void (CODEGEN_FUNCPTR *_ptrc_glQueryCounter)(GLuint, GLenum);
-#define glQueryCounter _ptrc_glQueryCounter
-extern void (CODEGEN_FUNCPTR *_ptrc_glSamplerParameterIiv)(GLuint, GLenum, const GLint *);
-#define glSamplerParameterIiv _ptrc_glSamplerParameterIiv
-extern void (CODEGEN_FUNCPTR *_ptrc_glSamplerParameterIuiv)(GLuint, GLenum, const GLuint *);
-#define glSamplerParameterIuiv _ptrc_glSamplerParameterIuiv
-extern void (CODEGEN_FUNCPTR *_ptrc_glSamplerParameterf)(GLuint, GLenum, GLfloat);
-#define glSamplerParameterf _ptrc_glSamplerParameterf
-extern void (CODEGEN_FUNCPTR *_ptrc_glSamplerParameterfv)(GLuint, GLenum, const GLfloat *);
-#define glSamplerParameterfv _ptrc_glSamplerParameterfv
-extern void (CODEGEN_FUNCPTR *_ptrc_glSamplerParameteri)(GLuint, GLenum, GLint);
-#define glSamplerParameteri _ptrc_glSamplerParameteri
-extern void (CODEGEN_FUNCPTR *_ptrc_glSamplerParameteriv)(GLuint, GLenum, const GLint *);
-#define glSamplerParameteriv _ptrc_glSamplerParameteriv
-extern void (CODEGEN_FUNCPTR *_ptrc_glVertexAttribDivisor)(GLuint, GLuint);
-#define glVertexAttribDivisor _ptrc_glVertexAttribDivisor
-extern void (CODEGEN_FUNCPTR *_ptrc_glVertexAttribP1ui)(GLuint, GLenum, GLboolean, GLuint);
-#define glVertexAttribP1ui _ptrc_glVertexAttribP1ui
-extern void (CODEGEN_FUNCPTR *_ptrc_glVertexAttribP1uiv)(GLuint, GLenum, GLboolean, const GLuint *);
-#define glVertexAttribP1uiv _ptrc_glVertexAttribP1uiv
-extern void (CODEGEN_FUNCPTR *_ptrc_glVertexAttribP2ui)(GLuint, GLenum, GLboolean, GLuint);
-#define glVertexAttribP2ui _ptrc_glVertexAttribP2ui
-extern void (CODEGEN_FUNCPTR *_ptrc_glVertexAttribP2uiv)(GLuint, GLenum, GLboolean, const GLuint *);
-#define glVertexAttribP2uiv _ptrc_glVertexAttribP2uiv
-extern void (CODEGEN_FUNCPTR *_ptrc_glVertexAttribP3ui)(GLuint, GLenum, GLboolean, GLuint);
-#define glVertexAttribP3ui _ptrc_glVertexAttribP3ui
-extern void (CODEGEN_FUNCPTR *_ptrc_glVertexAttribP3uiv)(GLuint, GLenum, GLboolean, const GLuint *);
-#define glVertexAttribP3uiv _ptrc_glVertexAttribP3uiv
-extern void (CODEGEN_FUNCPTR *_ptrc_glVertexAttribP4ui)(GLuint, GLenum, GLboolean, GLuint);
-#define glVertexAttribP4ui _ptrc_glVertexAttribP4ui
-extern void (CODEGEN_FUNCPTR *_ptrc_glVertexAttribP4uiv)(GLuint, GLenum, GLboolean, const GLuint *);
-#define glVertexAttribP4uiv _ptrc_glVertexAttribP4uiv
 
 enum ogl_LoadStatus
 {

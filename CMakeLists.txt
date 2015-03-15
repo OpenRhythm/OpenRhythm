@@ -76,8 +76,8 @@ set(GAME_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/game/main.cpp)
 source_group("src\\game" FILES ${GAME_SOURCE})
 
 
-set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core33.h
-       ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core33.c
+set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.h
+       ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.c
        ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl.hpp)
 
 source_group("src\\gl" FILES ${GL})

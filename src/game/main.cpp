@@ -31,7 +31,7 @@ int main()
 {
 
     MgCore::Window win;
-    MgCore::Context con(3, 3, 0);
+    MgCore::Context con(3, 2, 0);
     MgCore::Events eve;
     MgCore::FpsTimer tim;
 
