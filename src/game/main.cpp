@@ -6,6 +6,7 @@
 #include "context.hpp"
 #include "events.hpp"
 #include "config.hpp"
+#include "timing.hpp"
 
 bool running = true;
 
@@ -32,6 +33,7 @@ int main()
     MgCore::Window win;
     MgCore::Context con(3, 3, 0);
     MgCore::Events eve;
+    MgCore::FpsTimer tim;
 
     win.make_current(&con);
 
@@ -46,14 +48,21 @@ int main()
 
     eve.add_listener(lis);
 
+    double fpsTime;
+
     while (running) {
         //std::cout << "cow";
+        fpsTime = tim.tick();
         eve.process();
         glClearColor(0.5, 0.5, 0.5, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         win.flip();
+        if (fpsTime > 2.0) {
+            std::cout << "FPS: " << tim.get_fps() << std::endl;
+        }
+
     }
 
 
