@@ -34,7 +34,7 @@
 build/
 
 # ignore generated header files
-src/core/config.hpp
+src/config.hpp
 
 # ignore most of the extern folder
 extern/
