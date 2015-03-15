@@ -80,4 +80,8 @@ set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GL})
 
 add_executable(musicgame ${SOURCE})
 
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
+endif()
+
 target_link_libraries(musicgame ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${ADDITIONAL_LIBS})
