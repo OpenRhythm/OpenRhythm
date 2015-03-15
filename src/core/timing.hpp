@@ -18,6 +18,7 @@ namespace MgCore
         double m_currentTime;
         double m_previousTime;
         double m_delta;
+        double m_fpsTime;
         float m_fps;
 
 #if defined(PLATFORM_WINDOWS)

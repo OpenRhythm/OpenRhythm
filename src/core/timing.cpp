@@ -17,7 +17,6 @@ namespace MgCore
         m_previousTime = m_currentTime;
         m_delta = 0.0;
         m_fps = 0.0f;
-
     }
 
     FpsTimer::~FpsTimer()
@@ -30,20 +29,24 @@ namespace MgCore
     double FpsTimer::tick()
     {
         m_frames++;
-        return get_time() - m_previousTime;
+        m_previousTime = m_currentTime;
+        m_currentTime = get_time();
 
+        m_delta = m_currentTime - m_previousTime;
+        m_fpsTime += m_delta;
+
+        return m_delta;
     }
 
     float FpsTimer::get_fps()
     {
-        m_currentTime = get_time();
+        if (m_fpsTime == 0) {
+            m_fpsTime += 1;
+        }
 
-        m_delta = m_currentTime - m_previousTime;
-
-
-        m_fps = m_frames / m_delta;
+        m_fps = m_frames / m_fpsTime;
+        m_fpsTime = 0;
         m_frames = 0;
-        m_previousTime = m_currentTime;
         return m_fps;
     }
 }

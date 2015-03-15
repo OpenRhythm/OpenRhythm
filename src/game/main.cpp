@@ -55,7 +55,7 @@ int main()
 
     while (running) {
         //std::cout << "cow";
-        fpsTime = tim.tick();
+        fpsTime += tim.tick();
         eve.process();
         glClearColor(0.5, 0.5, 0.5, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -66,6 +66,7 @@ int main()
             std::cout.precision (5);
             std::cout << "FPS: " << tim.get_fps() << std::endl;
             std::cout.precision (ss);
+            fpsTime = 0;
         }
 
     }
