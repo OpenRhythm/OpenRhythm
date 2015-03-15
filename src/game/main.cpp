@@ -49,7 +49,7 @@ int main()
 
     eve.add_listener(lis);
 
-    double fpsTime;
+    double fpsTime = 0.0;
 
     std::streamsize ss = std::cout.precision();
 

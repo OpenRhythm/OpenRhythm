@@ -1,8 +1,5 @@
 #include "timing.hpp"
 
-#include <iostream>
-#include <iomanip>
-
 namespace MgCore
 {
 
@@ -11,11 +8,14 @@ namespace MgCore
 
 #if defined(PLATFORM_OSX)
         host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &m_cclock);
+#elif defined(PLATFORM_WINDOWS)
+        QueryPerformanceFrequency(&m_frequency);
 #endif
         m_frames = 1;
         m_currentTime = get_time();
         m_previousTime = m_currentTime;
         m_delta = 0.0;
+        m_fpsTime = 0.0;
         m_fps = 0.0f;
     }
 

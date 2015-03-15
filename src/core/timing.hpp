@@ -22,9 +22,12 @@ namespace MgCore
         float m_fps;
 
 #if defined(PLATFORM_WINDOWS)
+        LARGE_INTEGER m_frequency;
         double get_time()
         {
-            return 1.0;
+            LARGE_INTEGER startingTime;
+            QueryPerformanceCounter(&startingTime);
+            return startingTime.QuadPart / m_frequency.QuadPart;
         }
 
 #elif defined(PLATFORM_LINUX)
