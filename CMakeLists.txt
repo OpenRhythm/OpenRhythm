@@ -12,6 +12,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "Building for Windows.")
     set(ENV{SDL2DIR} "${PROJECT_SOURCE_DIR}/extern/sdl2")
+    set(ENV{FREETYPE_DIR} "${PROJECT_SOURCE_DIR}/extern/freetype")
+    set(ENV{GLM_ROOT_DIR} "${PROJECT_SOURCE_DIR}/extern/glm")
     set(PLATFORM PL_WINDOWS)
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -35,7 +37,6 @@ include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIRS})
-
 
 include_directories(${PROJECT_SOURCE_DIR}/src/core)
 include_directories(${PROJECT_SOURCE_DIR}/src/engine)

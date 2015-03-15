@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "SDL.h"
+#undef main
 
 #include "keycode.hpp"
 

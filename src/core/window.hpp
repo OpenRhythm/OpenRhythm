@@ -2,12 +2,13 @@
 #include <string>
 
 #include "SDL.h"
+#undef main
 #include "context.hpp"
 
 namespace MgCore
 {
     class Context;
-    const uint defaultWindowFlag = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+    const Uint32 defaultWindowFlag = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
     void init_video();
 
