@@ -26,6 +26,7 @@ namespace MgCore
         {
             return 1.0;
         }
+
 #elif defined(PLATFORM_LINUX)
         double get_time()
         {
@@ -33,6 +34,7 @@ namespace MgCore
             clock_gettime(CLOCK_MONOTONIC, &mt);
             return mt.tv_sec + (mt.tv_nsec * 0.000000001);
         }
+
 #elif defined(PLATFORM_OSX)
         clock_serv_t m_cclock;
         double get_time()
@@ -41,6 +43,7 @@ namespace MgCore
             clock_get_time(m_cclock, &mts);
             return mts.tv_sec + (mts.tv_nsec * 0.000000001);
         }
+
 #else
         double get_time()
         {
@@ -50,19 +53,8 @@ namespace MgCore
 #endif
 
     public:
-
-#if defined(PLATFORM_OSX)
-        FpsTimer()
-        {
-            host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &m_cclock);
-        }
-
-        ~FpsTimer()
-        {
-            mach_port_deallocate(mach_task_self(), m_cclock);
-        }
-
-#endif
+        FpsTimer();
+        ~FpsTimer();
         double tick();
         float get_fps();
     };

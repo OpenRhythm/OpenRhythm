@@ -6,6 +6,23 @@
 namespace MgCore
 {
 
+    FpsTimer::FpsTimer()
+    {
+
+#if defined(PLATFORM_OSX)
+        host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &m_cclock);
+#endif
+        tick();
+
+    }
+
+    FpsTimer::~FpsTimer()
+    {
+#if defined(PLATFORM_OSX)
+        mach_port_deallocate(mach_task_self(), m_cclock);
+#endif
+    }
+
     double FpsTimer::tick()
     {
         
