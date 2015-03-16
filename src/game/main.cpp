@@ -8,6 +8,7 @@
 #include "events.hpp"
 #include "config.hpp"
 #include "timing.hpp"
+#include "shader.hpp"
 
 bool running = true;
 
@@ -52,6 +53,14 @@ int main()
     double fpsTime = 0.0;
 
     std::streamsize ss = std::cout.precision();
+
+    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "../data/shaders/main.vs"};
+    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "../data/shaders/main.fs"};
+
+    MgCore::Shader vertShader(vertInfo);
+    MgCore::Shader fragShader(fragInfo);
+
+    MgCore::ShaderProgram program(&vertShader, &fragShader);
 
     while (running) {
         //std::cout << "cow";

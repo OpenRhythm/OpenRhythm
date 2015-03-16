@@ -20,7 +20,6 @@ namespace MgCore
 			GLsizei length = 0;
 			GLchar message[1024];
 			glGetShaderInfoLog(shader, 1024, &length, message);
-			std::cout << message << std::endl;
 		} else {
 			std::cout << "Shader compiled sucessfully." << std::endl;
 		}
