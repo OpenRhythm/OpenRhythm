@@ -37,6 +37,7 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIRS})
 
+include_directories(${PROJECT_SOURCE_DIR}/src/core/vfs)
 include_directories(${PROJECT_SOURCE_DIR}/src/core)
 include_directories(${PROJECT_SOURCE_DIR}/src/engine)
 include_directories(${PROJECT_SOURCE_DIR}/src/game)
@@ -55,7 +56,28 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/files.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSArchiveLoader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSBase.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDefines.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDir.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDirInternal.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDirView.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDirZip.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSFile.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSFileFuncs.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSFileZip.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSInternal.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSLoader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSRefcounted.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSRoot.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSSystemPaths.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSTools.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSZipArchiveLoader.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSZipArchiveRef.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/miniz.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/ttvfs.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/ttvfs_zip.h)
 
 set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
@@ -63,7 +85,22 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/files.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSBase.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDir.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDirInternal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDirView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDirZip.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSFileFuncs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSFileZip.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSLoader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSRoot.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSSystemPaths.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSTools.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSZipArchiveLoader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSZipArchiveRef.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/miniz.c)
 
 if(INC_PATH)
     string(REPLACE ":" ";" _INC_PATH ${INC_PATH})
@@ -80,7 +117,6 @@ set(GAME_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 set(GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp)
 
 source_group("src\\game" FILES ${GAME_SOURCE} ${GAME_HEADERS})
-
 
 set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.h
        ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.c
