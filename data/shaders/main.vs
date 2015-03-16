@@ -3,8 +3,9 @@
 in vec2 position;
 
 uniform mat4 ortho;
+uniform mat4 model;
 
 void main(void)
 {
-	gl_Position = vec4(position, 0.0, 1.0);
+	gl_Position = ortho * model * vec4(position, 0.0, 1.0);
 }

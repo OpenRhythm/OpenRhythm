@@ -48,8 +48,10 @@ GameManager::GameManager()
     m_orthoID = m_program->uniform_attribute("ortho");
 
     m_mesh = new MgCore::Mesh2D(m_program);
+    m_mesh->scale(32.0f, 32.0f);
+    m_mesh->translate(10.0f, 10.0f);
 
-    m_ortho = glm::ortho<GLfloat>(0.0, m_width, m_height, 0.0, -1.0, 1.0);
+    m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
 
     m_program->set_uniform(m_orthoID, m_ortho);
 
@@ -97,7 +99,7 @@ void GameManager::resize(int width, int height)
     m_width = width;
     m_height = height;
     glViewport(0, 0, m_width, m_height);
-    m_ortho = glm::ortho<GLfloat>(0.0, m_width, m_height, 0.0, -1.0, 1.0);
+    m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
     m_program->set_uniform(m_orthoID, m_ortho);
 }
 
