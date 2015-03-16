@@ -7,7 +7,7 @@ namespace MgCore
 {
 	struct ShaderInfo
 	{
-		uint type;
+		unsigned int type;
 		std::string path;
 	};
 
@@ -25,7 +25,7 @@ namespace MgCore
 	private:
 		Shader m_vertex;
 		Shader m_fragment;
-		uint m_program;
+		unsigned int m_program;
 
 	public:
 		ShaderProgram(Shader* vertex, Shader* fragment);
