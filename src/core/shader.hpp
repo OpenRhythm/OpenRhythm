@@ -14,7 +14,7 @@ namespace MgCore
 
 	struct Shader
 	{
-		GLuint shader;
+		unsigned int shader;
 		ShaderInfo info;
 		Shader(ShaderInfo);
 		~Shader();

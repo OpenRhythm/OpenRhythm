@@ -12,14 +12,14 @@ namespace MgCore
 		std::string data {read_file(info.path)};
 		const char *c_str = data.c_str();
 		glShaderSource(shader, 1, &c_str, nullptr);
+		glCompileShader(shader);
 
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 
 		if (status != GL_TRUE) {
 			std::cout << "The shader has failed to compile." << std::endl;
-			GLsizei length = 0;
 			GLchar message[1024];
-			glGetShaderInfoLog(shader, 1024, &length, message);
+			glGetShaderInfoLog(shader, 1024, nullptr, message);
 		} else {
 			std::cout << "Shader compiled sucessfully." << std::endl;
 		}
@@ -42,13 +42,12 @@ namespace MgCore
 
 		glLinkProgram(m_program);
 
-		glGetShaderiv(m_program, GL_LINK_STATUS, &status);
+		glGetProgramiv(m_program, GL_LINK_STATUS, &status);
 
 		if (status != GL_TRUE) {
 			std::cout << "The program has failed to link." << std::endl;
-			GLsizei length = 0;
 			GLchar message[1024];
-			glGetProgramInfoLog(m_program, 1024, &length, message);
+			glGetProgramInfoLog(m_program, 1024, nullptr, message);
 			std::cout << message << std::endl;
 		} else {
 			std::cout << "Program linked sucessfully." << std::endl;
