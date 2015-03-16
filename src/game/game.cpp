@@ -1,12 +1,6 @@
 #include <iostream>
 #include <functional>
 
-#include "window.hpp"
-#include "context.hpp"
-#include "events.hpp"
-#include "config.hpp"
-#include "timing.hpp"
-#include "shader.hpp"
 #include "game.hpp"
 
 GameManager::GameManager()
@@ -48,20 +42,9 @@ GameManager::GameManager()
     m_program = new MgCore::ShaderProgram(&vertShader, &fragShader);
     m_program->use();
 
-    static const GLfloat vertData[] = {
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-    };
-
-    m_vertLoc = m_program->vertex_attribute("position");
+    m_mesh = new MgCore::Mesh2D(m_program);
 
     glClearColor(0.5, 0.5, 0.5, 1.0);
-
-    glGenBuffers(1, &m_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertData), vertData, GL_STATIC_DRAW);
 }
 
 GameManager::~GameManager()
@@ -76,6 +59,7 @@ GameManager::~GameManager()
     delete m_events;
     delete m_clock;
     delete m_program;
+    delete m_mesh;
 
 }
 
@@ -120,6 +104,7 @@ bool GameManager::event_handler(MgCore::Event &event)
 
 void GameManager::update()
 {
+    m_mesh->update();
 
 }
 
@@ -128,12 +113,7 @@ void GameManager::render()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_program->use();
+        m_mesh->render();
 
-        glEnableVertexAttribArray(m_vertLoc);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
-         
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-        glDisableVertexAttribArray(m_vertLoc);
 }
