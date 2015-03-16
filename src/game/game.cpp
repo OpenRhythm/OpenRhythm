@@ -5,8 +5,12 @@
 
 GameManager::GameManager()
 {
+    m_width = 800;
+    m_height = 600;
+    m_fullscreen = false;
+    m_title = "Game";
 
-    m_window = new MgCore::Window();
+    m_window = new MgCore::Window(m_width, m_height, m_fullscreen, m_title);
     m_context = new MgCore::Context(3, 2, 0);
     m_events = new MgCore::Events();
     m_clock = new MgCore::FpsTimer();
@@ -41,8 +45,13 @@ GameManager::GameManager()
 
     m_program = new MgCore::ShaderProgram(&vertShader, &fragShader);
     m_program->use();
+    m_orthoID = m_program->uniform_attribute("ortho");
 
     m_mesh = new MgCore::Mesh2D(m_program);
+
+    m_ortho = glm::ortho<GLfloat>(0.0, m_width, m_height, 0.0, -1.0, 1.0);
+
+    m_program->set_uniform(m_orthoID, m_ortho);
 
     glClearColor(0.5, 0.5, 0.5, 1.0);
 }
@@ -83,6 +92,15 @@ void GameManager::start()
 
 }
 
+void GameManager::resize(int width, int height)
+{
+    m_width = width;
+    m_height = height;
+    glViewport(0, 0, m_width, m_height);
+    m_ortho = glm::ortho<GLfloat>(0.0, m_width, m_height, 0.0, -1.0, 1.0);
+    m_program->set_uniform(m_orthoID, m_ortho);
+}
+
 bool GameManager::event_handler(MgCore::Event &event)
 {
     MgCore::EventType type = event.type;
@@ -91,9 +109,10 @@ bool GameManager::event_handler(MgCore::Event &event)
             m_running = false;
             break;
         case MgCore::EventType::WindowSized:
-            std::cout << event.event.windowSized.width  << " "
-                      << event.event.windowSized.height << " "
-                      << event.event.windowSized.id     << std::endl;
+            resize(event.event.windowSized.width, event.event.windowSized.height);
+            //std::cout << event.event.windowSized.width  << " "
+            //          << event.event.windowSized.height << " "
+            //          << event.event.windowSized.id     << std::endl;
             break;
 
     }
