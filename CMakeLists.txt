@@ -75,9 +75,11 @@ endif()
 source_group("src\\core" FILES ${CORE_SOURCE} ${CORE_HEADERS})
 
 
-set(GAME_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/game/main.cpp)
+set(GAME_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp)
+set(GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp)
 
-source_group("src\\game" FILES ${GAME_SOURCE})
+source_group("src\\game" FILES ${GAME_SOURCE} ${GAME_HEADERS})
 
 
 set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.h

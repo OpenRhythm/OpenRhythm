@@ -1,3 +1,4 @@
+#pragma once
 #include "config.hpp"
 
 #if defined(PLATFORM_WINDOWS)
