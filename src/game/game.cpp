@@ -52,12 +52,12 @@ GameManager::~GameManager()
 
     glDeleteVertexArrays(1, &m_vao);
     m_window->make_current(nullptr);
+    delete m_mesh;
     delete m_window;
     delete m_context;
     delete m_events;
     delete m_clock;
     delete m_program;
-    delete m_mesh;
 
 }
 
