@@ -24,8 +24,6 @@ private:
     MgCore::Listener m_lis;
     MgCore::Mesh2D *m_mesh;
 
-    GLuint m_vbo;
-    GLuint m_vertLoc;
     GLuint m_vao;
     std::streamsize m_ss;
 

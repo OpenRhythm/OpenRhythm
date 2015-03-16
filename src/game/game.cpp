@@ -50,9 +50,7 @@ GameManager::GameManager()
 GameManager::~GameManager()
 {
 
-    glDeleteBuffers(1, &m_vbo);
     glDeleteVertexArrays(1, &m_vao);
-
     m_window->make_current(nullptr);
     delete m_window;
     delete m_context;

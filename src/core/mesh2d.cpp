@@ -12,6 +12,8 @@ namespace MgCore
 	Mesh2D::~Mesh2D()
 	{
 
+		glDeleteBuffers(1, &m_vbo);
+
 	}
 
 	void Mesh2D::update()
