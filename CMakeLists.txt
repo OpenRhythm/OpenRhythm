@@ -53,12 +53,16 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/files.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp)
 
 set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/files.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp)
 
 if(INC_PATH)
