@@ -1,12 +1,6 @@
 #include <iostream>
 #include <functional>
 
-#include "window.hpp"
-#include "context.hpp"
-#include "events.hpp"
-#include "config.hpp"
-#include "timing.hpp"
-#include "shader.hpp"
 #include "game.hpp"
 #include "vfs.hpp"
 
@@ -14,8 +8,12 @@ ttvfs::Root VFS;
 
 GameManager::GameManager()
 {
+    m_width = 800;
+    m_height = 600;
+    m_fullscreen = false;
+    m_title = "Game";
 
-    m_window = new MgCore::Window();
+    m_window = new MgCore::Window(m_width, m_height, m_fullscreen, m_title);
     m_context = new MgCore::Context(3, 2, 0);
     m_events = new MgCore::Events();
     m_clock = new MgCore::FpsTimer();
@@ -55,30 +53,25 @@ GameManager::GameManager()
 
     m_program = new MgCore::ShaderProgram(&vertShader, &fragShader);
     m_program->use();
+    m_orthoID = m_program->uniform_attribute("ortho");
 
-    static const GLfloat vertData[] = {
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-    };
+    m_mesh = new MgCore::Mesh2D(m_program);
+    m_mesh->scale(32.0f, 32.0f);
+    m_mesh->translate(10.0f, 10.0f);
 
-    m_vertLoc = m_program->vertex_attribute("position");
+    m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
+
+    m_program->set_uniform(m_orthoID, m_ortho);
 
     glClearColor(0.5, 0.5, 0.5, 1.0);
-
-    glGenBuffers(1, &m_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertData), vertData, GL_STATIC_DRAW);
 }
 
 GameManager::~GameManager()
 {
 
-    glDeleteBuffers(1, &m_vbo);
     glDeleteVertexArrays(1, &m_vao);
-
     m_window->make_current(nullptr);
+    delete m_mesh;
     delete m_window;
     delete m_context;
     delete m_events;
@@ -109,6 +102,15 @@ void GameManager::start()
 
 }
 
+void GameManager::resize(int width, int height)
+{
+    m_width = width;
+    m_height = height;
+    glViewport(0, 0, m_width, m_height);
+    m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
+    m_program->set_uniform(m_orthoID, m_ortho);
+}
+
 bool GameManager::event_handler(MgCore::Event &event)
 {
     MgCore::EventType type = event.type;
@@ -117,9 +119,10 @@ bool GameManager::event_handler(MgCore::Event &event)
             m_running = false;
             break;
         case MgCore::EventType::WindowSized:
-            std::cout << event.event.windowSized.width  << " "
-                      << event.event.windowSized.height << " "
-                      << event.event.windowSized.id     << std::endl;
+            resize(event.event.windowSized.width, event.event.windowSized.height);
+            //std::cout << event.event.windowSized.width  << " "
+            //          << event.event.windowSized.height << " "
+            //          << event.event.windowSized.id     << std::endl;
             break;
 
     }
@@ -128,6 +131,7 @@ bool GameManager::event_handler(MgCore::Event &event)
 
 void GameManager::update()
 {
+    m_mesh->update();
 
 }
 
@@ -136,12 +140,7 @@ void GameManager::render()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_program->use();
+        m_mesh->render();
 
-        glEnableVertexAttribArray(m_vertLoc);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
-         
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-        glDisableVertexAttribArray(m_vertLoc);
 }
