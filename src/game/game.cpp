@@ -16,6 +16,7 @@ GameManager::GameManager()
     m_context = new MgCore::Context(3, 2, 0);
     m_events = new MgCore::Events();
     m_clock = new MgCore::FpsTimer();
+    m_running = true;
 
     m_window->make_current(m_context);
 
