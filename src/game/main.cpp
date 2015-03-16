@@ -54,6 +54,10 @@ int main()
 
     std::streamsize ss = std::cout.precision();
 
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
     MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "../data/shaders/main.vs"};
     MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "../data/shaders/main.fs"};
 
@@ -61,15 +65,39 @@ int main()
     MgCore::Shader fragShader(fragInfo);
 
     MgCore::ShaderProgram program(&vertShader, &fragShader);
+    program.use();
+
+    static const GLfloat vertData[] = {
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+    };
+
+    GLuint vertLoc = program.vertex_attribute("position");
+
+    glClearColor(0.5, 0.5, 0.5, 1.0);
+
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertData), vertData, GL_STATIC_DRAW);
 
     while (running) {
-        //std::cout << "cow";
         fpsTime += tim.tick();
         eve.process();
-        glClearColor(0.5, 0.5, 0.5, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //glEnable(GL_BLEND);
-        //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        program.use();
+
+        glEnableVertexAttribArray(vertLoc);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glVertexAttribPointer( vertLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
+         
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        glDisableVertexAttribArray(vertLoc);
+
         win.flip();
         if (fpsTime >= 2.0) {
             std::cout.precision (5);
@@ -80,7 +108,8 @@ int main()
 
     }
 
-
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
 
     win.make_current(nullptr);
     return 0;
