@@ -27,7 +27,7 @@ namespace MgCore
         {
             LARGE_INTEGER startingTime;
             QueryPerformanceCounter(&startingTime);
-            return startingTime.QuadPart / m_frequency.QuadPart;
+            return startingTime.QuadPart / static_cast<double>(m_frequency.QuadPart);
         }
 
 #elif defined(PLATFORM_LINUX)
