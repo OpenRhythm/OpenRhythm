@@ -47,7 +47,7 @@ namespace MgCore
             basePath = path;
             free (path);
 #else
-            char buff[PATH_MAX];
+            char buff[8192];
             ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
             if (len != -1) 
             {
