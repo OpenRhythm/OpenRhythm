@@ -57,6 +57,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/files.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSArchiveLoader.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSBase.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs/VFSDefines.h

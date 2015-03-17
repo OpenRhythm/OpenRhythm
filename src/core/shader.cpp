@@ -9,8 +9,9 @@ namespace MgCore
 	{
 		GLint status;
 		shader = glCreateShader(info.type);
-		std::string data {read_file(info.path)};
+		std::string data {vfs_read_file(info.path)};
 		const char *c_str = data.c_str();
+
 		glShaderSource(shader, 1, &c_str, nullptr);
 		glCompileShader(shader);
 

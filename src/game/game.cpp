@@ -8,6 +8,9 @@
 #include "timing.hpp"
 #include "shader.hpp"
 #include "game.hpp"
+#include "vfs.hpp"
+
+ttvfs::Root VFS;
 
 GameManager::GameManager()
 {
@@ -19,6 +22,11 @@ GameManager::GameManager()
     m_running = true;
 
     m_window->make_current(m_context);
+
+    VFS.AddLoader(new ttvfs::DiskLoader);
+    VFS.AddArchiveLoader(new ttvfs::VFSZipArchiveLoader);
+
+    VFS.Mount( "../data", "" );
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
@@ -39,8 +47,8 @@ GameManager::GameManager()
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
-    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "../data/shaders/main.vs"};
-    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "../data/shaders/main.fs"};
+    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "shaders/main.vs"};
+    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "shaders/main.fs"};
 
     MgCore::Shader vertShader(vertInfo);
     MgCore::Shader fragShader(fragInfo);
