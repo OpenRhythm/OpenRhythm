@@ -20,7 +20,7 @@ namespace MgCore
         double m_previousTime;
         double m_delta;
         double m_fpsTime;
-        float m_fps;
+        double m_fps;
 
 #if defined(PLATFORM_WINDOWS)
         LARGE_INTEGER m_frequency;
