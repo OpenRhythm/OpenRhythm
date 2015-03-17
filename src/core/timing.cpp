@@ -38,7 +38,7 @@ namespace MgCore
         return m_delta;
     }
 
-    float FpsTimer::get_fps()
+    double FpsTimer::get_fps()
     {
         if (m_fpsTime == 0) {
             m_fpsTime += 1;

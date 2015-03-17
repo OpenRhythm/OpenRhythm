@@ -60,6 +60,6 @@ namespace MgCore
         FpsTimer();
         ~FpsTimer();
         double tick();
-        float get_fps();
+        double get_fps();
     };
 }
