@@ -33,10 +33,12 @@ find_package(SDL2 REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(PNG REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIRS})
+include_directories(${PNG_INCLUDE_DIR})
 
 include_directories(${PROJECT_SOURCE_DIR}/src/core)
 include_directories(${PROJECT_SOURCE_DIR}/src/engine)
@@ -146,6 +148,11 @@ set(ttvfs_zip_SRC
 )
 source_group("extern\\ttvfs_zip" FILES ${ttvfs_zip_SRC})
 
+
+include_directories(${PROJECT_SOURCE_DIR}/extern/png++)
+
+source_group("extern\\png++" FILES ${PNGPP_SRC})
+
 set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${ttvfs_SRC} ${ttvfs_zip_SRC} ${GL})
 
 add_executable(musicgame ${SOURCE})
@@ -164,4 +171,4 @@ if(OSX_APP_BUNDLE)
     set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
 
-target_link_libraries(musicgame ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${ADDITIONAL_LIBS})
+target_link_libraries(musicgame ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${PNG_LIBRARY})
