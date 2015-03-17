@@ -18,6 +18,8 @@ static std::string homePath;
 static std::string appPath;
 #endif
 
+ttvfs::Root VFS;
+
 namespace MgCore
 {
     std::string GetBasePath() // executable path

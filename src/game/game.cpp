@@ -5,9 +5,6 @@
 #include "vfs.hpp"
 #include "game.hpp"
 
-
-ttvfs::Root VFS;
-
 GameManager::GameManager()
 {
     m_width = 800;
