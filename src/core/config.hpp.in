@@ -8,11 +8,11 @@
 #define PLATFORM ${PLATFORM}
 
 #if PLATFORM==PL_WINDOWS
-	#define PLATFORM_WINDOWS
+    #define PLATFORM_WINDOWS
 #elif PLATFORM==PL_LINUX
-	#define PLATFORM_LINUX
+    #define PLATFORM_LINUX
 #elif PLATFORM==PL_OSX
-	#define PLATFORM_OSX
+    #define PLATFORM_OSX
 #endif
 
 

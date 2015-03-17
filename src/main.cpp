@@ -2,7 +2,7 @@
 
 int main()
 {
-	GameManager game;
-	game.start();
-	return 0;
+    GameManager game;
+    game.start();
+    return 0;
 }
