@@ -144,6 +144,16 @@ set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${ttvf
 
 add_executable(musicgame ${SOURCE})
 
+set(BINARY_DATA_DIR ${CMAKE_BINARY_DIR}/data)
+set(SOURCE_DATA_DIR ${CMAKE_SOURCE_DIR}/data)
+
+add_custom_command(TARGET musicgame PRE_BUILD
+                  COMMAND ${CMAKE_COMMAND} -E make_directory
+                  ${BINARY_DATA_DIR})
+add_custom_command(TARGET musicgame PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${SOURCE_DATA_DIR} $<TARGET_FILE_DIR:musicgame>/data/)
+
 if(NOT DEFINED ENV{NO_APP})
     if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
         set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
