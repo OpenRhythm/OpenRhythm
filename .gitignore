@@ -37,7 +37,7 @@ build/
 src/config.hpp
 
 # ignore most of the extern folder
-extern/
+extern/*
 !extern/ttvfs
 !extern/readme.txt
 
