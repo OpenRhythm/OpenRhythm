@@ -14,7 +14,7 @@
 
 static std::string basePath;
 static std::string homePath;
-#ifdef PLATFORM_OSX
+#ifdef OSX_APP_BUNDLE
 static std::string appPath;
 #endif
 
