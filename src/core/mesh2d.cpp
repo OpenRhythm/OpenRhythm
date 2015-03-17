@@ -6,19 +6,19 @@ namespace MgCore
 	Mesh2D::Mesh2D(ShaderProgram *program)
 	: m_program(program)
 	{
+        m_vertData[0] = 0.0f;
+        m_vertData[1] = 1.0f;
+        m_vertData[2] = 1.0f;
+        m_vertData[3] = 1.0f;
+        m_vertData[4] = 0.0f;
+        m_vertData[5] = 0.0f;
+        m_vertData[6] = 1.0f;
+        m_vertData[7] = 0.0f;
 		init_gl();
 		m_xScale = 0.0f;
 		m_yScale = 0.0f;
 		m_xPos = 0.0f;
 		m_yPos = 0.0f;
-		m_vertData[0] = 0.0f;
-		m_vertData[1] = 1.0f;
-		m_vertData[2] = 1.0f;
-		m_vertData[3] = 1.0f;
-		m_vertData[4] = 0.0f;
-		m_vertData[5] = 0.0f;
-		m_vertData[6] = 1.0f;
-		m_vertData[7] = 0.0f;
 	}
 
 	Mesh2D::~Mesh2D()
