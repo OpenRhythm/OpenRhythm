@@ -1,7 +1,7 @@
 #include "gl.hpp"
 #include "shader.hpp"
 #include "glm/glm.hpp"
-#include "glm/ext.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 namespace MgCore
 {

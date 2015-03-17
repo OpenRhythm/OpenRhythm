@@ -10,7 +10,6 @@
 #include "mesh2d.hpp"
 #include "gl.hpp"
 #include "glm/glm.hpp"
-#include "glm/ext.hpp"
 
 
 class GameManager
