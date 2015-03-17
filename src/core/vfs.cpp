@@ -2,6 +2,8 @@
 #include "vfs.hpp"
 #include <iostream>
 #include <fstream>
+//#include <streambuf>
+#include <sstream>
 
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
@@ -20,6 +22,13 @@ static std::string appPath;
 #endif
 
 ttvfs::Root VFS;
+
+struct membuf : std::streambuf
+{
+    membuf(char* begin, char* end) {
+        this->setg(begin, begin, end);
+    }
+};
 
 namespace MgCore
 {
@@ -53,6 +62,13 @@ namespace MgCore
         }
     }
     
+    std::istream getFileStream (std::string filename)
+    {
+            std::stringbuf contents( read_file( filename ) );
+            std::istream stream( &contents );
+            return std::move(stream);
+    }
+
     std::string GetBasePath() // executable path
     {
         if ( basePath.empty() )
