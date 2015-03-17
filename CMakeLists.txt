@@ -128,7 +128,7 @@ set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.h
 source_group("src\\gl" FILES ${GL})
 
 
-set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GL})
+set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${GL})
 
 add_executable(musicgame ${SOURCE})
 

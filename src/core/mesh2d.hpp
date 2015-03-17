@@ -19,12 +19,7 @@ namespace MgCore
 	    float m_yScale;
 	    float m_xPos;
 	    float m_yPos;
-	    const GLfloat m_vertData[8] = {
-			0.0f, 1.0f,
-			1.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-		};
+	    GLfloat m_vertData[8];
 
 	public:
 		Mesh2D(ShaderProgram *program);
