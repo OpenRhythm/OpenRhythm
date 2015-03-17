@@ -8,6 +8,7 @@
 #include <mach-o/dyld.h>
 #else
 #include <unistd.h>
+#include <linux/limits.h>
 #endif
 
 std::string basePath;
@@ -47,7 +48,7 @@ namespace MgCore
             basePath = path;
             free (path);
 #else
-            char buff[8192];
+            char buff[PATH_MAX];
             ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
             if (len != -1) 
             {
