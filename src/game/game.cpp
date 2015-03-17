@@ -24,6 +24,8 @@ GameManager::GameManager()
     VFS.AddLoader(new ttvfs::DiskLoader);
     VFS.AddArchiveLoader(new ttvfs::VFSZipArchiveLoader);
 
+    // mount base path so all other mounts are relative to executable path
+    VFS.Mount( MgCore::GetBasePath().c_str(), "" );
     VFS.Mount( "../data", "" );
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)

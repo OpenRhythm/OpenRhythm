@@ -38,7 +38,6 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIRS})
 
-include_directories(${PROJECT_SOURCE_DIR}/src/core/vfs)
 include_directories(${PROJECT_SOURCE_DIR}/src/core)
 include_directories(${PROJECT_SOURCE_DIR}/src/engine)
 include_directories(${PROJECT_SOURCE_DIR}/src/game)
@@ -58,7 +57,8 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/files.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp)
 
 set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
@@ -67,7 +67,8 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/files.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp)
 
 if(INC_PATH)
     string(REPLACE ":" ";" _INC_PATH ${INC_PATH})

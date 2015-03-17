@@ -31,3 +31,15 @@
 //
  
 extern ttvfs::Root VFS;
+
+// Utility functions for finding paths
+namespace MgCore
+{
+    void SetBasePath( std::string newPath ); // set basePath
+    std::string GetBasePath(); // executable path
+    std::string GetHomePath(); // home/library path to store configs
+
+#ifdef PLATFORM_OSX
+    std::string GetAppPath(); // OSX get internal app path
+#endif
+}
