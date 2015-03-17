@@ -57,6 +57,12 @@ namespace MgCore
                 m_event.event.quit = event;
 
                 eventProcessed = true;
+            } else if (sdlevent.type == SDL_MOUSEMOTION) {
+                MouseMoveEvent event {sdlevent.motion.x, sdlevent.motion.y};
+                m_event.type = EventType::MouseMove;
+                m_event.time = 0.0;                    // not used currently
+                m_event.event.mouseMove = event;
+                eventProcessed = true;
             } else if (sdlevent.type == SDL_WINDOWEVENT) {
                 const SDL_WindowEvent winEvent = sdlevent.window;
                 if (winEvent.event == SDL_WINDOWEVENT_CLOSE) {

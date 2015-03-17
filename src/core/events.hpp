@@ -38,11 +38,8 @@ namespace MgCore
 
     struct MouseMoveEvent
     {
-        float x;
-        float y;
-
-        float dx;
-        float dy;
+        int x;
+        int y;
     };
 
     struct WindowSizeEvent

@@ -23,6 +23,9 @@ private:
     bool m_fullscreen;
     std::string m_title;
 
+    int m_mouseX = 0;
+    int m_mouseY = 0;
+
     MgCore::Window *m_window;
     MgCore::Context *m_context;
     MgCore::Events *m_events;

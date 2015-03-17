@@ -33,7 +33,7 @@ GameManager::GameManager()
 
     
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);
-    m_lis.mask = MgCore::EventType::Quit | MgCore::EventType::WindowSized;
+    m_lis.mask = MgCore::EventType::Quit | MgCore::EventType::WindowSized | MgCore::EventType::MouseMove;
 
 
     m_events->add_listener(m_lis);
@@ -57,7 +57,7 @@ GameManager::GameManager()
 
     m_mesh = new MgCore::Mesh2D(m_program);
     m_mesh->scale(32.0f, 32.0f);
-    m_mesh->translate(10.0f, 10.0f);
+    m_mesh->translate(0.0f, 0.0f);
 
     m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
 
@@ -117,6 +117,11 @@ bool GameManager::event_handler(MgCore::Event &event)
     switch(type) {
         case MgCore::EventType::Quit:
             m_running = false;
+            break;
+        case MgCore::EventType::MouseMove:
+            m_mouseX = event.event.mouseMove.x;
+            m_mouseY = event.event.mouseMove.y;
+            m_mesh->translate(static_cast<float>(m_mouseX), static_cast<float>(m_mouseY));
             break;
         case MgCore::EventType::WindowSized:
             resize(event.event.windowSized.width, event.event.windowSized.height);
