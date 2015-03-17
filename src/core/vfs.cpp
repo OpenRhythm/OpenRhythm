@@ -56,37 +56,38 @@ namespace MgCore
             } else
                 basePath = "";
 #endif
+
             // remove executable name so we just have the path
             int pos = basePath.rfind( PATH_SEP );
 
             basePath = basePath.substr( 0, pos+1 );
-        }
-
-        std::string newString = basePath;
 
 #ifdef PLATFORM_OSX
-        // on osx we only want the path containing the app when checking BasePath
-        int pos = newString.rfind( "MacOS" );
+            appPath = basePath; // store full appPath
 
-        if ( pos != std::string::npos )
-        {
-            newString = newString.substr( 0, pos+1 );
-
-            pos = newString.rfind( "Contents" );
+            // on osx we only want the path containing the app when checking BasePath
+            pos = basePath.rfind( "MacOS" );
 
             if ( pos != std::string::npos )
             {
-                newString = newString.substr( 0, pos+1 );
+                basePath = basePath.substr( 0, pos+1 );
 
-                pos = newString.rfind( APP_NAME );
+                pos = basePath.rfind( "Contents" );
 
                 if ( pos != std::string::npos )
-                    newString = newString.substr( 0, pos );
-            }
-        }
-#endif
+                {
+                    basePath = basePath.substr( 0, pos+1 );
 
-        return newString;
+                    pos = basePath.rfind( APP_NAME );
+
+                    if ( pos != std::string::npos )
+                        basePath = basePath.substr( 0, pos );
+                }
+            }
+#endif
+        }
+
+        return basePath;
     }
 
     std::string GetHomePath() // home/library path to store configs
@@ -146,7 +147,7 @@ namespace MgCore
 #ifdef PLATFORM_OSX
     std::string GetAppPath() // OSX get internal app path
     {
-        return basePath;
+        return appPath;
     }
 #endif
 }

@@ -1,8 +1,10 @@
 #include <iostream>
 #include <functional>
 
-#include "game.hpp"
+#include "config.hpp"
 #include "vfs.hpp"
+#include "game.hpp"
+
 
 ttvfs::Root VFS;
 
@@ -24,8 +26,16 @@ GameManager::GameManager()
     VFS.AddLoader(new ttvfs::DiskLoader);
     VFS.AddArchiveLoader(new ttvfs::VFSZipArchiveLoader);
 
-    // mount base path so all other mounts are relative to executable path
+    //
+    // AppPath gets mounted on osx
+    // BasePath gets mounted and overwrites any files similar to those in AppPath (data)
+    // HomePath gets mounted and overwrites any files similar to those in BasePath (configs)
+#ifdef PLATFORM_OSX
+    VFS.Mount( MgCore::GetAppPath().c_str(), "" );
+#endif
     VFS.Mount( MgCore::GetBasePath().c_str(), "" );
+    VFS.Mount( MgCore::GetHomePath().c_str(), "" );
+
     VFS.Mount( "../data", "" );
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
