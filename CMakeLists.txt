@@ -44,6 +44,14 @@ include_directories(${PROJECT_SOURCE_DIR}/src/game)
 include_directories(${PROJECT_SOURCE_DIR}/src/gl)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
+set(OSX_APP_BUNDLE 0)
+
+if(NOT DEFINED ENV{NO_APP})
+    if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+        set(OSX_APP_BUNDLE 1)
+    endif()
+endif()
+
 configure_file (
   "${PROJECT_SOURCE_DIR}/src/config.hpp.in"
   "${PROJECT_SOURCE_DIR}/src/config.hpp"
@@ -154,10 +162,8 @@ add_custom_command(TARGET musicgame PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${SOURCE_DATA_DIR} $<TARGET_FILE_DIR:musicgame>/data/)
 
-if(NOT DEFINED ENV{NO_APP})
-    if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-        set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
-    endif()
+if(OSX_APP_BUNDLE)
+    set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
 
 target_link_libraries(musicgame ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${ADDITIONAL_LIBS})

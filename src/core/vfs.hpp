@@ -39,7 +39,7 @@ namespace MgCore
     std::string GetBasePath(); // executable path
     std::string GetHomePath(); // home/library path to store configs
 
-#ifdef PLATFORM_OSX
+#if OSX_APP_BUNDLE
     std::string GetAppPath(); // OSX get internal app path
 #endif
 }

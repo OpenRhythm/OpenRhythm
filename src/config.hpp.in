@@ -7,6 +7,8 @@
 
 #define PLATFORM ${PLATFORM}
 
+#define OSX_APP_BUNDLE ${OSX_APP_BUNDLE}
+
 #if PLATFORM==PL_WINDOWS
     #define PLATFORM_WINDOWS
     #define PATH_SEP '\\'

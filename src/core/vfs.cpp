@@ -1,5 +1,6 @@
 #include "config.hpp"
 #include "vfs.hpp"
+#include <iostream>
 
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
@@ -11,10 +12,10 @@
 #include <linux/limits.h>
 #endif
 
-std::string basePath;
-std::string homePath;
+static std::string basePath;
+static std::string homePath;
 #ifdef PLATFORM_OSX
-std::string appPath;
+static std::string appPath;
 #endif
 
 namespace MgCore
@@ -23,31 +24,24 @@ namespace MgCore
     {
         if ( basePath.empty() )
         {
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS)
             char buffer[MAX_PATH];//always use MAX_PATH for filepaths
             GetModuleFileName( NULL, buffer, sizeof(buffer) );
 
             basePath = buffer;
-#elif defined(PLATFORM_OSX)
-            char *path;
-            uint32_t size = 8192;
 
-            path = (char *)malloc( size );
+#elif defined(PLATFORM_OSX)
+            char path[8192];
+            uint32_t size = sizeof(path);
 
             if ( _NSGetExecutablePath( path, &size ) < 0 )
             {
-                free( path );
-                path = (char *)malloc( size );
-                if ( _NSGetExecutablePath( path, &size ) < 0 )
-                {
-                    free ( path );
-                    return "";
-                }
+                return "";
             }
 
             basePath = path;
-            free (path);
-#else
+
+#elif defined(PLATFORM_LINUX)
             char buff[PATH_MAX];
             ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
             if (len != -1) 
@@ -63,7 +57,7 @@ namespace MgCore
 
             basePath = basePath.substr( 0, pos+1 );
 
-#ifdef PLATFORM_OSX
+#if OSX_APP_BUNDLE
             appPath = basePath; // store full appPath
 
             // on osx we only want the path containing the app when checking BasePath
@@ -88,12 +82,14 @@ namespace MgCore
 #endif
         }
 
+        std::cout << basePath << std::endl;
+
         return basePath;
     }
 
     std::string GetHomePath() // home/library path to store configs
     {
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS)
         TCHAR szPath[MAX_PATH];
         FARPROC qSHGetFolderPath;
         HMODULE shfolder = LoadLibrary("shfolder.dll");
@@ -134,7 +130,7 @@ namespace MgCore
                 homePath = p ;
                 homePath += PATH_SEP ;
 
-#ifdef PLATFORM_OSX
+#if defined(PLATFORM_OSX)
                 homePath += "Library/Application Support/";
 #endif
 
@@ -145,7 +141,7 @@ namespace MgCore
         return homePath;
     }
 
-#ifdef PLATFORM_OSX
+#if OSX_APP_BUNDLE
     std::string GetAppPath() // OSX get internal app path
     {
         return appPath;

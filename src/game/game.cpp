@@ -30,7 +30,8 @@ GameManager::GameManager()
     // AppPath gets mounted on osx
     // BasePath gets mounted and overwrites any files similar to those in AppPath (data)
     // HomePath gets mounted and overwrites any files similar to those in BasePath (configs)
-#ifdef PLATFORM_OSX
+    // std::cout << MgCore::GetBasePath() << std::endl;
+#if OSX_APP_BUNDLE
     VFS.Mount( MgCore::GetAppPath().c_str(), "" );
 #endif
     VFS.Mount( MgCore::GetBasePath().c_str(), "" );
