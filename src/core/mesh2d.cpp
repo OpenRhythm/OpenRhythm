@@ -37,7 +37,7 @@ namespace MgCore
     void Mesh2D::render()
     {
         m_program->set_uniform(m_modelAttr, m_modelMatrix);
-    	m_texture->bind();
+        m_texture->bind();
         glEnableVertexAttribArray(m_vertLoc);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
