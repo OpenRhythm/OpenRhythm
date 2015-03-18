@@ -13,13 +13,13 @@ GameManager::GameManager()
     m_fullscreen = false;
     m_title = "Game";
 
-    m_window = new MgCore::Window(m_width, m_height, m_fullscreen, m_title);
-    m_context = new MgCore::Context(3, 2, 0);
-    m_events = new MgCore::Events();
-    m_clock = new MgCore::FpsTimer();
+    m_window = std::unique_ptr<MgCore::Window>(new MgCore::Window(m_width, m_height, m_fullscreen, m_title));
+    m_context = std::unique_ptr<MgCore::Context>(new MgCore::Context(3, 2, 0));
+    m_events = std::unique_ptr<MgCore::Events>(new MgCore::Events());
+    m_clock = std::unique_ptr<MgCore::FpsTimer>(new MgCore::FpsTimer());
     m_running = true;
 
-    m_window->make_current(m_context);
+    m_window->make_current(m_context.get());
 
     VFS.AddLoader(new ttvfs::DiskLoader);
     VFS.AddArchiveLoader(new ttvfs::VFSZipArchiveLoader);
@@ -64,11 +64,11 @@ GameManager::GameManager()
     MgCore::Shader vertShader(vertInfo);
     MgCore::Shader fragShader(fragInfo);
 
-    m_program = new MgCore::ShaderProgram(&vertShader, &fragShader);
+    m_program = std::unique_ptr<MgCore::ShaderProgram>(new MgCore::ShaderProgram(&vertShader, &fragShader));
     m_program->use();
     m_orthoID = m_program->uniform_attribute("ortho");
 
-    m_mesh = new MgCore::Mesh2D(m_program);
+    m_mesh = std::unique_ptr<MgCore::Mesh2D>(new MgCore::Mesh2D(m_program.get()));
     m_mesh->scale(32.0f, 32.0f);
     m_mesh->translate(0.0f, 0.0f);
 
@@ -84,12 +84,6 @@ GameManager::~GameManager()
 
     glDeleteVertexArrays(1, &m_vao);
     m_window->make_current(nullptr);
-    delete m_mesh;
-    delete m_window;
-    delete m_context;
-    delete m_events;
-    delete m_clock;
-    delete m_program;
 
 }
 

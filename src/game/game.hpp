@@ -1,6 +1,7 @@
 #pragma once
 #include <ios>
 #include <string>
+#include <memory>
 #include "window.hpp"
 #include "context.hpp"
 #include "events.hpp"
@@ -25,13 +26,13 @@ private:
     int m_mouseX = 0;
     int m_mouseY = 0;
 
-    MgCore::Window *m_window;
-    MgCore::Context *m_context;
-    MgCore::Events *m_events;
-    MgCore::FpsTimer *m_clock;
-    MgCore::ShaderProgram *m_program;
+    std::unique_ptr<MgCore::Window> m_window;
+    std::unique_ptr<MgCore::Context> m_context;
+    std::unique_ptr<MgCore::Events> m_events;
+    std::unique_ptr<MgCore::FpsTimer> m_clock;
+    std::unique_ptr<MgCore::ShaderProgram> m_program;
+    std::unique_ptr<MgCore::Mesh2D> m_mesh;
     MgCore::Listener m_lis;
-    MgCore::Mesh2D *m_mesh;
 
     GLuint m_vao;
     std::streamsize m_ss;
