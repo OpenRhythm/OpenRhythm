@@ -1,3 +1,6 @@
 [submodule "extern/ttvfs"]
 	path = extern/ttvfs
 	url = https://github.com/fgenesis/ttvfs.git
+[submodule "extern/png++"]
+	path = extern/png++
+	url = https://github.com/mecwerks/png-plusplus
