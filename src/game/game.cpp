@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include "vfs.hpp"
 #include "game.hpp"
+#include "image.hpp"
 
 GameManager::GameManager()
 {
@@ -35,12 +36,14 @@ GameManager::GameManager()
     VFS.Mount( MgCore::GetHomePath().c_str(), "" );
 
     VFS.Mount( "data", "" );
+    MgCore::Image imgIcon = MgCore::loadPNG("icon.png");
+
+    std::cout << +imgIcon.pixelData[1] << std::endl;
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
         std::cout << "Error: glLoadGen failed to load.";
     }
-
     
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);
     m_lis.mask = MgCore::EventType::Quit | MgCore::EventType::WindowSized | MgCore::EventType::MouseMove;
