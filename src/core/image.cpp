@@ -1,10 +1,8 @@
 #include <string>
-#include <iostream>
+#include <sstream>
+#include <utility>
 #include "image.hpp"
 #include "vfs.hpp"
-#include <sstream>
-#include <vector>
-#include <utility>
 #include "png.hpp"
 
 namespace MgCore
