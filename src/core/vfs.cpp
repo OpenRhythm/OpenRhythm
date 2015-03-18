@@ -131,8 +131,6 @@ namespace MgCore
 #endif
         }
 
-        std::cout << basePath << std::endl;
-
         return basePath;
     }
 
