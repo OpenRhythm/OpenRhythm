@@ -2,6 +2,10 @@
 #include <ios>
 #include <string>
 #include <memory>
+
+#include "gl.hpp"
+#include "glm/glm.hpp"
+
 #include "window.hpp"
 #include "context.hpp"
 #include "events.hpp"
@@ -9,8 +13,7 @@
 #include "timing.hpp"
 #include "shader.hpp"
 #include "mesh2d.hpp"
-#include "gl.hpp"
-#include "glm/glm.hpp"
+#include "texture.hpp"
 
 
 class GameManager
@@ -32,6 +35,7 @@ private:
     std::unique_ptr<MgCore::FpsTimer> m_clock;
     std::unique_ptr<MgCore::ShaderProgram> m_program;
     std::unique_ptr<MgCore::Mesh2D> m_mesh;
+    std::unique_ptr<MgCore::Texture> m_texture;
     MgCore::Listener m_lis;
 
     GLuint m_vao;

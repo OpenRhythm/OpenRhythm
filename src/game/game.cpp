@@ -4,7 +4,6 @@
 #include "config.hpp"
 #include "vfs.hpp"
 #include "game.hpp"
-#include "image.hpp"
 
 GameManager::GameManager()
 {
@@ -36,9 +35,6 @@ GameManager::GameManager()
     VFS.Mount( MgCore::GetHomePath().c_str(), "" );
 
     VFS.Mount( "data", "" );
-    MgCore::Image imgIcon = MgCore::loadPNG("icon.png");
-
-    std::cout << +imgIcon.pixelData[1] << std::endl;
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
@@ -68,7 +64,8 @@ GameManager::GameManager()
     m_program->use();
     m_orthoID = m_program->uniform_attribute("ortho");
 
-    m_mesh = std::unique_ptr<MgCore::Mesh2D>(new MgCore::Mesh2D(m_program.get()));
+    m_texture = std::unique_ptr<MgCore::Texture>(new MgCore::Texture("icon.png", m_program.get()));
+    m_mesh = std::unique_ptr<MgCore::Mesh2D>(new MgCore::Mesh2D(m_program.get(), m_texture.get()));
     m_mesh->scale(32.0f, 32.0f);
     m_mesh->translate(0.0f, 0.0f);
 

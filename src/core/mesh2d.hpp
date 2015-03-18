@@ -1,5 +1,6 @@
 #include "gl.hpp"
 #include "shader.hpp"
+#include "texture.hpp"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -9,9 +10,12 @@ namespace MgCore
     {
     private:
         ShaderProgram *m_program;
+        Texture *m_texture;
         GLuint m_vbo;
+        GLuint m_uvbo;
         GLuint m_vertLoc;
         GLuint m_modelAttr;
+        GLuint m_uvLoc;
         glm::mat4 m_modelMatrix;
         glm::vec3 m_vecTrans;
         glm::vec3 m_vecScale;
@@ -22,7 +26,7 @@ namespace MgCore
         GLfloat m_vertData[8];
 
     public:
-        Mesh2D(ShaderProgram *program);
+        Mesh2D(ShaderProgram *program, Texture *texture);
         ~Mesh2D();
         void render();
         void update();
