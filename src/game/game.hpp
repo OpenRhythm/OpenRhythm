@@ -34,7 +34,8 @@ private:
     std::unique_ptr<MgCore::Events> m_events;
     std::unique_ptr<MgCore::FpsTimer> m_clock;
     std::unique_ptr<MgCore::ShaderProgram> m_program;
-    std::unique_ptr<MgCore::Mesh2D> m_mesh;
+    typedef std::unique_ptr<MgCore::Mesh2D> MeshPtr;
+    std::vector<MeshPtr> m_meshes;
     std::unique_ptr<MgCore::Texture> m_texture;
     MgCore::Listener m_lis;
 

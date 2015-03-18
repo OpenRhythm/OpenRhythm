@@ -1,5 +1,6 @@
 #include <iostream>
 #include <functional>
+#include <utility>
 
 #include "config.hpp"
 #include "vfs.hpp"
@@ -65,9 +66,18 @@ GameManager::GameManager()
     m_orthoID = m_program->uniform_attribute("ortho");
 
     m_texture = std::unique_ptr<MgCore::Texture>(new MgCore::Texture("icon.png", m_program.get()));
-    m_mesh = std::unique_ptr<MgCore::Mesh2D>(new MgCore::Mesh2D(m_program.get(), m_texture.get()));
-    m_mesh->scale(32.0f, 32.0f);
-    m_mesh->translate(0.0f, 0.0f);
+
+    std::cout << (m_width / 37) * (m_height / 37) << std::endl;
+
+    for (int x = 0; x < (m_width / 37); x++) {
+        for (int y = 0; y < (m_height / 37); y++) {
+            MeshPtr mesh = std::unique_ptr<MgCore::Mesh2D>(new MgCore::Mesh2D(m_program.get(), m_texture.get()));
+            mesh->scale(32.0f, 32.0f);
+            mesh->translate(x * 37.0f, y * 37.0f);
+            m_meshes.push_back(std::move(mesh));
+        }
+    }
+
 
     m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
 
@@ -125,7 +135,7 @@ bool GameManager::event_handler(MgCore::Event &event)
         case MgCore::EventType::MouseMove:
             m_mouseX = event.event.mouseMove.x;
             m_mouseY = event.event.mouseMove.y;
-            m_mesh->translate(static_cast<float>(m_mouseX), static_cast<float>(m_mouseY));
+            //m_mesh->translate(static_cast<float>(m_mouseX), static_cast<float>(m_mouseY));
             break;
         case MgCore::EventType::WindowSized:
             resize(event.event.windowSized.width, event.event.windowSized.height);
@@ -140,16 +150,19 @@ bool GameManager::event_handler(MgCore::Event &event)
 
 void GameManager::update()
 {
-    m_mesh->update();
+    for (auto& mesh : m_meshes) {
+        mesh->update();
+    }
 
 }
 
 void GameManager::render()
 {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_program->use();
-        m_mesh->render();
-
+    m_program->use();
+    for (auto& mesh : m_meshes) {
+        mesh->render();
+    }
 
 }
