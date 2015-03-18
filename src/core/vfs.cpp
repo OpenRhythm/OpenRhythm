@@ -62,11 +62,11 @@ namespace MgCore
         }
     }
     
-    std::istream getFileStream (std::string filename)
+    bool getFileStream(std::string filename, std::istream &stream)
     {
             std::stringbuf contents( read_file( filename ) );
-            std::istream stream( &contents );
-            return std::move(stream);
+            stream.rdbuf( &contents );
+            return stream.good();
     }
 
     std::string GetBasePath() // executable path

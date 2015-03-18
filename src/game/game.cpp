@@ -34,7 +34,7 @@ GameManager::GameManager()
     VFS.Mount( MgCore::GetBasePath().c_str(), "" );
     VFS.Mount( MgCore::GetHomePath().c_str(), "" );
 
-    VFS.Mount( "../data", "" );
+    VFS.Mount( "data", "" );
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
