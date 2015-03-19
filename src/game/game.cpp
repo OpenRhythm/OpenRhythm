@@ -61,17 +61,17 @@ GameManager::GameManager()
     MgCore::Shader vertShader(vertInfo);
     MgCore::Shader fragShader(fragInfo);
 
-    m_program = std::unique_ptr<MgCore::ShaderProgram>(new MgCore::ShaderProgram(&vertShader, &fragShader));
+    m_program = std::make_unique<MgCore::ShaderProgram>(&vertShader, &fragShader);
     m_program->use();
     m_orthoID = m_program->uniform_attribute("ortho");
 
-    m_texture = std::unique_ptr<MgCore::Texture>(new MgCore::Texture("icon.png", m_program.get()));
+    m_texture = std::make_unique<MgCore::Texture>("icon.png", m_program.get());
 
     std::cout << (m_width / 37) * (m_height / 37) << std::endl;
 
     for (int x = 0; x < (m_width / 37); x++) {
         for (int y = 0; y < (m_height / 37); y++) {
-            MeshPtr mesh = std::unique_ptr<MgCore::Mesh2D>(new MgCore::Mesh2D(m_program.get(), m_texture.get()));
+            MeshPtr mesh = std::make_unique<MgCore::Mesh2D>(m_program.get(), m_texture.get());
             mesh->scale(32.0f, 32.0f);
             mesh->translate(x * 37.0f, y * 37.0f);
             m_meshes.push_back(std::move(mesh));
@@ -139,7 +139,7 @@ void GameManager::resize(int width, int height)
         for (int x = 0; x < (m_width/37); x++) {
             i = (y * (m_width/37) + x);
             if (i >= size) {
-                MeshPtr mesh = std::unique_ptr<MgCore::Mesh2D>(new MgCore::Mesh2D(m_program.get(), m_texture.get()));
+                MeshPtr mesh = std::make_unique<MgCore::Mesh2D>(m_program.get(), m_texture.get());
                 m_meshes[i] = std::move(mesh);
             }
             m_meshes[i]->scale(32.0f, 32.0f);
