@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE)
+
 project(musicgame)
 
 set(PL_WINDOWS 1)
@@ -10,11 +11,14 @@ set(PLATFORM 0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
+set(STATIC_LIB_EXT ".a")
+
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "Building for Windows.")
     set(ENV{SDL2DIR} "${PROJECT_SOURCE_DIR}/extern/sdl2")
     set(ENV{FREETYPE_DIR} "${PROJECT_SOURCE_DIR}/extern/freetype")
     set(ENV{GLM_ROOT_DIR} "${PROJECT_SOURCE_DIR}/extern/glm")
+    set(STATIC_LIB_EXT ".lib")
     set(PLATFORM PL_WINDOWS)
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -102,56 +106,9 @@ set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.h
 
 source_group("src\\gl" FILES ${GL})
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs)
-set(ttvfs_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/ttvfs.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSArchiveLoader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSBase.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSBase.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSDebug.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSDebug.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSDefines.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSDir.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSDir.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSDirInternal.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSDirInternal.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSDirView.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSDirView.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSFile.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSFileFuncs.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSFileFuncs.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSInternal.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSLoader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSLoader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSRefcounted.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSRoot.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSRoot.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSSystemPaths.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSSystemPaths.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSTools.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs/VFSTools.h
-)
-source_group("extern\\ttvfs" FILES ${ttvfs_SRC})
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip)
-set(ttvfs_zip_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/VFSDirZip.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/VFSDirZip.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/VFSFileZip.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/VFSFileZip.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/VFSZipArchiveLoader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/VFSZipArchiveLoader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/VFSZipArchiveRef.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/VFSZipArchiveRef.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/miniz.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/miniz.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/extern/ttvfs/ttvfs_zip/ttvfs_zip.h
-)
-source_group("extern\\ttvfs_zip" FILES ${ttvfs_zip_SRC})
-
-
-include_directories(${PROJECT_SOURCE_DIR}/extern/png++)
+include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs)
+include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs_zip)
+include_directories(${CMAKE_SOURCE_DIR}/extern/png++)
 
 source_group("extern\\png++" FILES ${PNGPP_SRC})
 
@@ -169,8 +126,22 @@ add_custom_command(TARGET musicgame PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${SOURCE_DATA_DIR} $<TARGET_FILE_DIR:musicgame>/data/)
 
+include(ExternalProject)
+ExternalProject_add(ttvfs
+    DOWNLOAD_COMMAND ""
+    CMAKE_ARGS CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DTTVFS_BUILD_CFILEAPI=FALSE
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/ttvfs
+    INSTALL_COMMAND "")
+
+add_dependencies(musicgame ttvfs)
+
 if(OSX_APP_BUNDLE)
     set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
 
-target_link_libraries(musicgame ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${PNG_LIBRARY})
+ExternalProject_Get_Property(ttvfs BINARY_DIR)
+set(ttvfs_libs
+    ${BINARY_DIR}/ttvfs/libttvfs${STATIC_LIB_EXT}
+    ${BINARY_DIR}/ttvfs_zip/libttvfs_zip${STATIC_LIB_EXT})
+
+target_link_libraries(musicgame ${ttvfs_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${PNG_LIBRARY})
