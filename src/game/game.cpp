@@ -166,6 +166,8 @@ bool GameManager::event_handler(MgCore::Event &event)
             //          << event.event.windowSized.height << " "
             //          << event.event.windowSized.id     << std::endl;
             break;
+        default:
+            break;
 
     }
     return true;
