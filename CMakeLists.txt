@@ -23,12 +23,12 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "Building for Linux.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
     set(PLATFORM PL_LINUX)
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     message(STATUS "Building for Mac OS X.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
     set(PLATFORM PL_OSX)
 
 endif()
