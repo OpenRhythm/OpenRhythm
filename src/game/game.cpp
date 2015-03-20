@@ -55,8 +55,8 @@ GameManager::GameManager()
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
-    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER_ARB, "shaders/main.vs"};
-    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER_ARB, "shaders/main.fs"};
+    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER_ARB, "shaders/main110.vs"};
+    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER_ARB, "shaders/main110.fs"};
 
     MgCore::Shader vertShader(vertInfo);
     MgCore::Shader fragShader(fragInfo);
