@@ -3,8 +3,6 @@
 attribute vec2 position;
 attribute vec2 vertexUV;
 
-//out vec2 UV;
-
 uniform mat4 ortho;
 uniform mat4 model;
 
