@@ -9,6 +9,7 @@
 namespace MgCore
 {
     static int _texCount = 0;
+    static GLuint _currentBoundtexture = 0;
 
     Image loadPNG(std::string filename)
     {
@@ -66,8 +67,14 @@ namespace MgCore
 
     void Texture::bind()
     {
-        glActiveTexture(GL_TEXTURE0+m_texUnitID);
-        glBindTexture(GL_TEXTURE_2D, m_texID);
-        m_program->set_uniform(m_texSampID, m_texUnitID);
+        if (_currentBoundtexture != m_texUnitID) {
+            _currentBoundtexture = m_texUnitID;
+
+            glActiveTexture(GL_TEXTURE0+m_texUnitID);
+            glBindTexture(GL_TEXTURE_2D, m_texID);
+            m_program->set_uniform(m_texSampID, m_texUnitID);
+            std::cout << "Texture bound" << std::endl;
+
+        }
     }
 }
