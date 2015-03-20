@@ -14,7 +14,7 @@ GameManager::GameManager()
     m_title = "Game";
 
     m_window = std::unique_ptr<MgCore::Window>(new MgCore::Window(m_width, m_height, m_fullscreen, m_title));
-    m_context = std::unique_ptr<MgCore::Context>(new MgCore::Context(3, 2, 0));
+    m_context = std::unique_ptr<MgCore::Context>(new MgCore::Context(1, 4, 0));
     m_events = std::unique_ptr<MgCore::Events>(new MgCore::Events());
     m_clock = std::unique_ptr<MgCore::FpsTimer>(new MgCore::FpsTimer());
     m_running = true;
@@ -55,8 +55,8 @@ GameManager::GameManager()
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
-    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "shaders/main.vs"};
-    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "shaders/main.fs"};
+    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER_ARB, "shaders/main.vs"};
+    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER_ARB, "shaders/main.fs"};
 
     MgCore::Shader vertShader(vertInfo);
     MgCore::Shader fragShader(fragInfo);

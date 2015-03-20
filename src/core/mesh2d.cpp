@@ -24,7 +24,7 @@ namespace MgCore
     Mesh2D::~Mesh2D()
     {
 
-        glDeleteBuffers(1, &m_vbo);
+        glDeleteBuffersARB(1, &m_vbo);
 
     }
 
@@ -38,19 +38,19 @@ namespace MgCore
     {
         m_program->set_uniform(m_modelAttr, m_modelMatrix);
         m_texture->bind();
-        glEnableVertexAttribArray(m_vertLoc);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
+        glEnableVertexAttribArrayARB(m_vertLoc);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
+        glVertexAttribPointerARB( m_vertLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
 
-        glEnableVertexAttribArray(m_uvLoc);
-        glBindBuffer(GL_ARRAY_BUFFER, m_uvbo);
-        glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
+        glEnableVertexAttribArrayARB(m_uvLoc);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_uvbo);
+        glVertexAttribPointerARB( m_uvLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDisableVertexAttribArray(m_uvLoc);
-        glDisableVertexAttribArray(m_vertLoc);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        glDisableVertexAttribArrayARB(m_uvLoc);
+        glDisableVertexAttribArrayARB(m_vertLoc);
 
     }
 
@@ -60,13 +60,13 @@ namespace MgCore
         m_uvLoc = m_program->vertex_attribute("vertexUV");
         m_modelAttr = m_program->uniform_attribute("model");
 
-        glGenBuffers(1, &m_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertData), m_vertData, GL_STATIC_DRAW);
+        glGenBuffersARB(1, &m_vbo);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(m_vertData), m_vertData, GL_STATIC_DRAW_ARB);
 
-        glGenBuffers(1, &m_uvbo);
-        glBindBuffer(GL_ARRAY_BUFFER, m_uvbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertData), m_vertData, GL_STATIC_DRAW);
+        glGenBuffersARB(1, &m_uvbo);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_uvbo);
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(m_vertData), m_vertData, GL_STATIC_DRAW_ARB);
     }
 
     void Mesh2D::scale(float x, float y)

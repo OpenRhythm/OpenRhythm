@@ -100,8 +100,8 @@ set(GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp)
 
 source_group("src\\game" FILES ${GAME_SOURCE} ${GAME_HEADERS})
 
-set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.h
-       ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.c
+set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_gl14shaderext.h
+       ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_gl14shaderext.c
        ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl.hpp)
 
 source_group("src\\gl" FILES ${GL})
