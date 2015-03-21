@@ -14,31 +14,28 @@ namespace MgCore
     static int _texCount = 0;
     static GLuint _currentBoundtexture = 0;
 
-    Image loadImage(std::string filename)
-    {
-        std::string mem_buf = MgCore::read_file( filename );
-        unsigned char *img_buf;
-        Image imgData;
-        int comp;
-
-        img_buf = stbi_load_from_memory( (unsigned char*)mem_buf.c_str(), mem_buf.size(), &imgData.width, &imgData.height, &comp, 0 );
-        imgData.length = imgData.width * imgData.height * 4;
-        std::unique_ptr<unsigned char[]> data(new unsigned char[imgData.length]());
-        imgData.pixelData = std::move(data);
-
-        for (int i; i < imgData.length; i++)
-            imgData.pixelData[i] = img_buf[i];
-
-        return imgData;
-    }
-
     Texture::Texture(std::string path, ShaderProgram *program)
     : m_path(path), m_program(program)
     {
+        std::string mem_buf = MgCore::read_file( m_path );
+        unsigned char *img_buf;
+        int width, height, comp;
+        int format;
+
+        img_buf = stbi_load_from_memory( (unsigned char*)mem_buf.c_str(), mem_buf.size(), &width, &height, &comp, 0 );
+
+        if ( img_buf == NULL )
+            std::cout << "Failed to get image data" << std::endl;
+
+        switch ( comp )
+        {
+            case 3: format = GL_RGB;
+            default:
+            case 4: format = GL_RGBA;
+        }
+
         _texCount++;
         m_texUnitID = _texCount;
-
-        m_image = MgCore::loadImage(m_path);
 
         m_texSampID = m_program->uniform_attribute("textureSampler");
 
@@ -49,9 +46,9 @@ namespace MgCore
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_image.width, m_image.height,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, &(m_image.pixelData.get())[0]);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, &img_buf);
 
+        stbi_image_free( img_buf );
     }
 
     void Texture::bind()
