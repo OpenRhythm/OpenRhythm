@@ -2,6 +2,7 @@
 #include "gl.hpp"
 #include "shader.hpp"
 #include <iostream>
+#include <memory>
 
 namespace MgCore
 {
@@ -19,8 +20,15 @@ namespace MgCore
 
         if (status != GL_TRUE) {
             std::cout << "The shader has failed to compile." << std::endl;
-            GLchar message[1024];
-            glGetInfoLogARB(shader, 1024, nullptr, message);
+            int logLength = 0;
+
+            glGetObjectParameterivARB(shader, GL_OBJECT_INFO_LOG_LENGTH_ARB , &logLength);
+
+            auto message = std::unique_ptr<GLchar[]>(new GLchar[logLength]);
+            glGetInfoLogARB(shader, 1024, nullptr, &message[0]);
+
+            std::cout << message.get() << std::endl;
+
         } else {
             std::cout << "Shader compiled sucessfully." << std::endl;
         }
@@ -47,9 +55,14 @@ namespace MgCore
 
         if (status != GL_TRUE) {
             std::cout << "The program has failed to link." << std::endl;
-            GLchar message[1024];
-            glGetInfoLogARB(m_program, 1024, nullptr, message);
-            std::cout << message << std::endl;
+            int logLength = 0;
+            glGetObjectParameterivARB(m_program, GL_OBJECT_INFO_LOG_LENGTH_ARB , &logLength);
+
+            auto message = std::unique_ptr<GLchar[]>(new GLchar[logLength]);
+            glGetInfoLogARB(m_program, 1024, nullptr, &message[0]);
+
+            std::cout << message.get() << std::endl;
+
         } else {
             std::cout << "Program linked sucessfully." << std::endl;
         }
