@@ -23,13 +23,6 @@ static std::string appPath;
 
 ttvfs::Root VFS;
 
-struct membuf : std::streambuf
-{
-    membuf(char* begin, char* end) {
-        this->setg(begin, begin, end);
-    }
-};
-
 namespace MgCore
 {
     std::string read_raw_file(std::string filename)
