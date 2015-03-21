@@ -2,15 +2,32 @@
 #include <sstream>
 #include <iostream>
 #include <utility>
-#include "texture.hpp"
+#include "gl.hpp"
 #include "vfs.hpp"
+#include "texture.hpp"
+
+#if USE_LIB_PNGCPP
 #include "png.hpp"
+#endif
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_STDIO
+//exclude image formats
+#define STBI_NO_PIC
+#define STBI_NO_PNM
+#define STBI_NO_PSD
+#define STBI_NO_GIF
+// This leaves us with the following supported image formats:
+// jpg  png  bmp  tga  hdr
+#include "stb_image.h"
 
 namespace MgCore
 {
     static int _texCount = 0;
     static GLuint _currentBoundtexture = 0;
 
+
+#if USE_LIB_PNGCPP
     Image loadPNG(std::string filename)
     {
         std::istringstream file(MgCore::read_file( filename ));
@@ -42,6 +59,60 @@ namespace MgCore
         }
         return imgData;
     }
+#endif
+
+    Image loadSTB(std::string filename)
+    {
+        std::string mem_buf = MgCore::read_file( filename );
+
+        Image imgData;
+
+        std::unique_ptr<unsigned char[]> conv_mem( new unsigned char[ mem_buf.size() ]() );
+
+        // to prevent potential issues convert each value seperately
+        // one could cast the int* to unsigned int* however this could have large issues there can be
+        // platform differances on how this is imeplemented.
+        for (int i = 0; i < mem_buf.size(); i++) {
+            conv_mem[i] = static_cast<unsigned int>(mem_buf[i]);
+        }
+
+        unsigned char *img_buf;
+        int comp;
+
+        img_buf = stbi_load_from_memory( &conv_mem[0], mem_buf.size(), &imgData.width, &imgData.height, &comp, 0 );
+
+        if ( img_buf == NULL )
+            std::cout << "Failed to get image data" << std::endl;
+
+
+        imgData.length = imgData.width * imgData.height * 4;
+        std::unique_ptr<unsigned char[]> data(new unsigned char[imgData.length]());
+        imgData.pixelData = std::move(data);
+
+        // We have to copy the data out of the returned data from stb. 
+        // This was an issue with the previous implementation where the data was destroyed before
+        // opengl could copy the data to the gpu. OpenGL may even require the image data to be persistant
+        // cpu side if not it may be a good idea to do so anyways.
+        int i, j;
+        // currently the main reason the loop is setup like this, is that it makes it a bit easier to convert RGB to RGBA.
+        for (int x = 0;x < imgData.width; x++) {
+            for (int y = 0; y < imgData.height; y++) {
+                i = 4 * (y * imgData.width + x);
+                j = comp * (y * imgData.width + x);
+                imgData.pixelData[i+0] = img_buf[j+0];
+                imgData.pixelData[i+1] = img_buf[j+1];
+                imgData.pixelData[i+2] = img_buf[j+2];
+                if (comp == 4) {
+                    imgData.pixelData[i+3] = img_buf[j+3];
+                } else {
+                    imgData.pixelData[i+3] = 255U;
+                }
+            }
+        }
+        stbi_image_free( img_buf );
+        return std::move(imgData);
+    }
+
 
     Texture::Texture(std::string path, ShaderProgram *program)
     : m_path(path), m_program(program)
@@ -49,7 +120,7 @@ namespace MgCore
         _texCount++;
         m_texUnitID = _texCount;
 
-        m_image = MgCore::loadPNG(m_path);
+        m_image = MgCore::loadSTB(m_path);
 
         m_texSampID = m_program->uniform_attribute("textureSampler");
 
@@ -60,9 +131,7 @@ namespace MgCore
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_image.width, m_image.height,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, &(m_image.pixelData.get())[0]);
-
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_image.width, m_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(m_image.pixelData.get())[0]);
     }
 
     void Texture::bind()

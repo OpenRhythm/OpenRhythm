@@ -1,6 +1,5 @@
 #pragma once
 #include "ttvfs.h"
-#include "ttvfs_zip.h"
 
 //
 // To add archive to VFS:

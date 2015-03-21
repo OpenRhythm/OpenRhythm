@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
-#include "gl.hpp"
+#include "config.hpp"
 #include "shader.hpp"
 
 namespace MgCore
@@ -16,8 +16,10 @@ namespace MgCore
         int length;
     };
 
-
+    Image loadSTB(std::string filename);
+#if USE_LIB_PNGCPP
     Image loadPNG(std::string filename);
+#endif
 
     class Texture
     {

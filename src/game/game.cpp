@@ -22,7 +22,6 @@ GameManager::GameManager()
     m_window->make_current(m_context.get());
 
     VFS.AddLoader(new ttvfs::DiskLoader);
-    VFS.AddArchiveLoader(new ttvfs::VFSZipArchiveLoader);
 
     //
     // AppPath gets mounted on osx
