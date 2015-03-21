@@ -36,9 +36,9 @@ GameManager::GameManager()
 
     VFS.Mount( "data", "" );
 
-    if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
+    if(glewInit() != GLEW_OK)
     {
-        std::cout << "Error: glLoadGen failed to load.";
+        std::cout << "Error: glew failed to load." << std::endl;
     }
     
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);

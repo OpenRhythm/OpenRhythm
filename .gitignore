@@ -40,6 +40,7 @@ src/config.hpp
 extern/*
 !extern/ttvfs
 !extern/stb
+!extern/glew-cmake
 !extern/readme.txt
 
 # ignore cmake files if they end up in the root
