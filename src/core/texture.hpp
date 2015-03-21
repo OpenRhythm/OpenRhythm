@@ -6,9 +6,22 @@
 
 namespace MgCore
 {
+
+    struct Image
+    {
+        std::string path;
+        int width;
+        int height;
+        std::unique_ptr<unsigned char[]> pixelData;
+        int length;
+    };
+
+    Image loadSTB(std::string filename);
+
     class Texture
     {
     private:
+        Image m_image;
         ShaderProgram *m_program;
         std::string m_path;
         int m_texSampID;
