@@ -39,7 +39,7 @@ src/config.hpp
 # ignore most of the extern folder
 extern/*
 !extern/ttvfs
-!extern/png++
+!extern/stb
 !extern/readme.txt
 
 # ignore cmake files if they end up in the root

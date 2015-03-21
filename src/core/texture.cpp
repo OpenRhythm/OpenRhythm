@@ -4,42 +4,31 @@
 #include <utility>
 #include "texture.hpp"
 #include "vfs.hpp"
-#include "png.hpp"
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_STDIO
+#include "stb_image.h"
 
 namespace MgCore
 {
     static int _texCount = 0;
     static GLuint _currentBoundtexture = 0;
 
-    Image loadPNG(std::string filename)
+    Image loadImage(std::string filename)
     {
-        std::istringstream file(MgCore::read_file( filename ));
-        png::image<png::rgba_pixel> image(file);
-
-        auto pixelBuffer = image.get_pixbuf();
-
+        std::string mem_buf = MgCore::read_file( filename );
+        unsigned char *img_buf;
         Image imgData;
+        int comp;
 
-        imgData.width = image.get_width();
-        imgData.height = image.get_height();
+        img_buf = stbi_load_from_memory( (unsigned char*)mem_buf.c_str(), mem_buf.size(), &imgData.width, &imgData.height, &comp, 0 );
         imgData.length = imgData.width * imgData.height * 4;
         std::unique_ptr<unsigned char[]> data(new unsigned char[imgData.length]());
         imgData.pixelData = std::move(data);
 
-        int i = 0;
+        for (int i; i < imgData.length; i++)
+            imgData.pixelData[i] = img_buf[i];
 
-        for (int x = 0;x < imgData.width; x++) {
-            for (int y = 0; y < imgData.height; y++) {
-                auto pixel = pixelBuffer.get_pixel(x, y);
-                i = 4 * (y * imgData.width + x);
-
-                imgData.pixelData[i+0] = pixel.red;
-                imgData.pixelData[i+1] = pixel.green;
-                imgData.pixelData[i+2] = pixel.blue;
-                imgData.pixelData[i+3] = pixel.alpha;
-
-            }
-        }
         return imgData;
     }
 
@@ -49,7 +38,7 @@ namespace MgCore
         _texCount++;
         m_texUnitID = _texCount;
 
-        m_image = MgCore::loadPNG(m_path);
+        m_image = MgCore::loadImage(m_path);
 
         m_texSampID = m_program->uniform_attribute("textureSampler");
 

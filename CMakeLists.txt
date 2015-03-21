@@ -37,12 +37,10 @@ find_package(SDL2 REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(PNG REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIRS})
-include_directories(${PNG_INCLUDE_DIR})
 
 include_directories(${PROJECT_SOURCE_DIR}/src/core)
 include_directories(${PROJECT_SOURCE_DIR}/src/engine)
@@ -108,9 +106,9 @@ source_group("src\\gl" FILES ${GL})
 
 include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs)
 include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs_zip)
-include_directories(${CMAKE_SOURCE_DIR}/extern/png++)
+include_directories(${CMAKE_SOURCE_DIR}/extern/stb)
 
-source_group("extern\\png++" FILES ${PNGPP_SRC})
+source_group("extern\\stb" FILES ${STB_SRC})
 
 set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${ttvfs_SRC} ${ttvfs_zip_SRC} ${GL})
 
@@ -144,4 +142,4 @@ set(ttvfs_libs
     ${BINARY_DIR}/ttvfs/libttvfs${STATIC_LIB_EXT}
     ${BINARY_DIR}/ttvfs_zip/libttvfs_zip${STATIC_LIB_EXT})
 
-target_link_libraries(musicgame ${ttvfs_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES} ${PNG_LIBRARY})
+target_link_libraries(musicgame ${ttvfs_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
