@@ -76,8 +76,6 @@ namespace MgCore
 
         img_buf = stbi_load_from_memory( &conv_mem[0], mem_buf.size(), &imgData.width, &imgData.height, &comp, 0 );
 
-        std::cout << +img_buf[0] << " " << +img_buf[1] << " " << +img_buf[2] << " " << std::endl;
-
         if ( img_buf == NULL )
             std::cout << "Failed to get image data" << std::endl;
 
@@ -96,7 +94,6 @@ namespace MgCore
             for (int y = 0; y < imgData.height; y++) {
                 i = 4 * (y * imgData.width + x);
                 j = 3 * (y * imgData.width + x);
-                std::cout << i << " " << +img_buf[j+3] << std::endl;
                 imgData.pixelData[i+0] = img_buf[j+0];
                 imgData.pixelData[i+1] = img_buf[j+1];
                 imgData.pixelData[i+2] = img_buf[j+2];
