@@ -4,7 +4,6 @@
 #include <utility>
 #include "texture.hpp"
 #include "vfs.hpp"
-#include "gl.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_NO_STDIO
@@ -65,8 +64,8 @@ namespace MgCore
         std::unique_ptr<unsigned char[]> conv_mem( new unsigned char[ mem_buf.size() ]() );
 
         // to prevent potential issues convert each value seperately
-        // one could cast the int* to unsigned int* however this could have issues as there seems
-        // to be platform differances on how  it's imeplemented.
+        // one could cast the int* to unsigned int* however this could have large issues there can be
+        // platform differances on how this is imeplemented.
         for (int i = 0; i < mem_buf.size(); i++) {
             conv_mem[i] = static_cast<unsigned int>(mem_buf[i]);
         }
@@ -89,8 +88,8 @@ namespace MgCore
         // opengl could copy the data to the gpu. OpenGL may even require the image data to be persistant
         // cpu side if not it may be a good idea to do so anyways.
         int i = 0;
-
-        for (int i = 0; i < (imgData.width*4)*imgData.height; i++) {
+        // currently the main reason the loop is setup like this, is that it makes it a bit easier to convert RGB to RGBA.
+        for (int i; i < (imgData.width*4)*imgData.height; i+=4) {
             imgData.pixelData[i+0] = img_buf[i+0];
             imgData.pixelData[i+1] = img_buf[i+1];
             imgData.pixelData[i+2] = img_buf[i+2];
