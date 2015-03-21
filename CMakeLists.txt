@@ -74,7 +74,8 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/gl.hpp)
 
 set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
@@ -102,14 +103,9 @@ set(GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp)
 
 source_group("src\\game" FILES ${GAME_SOURCE} ${GAME_HEADERS})
 
-set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_gl14shaderext.h
-       ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_gl14shaderext.c
-       ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl.hpp)
-
-source_group("src\\gl" FILES ${GL})
-
 include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs)
 include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs_zip)
+include_directories(${CMAKE_SOURCE_DIR}/extern/glew-cmake/include)
 include_directories(${CMAKE_SOURCE_DIR}/extern/stb)
 
 if(USE_LIB_PNGCPP)
@@ -121,7 +117,7 @@ endif()
 
 source_group("extern\\stb" FILES ${STB_SRC})
 
-set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${ttvfs_SRC} ${ttvfs_zip_SRC} ${GL})
+set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS})
 
 add_executable(musicgame ${SOURCE})
 
@@ -138,8 +134,14 @@ add_custom_command(TARGET musicgame PRE_BUILD
 include(ExternalProject)
 ExternalProject_add(ttvfs
     DOWNLOAD_COMMAND ""
-    CMAKE_ARGS CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DTTVFS_BUILD_CFILEAPI=FALSE -DTTVFS_SUPPORT_ZIP=FALSE
+    CMAKE_ARGS CMAKE_ARGS -DTTVFS_BUILD_CFILEAPI=FALSE -DTTVFS_SUPPORT_ZIP=FALSE
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/ttvfs
+    INSTALL_COMMAND "")
+
+ExternalProject_add(glew
+    DOWNLOAD_COMMAND ""
+    CMAKE_ARGS CMAKE_ARGS -Dglew-cmake_BUILD_SHARED=FALSE
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/glew-cmake
     INSTALL_COMMAND "")
 
 add_dependencies(musicgame ttvfs)
@@ -151,4 +153,7 @@ endif()
 ExternalProject_Get_Property(ttvfs BINARY_DIR)
 set(ttvfs_libs ${BINARY_DIR}/ttvfs/libttvfs${STATIC_LIB_EXT})
 
-target_link_libraries(musicgame ${ttvfs_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
+ExternalProject_Get_Property(glew BINARY_DIR)
+set(glew_libs ${BINARY_DIR}/lib/libglew${STATIC_LIB_EXT})
+
+target_link_libraries(musicgame ${ttvfs_libs} ${glew_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
