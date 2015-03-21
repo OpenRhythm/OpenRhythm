@@ -6,6 +6,10 @@
 #include "vfs.hpp"
 #include "texture.hpp"
 
+#if USE_LIB_PNGCPP
+#include "png.hpp"
+#endif
+
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_NO_STDIO
 //exclude image formats
@@ -22,39 +26,40 @@ namespace MgCore
     static int _texCount = 0;
     static GLuint _currentBoundtexture = 0;
 
-    // I'm putting this back here for now ill add it a cmake option to provide either STB or png+
-    // Then it will be uncommented.
-    // Image loadPNG(std::string filename)
-    // {
-    //     std::istringstream file(MgCore::read_file( filename ));
-    //     png::image<png::rgba_pixel> image(file);
 
-    //     auto pixelBuffer = image.get_pixbuf();
+#if USE_LIB_PNGCPP
+    Image loadPNG(std::string filename)
+    {
+        std::istringstream file(MgCore::read_file( filename ));
+        png::image<png::rgba_pixel> image(file);
 
-    //     Image imgData;
+        auto pixelBuffer = image.get_pixbuf();
 
-    //     imgData.width = image.get_width();
-    //     imgData.height = image.get_height();
-    //     imgData.length = imgData.width * imgData.height * 4;
-    //     std::unique_ptr<unsigned char[]> data(new unsigned char[imgData.length]());
-    //     imgData.pixelData = std::move(data);
+        Image imgData;
 
-    //     int i = 0;
+        imgData.width = image.get_width();
+        imgData.height = image.get_height();
+        imgData.length = imgData.width * imgData.height * 4;
+        std::unique_ptr<unsigned char[]> data(new unsigned char[imgData.length]());
+        imgData.pixelData = std::move(data);
 
-    //     for (int x = 0;x < imgData.width; x++) {
-    //         for (int y = 0; y < imgData.height; y++) {
-    //             auto pixel = pixelBuffer.get_pixel(x, y);
-    //             i = 4 * (y * imgData.width + x);
+        int i = 0;
 
-    //             imgData.pixelData[i+0] = pixel.red;
-    //             imgData.pixelData[i+1] = pixel.green;
-    //             imgData.pixelData[i+2] = pixel.blue;
-    //             imgData.pixelData[i+3] = pixel.alpha;
+        for (int x = 0;x < imgData.width; x++) {
+            for (int y = 0; y < imgData.height; y++) {
+                auto pixel = pixelBuffer.get_pixel(x, y);
+                i = 4 * (y * imgData.width + x);
 
-    //         }
-    //     }
-    //     return imgData;
-    // }
+                imgData.pixelData[i+0] = pixel.red;
+                imgData.pixelData[i+1] = pixel.green;
+                imgData.pixelData[i+2] = pixel.blue;
+                imgData.pixelData[i+3] = pixel.alpha;
+
+            }
+        }
+        return imgData;
+    }
+#endif
 
     Image loadSTB(std::string filename)
     {
@@ -93,7 +98,7 @@ namespace MgCore
         for (int x = 0;x < imgData.width; x++) {
             for (int y = 0; y < imgData.height; y++) {
                 i = 4 * (y * imgData.width + x);
-                j = 3 * (y * imgData.width + x);
+                j = comp * (y * imgData.width + x);
                 imgData.pixelData[i+0] = img_buf[j+0];
                 imgData.pixelData[i+1] = img_buf[j+1];
                 imgData.pixelData[i+2] = img_buf[j+2];

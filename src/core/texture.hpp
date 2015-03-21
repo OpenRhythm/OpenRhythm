@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include "config.hpp"
 #include "shader.hpp"
 
 namespace MgCore
@@ -16,6 +17,9 @@ namespace MgCore
     };
 
     Image loadSTB(std::string filename);
+#if USE_LIB_PNGCPP
+    Image loadPNG(std::string filename);
+#endif
 
     class Texture
     {
