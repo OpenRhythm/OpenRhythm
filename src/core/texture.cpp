@@ -30,7 +30,7 @@ namespace MgCore
 #if USE_LIB_PNGCPP
     Image loadPNG(std::string filename)
     {
-        std::istringstream file(MgCore::read_file( filename ));
+        std::istringstream file(MgCore::read_file( filename, FileMode::Binary ));
         png::image<png::rgba_pixel> image(file);
 
         auto pixelBuffer = image.get_pixbuf();
@@ -63,7 +63,7 @@ namespace MgCore
 
     Image loadSTB(std::string filename)
     {
-        std::string mem_buf = MgCore::read_file( filename );
+        std::string mem_buf = MgCore::read_file( filename, FileMode::Binary );
 
         Image imgData;
 
