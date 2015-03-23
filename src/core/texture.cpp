@@ -67,7 +67,7 @@ namespace MgCore
 
         Image imgData;
 
-        std::unique_ptr<unsigned char[]> conv_mem( new unsigned char[ mem_buf.size() ]() );
+        auto conv_mem = std::unique_ptr<unsigned char[]>( new unsigned char[ mem_buf.size() ]() );
 
         // to prevent potential issues convert each value seperately
         // one could cast the int* to unsigned int* however this could have large issues there can be
@@ -86,7 +86,7 @@ namespace MgCore
 
 
         imgData.length = imgData.width * imgData.height * 4;
-        std::unique_ptr<unsigned char[]> data(new unsigned char[imgData.length]());
+        auto data = std::unique_ptr<unsigned char[]>(new unsigned char[imgData.length]());
         imgData.pixelData = std::move(data);
 
         // We have to copy the data out of the returned data from stb. 
