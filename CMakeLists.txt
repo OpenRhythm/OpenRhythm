@@ -15,14 +15,12 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-set(STATIC_LIB_EXT ".a")
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "Building for Windows.")
     set(ENV{SDL2DIR} "${PROJECT_SOURCE_DIR}/extern/sdl2")
     set(ENV{FREETYPE_DIR} "${PROJECT_SOURCE_DIR}/extern/freetype")
     set(ENV{GLM_ROOT_DIR} "${PROJECT_SOURCE_DIR}/extern/glm")
-    set(STATIC_LIB_EXT ".lib")
     set(PLATFORM PL_WINDOWS)
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -134,7 +132,7 @@ add_custom_command(TARGET musicgame PRE_BUILD
 include(ExternalProject)
 ExternalProject_add(ttvfs
     DOWNLOAD_COMMAND ""
-    CMAKE_ARGS CMAKE_ARGS -DTTVFS_BUILD_CFILEAPI=FALSE -DTTVFS_SUPPORT_ZIP=FALSE
+    CMAKE_ARGS CMAKE_ARGS -DTTVFS_BUILD_CFILEAPI=FALSE -DTTVFS_SUPPORT_ZIP=FALSE -DTTVFS_LARGEFILE_SUPPORT=FALSE
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/ttvfs
     INSTALL_COMMAND "")
 
@@ -151,7 +149,16 @@ if(OSX_APP_BUNDLE)
 endif()
 
 ExternalProject_Get_Property(ttvfs BINARY_DIR)
-set(ttvfs_libs ${BINARY_DIR}/ttvfs/libttvfs${STATIC_LIB_EXT})
+
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    if(CMAKE_CONFIGURATION_TYPES MATCHES "Release" AND CMAKE_CONFIGURATION_TYPES MATCHES "Release")
+        set(ttvfs_libs ${BINARY_DIR}/ttvfs/Release/ttvfs.lib)
+    else()
+        set(ttvfs_libs ${BINARY_DIR}/ttvfs/Debug/ttvfs.lib)
+    endif()
+else()
+    set(ttvfs_libs ${BINARY_DIR}/ttvfs/libttvfs.a)
+endif()
 
 ExternalProject_Get_Property(glew BINARY_DIR)
 set(glew_libs ${BINARY_DIR}/lib/libglew${STATIC_LIB_EXT})

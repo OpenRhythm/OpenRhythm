@@ -1,5 +1,5 @@
 md build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CONFIGURATION_TYPES=Release -G "Visual Studio 12 2013" ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CONFIGURATION_TYPES=Release -G "Visual Studio 14 2015" ..
 devenv musicgame.sln /build
 pause

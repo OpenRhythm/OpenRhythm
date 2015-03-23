@@ -8,6 +8,7 @@
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
 #include <Winerror.h>
+#include <shlobj.h>
 #elif defined(PLATFORM_OSX)
 #include <mach-o/dyld.h>
 #else
@@ -25,9 +26,13 @@ ttvfs::Root VFS;
 
 namespace MgCore
 {
-    std::string read_raw_file(std::string filename)
+    std::string read_raw_file(std::string filename, FileMode mode)
     {
-        std::ifstream in(filename, std::ios::in | std::ios_base::ate);
+        auto fileMode = std::ios::in | std::ios_base::ate;
+        if (mode == FileMode::Binary) {
+             fileMode |= std::ios_base::binary;
+        }
+        std::ifstream in(filename, fileMode);
         if (in) {
             std::string contents;
             contents.resize(static_cast<unsigned int>(in.tellg()));
@@ -40,11 +45,16 @@ namespace MgCore
         }
     }
 
-    std::string read_file(std::string filename)
+    std::string read_file(std::string filename, FileMode mode)
     {
         ttvfs::File *vf = VFS.GetFile( filename.c_str() );
+        std::string modeStr = "r";
+        if (mode == FileMode::Binary) {
+            modeStr += "b";
+            std::cout << "Testing" << std::endl;
+        } 
 
-        if ( vf && vf->open("r") ) {
+        if ( vf && vf->open(modeStr.c_str()) ) {
             std::string contents;
             contents.resize( static_cast<unsigned int>(vf->size()) );
             vf->read(&contents[0], contents.size());
@@ -131,24 +141,11 @@ namespace MgCore
     {
 #if defined(PLATFORM_WINDOWS)
         TCHAR szPath[MAX_PATH];
-        FARPROC qSHGetFolderPath;
-        HMODULE shfolder = LoadLibrary("shfolder.dll");
-
-        if(shfolder == NULL)
-            return NULL;
 
         if( homePath.empty() )
         {
-            qSHGetFolderPath = GetProcAddress(shfolder, "SHGetFolderPathA");
-            if(qSHGetFolderPath == NULL)
+            if( !SUCCEEDED( SHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, szPath ) ) )
             {
-                FreeLibrary(shfolder);
-                return NULL;
-            }
-
-            if( !SUCCEEDED( qSHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, szPath ) ) )
-            {
-                FreeLibrary(shfolder);
                 return NULL;
             }
 
@@ -157,8 +154,6 @@ namespace MgCore
 
             homePath += HOMEPATH_NAME;
         }
-
-        FreeLibrary(shfolder);
 #else
         char *p;
 
