@@ -34,8 +34,13 @@ extern ttvfs::Root VFS;
 // Utility functions for finding paths
 namespace MgCore
 {
-    std::string read_raw_file(std::string filename);
-    std::string read_file(std::string filename);
+	enum class FileMode
+	{
+		Binary,
+		Normal,
+	};
+    std::string read_raw_file(std::string filename, FileMode mode = FileMode::Normal);
+    std::string read_file(std::string filename, FileMode mode = FileMode::Normal);
     bool getFileStream(std::string filename, std::istream &stream);
     void SetBasePath( std::string newPath ); // set basePath
     std::string GetBasePath(); // executable path

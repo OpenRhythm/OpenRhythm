@@ -26,9 +26,13 @@ ttvfs::Root VFS;
 
 namespace MgCore
 {
-    std::string read_raw_file(std::string filename)
+    std::string read_raw_file(std::string filename, FileMode mode)
     {
-        std::ifstream in(filename, std::ios::in | std::ios_base::ate);
+        auto fileMode = std::ios::in | std::ios_base::ate;
+        if (mode == FileMode::Binary) {
+             fileMode |= std::ios_base::binary;
+        }
+        std::ifstream in(filename, fileMode);
         if (in) {
             std::string contents;
             contents.resize(static_cast<unsigned int>(in.tellg()));
@@ -41,11 +45,16 @@ namespace MgCore
         }
     }
 
-    std::string read_file(std::string filename)
+    std::string read_file(std::string filename, FileMode mode)
     {
         ttvfs::File *vf = VFS.GetFile( filename.c_str() );
+        std::string modeStr = "r";
+        if (mode == FileMode::Binary) {
+            modeStr += "b";
+            std::cout << "Testing" << std::endl;
+        } 
 
-        if ( vf && vf->open("r") ) {
+        if ( vf && vf->open(modeStr.c_str()) ) {
             std::string contents;
             contents.resize( static_cast<unsigned int>(vf->size()) );
             vf->read(&contents[0], contents.size());
