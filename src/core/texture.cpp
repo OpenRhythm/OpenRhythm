@@ -81,13 +81,12 @@ namespace MgCore
 
         img_buf = stbi_load_from_memory( &conv_mem[0], mem_buf.size(), &imgData.width, &imgData.height, &comp, 0 );
 
-        if ( img_buf == NULL )
+        if ( img_buf == nullptr )
             std::cout << "Failed to get image data" << std::endl;
 
 
         imgData.length = imgData.width * imgData.height * 4;
-        auto data = std::unique_ptr<unsigned char[]>(new unsigned char[imgData.length]());
-        imgData.pixelData = std::move(data);
+		imgData.pixelData = std::make_unique<unsigned char[]>(imgData.length);
 
         // We have to copy the data out of the returned data from stb. 
         // This was an issue with the previous implementation where the data was destroyed before
