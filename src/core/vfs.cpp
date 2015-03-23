@@ -8,6 +8,7 @@
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
 #include <Winerror.h>
+#include <shlobj.h>
 #elif defined(PLATFORM_OSX)
 #include <mach-o/dyld.h>
 #else
