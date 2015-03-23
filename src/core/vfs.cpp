@@ -131,24 +131,11 @@ namespace MgCore
     {
 #if defined(PLATFORM_WINDOWS)
         TCHAR szPath[MAX_PATH];
-        FARPROC qSHGetFolderPath;
-        HMODULE shfolder = LoadLibrary("shfolder.dll");
-
-        if(shfolder == NULL)
-            return NULL;
 
         if( homePath.empty() )
         {
-            qSHGetFolderPath = GetProcAddress(shfolder, "SHGetFolderPathA");
-            if(qSHGetFolderPath == NULL)
+            if( !SUCCEEDED( SHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, szPath ) ) )
             {
-                FreeLibrary(shfolder);
-                return NULL;
-            }
-
-            if( !SUCCEEDED( qSHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, szPath ) ) )
-            {
-                FreeLibrary(shfolder);
                 return NULL;
             }
 
@@ -157,8 +144,6 @@ namespace MgCore
 
             homePath += HOMEPATH_NAME;
         }
-
-        FreeLibrary(shfolder);
 #else
         char *p;
 
