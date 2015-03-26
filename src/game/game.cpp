@@ -42,7 +42,7 @@ GameManager::GameManager()
     }
     
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);
-    m_lis.mask = MgCore::EventType::Quit | MgCore::EventType::WindowSized | MgCore::EventType::MouseMove;
+    m_lis.mask = MgCore::EventType::EventAll;
 
 
     m_events->add_listener(m_lis);
