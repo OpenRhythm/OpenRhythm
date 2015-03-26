@@ -4,3 +4,6 @@
 [submodule "extern/stb"]
 	path = extern/stb
 	url = https://github.com/nothings/stb.git
+[submodule "extern/libsmf"]
+	path = extern/libsmf
+	url = https://github.com/stump/libsmf.git

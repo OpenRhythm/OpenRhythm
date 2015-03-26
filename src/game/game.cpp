@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "config.hpp"
+#include "parser.hpp"
 #include "vfs.hpp"
 #include "game.hpp"
 
@@ -36,6 +37,9 @@ GameManager::GameManager()
 
     VFS.Mount( "data", "" );
 
+    MgCore::TrackParser testSong( "TestSong" );
+
+    std::cout << MgCore::TrackNameForType( testSong.m_tracks[1].type ) << std::endl;
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
         std::cout << "Error: glLoadGen failed to load.";

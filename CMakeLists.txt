@@ -72,7 +72,8 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser.hpp)
 
 set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
@@ -82,7 +83,8 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser.cpp)
 
 if(INC_PATH)
     string(REPLACE ":" ";" _INC_PATH ${INC_PATH})
@@ -109,6 +111,7 @@ source_group("src\\gl" FILES ${GL})
 include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs)
 include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs_zip)
 include_directories(${CMAKE_SOURCE_DIR}/extern/stb)
+include_directories(${CMAKE_SOURCE_DIR}/extern/libsmf/src)
 
 if(USE_LIB_PNGCPP)
     find_package(PNG REQUIRED)
@@ -140,7 +143,15 @@ ExternalProject_add(ttvfs
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/ttvfs
     INSTALL_COMMAND "")
 
+ExternalProject_add(smf
+    DOWNLOAD_COMMAND ""
+    CONFIGURE_COMMAND ./autogen.sh && ./configure --prefix=<INSTALL_DIR>
+    BUILD_COMMAND make install
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/libsmf
+    BUILD_IN_SOURCE 1)
+
 add_dependencies(musicgame ttvfs)
+add_dependencies(musicgame smf)
 
 if(OSX_APP_BUNDLE)
     set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
@@ -164,4 +175,8 @@ else()
     set(ttvfs_libs ${BINARY_DIR}/ttvfs/libttvfs.a)
 endif()
 
-target_link_libraries(musicgame ${ttvfs_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
+ExternalProject_Get_Property(smf BINARY_DIR)
+
+set(smf_libs ${BINARY_DIR}/src/.libs/libsmf.a)
+
+target_link_libraries(musicgame ${smf_libs} ${ttvfs_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})

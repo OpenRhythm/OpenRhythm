@@ -40,6 +40,8 @@ src/config.hpp
 extern/*
 !extern/ttvfs
 !extern/stb
+!extern/libsmf
+extern/libsmf/compile
 !extern/readme.txt
 
 # ignore cmake files if they end up in the root
