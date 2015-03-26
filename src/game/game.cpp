@@ -20,6 +20,13 @@ GameManager::GameManager()
     m_running = true;
 
     m_window->make_current(m_context.get());
+    auto conInfo = m_context->get_info();
+    std::cout << "Version: " << conInfo.version << std::endl;
+    std::cout << "Version: " << conInfo.versionMajor << "." << conInfo.versionMinor << std::endl;
+    std::cout << "GLSL: " << conInfo.glsl << std::endl;
+    std::cout << "Renderer: " << conInfo.renderer << std::endl;
+    std::cout << "Vender: " << conInfo.vendor << std::endl;
+
 
     VFS.AddLoader(new ttvfs::DiskLoader);
 

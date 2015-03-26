@@ -2,10 +2,22 @@
 #include "SDL.h"
 #undef main
 
+#include <string>
 #include "window.hpp"
 
 namespace MgCore
 {
+
+    struct GraphicsInfo
+    {
+        std::string version;
+        int versionMajor;
+        int versionMinor;
+        std::string glsl;
+        std::string renderer;
+        std::string vendor;
+    };
+
     class Window;
     
     class Context
@@ -24,6 +36,7 @@ namespace MgCore
 
         Context(int major, int minor, int msaa);
         ~Context();
+        GraphicsInfo get_info();
         void set_window(Window* window);
         SDL_GLContext get_platform_context() {return m_context;}
     };

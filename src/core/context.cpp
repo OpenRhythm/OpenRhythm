@@ -1,3 +1,4 @@
+#include "gl.hpp"
 #include "context.hpp"
 
 namespace MgCore
@@ -23,6 +24,18 @@ namespace MgCore
     Context::~Context()
     {
         SDL_GL_DeleteContext(m_context);
+    }
+
+    GraphicsInfo Context::get_info()
+    {
+        GraphicsInfo info;
+        info.version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+        glGetIntegerv(GL_MAJOR_VERSION, &info.versionMajor);
+        glGetIntegerv(GL_MINOR_VERSION, &info.versionMinor);
+        info.glsl = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+        info.renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+        info.vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+        return info;
     }
 
     void Context::set_window(Window* window)
