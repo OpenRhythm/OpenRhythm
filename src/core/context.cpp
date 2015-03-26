@@ -3,7 +3,7 @@
 
 namespace MgCore
 {
-    Context::Context(int major, int minor, int msaa)
+    Context::Context(int major, int minor)
     : m_major(major), m_minor(minor), m_msaa(msaa)
     {
         m_profile = SDL_GL_CONTEXT_PROFILE_CORE;
@@ -14,11 +14,11 @@ namespace MgCore
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, m_minor);
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, m_profile);
+    }
 
-        if (m_msaa < 0) {
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_msaa);    
-        }
+    Context::Context()
+    {
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     }
 
     Context::~Context()

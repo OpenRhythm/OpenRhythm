@@ -34,7 +34,8 @@ namespace MgCore
 
     public:
 
-        Context(int major, int minor, int msaa);
+        Context();
+        Context(int major, int minor);
         ~Context();
         GraphicsInfo get_info();
         void set_window(Window* window);

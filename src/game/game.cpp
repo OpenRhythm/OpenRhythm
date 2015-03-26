@@ -14,7 +14,7 @@ GameManager::GameManager()
     m_title = "Game";
 
     m_window = std::unique_ptr<MgCore::Window>(new MgCore::Window(m_width, m_height, m_fullscreen, m_title));
-    m_context = std::unique_ptr<MgCore::Context>(new MgCore::Context(1, 4, 0));
+    m_context = std::unique_ptr<MgCore::Context>(new MgCore::Context(1, 4));
     m_events = std::unique_ptr<MgCore::Events>(new MgCore::Events());
     m_clock = std::unique_ptr<MgCore::FpsTimer>(new MgCore::FpsTimer());
     m_running = true;
