@@ -166,4 +166,4 @@ else()
     set(glew_libs ${glew_BINARY_DIR}/lib/libglew.a)
 endif()
 
-target_link_libraries(musicgame ${ttvfs_libs} ${glew_BINARY_DIR}/glew.c.obj ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
+target_link_libraries(musicgame ${ttvfs_libs} ${glew_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
