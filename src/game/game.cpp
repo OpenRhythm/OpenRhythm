@@ -13,10 +13,10 @@ GameManager::GameManager()
     m_fullscreen = false;
     m_title = "Game";
 
-    m_window = std::unique_ptr<MgCore::Window>(new MgCore::Window(m_width, m_height, m_fullscreen, m_title));
-    m_context = std::unique_ptr<MgCore::Context>(new MgCore::Context(1, 4));
-    m_events = std::unique_ptr<MgCore::Events>(new MgCore::Events());
-    m_clock = std::unique_ptr<MgCore::FpsTimer>(new MgCore::FpsTimer());
+    m_window = std::make_unique<MgCore::Window>(m_width, m_height, m_fullscreen, m_title);
+    m_context = std::make_unique<MgCore::Context>(1, 4);
+    m_events = std::make_unique<MgCore::Events>();
+    m_clock = std::make_unique<MgCore::FpsTimer>();
     m_running = true;
 
     m_window->make_current(m_context.get());
@@ -49,7 +49,7 @@ GameManager::GameManager()
     }
     
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);
-    m_lis.mask = MgCore::EventType::Quit | MgCore::EventType::WindowSized | MgCore::EventType::MouseMove;
+    m_lis.mask = MgCore::EventType::EventAll;
 
 
     m_events->add_listener(m_lis);
