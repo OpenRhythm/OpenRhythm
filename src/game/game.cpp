@@ -46,13 +46,13 @@ GameManager::GameManager()
 
             if (value != "ARB_vertex_array_object") {
                 return false;
-            } else if (value != "ARB_fragment_shader") {
+            } else if (value != "GL_ARB_fragment_shader") {
                 return false;
-            } else if (value != "ARB_vertex_shader") {
+            } else if (value != "GL_ARB_vertex_shader") {
                 return false;
-            } else if (value != "ARB_shader_objects") {
+            } else if (value != "GL_ARB_shader_objects") {
                 return false;
-            } else if (value != "ARB_vertex_buffer_object") {
+            } else if (value != "GL_ARB_vertex_buffer_object") {
                 return false;
             }
 
