@@ -39,6 +39,7 @@ namespace MgCore
         Context();
         Context(int major, int minor);
         ~Context();
+        bool check_hardware();
         GraphicsInfo get_info();
         void set_window(Window* window);
         SDL_GLContext get_platform_context() {return m_context;}

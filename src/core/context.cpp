@@ -1,10 +1,12 @@
 #include "gl.hpp"
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 #include "context.hpp"
 
 namespace MgCore
 {
+
     Context::Context(int major, int minor)
     : m_major(major), m_minor(minor)
     {
@@ -26,6 +28,43 @@ namespace MgCore
     Context::~Context()
     {
         SDL_GL_DeleteContext(m_context);
+    }
+
+    bool Context::check_hardware()
+    {
+        bool systemSupported = true;
+        MgCore::GraphicsInfo conInfo = get_info();
+
+        std::vector<std::string> conExt = conInfo.extensions;
+
+        if (conInfo.versionMajor == 1 && conInfo.versionMinor < 4 ) {
+            systemSupported = false;
+        } else if (conInfo.versionMajor < 2) {
+            auto comp = [] (const std::string &value) {
+
+                if (value != "ARB_vertex_array_object") {
+                    return false;
+                } else if (value != "GL_ARB_fragment_shader") {
+                    return false;
+                } else if (value != "GL_ARB_vertex_shader") {
+                    return false;
+                } else if (value != "GL_ARB_shader_objects") {
+                    return false;
+                } else if (value != "GL_ARB_vertex_buffer_object") {
+                    return false;
+                }
+
+                return true;
+            };
+
+            if (std::find_if(conExt.begin(), conExt.end(), comp) != conExt.end()) {
+                systemSupported = false;
+
+            }
+
+        }
+
+        return systemSupported;
     }
 
     GraphicsInfo Context::get_info()
