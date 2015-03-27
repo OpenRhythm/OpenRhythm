@@ -3,6 +3,8 @@
 int main()
 {
     GameManager game;
-    game.start();
+    if (game.isRunning()) {
+        game.start();
+    }
     return 0;
 }

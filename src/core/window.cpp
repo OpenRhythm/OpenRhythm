@@ -1,3 +1,4 @@
+#include <map>
 #include "window.hpp"
 
 namespace MgCore
@@ -8,6 +9,20 @@ namespace MgCore
         SDL_Init(0);
         SDL_InitSubSystem(SDL_INIT_VIDEO);
     }
+
+
+    static std::map<MessageBoxStyle, Uint32> boxStyleMap {
+        {MessageBoxStyle::Error, SDL_MESSAGEBOX_ERROR},
+        {MessageBoxStyle::Warning, SDL_MESSAGEBOX_WARNING},
+        {MessageBoxStyle::Info, SDL_MESSAGEBOX_INFORMATION}
+    };
+
+
+    void show_messagebox(MessageBoxStyle style, std::string title, std::string message)
+    {
+        SDL_ShowSimpleMessageBox(boxStyleMap[style], title.c_str(), message.c_str(), nullptr);
+    }
+
 
     Window::Window(int width, int height, bool fullscreen, std::string title)
     : m_width(width), m_height(height), m_fullscreen(fullscreen), m_title(title)
@@ -25,6 +40,11 @@ namespace MgCore
     Window::~Window()
     {
         SDL_DestroyWindow(m_sdlWindow);
+    }
+
+    void Window::show()
+    {
+        SDL_ShowWindow(m_sdlWindow);
     }
 
     void Window::make_current(Context* context)

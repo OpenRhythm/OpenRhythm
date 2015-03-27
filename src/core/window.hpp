@@ -8,9 +8,18 @@
 namespace MgCore
 {
     class Context;
-    const Uint32 defaultWindowFlag = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+    const Uint32 defaultWindowFlag = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
+
+    enum class MessageBoxStyle
+    {
+        Error,
+        Warning,
+        Info,
+    };
 
     void init_video();
+
+    void show_messagebox(MessageBoxStyle style, std::string title, std::string message);
 
     class Window
     {
@@ -38,6 +47,8 @@ namespace MgCore
         ~Window();
 
         SDL_Window* get_platform_window() {return m_sdlWindow;}
+
+        void show();
 
         void make_current(Context* context);
         void flip();

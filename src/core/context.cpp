@@ -1,10 +1,12 @@
 #include "gl.hpp"
+#include <iostream>
+#include <sstream>
 #include "context.hpp"
 
 namespace MgCore
 {
     Context::Context(int major, int minor)
-    : m_major(major), m_minor(minor), m_msaa(msaa)
+    : m_major(major), m_minor(minor)
     {
         m_profile = SDL_GL_CONTEXT_PROFILE_CORE;
 
@@ -35,6 +37,16 @@ namespace MgCore
         info.glsl = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
         info.renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
         info.vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+        int numExt = 0;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &numExt);
+        std::string ext = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
+        std::stringstream extStream(ext);
+        std::string item;
+        for (int i = 0; i < numExt; i++) {
+            std::getline(extStream, item, ' ');
+            info.extensions.push_back(item);
+        }
+
         return info;
     }
 

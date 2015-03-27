@@ -3,6 +3,7 @@
 #undef main
 
 #include <string>
+#include <vector>
 #include "window.hpp"
 
 namespace MgCore
@@ -16,6 +17,7 @@ namespace MgCore
         std::string glsl;
         std::string renderer;
         std::string vendor;
+        std::vector<std::string> extensions;
     };
 
     class Window;

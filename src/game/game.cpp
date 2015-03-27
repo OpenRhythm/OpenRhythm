@@ -12,21 +12,71 @@ GameManager::GameManager()
     m_height = 600;
     m_fullscreen = false;
     m_title = "Game";
+    m_running = false;
 
     m_window = std::make_unique<MgCore::Window>(m_width, m_height, m_fullscreen, m_title);
-    m_context = std::make_unique<MgCore::Context>(1, 4);
-    m_events = std::make_unique<MgCore::Events>();
-    m_clock = std::make_unique<MgCore::FpsTimer>();
-    m_running = true;
+    auto tempContext = std::make_unique<MgCore::Context>();
 
-    m_window->make_current(m_context.get());
-    auto conInfo = m_context->get_info();
+    m_window->make_current(tempContext.get());
+
+    bool systemSupported = true;
+
+    if(glewInit() != GLEW_OK)
+    {
+        std::cout << "Error: glew failed to load." << std::endl;
+    }
+
+    // get context info
+    MgCore::GraphicsInfo conInfo = tempContext->get_info();
+
     std::cout << "Version: " << conInfo.version << std::endl;
     std::cout << "Version: " << conInfo.versionMajor << "." << conInfo.versionMinor << std::endl;
     std::cout << "GLSL: " << conInfo.glsl << std::endl;
     std::cout << "Renderer: " << conInfo.renderer << std::endl;
     std::cout << "Vender: " << conInfo.vendor << std::endl;
+    std::cout << conInfo.extensions[0] << std::endl;
 
+    std::vector<std::string> conExt = conInfo.extensions;
+
+    if (conInfo.versionMajor == 1 && conInfo.versionMinor < 4 ) {
+        systemSupported = false;
+    } else if (conInfo.versionMajor < 2) {
+
+        auto comp = [] (const std::string &value) {
+
+            if (value != "ARB_vertex_array_object") {
+                return false;
+            } else if (value != "ARB_fragment_shader") {
+                return false;
+            } else if (value != "ARB_vertex_shader") {
+                return false;
+            } else if (value != "ARB_shader_objects") {
+                return false;
+            } else if (value != "ARB_vertex_buffer_object") {
+                return false;
+            }
+
+            return true;
+        };
+
+        if (std::find_if(conExt.begin(), conExt.end(), comp) != conExt.end()) {
+            systemSupported = false;
+        }
+
+    }
+    if (systemSupported != true) {
+        MgCore::show_messagebox(MgCore::MessageBoxStyle::Error, "Error", "The graphics card in this system doesnt support the needed functionality used by this game.");
+        return;
+    }
+
+    m_context = std::make_unique<MgCore::Context>(conInfo.versionMajor, conInfo.versionMinor);
+    m_events = std::make_unique<MgCore::Events>();
+    m_clock = std::make_unique<MgCore::FpsTimer>();
+    m_running = true;
+
+    m_window->make_current(m_context.get());
+    //auto conInfo = m_context->get_info();
+    m_window->show();
 
     VFS.AddLoader(new ttvfs::DiskLoader);
 
@@ -43,11 +93,6 @@ GameManager::GameManager()
 
     VFS.Mount( "data", "" );
 
-    if(glewInit() != GLEW_OK)
-    {
-        std::cout << "Error: glew failed to load." << std::endl;
-    }
-    
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);
     m_lis.mask = MgCore::EventType::EventAll;
 

@@ -52,5 +52,6 @@ public:
     void update();
     void render();
     void resize(int width, int height);
+    bool isRunning() {return m_running;}
 
 };
