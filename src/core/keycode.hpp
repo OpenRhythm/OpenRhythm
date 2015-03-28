@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <type_traits>
+#include <memory>
 #include "SDL.h"
 #undef main
 
@@ -267,60 +268,15 @@ namespace MgCore
     };
 
 
-    static std::map<KeyCode, std::string> keyStrMap {
-        {KeyCode::KEY_CAPS_LOCK, "CAPS LOCK"},
-        {KeyCode::KEY_F1, "F1"},
-        {KeyCode::KEY_F2, "F2"},
-        {KeyCode::KEY_F3, "F3"},
-        {KeyCode::KEY_F4, "F4"},
-        {KeyCode::KEY_F5, "F5"},
-        {KeyCode::KEY_F6, "F6"},
-        {KeyCode::KEY_F7, "F7"},
-        {KeyCode::KEY_F8, "F8"},
-        {KeyCode::KEY_F9, "F9"},
-        {KeyCode::KEY_F10, "F10"},
-        {KeyCode::KEY_F11, "F11"},
-        {KeyCode::KEY_F12, "F12"},
-        {KeyCode::KEY_PRINT_SCREEN, "PRINT SCREEN"},
-        {KeyCode::KEY_SCROLL_LOCK, "SCROLL LOCK"},
-        {KeyCode::KEY_PAUSE, "PAUSE"},
-        {KeyCode::KEY_INSERT, "INSERT"},
-        {KeyCode::KEY_HOME, "HOME"},
-        {KeyCode::KEY_PAGE_UP, "PAGE UP"},
-        {KeyCode::KEY_END, "END"},
-        {KeyCode::KEY_PAGE_DOWN, "PAGE DOWN"},
-        {KeyCode::KEY_RIGHT, "RIGHT"},
-        {KeyCode::KEY_LEFT, "LEFT"},
-        {KeyCode::KEY_DOWN, "DOWN"},
-        {KeyCode::KEY_UP, "UP"},
-        {KeyCode::KEY_NUMLOCK_CLEAR, "NUMLOCK CLEAR"},
-        {KeyCode::KEY_LEFT_CTRL, "LEFT CTRL"},
-        {KeyCode::KEY_LEFT_SHIFT, "LEFT SHIFT"},
-        {KeyCode::KEY_LEFT_ALT, "LEFT ALT"},
-        {KeyCode::KEY_LEFT_SUPER, "LEFT SUPER"},
-        {KeyCode::KEY_RIGHT_CTRL, "RIGHT CTRL"},
-        {KeyCode::KEY_RIGHT_SHIFT, "RIGHT SHIFT"},
-        {KeyCode::KEY_RIGHT_ALT, "RIGHT ALT"},
-        {KeyCode::KEY_RIGHT_SUPER, "RIGHT SUPER"}
-    };
-
-
-
-// def process_modkeys(value):
-//  keys = []
-//  for key in modmap:
-//      if value & key:
-//          keys.append(modmap[key])
-//  return keys
-
-// def process_key_char(value):
-//  char = None
-//  try:
-//      char = str(chr(value))
-//  except ValueError:
-//      temp = value ^ (1<<30)
-//      if temp in keymap:
-//          char = keystrMap[keymap[temp]]
-//  return char
+    std::vector<ModFlag> processModifiers(int value)
+    {
+        std::vector<ModFlag> keys;
+        for (auto const& key : modMap) {
+            if (value & key.first) {
+                keys.push_back(key.second);
+            }
+        }
+        return keys;
+    }
 
 }
