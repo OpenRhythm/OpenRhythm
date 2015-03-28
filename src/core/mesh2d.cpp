@@ -30,7 +30,7 @@ namespace MgCore
 
     void Mesh2D::update()
     {
-        // yes this is going to be ineffecient... ill fix it later.
+        // yes this is going to be inefficient... ill fix it later.
         m_modelMatrix = glm::scale(glm::translate(glm::mat4(1.0f), m_vecTrans), m_vecScale);
     }
 

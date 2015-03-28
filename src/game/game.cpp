@@ -157,13 +157,9 @@ bool GameManager::event_handler(MgCore::Event &event)
         case MgCore::EventType::MouseMove:
             m_mouseX = event.event.mouseMove.x;
             m_mouseY = event.event.mouseMove.y;
-            //m_mesh->translate(static_cast<float>(m_mouseX), static_cast<float>(m_mouseY));
             break;
         case MgCore::EventType::WindowSized:
             resize(event.event.windowSized.width, event.event.windowSized.height);
-            //std::cout << event.event.windowSized.width  << " "
-            //          << event.event.windowSized.height << " "
-            //          << event.event.windowSized.id     << std::endl;
             break;
         default:
             break;
