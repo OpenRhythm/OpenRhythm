@@ -10,16 +10,7 @@
 
 namespace MgCore
 {
-    enum class EventType
-    {
-        EventNone    = 0,
-        Quit         = 1 << 0,
-        MouseMove    = 1 << 1,
-        WindowClose  = 1 << 2,
-        WindowSized  = 1 << 3,
-        KeyUp        = 1 << 4,
-        KeyDown      = 1 << 5,
-    };
+    enum class EventType;
 
     using underlying = std::underlying_type<EventType>::type;
 
@@ -32,6 +23,18 @@ namespace MgCore
     {
         return static_cast<EventType>(static_cast<underlying>(left) & static_cast<underlying>(right));
     }
+
+    enum class EventType
+    {
+        EventNone    = 0,
+        Quit         = 1 << 0,
+        MouseMove    = 1 << 1,
+        WindowClose  = 1 << 2,
+        WindowSized  = 1 << 3,
+        KeyUp        = 1 << 4,
+        KeyDown      = 1 << 5,
+        EventAll = Quit | MouseMove | WindowClose | WindowSized | KeyUp | KeyDown
+    };
 
 
     // enable the use of bitwise operators on flags
