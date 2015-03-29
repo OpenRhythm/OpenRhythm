@@ -39,12 +39,12 @@ GameManager::GameManager()
 
     MgCore::Song testSong( "TestSong" );
 
-    int playerIndex = testSong.addPlayer( MgCore::TRACK_GUITAR, 4 );
+    int playerIndex = testSong.addPlayer( MgCore::TRACK_DRUMS, MgCore::DIFF_EXPERT );
 
     testSong.load();
 
     MgCore::trackType test = testSong.playerTracks[playerIndex].track->m_type;
-    std::cout << "Song: player(" << playerIndex << ") has type " << MgCore::TrackNameForType( test ) << std::endl;
+    std::cout << "Song: player(" << playerIndex << ") is playing the " << MgCore::TrackNameForType( test ) << std::endl;
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {

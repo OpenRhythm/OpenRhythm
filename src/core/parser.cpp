@@ -3,10 +3,23 @@
 #include "parser.hpp"
 #include "vfs.hpp"
 #include "smf.h"
-#include "notemap.h"
 
 namespace MgCore
 {
+    enum noteMapTypes {
+        NM_ROCKBAND,
+        MAX_NOTE_MAPS
+    };
+
+    int noteMap[MAX_NOTE_MAPS][MAX_DIFFICULTY][2] = {
+        {
+            {60, 64}, // Easy
+            {72, 76}, // Medium
+            {84, 88}, // Hard
+            {96, 100} // Expert
+        }
+    };
+
     trackType TrackTypeForString ( std::string string )
     {
         if ( !string.compare(21, 4, "BEAT") ) return TRACK_BEAT;
@@ -34,14 +47,12 @@ namespace MgCore
         }
     }
 
-    noteType noteFromEvent ( trackType type, int number, int difficulty )
+    noteType noteFromEvent ( trackType type, int number, diffLevel difficulty )
     {
-        if ( type > TRACK_GUITAR ) return NOTE_INVALID; // until rest is filled
-
         int min, max;
 
-        min = rbNoteMap[type][difficulty][0];
-        max = rbNoteMap[type][difficulty][1];
+        min = noteMap[NM_ROCKBAND][difficulty][0];
+        max = noteMap[NM_ROCKBAND][difficulty][1];
 
         if ( number < min && number > max )
             return NOTE_INVALID;
@@ -49,7 +60,7 @@ namespace MgCore
         return static_cast<noteType> (number - min + 1);
     }
 
-    int Song::addPlayer( trackType type, int difficulty )
+    int Song::addPlayer( trackType type, diffLevel difficulty )
     {
         if ( type >= TRACK_EVENTS )
             return 0;

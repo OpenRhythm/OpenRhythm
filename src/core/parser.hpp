@@ -5,6 +5,14 @@
 
 namespace MgCore
 {
+    enum diffLevel {
+        DIFF_EASY,
+        DIFF_MEDIUM,
+        DIFF_HARD,
+        DIFF_EXPERT,
+        MAX_DIFFICULTY
+    };
+
     enum trackType {
         TRACK_NONE,
         TRACK_GUITAR,
@@ -36,9 +44,9 @@ namespace MgCore
 
     struct Track
     {
-        Track( trackType type, int difficulty ) : m_type(type), m_diff(difficulty) {};
+        Track( trackType type, diffLevel difficulty ) : m_type(type), m_diff(difficulty) {};
         trackType m_type;
-        int m_diff;
+        diffLevel m_diff;
         std::vector<TrackNote> notes;
         int numNotes;
 
@@ -52,9 +60,9 @@ namespace MgCore
 
     struct PlayerTrack
     {
-        PlayerTrack( trackType type, int difficulty ) : m_type(type), m_diff(difficulty) {};
+        PlayerTrack( trackType type, diffLevel difficulty ) : m_type(type), m_diff(difficulty) {};
         trackType m_type;
-        int m_diff;
+        diffLevel m_diff;
         Track *track;
     };
 
@@ -75,7 +83,7 @@ namespace MgCore
         // call addPlayer( instrument, diff ) for each player
         // store returned number, its the index in playerTracks
         // call load() to load the tracks into the indexes
-        int addPlayer( trackType type, int difficulty ); // enum for diff? seperate enum for dealing with instruments vs. track types?
+        int addPlayer( trackType type, diffLevel difficulty ); // enum for diff? seperate enum for dealing with instruments vs. track types?
         bool load();
     };
 
