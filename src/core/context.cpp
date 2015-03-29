@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include "context.hpp"
+#include "utils.hpp"
 
 namespace MgCore
 {
@@ -61,7 +62,6 @@ namespace MgCore
                 systemSupported = false;
 
             }
-
         }
 
         return systemSupported;
@@ -79,12 +79,8 @@ namespace MgCore
         int numExt = 0;
         glGetIntegerv(GL_NUM_EXTENSIONS, &numExt);
         std::string ext = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
-        std::stringstream extStream(ext);
-        std::string item;
-        for (int i = 0; i < numExt; i++) {
-            std::getline(extStream, item, ' ');
-            info.extensions.push_back(item);
-        }
+
+        info.extensions = splitString(ext, " ");
 
         return info;
     }

@@ -73,6 +73,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/utils.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/gl.hpp)
 
 set(CORE_SOURCE
@@ -84,6 +85,7 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/utils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp)
 
 if(INC_PATH)
