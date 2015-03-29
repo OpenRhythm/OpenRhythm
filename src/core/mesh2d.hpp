@@ -33,6 +33,5 @@ namespace MgCore
         void init_gl();
         void scale(float x, float y);
         void translate(float x, float y);
-        //void rotate();
     };
 }
