@@ -3,31 +3,30 @@
 #include "parser.hpp"
 #include "vfs.hpp"
 #include "smf.h"
+#include "notemap.h"
 
 namespace MgCore
 {
     trackType TrackTypeForString ( std::string string )
     {
-        if ( !string.compare(0, 5, "Tempo") ) return TRACK_TEMPO;
-        else
-        {
-            if ( !string.compare(21, 6, "EVENTS") ) return TRACK_EVENTS;
-            else if ( !string.compare(21, 11, "PART GUITAR") ) return TRACK_GUITAR;
-            else if ( !string.compare(21, 9, "PART BASS") ) return TRACK_RHYTHM;
-            else if ( !string.compare(21, 10, "PART DRUMS" ) ) return TRACK_DRUMS;
-            else if ( !string.compare(21, 11, "PART VOCALS") ) return TRACK_VOCALS;
-            else return TRACK_NONE;
-        }
+        if ( !string.compare(21, 4, "BEAT") ) return TRACK_BEAT;
+        else if ( !string.compare(21, 5, "VENUE") ) return TRACK_VENUE;
+        else if ( !string.compare(21, 6, "EVENTS") ) return TRACK_EVENTS;
+        else if ( !string.compare(21, 9, "PART BASS") ) return TRACK_BASS;
+        else if ( !string.compare(21, 10, "PART DRUMS" ) ) return TRACK_DRUMS;
+        else if ( !string.compare(21, 11, "PART VOCALS") ) return TRACK_VOCALS;
+        else if ( !string.compare(21, 11, "PART GUITAR") ) return TRACK_GUITAR;
+        else return TRACK_NONE;
     }
 
     std::string TrackNameForType ( trackType type )
     {
         switch ( type )
         {
-            case TRACK_TEMPO: return "Tempo";
+            case TRACK_BEAT: return "Beat";
             case TRACK_EVENTS: return "Events";
             case TRACK_GUITAR: return "Guitar";
-            case TRACK_RHYTHM: return "Bass";
+            case TRACK_BASS: return "Bass";
             case TRACK_DRUMS: return "Drums";
             case TRACK_VOCALS: return "Vocals";
             case TRACK_NONE:
@@ -35,63 +34,80 @@ namespace MgCore
         }
     }
 
-    std::unique_ptr<TrackEvent> Track::getTrackEventsInFrame( float start, float end )
+    noteType noteFromEvent ( trackType type, int number, int difficulty )
     {
-        // Find any notes that should be displayed
-        return nullptr;
+        if ( type > TRACK_GUITAR ) return NOTE_INVALID; // until rest is filled
+
+        int min, max;
+
+        min = rbNoteMap[type][difficulty][0];
+        max = rbNoteMap[type][difficulty][1];
+
+        if ( number < min && number > max )
+            return NOTE_INVALID;
+
+        return static_cast<noteType> (number - min + 1);
     }
 
-    TrackParser::TrackParser( std::string songpath )
-    : m_path (songpath)
+    int Song::addPlayer( trackType type, int difficulty )
+    {
+        if ( type >= TRACK_EVENTS )
+            return 0;
+
+        playerTracks.push_back( PlayerTrack( type, difficulty ) );
+        return playerTracks.size()-1;
+    }
+
+    bool Song::load()
     {
         std::string mem_buf = MgCore::read_file(m_path + "/notes.mid", FileMode::Binary);
         smf_t *smf = smf_load_from_memory( mem_buf.c_str(), mem_buf.size() );
 
         if ( smf == NULL )
-            return;
-
-        m_numTracks = smf->number_of_tracks;
-        m_tracks = std::make_unique<Track[]>( m_numTracks );
+            return false;
 
         smf_track_t *sTrack;
         smf_event_t *sEvent;
         char *buf;
         Track *nTrack;
-        TrackEvent *nEvent;
         std::string eventBuf;
+        trackType typeComp;
+        noteType eTypeComp;
+        int checkedTracks = 0;
 
-        for (int i = 0; i < m_numTracks; i++)
+        while ((sTrack = smf_get_track_by_number(smf, checkedTracks+1)) != NULL)
         {
-            sTrack = smf_get_track_by_number(smf, i+1);
             sEvent = smf_track_get_next_event(sTrack);
             eventBuf = (buf = smf_event_decode(sEvent));
-
-            nTrack = &m_tracks[i];
-            
-            nTrack->type = TrackTypeForString(eventBuf);
-            
-            nTrack->numEvents = sTrack->number_of_events;
-            nTrack->events = std::make_unique<TrackEvent[]>( nTrack->numEvents );
             free(buf);
 
-            for (int j = 0; j < nTrack->numEvents; j++)
+            typeComp = TrackTypeForString(eventBuf);
+
+            nTrack = NULL;
+
+            for (int j = 0; j < playerTracks.size(); j++) 
             {
-                nEvent = &nTrack->events[j];
-
-                nEvent->data_len = sEvent->midi_buffer_length;
-                nEvent->data = std::make_unique<unsigned char[]>( nEvent->data_len );
-
-                for (int k = 0; k < nEvent->data_len; k++)
-                    nEvent->data[k] = sEvent->midi_buffer[k];
-
-                if ( (sEvent = smf_track_get_next_event(sTrack)) != NULL )
+                if ( playerTracks[j].m_type == typeComp ) {
+                    m_tracks.push_back( Track(playerTracks[j].m_type, playerTracks[j].m_diff) );
+                    playerTracks[j].track = &m_tracks.back();
                     break;
+                }
+            }
+
+            checkedTracks++;
+
+            if ( nTrack == NULL )
+                continue;
+
+            while ((sEvent = smf_track_get_next_event(sTrack)) != NULL)
+            {
+                eTypeComp = noteFromEvent(nTrack->m_type, sEvent->midi_buffer[1], nTrack->m_diff);
+
+                if ( eTypeComp != NOTE_INVALID )
+                    nTrack->notes.push_back( TrackNote(eTypeComp, sEvent->time_seconds / 1000) );
             }
         }
-    }
 
-    TrackParser::~TrackParser()
-    {
-        // needed?
+        return true;
     }
 }

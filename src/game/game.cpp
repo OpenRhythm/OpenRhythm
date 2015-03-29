@@ -37,9 +37,15 @@ GameManager::GameManager()
 
     VFS.Mount( "data", "" );
 
-    MgCore::TrackParser testSong( "TestSong" );
+    MgCore::Song testSong( "TestSong" );
 
-    std::cout << MgCore::TrackNameForType( testSong.m_tracks[1].type ) << std::endl;
+    int playerIndex = testSong.addPlayer( MgCore::TRACK_GUITAR, 4 );
+
+    testSong.load();
+
+    MgCore::trackType test = testSong.playerTracks[playerIndex].track->m_type;
+    std::cout << "Song: player(" << playerIndex << ") has type " << MgCore::TrackNameForType( test ) << std::endl;
+
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
         std::cout << "Error: glLoadGen failed to load.";

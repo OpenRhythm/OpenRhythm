@@ -1,47 +1,83 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <vector>
 
 namespace MgCore
 {
     enum trackType {
         TRACK_NONE,
-        TRACK_TEMPO,
-        TRACK_EVENTS,
-        TRACK_VENUE, // RB: ignore?
-        TRACK_BEAT, // RB
         TRACK_GUITAR,
-        TRACK_RHYTHM,
+        TRACK_BASS,
         TRACK_DRUMS,
-        TRACK_VOCALS // Not supported
+        TRACK_VOCALS,
+        // All non-player tracks after TRACK_EVENT
+        TRACK_EVENTS,
+        TRACK_VENUE,
+        TRACK_BEAT
     };
 
-    trackType TrackTypeForString ( std::string string );
-    std::string TrackNameForType ( trackType type );
+    enum noteType {
+        NOTE_INVALID,
+        // standard notes
+        NOTE_GREEN,
+        NOTE_RED,
+        NOTE_YELLOW,
+        NOTE_BLUE,
+        NOTE_ORANGE
+    };
 
-    struct TrackEvent
+    struct TrackNote
     {
-        std::unique_ptr<unsigned char[]> data;
-        int data_len;
+        TrackNote( noteType type, float time ) : m_type(type), m_time(time) {};
+        noteType m_type;
+        float m_time; //msec
     };
 
     struct Track
     {
-        std::unique_ptr<TrackEvent[]> events;
-        int numEvents;
-        trackType type;
+        Track( trackType type, int difficulty ) : m_type(type), m_diff(difficulty) {};
+        trackType m_type;
+        int m_diff;
+        std::vector<TrackNote> notes;
+        int numNotes;
+
+        bool isSolo();
+        bool isDrumRoll();
+        bool isOverDrive();
+        bool isBigRockEnding(); // move to Song?
+        bool isTremolo();
+        bool isTrill();
+    };
+
+    struct PlayerTrack
+    {
+        PlayerTrack( trackType type, int difficulty ) : m_type(type), m_diff(difficulty) {};
+        trackType m_type;
+        int m_diff;
+        Track *track;
     };
 
     // Get the tracks for the given song, for in-game
-    class TrackParser
+    class Song
     {
-    public:
-        TrackParser( std::string songpath );
-        ~TrackParser();
-
-        // make private?
+    private:
+        std::vector<Track> m_tracks;
         std::string m_path;
-        std::unique_ptr<Track[]> m_tracks;
-        int m_numTracks;
+        int m_numPlayers;
+    public:
+        Song( std::string songpath ) : m_path(songpath) {};
+
+        //TempoTrack tempoTrack;
+        //EventTrack eventTrack;
+        std::vector<PlayerTrack> playerTracks;
+
+        // call addPlayer( instrument, diff ) for each player
+        // store returned number, its the index in playerTracks
+        // call load() to load the tracks into the indexes
+        int addPlayer( trackType type, int difficulty ); // enum for diff? seperate enum for dealing with instruments vs. track types?
+        bool load();
     };
+
+    std::string TrackNameForType ( trackType type );
 }
