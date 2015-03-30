@@ -1,34 +1,45 @@
 #pragma once
 #include <string>
 #include <array>
+#include <vector>
 #include "glm/glm.hpp"
 
 namespace MgCore
 {
+    enum class ShaderType
+    {
+        Vertex,
+        Fragment
+    };
+
     struct ShaderInfo
     {
-        unsigned int type;
+        ShaderType type;
         std::string path;
+        std::string data;
     };
 
-
-    struct Shader
+    class Shader
     {
-        unsigned int shader;
-        ShaderInfo info;
+    private:
+        unsigned int m_shader;
+        ShaderInfo m_info;
+    public:
         Shader(ShaderInfo);
         ~Shader();
+        unsigned int get_shader();
     };
+
+    std::vector<ShaderInfo> shader_parser(std::string path);
 
     class ShaderProgram
     {
     private:
-        Shader m_vertex;
-        Shader m_fragment;
+        std::vector<Shader> m_shaders;
         unsigned int m_program;
 
     public:
-        ShaderProgram(Shader* vertex, Shader* fragment);
+        ShaderProgram(std::string shaderPath);
         ~ShaderProgram();
 
         void use();

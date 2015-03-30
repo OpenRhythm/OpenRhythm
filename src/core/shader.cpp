@@ -1,31 +1,74 @@
+#include <iostream>
+#include <memory>
+#include <map>
 #include "vfs.hpp"
 #include "gl.hpp"
 #include "shader.hpp"
-#include <iostream>
-#include <memory>
+#include "utils.hpp"
 
 namespace MgCore
 {
-    Shader::Shader(ShaderInfo _info): info(_info)
+    static std::map<ShaderType, GLuint> shaderMap
+    {
+        {ShaderType::Vertex, GL_VERTEX_SHADER_ARB},
+        {ShaderType::Fragment, GL_FRAGMENT_SHADER_ARB}
+    };
+
+    std::vector<ShaderInfo> shader_parser(std::string path)
+    {
+        std::vector<ShaderInfo> shaders;
+
+        std::string data {read_file(path)};
+
+        std::vector<std::string> shaderData = splitString(data, "#shader", true);
+
+        for (auto &shaderStr : shaderData) {
+            if (shaderStr != "") {
+                ShaderInfo shader;
+                std::string versionTag = "#version 110\n";
+                std::size_t lineEnd = shaderStr.find("\n", 0);
+                std::string type = shaderStr.substr(0, lineEnd);
+                std::vector<std::string> strs = splitString(type, " ");
+                for (auto str : strs) {
+                    if (str != "") {
+                        if (str == "vertex") {
+                            shader.type = ShaderType::Vertex;
+                        } else if (str == "fragment") {
+                            shader.type = ShaderType::Fragment;
+                        } else {
+                            std::cout << "Unsupported shader type of: str" << std::endl;
+                        }
+                    }
+                }
+                shaderStr = versionTag + shaderStr.substr(lineEnd, shaderStr.size());
+                shader.data = shaderStr;
+                shader.path = path;
+                shaders.push_back(shader);
+            }
+        }
+
+        return shaders;
+    }
+
+    Shader::Shader(ShaderInfo _info): m_info(_info)
     {
         GLint status;
-        shader = glCreateShaderObjectARB(info.type);
-        std::string data {read_file(info.path)};
-        const char *c_str = data.c_str();
+        m_shader = glCreateShaderObjectARB(shaderMap[m_info.type]);
+        const char *c_str = m_info.data.c_str();
 
-        glShaderSourceARB(shader, 1, &c_str, nullptr);
-        glCompileShaderARB(shader);
+        glShaderSourceARB(m_shader, 1, &c_str, nullptr);
+        glCompileShaderARB(m_shader);
 
-        glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &status);
+        glGetObjectParameterivARB(m_shader, GL_OBJECT_COMPILE_STATUS_ARB, &status);
 
         if (status != GL_TRUE) {
             std::cout << "The shader has failed to compile." << std::endl;
             int logLength = 0;
 
-            glGetObjectParameterivARB(shader, GL_OBJECT_INFO_LOG_LENGTH_ARB , &logLength);
+            glGetObjectParameterivARB(m_shader, GL_OBJECT_INFO_LOG_LENGTH_ARB , &logLength);
 
             auto message = std::unique_ptr<GLchar[]>(new GLchar[logLength]);
-            glGetInfoLogARB(shader, 1024, nullptr, &message[0]);
+            glGetInfoLogARB(m_shader, 1024, nullptr, &message[0]);
 
             std::cout << message.get() << std::endl;
 
@@ -35,19 +78,27 @@ namespace MgCore
     }
     Shader::~Shader()
     {
-        glDeleteObjectARB(shader);
+        glDeleteObjectARB(m_shader);
     }
 
+    unsigned int Shader::get_shader()
+    {
+        return m_shader;
+    }
 
-    ShaderProgram::ShaderProgram(Shader* vertex, Shader* fragment)
-    : m_vertex(*vertex), m_fragment(*fragment)
+    ShaderProgram::ShaderProgram(std::string shaderPath)
     {
         GLint status;
 
+        std::vector<ShaderInfo> shaderInfos = shader_parser(shaderPath);
+
         m_program = glCreateProgramObjectARB();
 
-        glAttachObjectARB(m_program, m_vertex.shader);
-        glAttachObjectARB(m_program, m_fragment.shader);
+        for (auto shader : shaderInfos) {
+            auto sha = Shader(shader);
+            m_shaders.push_back(sha);
+            glAttachObjectARB(m_program, sha.get_shader());
+        }
 
         glLinkProgramARB(m_program);
 

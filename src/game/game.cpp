@@ -33,7 +33,7 @@ GameManager::GameManager()
     MgCore::GraphicsInfo conInfo = tempContext->get_info();
 
     // Create context with the maxium supported opengl version.
-    m_context = std::make_unique<MgCore::Context>(conInfo.versionMajor, conInfo.versionMinor);
+    m_context = std::make_unique<MgCore::Context>();
     m_events = std::make_unique<MgCore::Events>();
     m_clock = std::make_unique<MgCore::FpsTimer>();
     m_running = true;
@@ -76,13 +76,7 @@ GameManager::GameManager()
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
-    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER_ARB, "shaders/main110.vs"};
-    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER_ARB, "shaders/main110.fs"};
-
-    MgCore::Shader vertShader(vertInfo);
-    MgCore::Shader fragShader(fragInfo);
-
-    m_program = std::make_unique<MgCore::ShaderProgram>(&vertShader, &fragShader);
+    m_program = std::make_unique<MgCore::ShaderProgram>("shaders/main.glsl");
     m_program->use();
     m_orthoID = m_program->uniform_attribute("ortho");
 
