@@ -35,20 +35,39 @@ namespace MgCore
         NOTE_ORANGE
     };
 
-    struct TrackNote
+    const int TRACK_ALL = ( TRACK_GUITAR | TRACK_DRUMS | TRACK_VOCALS | TRACK_BASS );
+
+    class TrackNote
     {
-        TrackNote( noteType type, float time ) : m_type(type), m_time(time) {};
+    private:
         noteType m_type;
         float m_time; //msec
+    public:
+        TrackNote( noteType type, float time ) : m_type(type), m_time(time) {};
+
+        noteType type() { return m_type; };
+        float time() { return m_time; };
     };
 
-    struct Track
+    struct trackInfo { 
+        trackType type; 
+        diffLevel difficulty; 
+    };
+
+    class Track
     {
-        Track( trackType type, diffLevel difficulty ) : m_type(type), m_diff(difficulty) {};
-        trackType m_type;
-        diffLevel m_diff;
-        std::vector<TrackNote> notes;
-        int numNotes;
+    private:
+        trackInfo m_info;
+        std::vector<TrackNote> m_notes;
+        int m_numNotes;
+    public:
+        Track( trackInfo info ) : m_info(info) {};
+        
+        trackType type() { return m_info.type; };
+        diffLevel difficulty() { return m_info.difficulty; };
+
+        void addNote ( noteType type, float time );
+        // std::vector<TrackNote*> getNotesInFrame( float start, float end );
 
         bool isSolo();
         bool isDrumRoll();
@@ -58,33 +77,19 @@ namespace MgCore
         bool isTrill();
     };
 
-    struct PlayerTrack
-    {
-        PlayerTrack( trackType type, diffLevel difficulty ) : m_type(type), m_diff(difficulty) {};
-        trackType m_type;
-        diffLevel m_diff;
-        Track *track;
-    };
-
     // Get the tracks for the given song, for in-game
     class Song
     {
     private:
+        std::vector<trackInfo> m_trackInfo;
         std::vector<Track> m_tracks;
         std::string m_path;
-        int m_numPlayers;
     public:
         Song( std::string songpath ) : m_path(songpath) {};
 
-        //TempoTrack tempoTrack;
-        //EventTrack eventTrack;
-        std::vector<PlayerTrack> playerTracks;
-
-        // call addPlayer( instrument, diff ) for each player
-        // store returned number, its the index in playerTracks
-        // call load() to load the tracks into the indexes
-        int addPlayer( trackType type, diffLevel difficulty ); // enum for diff? seperate enum for dealing with instruments vs. track types?
+        void add( trackType type, diffLevel difficulty );
         bool load();
+        Track *getTrack( trackType type, diffLevel difficulty );
     };
 
     std::string TrackNameForType ( trackType type );

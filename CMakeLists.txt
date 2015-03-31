@@ -72,8 +72,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser.hpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp)
 
 set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
@@ -84,8 +83,7 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp)
 
 if(INC_PATH)
     string(REPLACE ":" ";" _INC_PATH ${INC_PATH})
@@ -98,8 +96,10 @@ source_group("src\\core" FILES ${CORE_SOURCE} ${CORE_HEADERS})
 
 
 set(GAME_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp)
-set(GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp)
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.cpp)
+set(GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.hpp)
 
 source_group("src\\game" FILES ${GAME_SOURCE} ${GAME_HEADERS})
 

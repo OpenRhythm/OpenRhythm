@@ -37,14 +37,18 @@ GameManager::GameManager()
 
     VFS.Mount( "data", "" );
 
-    MgCore::Song testSong( "TestSong" );
+    MgCore::Song song( "songs/testsong" ); // dirname of song
 
-    int playerIndex = testSong.addPlayer( MgCore::TRACK_DRUMS, MgCore::DIFF_EXPERT );
+    song.add( MgCore::TRACK_GUITAR, MgCore::DIFF_EXPERT );
+    song.add( MgCore::TRACK_DRUMS, MgCore::DIFF_HARD );
 
-    testSong.load();
+    song.load();
 
-    MgCore::trackType test = testSong.playerTracks[playerIndex].track->m_type;
-    std::cout << "Song: player(" << playerIndex << ") is playing the " << MgCore::TrackNameForType( test ) << std::endl;
+    MgCore::Track *track = song.getTrack( MgCore::TRACK_DRUMS, MgCore::DIFF_HARD );
+    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->type() ) << " (" << track->type() << ")" << std::endl;
+
+    track = song.getTrack( MgCore::TRACK_GUITAR, MgCore::DIFF_EXPERT );
+    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->type() ) << " (" << track->type() << ")" << std::endl;
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
