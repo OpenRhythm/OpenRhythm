@@ -94,7 +94,7 @@ namespace MgCore
 
         m_program = glCreateProgramObjectARB();
 
-        for (auto shader : shaderInfos) {
+        for (auto &shader : shaderInfos) {
             auto sha = Shader(shader);
             m_shaders.push_back(sha);
             glAttachObjectARB(m_program, sha.get_shader());
