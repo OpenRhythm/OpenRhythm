@@ -30,13 +30,13 @@ namespace MgCore
                 std::string type = shaderStr.substr(0, lineEnd);
                 std::vector<std::string> strs = splitString(type, " ");
                 for (auto str : strs) {
-                    if (str != "") {
+                    if (str != "" && str != "#shader") {
                         if (str == "vertex") {
                             shader.type = ShaderType::Vertex;
                         } else if (str == "fragment") {
                             shader.type = ShaderType::Fragment;
                         } else {
-                            std::cout << "Unsupported shader type of: str" << std::endl;
+                            std::cout << "Unsupported shader type of: " << str << std::endl;
                         }
                     }
                 }
