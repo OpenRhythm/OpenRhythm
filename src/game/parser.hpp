@@ -5,6 +5,11 @@
 
 namespace MgCore
 {
+    enum class GameFormat
+    {
+        RBN2 // Rock Band Nation 2
+    };
+
     enum class Difficulty
     {
         Easy,
@@ -33,7 +38,10 @@ namespace MgCore
         Red,
         Yellow,
         Blue,
-        Orange
+        Orange,
+        //
+        UpBeat,
+        DownBeat
     };
 
     class TrackNote

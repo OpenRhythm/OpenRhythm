@@ -6,20 +6,53 @@
 
 namespace MgCore
 {
-    // Move notemaps to struct
-    enum noteMapTypes {
-        NM_ROCKBAND,
-        MAX_NOTE_MAPS
+    struct noteRange
+    {
+        int min;
+        int max;
     };
 
-    int noteMap[MAX_NOTE_MAPS][4][2] = {
+    noteRange getNoteRange( TrackType type, Difficulty difficulty, GameFormat gameFormat )
+    {
+        // this is kinda ugly but should work
+        switch ( gameFormat )
         {
-            {60, 64}, // Easy
-            {72, 76}, // Medium
-            {84, 88}, // Hard
-            {96, 100} // Expert
+            case GameFormat::RBN2: 
+                if ( type == TrackType::Beat ) return {12, 13}; 
+                else return {60 + (12 * static_cast<int>(difficulty)), 64 + (12 * static_cast<int>(difficulty))};
+            default:
+                return {0, 0};
         }
     };
+
+    NoteType noteFromEvent( TrackType type, int number, Difficulty difficulty )
+    {
+        noteRange range = getNoteRange( type, difficulty, GameFormat::RBN2 );
+
+        if ( number < range.min && number > range.max )
+            return NoteType::NONE;
+
+        if ( type < TrackType::Events )
+            return static_cast<NoteType> (number - range.min + 1);
+        else if ( type == TrackType::Beat )
+            return (number == range.min) ? NoteType::DownBeat : NoteType::UpBeat;
+        else return NoteType::NONE;
+    }
+
+    TrackType trackTypeFromString( std::string string )
+    {
+        if ( string.length() < 21 )
+            return TrackType::NONE;
+
+        if ( !string.compare(21, 4, "BEAT") ) return TrackType::Beat;
+        else if ( !string.compare(21, 5, "VENUE") ) return TrackType::Venue;
+        else if ( !string.compare(21, 6, "EVENTS") ) return TrackType::Events;
+        else if ( !string.compare(21, 9, "PART BASS") ) return TrackType::Bass;
+        else if ( !string.compare(21, 10, "PART DRUMS" ) ) return TrackType::Drums;
+        else if ( !string.compare(21, 11, "PART VOCALS") ) return TrackType::Vocals;
+        else if ( !string.compare(21, 11, "PART GUITAR") ) return TrackType::Guitar;
+        else return TrackType::NONE;
+    }
 
     std::string TrackNameForType( TrackType type )
     {
@@ -37,45 +70,11 @@ namespace MgCore
         }
     }
 
-    NoteType noteFromEvent( TrackType type, int number, Difficulty difficulty )
+    Song::Song( std::string songpath ) : m_path(songpath)
     {
-        int min, max;
-        int diff = static_cast<int>(difficulty);
-
-        min = noteMap[NM_ROCKBAND][diff][0];
-        max = noteMap[NM_ROCKBAND][diff][1];
-
-        if ( number < min && number > max )
-            return NoteType::NONE;
-
-        return static_cast<NoteType> (number - min + 1);
-    }
-
-    TrackType TrackTypeFromString( std::string string )
-    {
-        if ( string.length() < 21 )
-            return TrackType::NONE;
-
-        if ( !string.compare(21, 4, "BEAT") ) return TrackType::Beat;
-        else if ( !string.compare(21, 5, "VENUE") ) return TrackType::Venue;
-        else if ( !string.compare(21, 6, "EVENTS") ) return TrackType::Events;
-        else if ( !string.compare(21, 9, "PART BASS") ) return TrackType::Bass;
-        else if ( !string.compare(21, 10, "PART DRUMS" ) ) return TrackType::Drums;
-        else if ( !string.compare(21, 11, "PART VOCALS") ) return TrackType::Vocals;
-        else if ( !string.compare(21, 11, "PART GUITAR") ) return TrackType::Guitar;
-        else return TrackType::NONE;
-    }
-
-    void Track::addNote( NoteType type, float time )
-    {
-        m_notes.push_back( TrackNote(type, time) );
-    }
-
-    Song( std::string songpath ) : m_path(songpath)
-    {
-        m_trackInfo.push_back( {TrackType::Events, 0} );
-        m_trackInfo.push_back( {TrackType::Venue, 0} );
-        m_trackInfo.push_back( {TrackType::Beat, 0} );
+        m_trackInfo.push_back( {TrackType::Events, Difficulty::Easy} );
+        m_trackInfo.push_back( {TrackType::Venue, Difficulty::Easy} );
+        m_trackInfo.push_back( {TrackType::Beat, Difficulty::Easy} );
     }
 
     void Song::add( TrackType type, Difficulty difficulty )
@@ -110,7 +109,7 @@ namespace MgCore
             eventBuf = (buf = smf_event_decode(sEvent));
             free(buf);
 
-            typeComp = TrackTypeFromString(eventBuf);
+            typeComp = trackTypeFromString(eventBuf);
 
             for (int j = 0; j < m_trackInfo.size(); j++)
             {
@@ -149,5 +148,10 @@ namespace MgCore
         }
 
         return NULL;
+    }
+
+    void Track::addNote( NoteType type, float time )
+    {
+        m_notes.push_back( TrackNote(type, time) );
     }
 }
