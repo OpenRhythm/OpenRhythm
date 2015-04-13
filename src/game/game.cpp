@@ -39,16 +39,16 @@ GameManager::GameManager()
 
     MgCore::Song song( "songs/testsong" ); // dirname of song
 
-    song.add( MgCore::TRACK_GUITAR, MgCore::DIFF_EXPERT );
-    song.add( MgCore::TRACK_DRUMS, MgCore::DIFF_HARD );
+    song.add( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
+    song.add( MgCore::TrackType::Drums, MgCore::Difficulty::Hard );
 
     song.load();
 
-    MgCore::Track *track = song.getTrack( MgCore::TRACK_DRUMS, MgCore::DIFF_HARD );
-    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->type() ) << " (" << track->type() << ")" << std::endl;
+    MgCore::Track *track = song.getTrack( MgCore::TrackType::Drums, MgCore::Difficulty::Hard );
+    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << " (" << static_cast<int>(track->info().type) << ")" << std::endl;
 
-    track = song.getTrack( MgCore::TRACK_GUITAR, MgCore::DIFF_EXPERT );
-    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->type() ) << " (" << track->type() << ")" << std::endl;
+    track = song.getTrack( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
+    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << " (" << static_cast<int>(track->info().type) << ")" << std::endl;
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
