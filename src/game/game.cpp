@@ -44,6 +44,8 @@ GameManager::GameManager()
 
     song.load();
 
+    std::cout << "Song: " << (song.length() / 1000) / 60 << " minutes long" << std::endl;
+
     MgCore::Track *track = song.getTrack( MgCore::TrackType::Drums, MgCore::Difficulty::Hard );
     std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << " (" << static_cast<int>(track->info().type) << ")" << std::endl;
 

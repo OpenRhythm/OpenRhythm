@@ -25,7 +25,7 @@ namespace MgCore
         Bass,
         Drums,
         Vocals,
-        // All non-player tracks after TRACK_EVENT
+        // All non-player tracks after Events
         Events,
         Venue,
         Beat
@@ -46,14 +46,13 @@ namespace MgCore
 
     class TrackNote
     {
+    private:
+        NoteType m_type;
+        float m_time; //msec
     public:
         TrackNote( NoteType type, float time ) : m_type(type), m_time(time) {};
         NoteType type() { return m_type; };
         float time() { return m_time; };
-    private:
-        NoteType m_type;
-        float m_time; //msec
-
     };
 
     class Track
@@ -82,7 +81,6 @@ namespace MgCore
         Info m_info;
         std::vector<TrackNote> m_notes;
         int m_numNotes;
-
     };
 
     // Get the tracks for the given song, for in-game
@@ -92,12 +90,15 @@ namespace MgCore
         std::vector<Track::Info> m_trackInfo;
         std::vector<Track> m_tracks;
         std::string m_path;
+        float m_length;
     public:
         Song( std::string songpath );
 
         void add( TrackType type, Difficulty difficulty );
         bool load();
         Track *getTrack( TrackType type, Difficulty difficulty );
+
+        float length() { return m_length; };
     };
 
     std::string TrackNameForType ( TrackType type );

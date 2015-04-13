@@ -128,10 +128,19 @@ namespace MgCore
 
             while ((sEvent = smf_track_get_next_event(sTrack)) != NULL)
             {
-                eTypeComp = noteFromEvent(nTrack->info().type, sEvent->midi_buffer[1], nTrack->info().difficulty);
+                if ( typeComp == TrackType::Events ) {
+                    char *tagBuf = smf_event_decode(sEvent);
+                    std::string eventTag(tagBuf);
+                    free(tagBuf);
 
-                if ( eTypeComp != NoteType::NONE )
-                    nTrack->addNote( eTypeComp, sEvent->time_seconds / 1000 );
+                    if ( !eventTag.compare(6, 5, "[end]") )
+                        m_length = sEvent->time_seconds * 1000;
+                } else {
+                    eTypeComp = noteFromEvent(nTrack->info().type, sEvent->midi_buffer[1], nTrack->info().difficulty);
+
+                    if ( eTypeComp != NoteType::NONE )
+                        nTrack->addNote( eTypeComp, sEvent->time_seconds * 1000 );
+                }
             }
         }
 
