@@ -7,3 +7,6 @@
 [submodule "extern/libsmf"]
 	path = extern/libsmf
 	url = https://github.com/stump/libsmf.git
+[submodule "extern/glm"]
+	path = extern/glm
+	url = git@github.com:g-truc/glm.git
