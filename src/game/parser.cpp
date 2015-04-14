@@ -29,7 +29,7 @@ namespace MgCore
     {
         noteRange range = getNoteRange( type, difficulty, GameFormat::RBN2 );
 
-        if ( number < range.min && number > range.max )
+        if ( number < range.min || number > range.max )
             return NoteType::NONE;
 
         if ( type < TrackType::Events )
@@ -70,11 +70,27 @@ namespace MgCore
         }
     }
 
+    std::string NoteNameForType( NoteType type )
+    {
+        switch ( type )
+        {
+            case NoteType::Green: return "Green";
+            case NoteType::Red: return "Red";
+            case NoteType::Yellow: return "Yellow";
+            case NoteType::Blue: return "Blue";
+            case NoteType::Orange: return "Orange";
+            case NoteType::UpBeat: return "UpBeat";
+            case NoteType::DownBeat: return "DownBeat";
+            case NoteType::NONE:
+            default: return "None";
+        }
+    }
+
     Song::Song( std::string songpath ) : m_path(songpath)
     {
         m_trackInfo.push_back( {TrackType::Events, Difficulty::Easy} );
-        m_trackInfo.push_back( {TrackType::Venue, Difficulty::Easy} );
-        m_trackInfo.push_back( {TrackType::Beat, Difficulty::Easy} );
+        //m_trackInfo.push_back( {TrackType::Venue, Difficulty::Easy} );
+        //m_trackInfo.push_back( {TrackType::Beat, Difficulty::Easy} );
     }
 
     void Song::add( TrackType type, Difficulty difficulty )

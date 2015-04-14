@@ -102,4 +102,5 @@ namespace MgCore
     };
 
     std::string TrackNameForType ( TrackType type );
+    std::string NoteNameForType( NoteType type );
 }

@@ -39,7 +39,6 @@ GameManager::GameManager()
 
     MgCore::Song song( "songs/testsong" ); // dirname of song
 
-    song.add( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
     song.add( MgCore::TrackType::Drums, MgCore::Difficulty::Hard );
 
     song.load();
@@ -47,12 +46,11 @@ GameManager::GameManager()
     std::cout << "Song: " << (song.length() / 1000) / 60 << " minutes long" << std::endl;
 
     MgCore::Track *track = song.getTrack( MgCore::TrackType::Drums, MgCore::Difficulty::Hard );
-    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << " (" << static_cast<int>(track->info().type) << ")" << std::endl;
+    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << std::endl;
 
-    track = song.getTrack( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
-    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << " (" << static_cast<int>(track->info().type) << ")" << std::endl;
+    std::vector<MgCore::TrackNote*> v = track->GetNotesInFrame(0, 10000);
 
-    std::cout << "Song: " << track->GetNotesInFrame( 0.0, 10000.0 ).size() << " notes in first 10 seconds" << std::endl;
+    std::cout << "Song: " << v.size() << " notes in first 10 seconds, first note is " << NoteNameForType(v[0]->type()) << std::endl;
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
