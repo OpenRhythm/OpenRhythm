@@ -69,7 +69,7 @@ namespace MgCore
         Info info() { return m_info; };
 
         void addNote ( NoteType type, float time );
-        // std::vector<TrackNote*> getNotesInFrame( float start, float end );
+        std::vector<TrackNote*> GetNotesInFrame( float start, float end );
 
         bool isSolo();
         bool isDrumRoll();

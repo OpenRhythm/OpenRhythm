@@ -163,4 +163,16 @@ namespace MgCore
     {
         m_notes.push_back( TrackNote(type, time) );
     }
+
+    std::vector<TrackNote*> Track::GetNotesInFrame( float start, float end )
+    {
+        std::vector<TrackNote*> v;
+        for (int i = 0; i < m_notes.size(); i++)
+        {
+            if (m_notes[i].time() >= start && m_notes[i].time() <= end)
+                v.push_back( &m_notes[i] );
+        }
+
+        return v;
+    }
 }

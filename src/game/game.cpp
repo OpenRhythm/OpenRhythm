@@ -52,6 +52,8 @@ GameManager::GameManager()
     track = song.getTrack( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
     std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << " (" << static_cast<int>(track->info().type) << ")" << std::endl;
 
+    std::cout << "Song: " << track->GetNotesInFrame( 0.0, 10000.0 ).size() << " notes in first 10 seconds" << std::endl;
+
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
         std::cout << "Error: glLoadGen failed to load.";
