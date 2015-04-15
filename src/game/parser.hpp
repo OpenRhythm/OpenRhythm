@@ -44,15 +44,36 @@ namespace MgCore
         DownBeat
     };
 
+    struct TempoEvent
+    {
+    private:
+        float m_bpm;
+        float m_time;
+    public:
+        TempoEvent(float bpm, float time) : m_bpm(bpm), m_time(time) {};
+        float bpm() { return m_bpm; };
+        float time() { return m_time; };
+    };
+
+    class TempoTrack
+    {
+    private:
+        std::vector<TempoEvent> m_tempoEvents;
+    public:
+        void addEvent(float bpm, float time);
+        std::vector<TempoEvent*> getEventsInFrame(float start, float end);
+    };
+
     class TrackNote
     {
     private:
         NoteType m_type;
-        float m_time; //msec
+        float m_time;
     public:
         TrackNote( NoteType type, float time ) : m_type(type), m_time(time) {};
         NoteType type() { return m_type; };
         float time() { return m_time; };
+        float length;
     };
 
     class Track
@@ -68,8 +89,8 @@ namespace MgCore
 
         Info info() { return m_info; };
 
-        void addNote ( NoteType type, float time );
-        std::vector<TrackNote*> GetNotesInFrame( float start, float end );
+        void addNote(NoteType type, float time, bool on);
+        std::vector<TrackNote*> getNotesInFrame(float start, float end);
 
         bool isSolo();
         bool isDrumRoll();
@@ -82,7 +103,6 @@ namespace MgCore
     private:
         Info m_info;
         std::vector<TrackNote> m_notes;
-        int m_numNotes;
     };
 
     // Get the tracks for the given song, for in-game
@@ -91,14 +111,16 @@ namespace MgCore
     private:
         std::vector<Track::Info> m_trackInfo;
         std::vector<Track> m_tracks;
+        TempoTrack m_tempoTrack;
         std::string m_path;
         float m_length;
     public:
         Song( std::string songpath );
 
-        void add( TrackType type, Difficulty difficulty );
+        void add(TrackType type, Difficulty difficulty);
         bool load();
-        Track *getTrack( TrackType type, Difficulty difficulty );
+        Track *getTrack(TrackType type, Difficulty difficulty);
+        TempoTrack *getTempoTrack() { return &m_tempoTrack; };
 
         float length() { return m_length; };
     };

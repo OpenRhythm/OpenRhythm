@@ -50,7 +50,7 @@ GameManager::GameManager()
 
 //    track->listNotesInTrack();
 
-    std::vector<MgCore::TrackNote*> v = track->GetNotesInFrame(0, 10000);
+    std::vector<MgCore::TrackNote*> v = track->getNotesInFrame(0, 10000);
 
     std::cout << "Song: " << v.size() << " notes in first 10 seconds, first note is " << NoteNameForType(v[0]->type()) << std::endl;
 
