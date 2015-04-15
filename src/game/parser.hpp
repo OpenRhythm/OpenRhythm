@@ -77,6 +77,8 @@ namespace MgCore
         bool isBigRockEnding(); // move to Song?
         bool isTremolo();
         bool isTrill();
+
+        void listNotesInTrack();
     private:
         Info m_info;
         std::vector<TrackNote> m_notes;

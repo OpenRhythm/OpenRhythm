@@ -164,6 +164,14 @@ namespace MgCore
         return true;
     }
 
+    void Track::listNotesInTrack()
+    {
+        for(int i = 0; i < m_notes.size(); i++)
+            std::cout << NoteNameForType(m_notes[i].type()) << " at time " << m_notes[i].time()/1000 << " seconds." << std::endl;
+
+        std::cout << m_notes.size() << " notes." << std::endl;
+    }
+
     Track *Song::getTrack( TrackType type, Difficulty difficulty )
     {
         for (int i = 0; i < m_tracks.size(); i++) {

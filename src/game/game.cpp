@@ -48,6 +48,8 @@ GameManager::GameManager()
     MgCore::Track *track = song.getTrack( MgCore::TrackType::Drums, MgCore::Difficulty::Hard );
     std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << std::endl;
 
+//    track->listNotesInTrack();
+
     std::vector<MgCore::TrackNote*> v = track->GetNotesInFrame(0, 10000);
 
     std::cout << "Song: " << v.size() << " notes in first 10 seconds, first note is " << NoteNameForType(v[0]->type()) << std::endl;
