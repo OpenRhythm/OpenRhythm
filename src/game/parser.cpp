@@ -167,10 +167,15 @@ namespace MgCore
                     if ( !eventTag.compare(6, 5, "[end]") )
                         m_length = sEvent->time_seconds * 1000;
                 } else {
+                    //std::cout << smf_event_decode(sEvent) << std::endl;
+                    if (smf_event_is_metadata(sEvent) || smf_event_is_textual(sEvent))
+                        continue;
+
                     eTypeComp = noteFromEvent(nTrack->info().type, sEvent->midi_buffer[1], nTrack->info().difficulty);
 
                     if ( eTypeComp != NoteType::NONE )
                         nTrack->addNote(eTypeComp, sEvent->time_seconds * 1000,  ((sEvent->midi_buffer[0] & 0xF0) == 0x90) ? true : false);
+
                 }
             }
         }
@@ -221,7 +226,7 @@ namespace MgCore
     void Track::listNotesInTrack()
     {
         for(int i = 0; i < m_notes.size(); i++)
-            std::cout << NoteNameForType(m_notes[i].type()) << " at time " << m_notes[i].time()/1000 << " seconds." << std::endl;
+            std::cout << NoteNameForType(m_notes[i].type()) << " note at " << m_notes[i].time()/1000 << " seconds (length " << m_notes[i].length << "ms)" << std::endl;
 
         std::cout << m_notes.size() << " notes." << std::endl;
     }
