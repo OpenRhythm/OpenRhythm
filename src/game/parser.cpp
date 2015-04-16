@@ -171,10 +171,15 @@ namespace MgCore
                     if (smf_event_is_metadata(sEvent) || smf_event_is_textual(sEvent))
                         continue;
 
+                    int status = (sEvent->midi_buffer[0] & 0xF0);
+
+                    if (status != 0x90 && status != 0x80) // On of Off midi notes only
+                        continue;
+
                     eTypeComp = noteFromEvent(nTrack->info().type, sEvent->midi_buffer[1], nTrack->info().difficulty);
 
                     if ( eTypeComp != NoteType::NONE )
-                        nTrack->addNote(eTypeComp, sEvent->time_seconds * 1000,  ((sEvent->midi_buffer[0] & 0xF0) == 0x90) ? true : false);
+                        nTrack->addNote(eTypeComp, sEvent->time_seconds * 1000,  (status == 0x90) ? true : false);
 
                 }
             }

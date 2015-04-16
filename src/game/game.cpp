@@ -39,16 +39,16 @@ GameManager::GameManager()
 
     MgCore::Song song( "songs/testsong" ); // dirname of song
 
-    song.add( MgCore::TrackType::Drums, MgCore::Difficulty::Hard );
+    song.add( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
 
     song.load();
 
     std::cout << "Song: " << (song.length() / 1000) / 60 << " minutes long" << std::endl;
 
-    MgCore::Track *track = song.getTrack( MgCore::TrackType::Drums, MgCore::Difficulty::Hard );
+    MgCore::Track *track = song.getTrack( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
     std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << std::endl;
 
-//    track->listNotesInTrack();
+    //track->listNotesInTrack();
 
     std::vector<MgCore::TrackNote*> v = track->getNotesInFrame(0, 10000);
 
