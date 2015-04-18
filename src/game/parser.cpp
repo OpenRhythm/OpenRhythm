@@ -115,7 +115,20 @@ namespace MgCore
         std::string eventBuf;
         TrackType typeComp;
         NoteType eTypeComp;
-        int checkedTracks = 0;
+        int checkedTracks = 1; //skip first track
+
+        if ((sTrack = smf_get_track_by_number(smf, 1)) == NULL)
+            return false;
+
+        while((sEvent = smf_track_get_next_event(sTrack)) != NULL)
+        {
+            if (!smf_event_is_metadata(sEvent) || smf_event_is_eot(sEvent))
+                continue;
+
+            float bpm = 60000000.0 / (double)((sEvent->midi_buffer[3] << 16) + (sEvent->midi_buffer[4] << 8) + sEvent->midi_buffer[5]);
+
+            m_tempoTrack.addEvent(bpm, sEvent->time_seconds*1000);
+        }
 
         while ((sTrack = smf_get_track_by_number(smf, checkedTracks+1)) != NULL)
         {
@@ -124,21 +137,6 @@ namespace MgCore
             sEvent = smf_track_get_next_event(sTrack);
             eventBuf = (buf = smf_event_decode(sEvent));
             free(buf);
-
-            if (!eventBuf.compare(21, 11, "midi_export")) // tempo map
-            {
-                while((sEvent = smf_track_get_next_event(sTrack)) != NULL)
-                {
-                    if (!smf_event_is_metadata(sEvent) || smf_event_is_eot(sEvent))
-                        continue;
-
-                    float bpm = 60000000.0 / (double)((sEvent->midi_buffer[3] << 16) + (sEvent->midi_buffer[4] << 8) + sEvent->midi_buffer[5]);
-
-                    m_tempoTrack.addEvent(bpm, sEvent->time_seconds*1000);
-                }
-                checkedTracks++;
-                continue;
-            }
 
             typeComp = trackTypeFromString(eventBuf);
 
