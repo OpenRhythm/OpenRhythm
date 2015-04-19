@@ -123,7 +123,7 @@ endif()
 
 source_group("extern\\stb" FILES ${STB_SRC})
 
-set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${ttvfs_SRC} ${ttvfs_zip_SRC} ${GL})
+set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${GL})
 
 add_executable(musicgame ${SOURCE})
 
@@ -137,26 +137,27 @@ add_custom_command(TARGET musicgame PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${SOURCE_DATA_DIR} $<TARGET_FILE_DIR:musicgame>/data/)
 
+find_package(SMF)
+include_directories(${SMF_INCLUDE_DIRS})
+
+if (NOT SMF_FOUND)
+    ExternalProject_add(smf
+        DOWNLOAD_COMMAND ""
+        CONFIGURE_COMMAND ./autogen.sh && ./configure --prefix=<INSTALL_DIR>
+        BUILD_COMMAND make install
+        SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/libsmf
+        BUILD_IN_SOURCE 1)
+    add_dependencies(musicgame smf)
+    ExternalProject_Get_Property(smf BINARY_DIR)
+    set(smf_libs ${BINARY_DIR}/src/.libs/libsmf.a)
+endif()
+
 include(ExternalProject)
 ExternalProject_add(ttvfs
     DOWNLOAD_COMMAND ""
     CMAKE_ARGS CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DTTVFS_BUILD_CFILEAPI=FALSE -DTTVFS_SUPPORT_ZIP=FALSE -DTTVFS_LARGEFILE_SUPPORT=FALSE
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/ttvfs
     INSTALL_COMMAND "")
-
-ExternalProject_add(smf
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ./autogen.sh && ./configure --prefix=<INSTALL_DIR>
-    BUILD_COMMAND make install
-    SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/libsmf
-    BUILD_IN_SOURCE 1)
-
-add_dependencies(musicgame ttvfs)
-add_dependencies(musicgame smf)
-
-if(OSX_APP_BUNDLE)
-    set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
-endif()
 
 ExternalProject_Get_Property(ttvfs BINARY_DIR)
 
@@ -175,9 +176,11 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin" AND CMAKE_GENERATOR MATCHES "Xcode")
 else()
     set(ttvfs_libs ${BINARY_DIR}/ttvfs/libttvfs.a)
 endif()
+add_dependencies(musicgame ttvfs)
 
-ExternalProject_Get_Property(smf BINARY_DIR)
 
-set(smf_libs ${BINARY_DIR}/src/.libs/libsmf.a)
+if(OSX_APP_BUNDLE)
+    set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
+endif()
 
-target_link_libraries(musicgame ${smf_libs} ${ttvfs_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
+target_link_libraries(musicgame ${ttvfs_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${SMF_LIBRARY} ${FREETYPE_LIBRARIES})
