@@ -72,6 +72,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp)
 
 set(CORE_SOURCE
@@ -83,6 +84,7 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp)
 
 if(INC_PATH)
@@ -140,6 +142,8 @@ add_custom_command(TARGET musicgame PRE_BUILD
 find_package(SMF)
 include_directories(${SMF_INCLUDE_DIRS})
 
+include(ExternalProject)
+
 if (NOT SMF_FOUND)
     ExternalProject_add(smf
         DOWNLOAD_COMMAND ""
@@ -152,7 +156,6 @@ if (NOT SMF_FOUND)
     set(smf_libs ${BINARY_DIR}/src/.libs/libsmf.a)
 endif()
 
-include(ExternalProject)
 ExternalProject_add(ttvfs
     DOWNLOAD_COMMAND ""
     CMAKE_ARGS CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DTTVFS_BUILD_CFILEAPI=FALSE -DTTVFS_SUPPORT_ZIP=FALSE -DTTVFS_LARGEFILE_SUPPORT=FALSE
