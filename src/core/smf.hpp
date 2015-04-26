@@ -46,6 +46,7 @@ enum MidiEventStatus
 {
     status_MetaEvent = 0xFF,
     status_SysexEvent = 0xF0,
+    status_SysexEvent2 = 0xF7,
 };
 
 enum SmfType

@@ -117,12 +117,9 @@ void SmfReader::readMetaEvent(SmfEventInfo &event)
 
 void SmfReader::readSysExEvent(SmfEventInfo &event)
 {
-    uint8_t sysexData = 0;
+    auto length = readVarLen();
     std::cout << "sysex event " << m_smf->tellg() << std::endl;
-
-    while (sysexData !=0xF7) {
-        sysexData = read_type<uint8_t>(*m_smf);
-    }
+    m_smf->seekg(length, std::ios::cur);
 }
 
 void SmfReader::readFile()
@@ -165,14 +162,13 @@ void SmfReader::readFile()
         read_type<char>(*m_smf, chunk.chunkType, 4);
         chunk.length = read_type<uint32_t>(*m_smf);
 
+        // seek to the end of the chunk
+        // 8 is the length of the type plus length fields
+        chunkStart = pos;
+        pos = chunkStart + (8 + chunk.length);
+
         if (strcmp(chunk.chunkType, "MTrk") == 0) {
 
-            // seek to the end of the chunk
-            // 8 is the length of the type plus length fields
-            chunkStart = pos;
-            pos = chunkStart + (8 + chunk.length);
-
-            //uint32_t dTime; = readVarLen();
             uint8_t prevStatus;
 
             auto track = std::make_unique<SmfTrack>();
@@ -191,7 +187,7 @@ void SmfReader::readFile()
                 if (status == status_MetaEvent) {
                     event.status = read_type<uint8_t>(*m_smf);
                     readMetaEvent(event);
-                } else if (status == status_SysexEvent) {
+                } else if (status == status_SysexEvent || status == status_SysexEvent2) {
                     event.status = read_type<uint8_t>(*m_smf);
                     readSysExEvent(event);
                 } else {
@@ -205,13 +201,13 @@ void SmfReader::readFile()
                     prevStatus = event.status;
                 }
             }
-
-            m_smf->seekg(pos);
             std::cout << m_currentTrack->midiEvents.size() << std::endl;
 
         } else {
-            std::cout << "Track chunk not found, invalid midi." << std::endl;
+            std::cout << "Supported track chunk not found." << std::endl;
         }
+
+        m_smf->seekg(pos);
     }
 
     if (pos == fileEnd) {
