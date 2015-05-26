@@ -155,6 +155,12 @@ void SmfReader::readFile()
         }
     } else {
         std::cout << "File not a valid MIDI." << std::endl;
+        return;
+    }
+
+    if (m_header.division & 0x8000 != 0) {
+        std::cout << "SMPTE division mode is currently not supported" << std::endl;
+        return;
     }
 
     for (int i = 0; i < m_header.trackNum; i++) {
