@@ -1,5 +1,7 @@
 # MusicGame
 
+Just as a warning, I have yet to decide on a license for the code.
+
 MusicGame currently depends on the following libs:
 * CMake
 * SDL2
@@ -23,7 +25,7 @@ git submodule update
 ```
 
 ## Compiling
-You will need a compiler that supports C++14 (C++11 may be supported in the future)
+You will need a compiler that supports C++14
 
 #### Windows
 You will need to get Visual Studio 2013 Community Edition (please expand)
