@@ -28,7 +28,7 @@ git submodule update
 You will need a compiler that supports C++14
 
 #### Windows
-You will need to get Visual Studio 2013 Community Edition (please expand)
+You will need to get Visual Studio 2015 Community Edition (please expand)
 
 #### Unix: (MacOS/Linux)
 GCC-4.9+ or Clang-3.4+ (MacOS: download Xcode Command Line Utils)
