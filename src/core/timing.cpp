@@ -1,7 +1,46 @@
 #include "timing.hpp"
 
+#if defined(PLATFORM_LINUX)
+    #include <time.h>
+#elif defined(PLATFORM_OSX)
+    #include <mach/clock.h>
+#endif
+
 namespace MgCore
 {
+
+#if defined(PLATFORM_WINDOWS)
+    double FpsTimer::get_time()
+    {
+        LARGE_INTEGER startingTime;
+        QueryPerformanceCounter(&startingTime);
+        return startingTime.QuadPart / static_cast<double>(m_frequency.QuadPart);
+    }
+
+#elif defined(PLATFORM_LINUX)
+    double FpsTimer::get_time()
+    {
+        timespec mt;
+        clock_gettime(CLOCK_MONOTONIC, &mt);
+        return mt.tv_sec + (mt.tv_nsec * 0.000000001);
+    }
+
+#elif defined(PLATFORM_OSX)
+    double FpsTimer::get_time()
+    {
+        mach_timespec_t mts;
+        clock_get_time(m_cclock, &mts);
+        return mts.tv_sec + (mts.tv_nsec * 0.000000001);
+    }
+
+#else
+    double FpsTimer::get_time()
+    {
+        return 1.0;
+    }
+
+#endif
+
 
     FpsTimer::FpsTimer()
     {
