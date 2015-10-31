@@ -2,9 +2,9 @@
 
 #include "parser.hpp"
 #include "vfs.hpp"
-#include "smf.h"
+#include "smf.hpp"
 
-namespace MgCore
+namespace MgGame
 {
     struct noteRange
     {
@@ -17,8 +17,8 @@ namespace MgCore
         // this is kinda ugly but should work
         switch ( gameFormat )
         {
-            case GameFormat::RBN2: 
-                if ( type == TrackType::Beat ) return {12, 13}; 
+            case GameFormat::RBN2:
+                if ( type == TrackType::Beat ) return {12, 13};
                 else return {60 + (12 * static_cast<int>(difficulty)), 64 + (12 * static_cast<int>(difficulty))};
             default:
                 return {0, 0};
@@ -103,88 +103,91 @@ namespace MgCore
 
     bool Song::load()
     {
-        std::string mem_buf = MgCore::read_file(m_path + "/notes.mid", FileMode::Binary);
-        smf_t *smf = smf_load_from_memory( mem_buf.c_str(), mem_buf.size() );
+        std::string mem_buf = MgCore::read_file(m_path + "/notes.mid", MgCore::FileMode::Binary);
+        MgCore::SmfReader midi(mem_buf);
 
-        if ( smf == NULL )
-            return false;
+        auto tracks = midi.getTracks();
 
-        smf_track_t *sTrack;
-        smf_event_t *sEvent;
-        char *buf;
-        std::string eventBuf;
-        TrackType typeComp;
-        NoteType eTypeComp;
-        int checkedTracks = 1; //skip first track
-
-        if ((sTrack = smf_get_track_by_number(smf, 1)) == NULL)
-            return false;
-
-        while((sEvent = smf_track_get_next_event(sTrack)) != NULL)
-        {
-            if (!smf_event_is_metadata(sEvent) || smf_event_is_eot(sEvent))
-                continue;
-
-            float bpm = 60000000.0 / (double)((sEvent->midi_buffer[3] << 16) + (sEvent->midi_buffer[4] << 8) + sEvent->midi_buffer[5]);
-
-            m_tempoTrack.addEvent(bpm, sEvent->time_seconds*1000);
+        for (auto track: tracks) {
+            std::cout << track->name << std::endl;
         }
 
-        while ((sTrack = smf_get_track_by_number(smf, checkedTracks+1)) != NULL)
-        {
-            Track *nTrack = NULL;
-
-            sEvent = smf_track_get_next_event(sTrack);
-            eventBuf = (buf = smf_event_decode(sEvent));
-            free(buf);
-
-            typeComp = trackTypeFromString(eventBuf);
-
-            for (int j = 0; j < m_trackInfo.size(); j++)
-            {
-                if ( m_trackInfo[j].type == typeComp )
-                {
-                    m_tracks.push_back( Track(m_trackInfo[j]) );
-                    nTrack = &m_tracks.back();
-                    break;
-                }
-            }
-
-            checkedTracks++;
-
-            if ( !nTrack )
-                continue;
-
-            while ((sEvent = smf_track_get_next_event(sTrack)) != NULL)
-            {
-                if ( typeComp == TrackType::Events ) {
-                    char *tagBuf = smf_event_decode(sEvent);
-                    std::string eventTag(tagBuf);
-                    free(tagBuf);
-
-                    if ( !eventTag.compare(6, 5, "[end]") )
-                        m_length = sEvent->time_seconds * 1000;
-                } else {
-                    //std::cout << smf_event_decode(sEvent) << std::endl;
-                    if (smf_event_is_metadata(sEvent) || smf_event_is_textual(sEvent))
-                        continue;
-
-                    int status = (sEvent->midi_buffer[0] & 0xF0);
-
-                    if (status != 0x90 && status != 0x80) // On of Off midi notes only
-                        continue;
-
-                    eTypeComp = noteFromEvent(nTrack->info().type, sEvent->midi_buffer[1], nTrack->info().difficulty);
-
-                    if ( eTypeComp != NoteType::NONE )
-                        nTrack->addNote(eTypeComp, sEvent->time_seconds * 1000,  (status == 0x90) ? true : false);
-
-                }
-            }
-        }
-
-        smf_delete( smf );
-        return true;
+        // smf_track_t *sTrack;
+        // smf_event_t *sEvent;
+        // char *buf;
+        // std::string eventBuf;
+        // TrackType typeComp;
+        // NoteType eTypeComp;
+        // int checkedTracks = 1; //skip first track
+        //
+        // if ((sTrack = smf_get_track_by_number(smf, 1)) == NULL)
+        //     return false;
+        //
+        // while((sEvent = smf_track_get_next_event(sTrack)) != NULL)
+        // {
+        //     if (!smf_event_is_metadata(sEvent) || smf_event_is_eot(sEvent))
+        //         continue;
+        //
+        //     float bpm = 60000000.0 / (double)((sEvent->midi_buffer[3] << 16) + (sEvent->midi_buffer[4] << 8) + sEvent->midi_buffer[5]);
+        //
+        //     m_tempoTrack.addEvent(bpm, sEvent->time_seconds*1000);
+        // }
+        //
+        // while ((sTrack = smf_get_track_by_number(smf, checkedTracks+1)) != NULL)
+        // {
+        //     Track *nTrack = NULL;
+        //
+        //     sEvent = smf_track_get_next_event(sTrack);
+        //     eventBuf = (buf = smf_event_decode(sEvent));
+        //     free(buf);
+        //
+        //     typeComp = trackTypeFromString(eventBuf);
+        //
+        //     for (int j = 0; j < m_trackInfo.size(); j++)
+        //     {
+        //         if ( m_trackInfo[j].type == typeComp )
+        //         {
+        //             m_tracks.push_back( Track(m_trackInfo[j]) );
+        //             nTrack = &m_tracks.back();
+        //             break;
+        //         }
+        //     }
+        //
+        //     checkedTracks++;
+        //
+        //     if ( !nTrack )
+        //         continue;
+        //
+        //     while ((sEvent = smf_track_get_next_event(sTrack)) != NULL)
+        //     {
+        //         if ( typeComp == TrackType::Events ) {
+        //             char *tagBuf = smf_event_decode(sEvent);
+        //             std::string eventTag(tagBuf);
+        //             free(tagBuf);
+        //
+        //             if ( !eventTag.compare(6, 5, "[end]") )
+        //                 m_length = sEvent->time_seconds * 1000;
+        //         } else {
+        //             //std::cout << smf_event_decode(sEvent) << std::endl;
+        //             if (smf_event_is_metadata(sEvent) || smf_event_is_textual(sEvent))
+        //                 continue;
+        //
+        //             int status = (sEvent->midi_buffer[0] & 0xF0);
+        //
+        //             if (status != 0x90 && status != 0x80) // On of Off midi notes only
+        //                 continue;
+        //
+        //             eTypeComp = noteFromEvent(nTrack->info().type, sEvent->midi_buffer[1], nTrack->info().difficulty);
+        //
+        //             if ( eTypeComp != NoteType::NONE )
+        //                 nTrack->addNote(eTypeComp, sEvent->time_seconds * 1000,  (status == 0x90) ? true : false);
+        //
+        //         }
+        //     }
+        // }
+        //
+        // smf_delete( smf );
+        return false;
     }
 
     Track *Song::getTrack( TrackType type, Difficulty difficulty )

@@ -22,7 +22,7 @@ GameManager::GameManager()
 
     m_window->make_current(m_context.get());
 
-    VFS.AddLoader(new ttvfs::DiskLoader);
+    //VFS.AddLoader(new ttvfs::DiskLoader);
 
     //
     // AppPath gets mounted on osx
@@ -30,35 +30,36 @@ GameManager::GameManager()
     // HomePath gets mounted and overwrites any files similar to those in BasePath (configs)
     // std::cout << MgCore::GetBasePath() << std::endl;
 #if OSX_APP_BUNDLE
-    VFS.Mount( MgCore::GetAppPath().c_str(), "" );
+    MgCore::mount(MgCore::GetAppPath(), "");
 #endif
-    VFS.Mount( MgCore::GetBasePath().c_str(), "" );
-    VFS.Mount( MgCore::GetHomePath().c_str(), "" );
+    MgCore::mount(MgCore::GetBasePath(), "");
+    //VFS.Mount( MgCore::GetBasePath().c_str(), "" );
+    //VFS.Mount( MgCore::GetHomePath().c_str(), "" );
 
-    VFS.Mount( "data", "" );
+    //MgCore::mount( "./data", "data" );
 
-    MgCore::Song song( "songs/testsong" ); // dirname of song
+    //MgGame::Song song( "/data/songs/testsong" ); // dirname of song
 
-    song.add( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
+    //song.add( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
 
-    song.load();
+    //song.load();
 
-    std::cout << "Song: " << (song.length() / 1000) / 60 << " minutes long" << std::endl;
+    //std::cout << "Song: " << (song.length() / 1000) / 60 << " minutes long" << std::endl;
 
-    MgCore::Track *track = song.getTrack( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
-    std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << std::endl;
+    //MgCore::Track *track = song.getTrack( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
+    //std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << std::endl;
 
     //track->listNotesInTrack();
 
-    std::vector<MgCore::TrackNote*> v = track->getNotesInFrame(0, 10000);
+    //std::vector<MgCore::TrackNote*> v = track->getNotesInFrame(0, 10000);
 
-    std::cout << "Song: " << v.size() << " notes in first 10 seconds, first note is " << NoteNameForType(v[0]->type()) << std::endl;
+    //std::cout << "Song: " << v.size() << " notes in first 10 seconds, first note is " << NoteNameForType(v[0]->type()) << std::endl;
 
     if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
     {
         std::cout << "Error: glLoadGen failed to load.";
     }
-    
+
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);
     m_lis.mask = MgCore::EventType::EventAll;
 
@@ -72,8 +73,8 @@ GameManager::GameManager()
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
-    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "shaders/main.vs"};
-    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "shaders/main.fs"};
+    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
+    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
     MgCore::Shader vertShader(vertInfo);
     MgCore::Shader fragShader(fragInfo);
@@ -82,7 +83,7 @@ GameManager::GameManager()
     m_program->use();
     m_orthoID = m_program->uniform_attribute("ortho");
 
-    m_texture = std::make_unique<MgCore::Texture>("icon.png", m_program.get());
+    m_texture = std::make_unique<MgCore::Texture>("data/icon.png", m_program.get());
 
     std::cout << (m_width / 37) * (m_height / 37) << std::endl;
 
@@ -118,7 +119,7 @@ void GameManager::start()
     {
         m_fpsTime += m_clock->tick();
         m_events->process();
-        
+
         update();
         render();
 

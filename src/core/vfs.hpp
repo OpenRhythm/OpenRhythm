@@ -1,5 +1,8 @@
 #pragma once
-#include "ttvfs.h"
+#include <string>
+#include <vector>
+#include <memory>
+#include <functional>
 
 //
 // To add archive to VFS:
@@ -28,20 +31,39 @@
 //   the new ones.
 // - Any directory or archive in the VFS can also be re-mounted.
 //
- 
-extern ttvfs::Root VFS;
 
 // Utility functions for finding paths
 namespace MgCore
 {
-	enum class FileMode
-	{
-		Binary,
-		Normal,
-	};
-    std::string read_raw_file(std::string filename, FileMode mode = FileMode::Normal);
+
+    struct VFSObjectNode
+    {
+        bool leaf; // True, a file no children. False, a directory has children.
+        std::vector<std::string> sysPath;
+        std::string vfsPath;
+        std::string name;
+        VFSObjectNode *parent;
+        std::vector<std::unique_ptr<VFSObjectNode>> children;
+        VFSObjectNode(std::string sysloc, std::string vfsloc, std::string nodename, VFSObjectNode *nodeparent);
+        void add_child(std::string pathVFS, std::string pathSys, std::string name);
+
+    };
+
+    std::string getPrimaryDelimiter(std::string path);
+    void recurse_to(std::string recrsePath, std::function<void(VFSObjectNode *, std::string, bool)> callback);
+    void mount(std::string sysPath, std::string vfsPath);
+    std::string getPathDelimiter();
+    std::string resolveSystemPath(std::string objectPath);
+
+
+    enum class FileMode
+    {
+        Binary,
+        Normal,
+    };
+
+    // std::string read_raw_file(std::string filename, FileMode mode = FileMode::Normal);
     std::string read_file(std::string filename, FileMode mode = FileMode::Normal);
-    bool getFileStream(std::string filename, std::istream &stream);
     void SetBasePath( std::string newPath ); // set basePath
     std::string GetBasePath(); // executable path
     std::string GetHomePath(); // home/library path to store configs

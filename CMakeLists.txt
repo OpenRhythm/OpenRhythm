@@ -73,6 +73,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp)
 
 set(CORE_SOURCE
@@ -85,6 +86,7 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp)
 
 if(INC_PATH)
@@ -111,10 +113,7 @@ set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.h
 
 source_group("src\\gl" FILES ${GL})
 
-include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs)
-include_directories(${CMAKE_SOURCE_DIR}/extern/ttvfs/ttvfs_zip)
 include_directories(${CMAKE_SOURCE_DIR}/extern/stb)
-include_directories(${CMAKE_SOURCE_DIR}/extern/libsmf/src)
 
 if(USE_LIB_PNGCPP)
     find_package(PNG REQUIRED)
@@ -139,51 +138,9 @@ add_custom_command(TARGET musicgame PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${SOURCE_DATA_DIR} $<TARGET_FILE_DIR:musicgame>/data/)
 
-find_package(SMF)
-include_directories(${SMF_INCLUDE_DIRS})
-
-include(ExternalProject)
-
-if (NOT SMF_FOUND)
-    ExternalProject_add(smf
-        DOWNLOAD_COMMAND ""
-        CONFIGURE_COMMAND ./autogen.sh && ./configure --prefix=<INSTALL_DIR>
-        BUILD_COMMAND make install
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/libsmf
-        BUILD_IN_SOURCE 1)
-    add_dependencies(musicgame smf)
-    ExternalProject_Get_Property(smf BINARY_DIR)
-    set(smf_libs ${BINARY_DIR}/src/.libs/libsmf.a)
-endif()
-
-ExternalProject_add(ttvfs
-    DOWNLOAD_COMMAND ""
-    CMAKE_ARGS CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> -DTTVFS_BUILD_CFILEAPI=FALSE -DTTVFS_SUPPORT_ZIP=FALSE -DTTVFS_LARGEFILE_SUPPORT=FALSE
-    SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/ttvfs
-    INSTALL_COMMAND "")
-
-ExternalProject_Get_Property(ttvfs BINARY_DIR)
-
-if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-    if(CMAKE_CONFIGURATION_TYPES MATCHES "Release" AND CMAKE_CONFIGURATION_TYPES MATCHES "Release")
-        set(ttvfs_libs ${BINARY_DIR}/ttvfs/Release/ttvfs.lib)
-    else()
-        set(ttvfs_libs ${BINARY_DIR}/ttvfs/Debug/ttvfs.lib)
-    endif()
-elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin" AND CMAKE_GENERATOR MATCHES "Xcode")
-    if(CMAKE_CONFIGURATION_TYPES MATCHES "Release" AND CMAKE_CONFIGURATION_TYPES MATCHES "Release")
-        set(ttvfs_libs ${BINARY_DIR}/ttvfs/Release/libttvfs.a)
-    else()
-        set(ttvfs_libs ${BINARY_DIR}/ttvfs/Debug/libttvfs.a)
-    endif()
-else()
-    set(ttvfs_libs ${BINARY_DIR}/ttvfs/libttvfs.a)
-endif()
-add_dependencies(musicgame ttvfs)
-
 
 if(OSX_APP_BUNDLE)
     set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
 
-target_link_libraries(musicgame ${ttvfs_libs} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${SMF_LIBRARY} ${FREETYPE_LIBRARIES})
+target_link_libraries(musicgame ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})

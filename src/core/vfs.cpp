@@ -1,9 +1,9 @@
-#include "config.hpp"
-#include "vfs.hpp"
 #include <iostream>
 #include <fstream>
-//#include <streambuf>
-#include <sstream>
+
+#include "config.hpp"
+#include "vfs.hpp"
+#include "stringutils.hpp"
 
 #ifdef PLATFORM_WINDOWS
 #include <windows.h>
@@ -22,11 +22,116 @@ static std::string homePath;
 static std::string appPath;
 #endif
 
-ttvfs::Root VFS;
 
 namespace MgCore
 {
-    std::string read_raw_file(std::string filename, FileMode mode)
+    #if defined(PLATFORM_WINDOWS)
+    static const std::string sys_path_delimiter = "\\";
+    #else
+    static const std::string sys_path_delimiter = "/";
+    #endif
+
+    std::vector<std::string> supported_sys_delimiters = {"\\", "/"};
+
+    const std::string vfs_path_delimiter = "/";
+
+    VFSObjectNode::VFSObjectNode(std::string sysloc, std::string vfsloc, std::string nodename, VFSObjectNode *nodeparent)
+    :vfsPath(vfsloc), name(nodename), parent(nodeparent)
+    {
+        sysPath.push_back(sysloc);
+    }
+
+    void VFSObjectNode::add_child(std::string pathVFS, std::string pathSys, std::string name)
+    {
+        children.push_back(std::make_unique<VFSObjectNode>(pathVFS, pathSys, name, this));
+    }
+
+    static VFSObjectNode vfsRoot("", "/", "", nullptr);
+
+    std::string getPrimaryDelimiter(std::string path)
+    {
+        int largestCount = 0;
+        std::string largestVal;
+        for (auto delimit : supported_sys_delimiters) {
+            int count = stringCount(path, delimit);
+            if (largestCount != 0 && count != 0) {
+                // string has mixed path delimiters
+                return "";
+            } else if (count > largestCount) {
+                largestCount = count;
+                largestVal = delimit;
+            }
+        }
+        return largestVal;
+    }
+
+    void recurse_to(std::string recrsePath, std::function<void(VFSObjectNode *, std::string, bool)> callback)
+    {
+        std::vector<std::string> pathObjects = stringSplit(recrsePath, vfs_path_delimiter);
+        std::reverse(pathObjects.begin(), pathObjects.end()); // now we can pop from back of vector
+
+
+        std::vector<std::string> pathCurrentLocation;
+        pathCurrentLocation.push_back("");
+
+        VFSObjectNode *currentNode = &vfsRoot;
+        std::string currentNodeName, vfsNodePath;
+        bool foundNode;
+
+        while (true) {
+            foundNode = false;
+            currentNodeName = pathObjects.back();
+            pathObjects.pop_back();
+
+            pathCurrentLocation.push_back(currentNodeName);
+            vfsNodePath = stringJoin(pathCurrentLocation, vfs_path_delimiter);
+
+            for (auto& node : currentNode->children)
+            {
+                if (node->name == currentNodeName) {
+                    currentNode = node.get();
+                    foundNode = true;
+                }
+            }
+
+            if (vfsNodePath != recrsePath && foundNode == false) // Create node if its not found
+            {
+                currentNode->add_child(vfsNodePath, "", currentNodeName);
+            }
+
+            if (pathObjects.size() == 0)
+            {
+                callback(currentNode, currentNodeName, foundNode);
+                break;
+            }
+        }
+    }
+
+    void mount(std::string sysPath, std::string vfsPath)
+    {
+        // If the path being mounted already exists the two will be merged.
+        auto doMount = [&](VFSObjectNode * currentNode, std::string currentNodeName, bool foundNode) {
+            if (foundNode == false) {
+                currentNode->add_child(vfsPath, sysPath, currentNodeName);
+            } else {
+                currentNode->sysPath.push_back(sysPath);
+            }
+        };
+        recurse_to(vfsPath, doMount);
+    }
+
+    std::string getPathDelimiter()
+    {
+        return vfs_path_delimiter;
+    }
+
+    std::string resolveSystemPath(std::string objectPath)
+    {
+        return "";
+    }
+
+
+    std::string read_file(std::string filename, FileMode mode)
     {
         auto fileMode = std::ios::in | std::ios_base::ate;
         if (mode == FileMode::Binary) {
@@ -41,35 +146,9 @@ namespace MgCore
             in.close();
             return contents;
         } else {
+            std::cout << "Failed to load" << filename << std::endl;
             return "";
         }
-    }
-
-    std::string read_file(std::string filename, FileMode mode)
-    {
-        ttvfs::File *vf = VFS.GetFile( filename.c_str() );
-        std::string modeStr = "r";
-        if (mode == FileMode::Binary) {
-            modeStr += "b";
-            std::cout << "Testing" << std::endl;
-        } 
-
-        if ( vf && vf->open(modeStr.c_str()) ) {
-            std::string contents;
-            contents.resize( static_cast<unsigned int>(vf->size()) );
-            vf->read(&contents[0], contents.size());
-            vf->close();
-            return contents;
-        } else {
-            return "";
-        }
-    }
-    
-    bool getFileStream(std::string filename, std::istream &stream)
-    {
-            std::stringbuf contents( read_file( filename ) );
-            stream.rdbuf( &contents );
-            return stream.good();
     }
 
     std::string GetBasePath() // executable path
@@ -96,7 +175,7 @@ namespace MgCore
 #elif defined(PLATFORM_LINUX)
             char buff[PATH_MAX];
             ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
-            if (len != -1) 
+            if (len != -1)
             {
                 buff[len] = '\0';
                 basePath = buff;

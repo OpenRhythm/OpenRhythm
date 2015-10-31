@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-namespace MgCore
+namespace MgGame
 {
     enum class GameFormat
     {
@@ -78,7 +78,7 @@ namespace MgCore
 
     class Track
     {
-    public:        
+    public:
         struct Info
         {
             TrackType type;
