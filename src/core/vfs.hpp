@@ -55,6 +55,19 @@ namespace MgCore
     std::string getPathDelimiter();
     std::vector<std::string> resolveSystemPath(std::string objectPath);
 
+    enum class FileType
+    {
+        File,
+        Folder,
+    };
+
+    struct FileInfo
+    {
+        std::string fileName;
+        std::string filePath;
+        FileType fileType;
+    };
+
 
     enum class FileMode
     {
@@ -62,8 +75,7 @@ namespace MgCore
         Normal,
     };
 
-    std::vector<std::string> sysGetPathFiles(std::string sysPath);
-    std::vector<std::string> sysGetPathFolders(std::string sysPath);
+    std::vector<FileInfo> sysGetPathContents(std::string sysPath);
     std::string read_file(std::string filename, FileMode mode = FileMode::Normal);
     void SetBasePath( std::string newPath ); // set basePath
     std::string GetBasePath(); // executable path

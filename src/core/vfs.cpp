@@ -181,9 +181,10 @@ namespace MgCore
         }
     }
 
-    std::vector<std::string> sysGetPathFiles(std::string sysPath)
+
+    std::vector<FileInfo> sysGetPathContents(std::string sysPath)
     {
-        std::vector<std::string> files;
+        std::vector<FileInfo> contents;
         #if defined(PLATFORM_WINDOWS)
         // use FindFirstFile FindNextFile, and FindClose
         #else
@@ -193,7 +194,7 @@ namespace MgCore
         if (!dir)
         {
             // return early with empty vector
-            return files;
+            return contents;
         }
         do
         {
@@ -201,50 +202,27 @@ namespace MgCore
             filePath += sys_path_delimiter;
             filePath += dp->d_name;
 
-            stat(filePath.c_str(), &sb);
-            if (!S_ISDIR(sb.st_mode))
-            {
-                files.push_back(filePath);
+            FileInfo file;
+            file.filePath = std::move(filePath);
+            file.fileName = dp->d_name;
+
+            stat(file.fileName.c_str(), &sb);
+
+            dp = readdir(dir); // This is for next loop iteration
+
+            if (S_ISDIR(sb.st_mode)) {
+                file.fileType = FileType::Folder;
+            } else if (S_ISREG(sb.st_mode)) {
+                file.fileType = FileType::File;
+            } else {
+                continue;
             }
-            dp = readdir(dir);
+            contents.push_back(std::move(file));
         } while(dp);
         closedir(dir);
         #endif
 
-        return files;
-    }
-
-    std::vector<std::string> sysGetPathFolders(std::string sysPath)
-    {
-        std::vector<std::string> folders;
-        #if defined(PLATFORM_WINDOWS)
-        // use FindFirstFile FindNextFile, and FindClose
-        #else
-        dirent *dp;
-        DIR *dir = opendir(sysPath.c_str());
-        struct stat sb;
-        if (!dir)
-        {
-            // return early with empty vector
-            return folders;
-        }
-        do
-        {
-            std::string filePath = sysPath;
-            filePath += sys_path_delimiter;
-            filePath += dp->d_name;
-
-            stat(filePath.c_str(), &sb);
-            if (S_ISDIR(sb.st_mode))
-            {
-                folders.push_back(filePath);
-            }
-            dp = readdir(dir);
-        } while(dp);
-        closedir(dir);
-        #endif
-
-        return folders;
+        return contents;
     }
 
     std::string GetBasePath() // executable path

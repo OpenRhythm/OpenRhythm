@@ -35,7 +35,7 @@ GameManager::GameManager()
     MgCore::mount(MgCore::GetBasePath(), "/bob");
     std::vector<std::string> paths = MgCore::resolveSystemPath("/bob");
     for (auto i: paths) {
-        auto bob = MgCore::sysGetPathFiles(i);
+        auto bob = MgCore::sysGetPathContents(i);
         std::cout << i << " " << bob.size() << std::endl;
     }
     //VFS.Mount( MgCore::GetBasePath().c_str(), "" );
