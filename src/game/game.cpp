@@ -32,7 +32,12 @@ GameManager::GameManager()
 #if OSX_APP_BUNDLE
     MgCore::mount(MgCore::GetAppPath(), "");
 #endif
-    MgCore::mount(MgCore::GetBasePath(), "");
+    MgCore::mount(MgCore::GetBasePath(), "/bob");
+    std::vector<std::string> paths = MgCore::resolveSystemPath("/bob");
+    for (auto i: paths) {
+        auto bob = MgCore::sysGetPathFiles(i);
+        std::cout << i << " " << bob.size() << std::endl;
+    }
     //VFS.Mount( MgCore::GetBasePath().c_str(), "" );
     //VFS.Mount( MgCore::GetHomePath().c_str(), "" );
 

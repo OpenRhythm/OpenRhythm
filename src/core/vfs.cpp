@@ -5,7 +5,7 @@
 #include "vfs.hpp"
 #include "stringutils.hpp"
 
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS)
 #include <windows.h>
 #include <Winerror.h>
 #include <shlobj.h>
@@ -14,6 +14,11 @@
 #else
 #include <unistd.h>
 #include <linux/limits.h>
+#endif
+
+#if !defined(PLATFORM_WINDOWS)
+#include <dirent.h>
+#include <sys/stat.h>
 #endif
 
 static std::string basePath;
@@ -41,9 +46,12 @@ namespace MgCore
         sysPath.push_back(sysloc);
     }
 
-    void VFSObjectNode::add_child(std::string pathVFS, std::string pathSys, std::string name)
+    VFSObjectNode* VFSObjectNode::add_child(std::string pathVFS, std::string pathSys, std::string name)
     {
-        children.push_back(std::make_unique<VFSObjectNode>(pathVFS, pathSys, name, this));
+        auto node = std::make_unique<VFSObjectNode>(pathVFS, pathSys, name, this);
+        VFSObjectNode *nodePtr = node.get();
+        children.push_back(std::move(node));
+        return nodePtr;
     }
 
     static VFSObjectNode vfsRoot("", "/", "", nullptr);
@@ -65,14 +73,14 @@ namespace MgCore
         return largestVal;
     }
 
-    void recurse_to(std::string recrsePath, std::function<void(VFSObjectNode *, std::string, bool)> callback)
+    bool recurse_to(std::string recrsePath, bool failOnNoChild, std::function<void(VFSObjectNode *, std::string, bool)> callback)
     {
         std::vector<std::string> pathObjects = stringSplit(recrsePath, vfs_path_delimiter);
         std::reverse(pathObjects.begin(), pathObjects.end()); // now we can pop from back of vector
 
 
         std::vector<std::string> pathCurrentLocation;
-        pathCurrentLocation.push_back("");
+        // pathCurrentLocation.push_back("");
 
         VFSObjectNode *currentNode = &vfsRoot;
         std::string currentNodeName, vfsNodePath;
@@ -96,7 +104,12 @@ namespace MgCore
 
             if (vfsNodePath != recrsePath && foundNode == false) // Create node if its not found
             {
-                currentNode->add_child(vfsNodePath, "", currentNodeName);
+                if (failOnNoChild == false)
+                {
+                    currentNode = currentNode->add_child(vfsNodePath, "", currentNodeName);
+                } else {
+                    return false;
+                }
             }
 
             if (pathObjects.size() == 0)
@@ -105,6 +118,7 @@ namespace MgCore
                 break;
             }
         }
+        return true;
     }
 
     void mount(std::string sysPath, std::string vfsPath)
@@ -112,12 +126,13 @@ namespace MgCore
         // If the path being mounted already exists the two will be merged.
         auto doMount = [&](VFSObjectNode * currentNode, std::string currentNodeName, bool foundNode) {
             if (foundNode == false) {
-                currentNode->add_child(vfsPath, sysPath, currentNodeName);
+                currentNode = currentNode->add_child(sysPath, vfsPath, currentNodeName);
             } else {
                 currentNode->sysPath.push_back(sysPath);
             }
+
         };
-        recurse_to(vfsPath, doMount);
+        recurse_to(vfsPath, false, doMount);
     }
 
     std::string getPathDelimiter()
@@ -125,9 +140,24 @@ namespace MgCore
         return vfs_path_delimiter;
     }
 
-    std::string resolveSystemPath(std::string objectPath)
+    std::vector<std::string> resolveSystemPath(std::string objectPath)
     {
-        return "";
+        std::vector<std::string> potentialSystemMounts;
+        // If the path being mounted already exists the two will be merged.
+        auto getPath = [&](VFSObjectNode * currentNode, std::string currentNodeName, bool foundNode) {
+
+            potentialSystemMounts.insert(
+                potentialSystemMounts.end(),
+                currentNode->sysPath.begin(),
+                currentNode->sysPath.end()
+            );
+        };
+        if (recurse_to(objectPath, true, getPath) != true) {
+            return potentialSystemMounts;
+        }
+        std::cout << potentialSystemMounts.back() << " DASDHJASBD" << std::endl;
+        return potentialSystemMounts;
+
     }
 
 
@@ -146,9 +176,75 @@ namespace MgCore
             in.close();
             return contents;
         } else {
-            std::cout << "Failed to load" << filename << std::endl;
+            std::cout << "Failed to load: " << filename << std::endl;
             return "";
         }
+    }
+
+    std::vector<std::string> sysGetPathFiles(std::string sysPath)
+    {
+        std::vector<std::string> files;
+        #if defined(PLATFORM_WINDOWS)
+        // use FindFirstFile FindNextFile, and FindClose
+        #else
+        dirent *dp;
+        DIR *dir = opendir(sysPath.c_str());
+        struct stat sb;
+        if (!dir)
+        {
+            // return early with empty vector
+            return files;
+        }
+        do
+        {
+            std::string filePath = sysPath;
+            filePath += sys_path_delimiter;
+            filePath += dp->d_name;
+
+            stat(filePath.c_str(), &sb);
+            if (!S_ISDIR(sb.st_mode))
+            {
+                files.push_back(filePath);
+            }
+            dp = readdir(dir);
+        } while(dp);
+        closedir(dir);
+        #endif
+
+        return files;
+    }
+
+    std::vector<std::string> sysGetPathFolders(std::string sysPath)
+    {
+        std::vector<std::string> folders;
+        #if defined(PLATFORM_WINDOWS)
+        // use FindFirstFile FindNextFile, and FindClose
+        #else
+        dirent *dp;
+        DIR *dir = opendir(sysPath.c_str());
+        struct stat sb;
+        if (!dir)
+        {
+            // return early with empty vector
+            return folders;
+        }
+        do
+        {
+            std::string filePath = sysPath;
+            filePath += sys_path_delimiter;
+            filePath += dp->d_name;
+
+            stat(filePath.c_str(), &sb);
+            if (S_ISDIR(sb.st_mode))
+            {
+                folders.push_back(filePath);
+            }
+            dp = readdir(dir);
+        } while(dp);
+        closedir(dir);
+        #endif
+
+        return folders;
     }
 
     std::string GetBasePath() // executable path
@@ -187,6 +283,12 @@ namespace MgCore
             int pos = basePath.rfind( PATH_SEP );
 
             basePath = basePath.substr( 0, pos+1 );
+            pos = basePath.rfind( "."+sys_path_delimiter );
+            if (pos != std::string::npos)
+            {
+                basePath = basePath.substr( 0, pos-1 );
+            }
+
 
 #if OSX_APP_BUNDLE
             appPath = basePath; // store full appPath

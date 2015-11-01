@@ -45,15 +45,15 @@ namespace MgCore
         VFSObjectNode *parent;
         std::vector<std::unique_ptr<VFSObjectNode>> children;
         VFSObjectNode(std::string sysloc, std::string vfsloc, std::string nodename, VFSObjectNode *nodeparent);
-        void add_child(std::string pathVFS, std::string pathSys, std::string name);
+        VFSObjectNode* add_child(std::string pathVFS, std::string pathSys, std::string name);
 
     };
 
     std::string getPrimaryDelimiter(std::string path);
-    void recurse_to(std::string recrsePath, std::function<void(VFSObjectNode *, std::string, bool)> callback);
+    bool recurse_to(std::string recrsePath, bool failOnNoChild, std::function<void(VFSObjectNode *, std::string, bool)> callback);
     void mount(std::string sysPath, std::string vfsPath);
     std::string getPathDelimiter();
-    std::string resolveSystemPath(std::string objectPath);
+    std::vector<std::string> resolveSystemPath(std::string objectPath);
 
 
     enum class FileMode
@@ -62,7 +62,8 @@ namespace MgCore
         Normal,
     };
 
-    // std::string read_raw_file(std::string filename, FileMode mode = FileMode::Normal);
+    std::vector<std::string> sysGetPathFiles(std::string sysPath);
+    std::vector<std::string> sysGetPathFolders(std::string sysPath);
     std::string read_file(std::string filename, FileMode mode = FileMode::Normal);
     void SetBasePath( std::string newPath ); // set basePath
     std::string GetBasePath(); // executable path
