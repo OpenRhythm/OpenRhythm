@@ -37,6 +37,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif()
 
 find_package(SDL2 REQUIRED)
+find_package(SDL2_Mixer REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -121,6 +122,7 @@ include_directories(SYSTEM
     ${CMAKE_SOURCE_DIR}/extern/glad/include
     ${CMAKE_SOURCE_DIR}/extern/spdlog/include
     ${SDL2_INCLUDE_DIR}
+    ${SDL2_Mixer_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS})
