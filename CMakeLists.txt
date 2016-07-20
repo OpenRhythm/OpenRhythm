@@ -15,6 +15,8 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_STANDARD 11)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "Building for Windows.")
@@ -25,12 +27,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "Building for Linux.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
     set(PLATFORM PL_LINUX)
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     message(STATUS "Building for Mac OS X.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
     set(PLATFORM PL_OSX)
 
 endif()
@@ -124,7 +124,7 @@ endif()
 
 source_group("extern\\stb" FILES ${STB_SRC})
 
-set( SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${GL})
+set(SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${GL})
 
 add_executable(musicgame ${SOURCE})
 
