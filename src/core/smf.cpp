@@ -98,9 +98,7 @@ namespace MgCore
             }
             case meta_Tempo:
             {
-                uint8_t bpmcharr[3];
-                MgCore::read_type<uint8_t>(*m_smf, bpmcharr, 3);
-                uint32_t bpmChange = (bpmcharr[0] << 16) | (bpmcharr[1] << 8)  | bpmcharr[2];
+                uint32_t bpmChange = read_type<uint32_t>(*m_smf, 3);
                 std::cout << "Tempo Change " << 60000000.0 / bpmChange << "BPM" << std::endl;
                 TempoEvent tempo {event, bpmChange};
                 m_currentTrack->tempo.push_back(tempo);

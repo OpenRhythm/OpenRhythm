@@ -1,6 +1,7 @@
 #pragma once
 #include <fstream>
 #include <cstdint>
+#include <stdexcept>
 
 namespace MgCore
 {
@@ -13,6 +14,23 @@ namespace MgCore
         for (int i = 0; i < size; i++) {
             offset = (size-1) - i; // endianness lol ?
             file.read(reinterpret_cast<char*>(&output)+offset, 1);
+        }
+        return output;
+    }
+
+    template<typename T>
+    T read_type(std::ifstream &file, size_t size)
+    {
+        T output = 0;
+        if (sizeof(output) < size)
+        {
+            throw std::runtime_error("Size greater than container type");
+        } else {
+            int offset;
+            for (size_t i = 0; i < size; i++) {
+                offset = static_cast<int>((size-1) - i); // endianness lol ?
+                file.read(reinterpret_cast<char*>(&output)+offset, 1);
+            }
         }
         return output;
     }
@@ -41,6 +59,25 @@ namespace MgCore
             offset = (size-1) - i; // endianness lol ?
             val = reinterpret_cast<uint8_t*>(&output)+offset;
             *val = file.peek();
+        }
+        return output;
+    }
+
+    template<typename T>
+    T peek_type(std::ifstream &file, size_t size)
+    {
+        T output = 0;
+        if (sizeof(output) < size)
+        {
+            throw std::runtime_error("Size greater than container type");
+        } else {
+            int offset;
+            uint8_t *val;
+            for (size_t i = 0; i < size; i++) {
+                offset = static_cast<int>((size-1) - i); // endianness lol ?
+                val = reinterpret_cast<uint8_t*>(&output)+offset;
+                *val = file.peek();
+            }
         }
         return output;
     }
