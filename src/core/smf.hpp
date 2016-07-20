@@ -36,6 +36,7 @@ namespace MgCore
         meta_SMPTEOffset = 0x54,
         meta_TimeSignature = 0x58,
         meta_KeySignature = 0x59,
+        meta_XMFPatchType = 0x60, // For completeness probably wont show up in midi
         meta_SequencerSpecific = 0x7F,
     };
 

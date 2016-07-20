@@ -106,8 +106,9 @@ namespace MgCore
                 break;
             }
             case meta_SMPTEOffset:
-            case meta_TimeSignature:
-            case meta_KeySignature:
+            case meta_TimeSignature:  // TODO - Implement this...
+            case meta_KeySignature:  // Not very useful for us
+            case meta_XMFPatchType: // probably not used
             case meta_SequencerSpecific:
             {
                 m_smf->seekg(len, std::ios::cur);
@@ -157,16 +158,14 @@ namespace MgCore
             m_smf->seekg(pos);
 
             if (m_header.format == smfType0 && m_header.trackNum != 1) {
-                std::cout << "Not a valid type 0 midi." << std::endl;
+                throw std::runtime_error("Not a valid type 0 midi.");
             }
         } else {
-            std::cout << "File not a valid MIDI." << std::endl;
-            return;
+            throw std::runtime_error("Not a Standard MIDI file.");
         }
 
         if ((m_header.division & 0x8000) != 0) {
-            std::cout << "SMPTE division mode is currently not supported" << std::endl;
-            return;
+            throw std::runtime_error("SMPTE division not supported");
         }
 
         for (int i = 0; i < m_header.trackNum; i++) {
@@ -259,7 +258,7 @@ namespace MgCore
             readFile();
             m_smf->close();
         } else {
-            std::cout << "Failed to load MIDI file." << std::endl;
+            throw std::runtime_error("Failed to load MIDI file.");
         }
     }
 
