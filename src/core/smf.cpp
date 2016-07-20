@@ -112,6 +112,7 @@ namespace MgCore
             case meta_SequencerSpecific:
             {
                 m_smf->seekg(len, std::ios::cur);
+                break;
             }
             default:
             {
@@ -231,6 +232,7 @@ namespace MgCore
                     }
                 }
                 std::cout << m_currentTrack->midiEvents.size() << std::endl;
+                m_currentTrack->seconds = runningTimeSec;
 
 
             } else {

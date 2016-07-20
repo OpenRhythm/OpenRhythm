@@ -109,6 +109,7 @@ namespace MgCore
     struct SmfTrack
     {
     	std::string name;
+        float seconds;
     	std::vector<MidiEvent> midiEvents;
     	std::vector<TextEvent> textEvents;
     	std::vector<TempoEvent> tempo;
