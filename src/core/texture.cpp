@@ -87,7 +87,7 @@ namespace MgCore
         imgData.length = imgData.width * imgData.height * 4;
 		imgData.pixelData = std::make_unique<unsigned char[]>(imgData.length);
 
-        // We have to copy the data out of the returned data from stb. 
+        // We have to copy the data out of the returned data from stb.
         // This was an issue with the previous implementation where the data was destroyed before
         // opengl could copy the data to the gpu. OpenGL may even require the image data to be persistant
         // cpu side if not it may be a good idea to do so anyways.
@@ -118,7 +118,11 @@ namespace MgCore
         _texCount++;
         m_texUnitID = _texCount;
 
+#if USE_LIB_PNGCPP
+        m_image = MgCore::loadPNG(m_path);
+#else
         m_image = MgCore::loadSTB(m_path);
+#endif
 
         m_texSampID = m_program->uniform_attribute("textureSampler");
 
