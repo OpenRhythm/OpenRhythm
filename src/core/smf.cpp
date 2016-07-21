@@ -44,10 +44,10 @@ namespace MgCore
 
     void SmfReader::readMetaEvent(SmfEventInfo &event)
     {
-        auto metaType = MgCore::read_type<uint8_t>(*m_smf);
-        uint32_t len = readVarLen();
+        event.type = static_cast<MidiMetaEvent>(MgCore::read_type<uint8_t>(*m_smf));
+        uint32_t length = readVarLen();
 
-        switch(metaType)
+        switch(event.type)
         {
             case meta_SequenceNumber:
             {
@@ -71,18 +71,18 @@ namespace MgCore
             case meta_TextReserved7:
             case meta_TextReserved8:
             {
-                auto textData = std::make_unique<char[]>(len+1);
-                textData[len] = '\0';
-                MgCore::read_type<char>(*m_smf, textData.get(), len);
-                std::cout << "text: " << +metaType << " "  << textData.get() << std::endl;
+                auto textData = std::make_unique<char[]>(length+1);
+                textData[length] = '\0';
+                MgCore::read_type<char>(*m_smf, textData.get(), length);
+                TextEvent text {event, textData.get()};
                 break;
             }
             case meta_TrackName:
             {
-                auto textData = std::make_unique<char[]>(len+1);
-                textData[len] = '\0';
+                auto textData = std::make_unique<char[]>(length+1);
+                textData[length] = '\0';
 
-                MgCore::read_type<char>(*m_smf, textData.get(), len);
+                MgCore::read_type<char>(*m_smf, textData.get(), length);
                 m_currentTrack->name = std::string(textData.get());
                 break;
             }
@@ -111,12 +111,12 @@ namespace MgCore
             case meta_XMFPatchType: // probably not used
             case meta_SequencerSpecific:
             {
-                m_smf->seekg(len, std::ios::cur);
+                m_smf->seekg(length, std::ios::cur);
                 break;
             }
             default:
             {
-                m_smf->seekg(len, std::ios::cur);
+                m_smf->seekg(length, std::ios::cur);
                 break;
             }
         }
@@ -232,7 +232,7 @@ namespace MgCore
                     }
                 }
                 std::cout << m_currentTrack->midiEvents.size() << std::endl;
-                m_currentTrack->seconds = runningTimeSec;
+                m_currentTrack->seconds = static_cast<float>(runningTimeSec);
 
 
             } else {
@@ -309,8 +309,8 @@ namespace MgCore
 
         std::vector<SmfTrack*> tracks;
 
-        for (int i = 0; i < m_tracks.size(); i++) {
-            tracks.push_back(m_tracks[i].get());
+        for (auto &track : m_tracks) {
+            tracks.push_back(track.get());
         }
         return tracks;
     }

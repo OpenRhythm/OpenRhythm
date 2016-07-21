@@ -78,6 +78,8 @@ namespace MgCore
     {
         uint8_t status;
         uint32_t deltaTime;
+        uint32_t absTime;
+        MidiMetaEvent type;
     };
 
     struct MidiEvent
@@ -92,6 +94,7 @@ namespace MgCore
     struct TextEvent
     {
         SmfEventInfo info;
+        std::string text;
     };
 
     struct TempoEvent
