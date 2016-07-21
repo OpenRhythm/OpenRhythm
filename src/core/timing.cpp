@@ -53,6 +53,7 @@ namespace MgCore
         m_frames = 1;
         m_currentTime = get_time();
         m_previousTime = m_currentTime;
+        m_startTime = m_currentTime;
         m_delta = 0.0;
         m_fpsTime = 0.0;
         m_fps = 0.0f;
@@ -75,6 +76,10 @@ namespace MgCore
         m_fpsTime += m_delta;
 
         return m_delta;
+    }
+
+    double FpsTimer::get_current_time() {
+        return m_currentTime - m_startTime;
     }
 
     double FpsTimer::get_fps()

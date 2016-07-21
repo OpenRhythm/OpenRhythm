@@ -49,6 +49,7 @@ public:
     ~GameManager();
     void start();
     bool event_handler(MgCore::Event &event);
+    void handle_song();
     void update();
     void render();
     void resize(int width, int height);

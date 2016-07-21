@@ -192,6 +192,11 @@ bool GameManager::event_handler(MgCore::Event &event)
     return true;
 }
 
+void GameManager::handle_song()
+{
+    double songTime = m_clock->get_current_time();
+}
+
 void GameManager::update()
 {
     for (auto& mesh : m_meshes) {

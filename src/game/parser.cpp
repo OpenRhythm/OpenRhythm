@@ -18,8 +18,7 @@ namespace MgGame
         switch ( gameFormat )
         {
             case GameFormat::RBN2:
-                if ( type == TrackType::Beat ) return {12, 13};
-                else return {60 + (12 * static_cast<int>(difficulty)), 64 + (12 * static_cast<int>(difficulty))};
+                return {60 + (12 * static_cast<int>(difficulty)), 64 + (12 * static_cast<int>(difficulty))};
             default:
                 return {0, 0};
         }
@@ -29,29 +28,36 @@ namespace MgGame
     {
         noteRange range = getNoteRange( type, difficulty, GameFormat::RBN2 );
 
-        if ( number < range.min || number > range.max )
+        if ( number < range.min || number > range.max ) {
             return NoteType::NONE;
+        }
 
-        if ( type < TrackType::Events )
+        if ( type < TrackType::Events ) {
             return static_cast<NoteType> (number - range.min + 1);
-        else if ( type == TrackType::Beat )
-            return (number == range.min) ? NoteType::DownBeat : NoteType::UpBeat;
-        else return NoteType::NONE;
+        } else {
+            return NoteType::NONE;
+        }
     }
 
     TrackType trackTypeFromString( std::string string )
     {
-        if ( string.length() < 21 )
+        if ( string.length() < 21 ) {
             return TrackType::NONE;
+        }
 
-        if ( !string.compare(21, 4, "BEAT") ) return TrackType::Beat;
-        else if ( !string.compare(21, 5, "VENUE") ) return TrackType::Venue;
-        else if ( !string.compare(21, 6, "EVENTS") ) return TrackType::Events;
-        else if ( !string.compare(21, 9, "PART BASS") ) return TrackType::Bass;
-        else if ( !string.compare(21, 10, "PART DRUMS" ) ) return TrackType::Drums;
-        else if ( !string.compare(21, 11, "PART VOCALS") ) return TrackType::Vocals;
-        else if ( !string.compare(21, 11, "PART GUITAR") ) return TrackType::Guitar;
-        else return TrackType::NONE;
+        if ( !string.compare(21, 6, "EVENTS") ) {
+            return TrackType::Events;
+        } else if ( !string.compare(21, 9, "PART BASS") ) {
+            return TrackType::Bass;
+        } else if ( !string.compare(21, 10, "PART DRUMS" ) ) {
+            return TrackType::Drums;
+        } else if ( !string.compare(21, 11, "PART VOCALS") ) {
+            return TrackType::Vocals;
+        } else if ( !string.compare(21, 11, "PART GUITAR") ) {
+            return TrackType::Guitar;
+        } else {
+            return TrackType::NONE;
+        }
     }
 
     std::string TrackNameForType( TrackType type )
@@ -63,8 +69,6 @@ namespace MgGame
             case TrackType::Drums: return "Drums";
             case TrackType::Vocals: return "Vocals";
             case TrackType::Events: return "Events";
-            case TrackType::Venue: return "Events";
-            case TrackType::Beat: return "Beat";
             case TrackType::NONE:
             default: return "None/Unknown";
         }
@@ -79,8 +83,6 @@ namespace MgGame
             case NoteType::Yellow: return "Yellow";
             case NoteType::Blue: return "Blue";
             case NoteType::Orange: return "Orange";
-            case NoteType::UpBeat: return "UpBeat";
-            case NoteType::DownBeat: return "DownBeat";
             case NoteType::NONE:
             default: return "None";
         }
@@ -89,28 +91,28 @@ namespace MgGame
     Song::Song( std::string songpath ) : m_path(songpath)
     {
         m_trackInfo.push_back( {TrackType::Events, Difficulty::Easy} );
-        //m_trackInfo.push_back( {TrackType::Venue, Difficulty::Easy} );
-        //m_trackInfo.push_back( {TrackType::Beat, Difficulty::Easy} );
     }
 
     void Song::add( TrackType type, Difficulty difficulty )
     {
-        if ( type >= TrackType::Events )
+        if ( type >= TrackType::Events ) {
             return; // Non-played tracks are handled seperately
+        }
 
         m_trackInfo.push_back( {type, difficulty} );
     }
 
     bool Song::load()
     {
-        std::string mem_buf = MgCore::read_file(m_path + "/notes.mid", MgCore::FileMode::Binary);
-        MgCore::SmfReader midi(mem_buf);
+        MgCore::SmfReader midi("notes.mid");
 
         auto tracks = midi.getTracks();
 
         for (auto track: tracks) {
             std::cout << track->name << std::endl;
         }
+
+
 
         // smf_track_t *sTrack;
         // smf_event_t *sEvent;
@@ -192,7 +194,7 @@ namespace MgGame
 
     Track *Song::getTrack( TrackType type, Difficulty difficulty )
     {
-        for (int i = 0; i < m_tracks.size(); i++) {
+        for (size_t i = 0; i < m_tracks.size(); i++) {
             if ( m_tracks[i].info().type == type && m_tracks[i].info().difficulty == difficulty ) {
                 return &m_tracks[i];
             }
@@ -201,10 +203,10 @@ namespace MgGame
         return NULL;
     }
 
-    void Track::addNote(NoteType type, float time, bool on)
+    void Track::addNote(NoteType type, double time, bool on)
     {
         if (!on) {
-            for(int i = m_notes.size(); i >= 0; i--) {
+            for(size_t i = m_notes.size(); i >= 0; i--) {
                 if (m_notes[i].type() == type) {
                     m_notes[i].length = time - m_notes[i].time();
                     break;
@@ -217,10 +219,10 @@ namespace MgGame
         m_notes.push_back( TrackNote(type, time) );
     }
 
-    std::vector<TrackNote*> Track::getNotesInFrame( float start, float end )
+    std::vector<TrackNote*> Track::getNotesInFrame( double start, double end )
     {
         std::vector<TrackNote*> v;
-        for (int i = 0; i < m_notes.size(); i++)
+        for (size_t i = 0; i < m_notes.size(); i++)
         {
             if (m_notes[i].time() >= start && m_notes[i].time() <= end)
                 v.push_back( &m_notes[i] );
@@ -231,21 +233,21 @@ namespace MgGame
 
     void Track::listNotesInTrack()
     {
-        for(int i = 0; i < m_notes.size(); i++)
+        for(size_t i = 0; i < m_notes.size(); i++)
             std::cout << NoteNameForType(m_notes[i].type()) << " note at " << m_notes[i].time()/1000 << " seconds (length " << m_notes[i].length << "ms)" << std::endl;
 
         std::cout << m_notes.size() << " notes." << std::endl;
     }
 
-    void TempoTrack::addEvent(float bpm, float time)
+    void TempoTrack::addEvent(float bpm, double time)
     {
         m_tempoEvents.push_back( TempoEvent(bpm, time) );
     }
 
-    std::vector<TempoEvent*> TempoTrack::getEventsInFrame(float start, float end)
+    std::vector<TempoEvent*> TempoTrack::getEventsInFrame(double start, double end)
     {
         std::vector<TempoEvent*> v;
-        for (int i = 0; i < m_tempoEvents.size(); i++)
+        for (size_t i = 0; i < m_tempoEvents.size(); i++)
         {
             if (m_tempoEvents[i].time() >= start && m_tempoEvents[i].time() <= end)
                 v.push_back( &m_tempoEvents[i] );

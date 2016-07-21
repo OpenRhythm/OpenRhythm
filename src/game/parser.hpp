@@ -7,7 +7,7 @@ namespace MgGame
 {
     enum class GameFormat
     {
-        RBN2 // Rock Band Nation 2
+        RBN2 // Rock Band Network 2
     };
 
     enum class Difficulty
@@ -26,9 +26,7 @@ namespace MgGame
         Drums,
         Vocals,
         // All non-player tracks after Events
-        Events,
-        Venue,
-        Beat
+        Events
     };
 
     enum class NoteType
@@ -39,20 +37,17 @@ namespace MgGame
         Yellow,
         Blue,
         Orange,
-        //
-        UpBeat,
-        DownBeat
     };
 
     struct TempoEvent
     {
     private:
         float m_bpm;
-        float m_time;
+        double m_time;
     public:
-        TempoEvent(float bpm, float time) : m_bpm(bpm), m_time(time) {};
+        TempoEvent(float bpm, double time) : m_bpm(bpm), m_time(time) {};
         float bpm() { return m_bpm; };
-        float time() { return m_time; };
+        double time() { return m_time; };
     };
 
     class TempoTrack
@@ -60,20 +55,20 @@ namespace MgGame
     private:
         std::vector<TempoEvent> m_tempoEvents;
     public:
-        void addEvent(float bpm, float time);
-        std::vector<TempoEvent*> getEventsInFrame(float start, float end);
+        void addEvent(float bpm, double time);
+        std::vector<TempoEvent*> getEventsInFrame(double start, double end);
     };
 
     class TrackNote
     {
     private:
         NoteType m_type;
-        float m_time;
+        double m_time;
     public:
-        TrackNote( NoteType type, float time ) : m_type(type), m_time(time) {};
+        TrackNote( NoteType type, double time ) : m_type(type), m_time(time) {};
         NoteType type() { return m_type; };
-        float time() { return m_time; };
-        float length;
+        double time() { return m_time; };
+        double length;
     };
 
     class Track
@@ -89,8 +84,8 @@ namespace MgGame
 
         Info info() { return m_info; };
 
-        void addNote(NoteType type, float time, bool on);
-        std::vector<TrackNote*> getNotesInFrame(float start, float end);
+        void addNote(NoteType type, double time, bool on);
+        std::vector<TrackNote*> getNotesInFrame(double start, double end);
 
         bool isSolo();
         bool isDrumRoll();
@@ -113,7 +108,7 @@ namespace MgGame
         std::vector<Track> m_tracks;
         TempoTrack m_tempoTrack;
         std::string m_path;
-        float m_length;
+        double m_length;
     public:
         Song( std::string songpath );
 
@@ -122,7 +117,7 @@ namespace MgGame
         Track *getTrack(TrackType type, Difficulty difficulty);
         TempoTrack *getTempoTrack() { return &m_tempoTrack; };
 
-        float length() { return m_length; };
+        double length() { return m_length; };
     };
 
     std::string TrackNameForType ( TrackType type );

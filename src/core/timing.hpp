@@ -16,6 +16,7 @@ namespace MgCore
         int m_frames;
         double m_currentTime;
         double m_previousTime;
+        double m_startTime;
         double m_delta;
         double m_fpsTime;
         double m_fps;
@@ -32,6 +33,7 @@ namespace MgCore
         FpsTimer();
         ~FpsTimer();
         double tick();
+        double get_current_time();
         double get_fps();
     };
 }
