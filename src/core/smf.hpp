@@ -77,8 +77,9 @@ namespace MgCore
     struct SmfEventInfo
     {
         uint8_t status;
-        uint32_t deltaTime;
-        uint32_t absTime;
+        uint32_t deltaPulses;
+        uint32_t pulseTime; // Time in pulses from start to now
+        uint32_t absTime; // Time in milliseconds from start to now
         MidiMetaEvent type;
     };
 
@@ -101,7 +102,6 @@ namespace MgCore
     {
         SmfEventInfo info;
         uint32_t qnLength; // Length of a quarter note in microseconds.
-        uint32_t pulseTime; // Time in pulses of Tempo event
     };
 
     struct TimeSigEvent
@@ -127,7 +127,7 @@ namespace MgCore
         SmfHeaderChunk m_header;
         std::unique_ptr<std::ifstream> m_smf;
         SmfTrack *m_currentTrack;
-        int m_currentTempo;
+        uint32_t m_pulseTime;
         uint32_t readVarLen();
         void readMidiEvent(SmfEventInfo &event);
         void readMetaEvent(SmfEventInfo &event);

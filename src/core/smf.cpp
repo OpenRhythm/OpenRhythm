@@ -102,7 +102,6 @@ namespace MgCore
                 std::cout << "Tempo Change " << 60000000.0 / bpmChange << "BPM" << std::endl;
                 TempoEvent tempo {event, bpmChange};
                 m_currentTrack->tempo.push_back(tempo);
-                m_currentTempo = bpmChange;
                 break;
             }
             case meta_SMPTEOffset:
@@ -175,8 +174,9 @@ namespace MgCore
             chunk.length = MgCore::read_type<uint32_t>(*m_smf);
 
 
-            uint32_t runningTime = 0;
+            m_pulseTime = 0;
             double runningTimeSec = 0.0;
+            TempoEvent* currentTempoEvent;
 
             // seek to the end of the chunk
             // 8 is the length of the type plus length fields
@@ -197,21 +197,13 @@ namespace MgCore
                 {
                     SmfEventInfo event;
 
-                    event.deltaTime = readVarLen();
+                    event.deltaPulses = readVarLen();
+
+                    m_pulseTime += event.deltaPulses;
+
+                    event.pulseTime = m_pulseTime;
 
                     auto status = MgCore::peek_type<uint8_t>(*m_smf);
-
-                    runningTime += event.deltaTime;
-
-
-                    TempoEvent* bob = getLastTempoIdViaPulses(runningTime);
-                    if (bob != nullptr) {
-
-                        //std::cout << "eventDelta: " << bob->info.deltaTime << std::endl;
-                        // (runningTime * (m_currentTempo / m_header.division)) / 1000000
-                        runningTimeSec += event.deltaTime * ((bob->qnLength / m_header.division) / 1000000.0);
-                        std::cout << "Event time: " << runningTimeSec/60.0 << std::endl;
-                    }
 
                     if (status == status_MetaEvent) {
                         event.status = MgCore::read_type<uint8_t>(*m_smf);
@@ -229,6 +221,11 @@ namespace MgCore
                         readMidiEvent(event);
                         prevStatus = event.status;
 
+                    }
+
+                    currentTempoEvent = getLastTempoIdViaPulses(m_pulseTime);
+                    if (currentTempoEvent != nullptr) {
+                        runningTimeSec += event.deltaPulses * ((currentTempoEvent->qnLength / m_header.division) / 1000000.0);
                     }
                 }
                 std::cout << m_currentTrack->midiEvents.size() << std::endl;
@@ -254,7 +251,8 @@ namespace MgCore
     {
         m_smf = std::make_unique<std::ifstream>(filename, std::ios_base::ate | std::ios_base::binary);
 
-        m_currentTempo = 500000; // default 120 BPM
+        // TODO - find cleaner way of implementing default the 120 BPM
+        // m_currentTempo = 500000; // default 120 BPM
 
         if (*m_smf) {
             readFile();
@@ -266,12 +264,6 @@ namespace MgCore
 
     TempoEvent* SmfReader::getLastTempoIdViaPulses(uint32_t pulseTime)
     {
-        std::cout << m_tracks.size() <<std::endl;
-        if (m_tracks.size() == 0) {
-            std::cout << "Error too early no track" << std::endl;
-            return nullptr;
-        }
-
         auto tempoTrack = *m_tracks[0];
         auto tempos = tempoTrack.tempo;
 
@@ -280,22 +272,12 @@ namespace MgCore
             return nullptr;
         }
 
-        uint32_t accuTime = 0;
-
-        TempoEvent *lastTempo = nullptr;
-
-        for (auto i : tempos) {
-            if (pulseTime <= accuTime)
-            {
-                return lastTempo;
+        for (auto &tempo : tempos) {
+            if (pulseTime <= tempo.info.pulseTime) {
+                return &tempo;
             }
-            accuTime += i.info.deltaTime;
-            i.pulseTime = accuTime;
-
-            //std::cout << accuTime << " " << pulseTime << std::endl;
-            lastTempo = &i;
         }
-        return lastTempo;
+        return nullptr;
     }
 
     //TempoEvent SmfReader::getTempoViaId(int id)
