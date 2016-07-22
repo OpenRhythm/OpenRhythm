@@ -273,7 +273,7 @@ namespace MgCore
         }
 
         for (auto &tempo : tempos) {
-            if (pulseTime <= tempo.info.pulseTime) {
+            if (pulseTime >= tempo.info.pulseTime) {
                 return &tempo;
             }
         }
