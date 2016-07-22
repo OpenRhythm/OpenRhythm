@@ -43,11 +43,11 @@ GameManager::GameManager()
 
     //MgCore::mount( "./data", "data" );
 
-    //MgGame::Song song( "/data/songs/testsong" ); // dirname of song
+    MgGame::Song song( "/data/songs/testsong" ); // dirname of song
 
-    //song.add( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
+    song.add(MgGame::TrackType::Guitar, MgGame::Difficulty::Expert);
 
-    //song.load();
+    song.load();
 
     //std::cout << "Song: " << (song.length() / 1000) / 60 << " minutes long" << std::endl;
 
