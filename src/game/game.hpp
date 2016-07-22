@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "gl.hpp"
+#include <glad/glad.h>
 #include "glm/glm.hpp"
 
 #include "window.hpp"

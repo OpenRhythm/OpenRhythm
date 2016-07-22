@@ -1,6 +1,7 @@
 #include <iostream>
 #include <functional>
 #include <utility>
+#include <stdexcept>
 
 #include "config.hpp"
 #include "parser.hpp"
@@ -60,9 +61,9 @@ GameManager::GameManager()
 
     //std::cout << "Song: " << v.size() << " notes in first 10 seconds, first note is " << NoteNameForType(v[0]->type()) << std::endl;
 
-    if(ogl_LoadFunctions() == ogl_LOAD_FAILED)
+    if(!gladLoadGL())
     {
-        std::cout << "Error: glLoadGen failed to load.";
+        throw std::runtime_error("Error: GLAD failed to load.");
     }
 
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);

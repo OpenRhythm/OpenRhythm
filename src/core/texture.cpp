@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <utility>
-#include "gl.hpp"
+#include <glad/glad.h>
 #include "vfs.hpp"
 #include "texture.hpp"
 

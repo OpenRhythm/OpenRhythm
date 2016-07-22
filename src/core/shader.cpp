@@ -1,5 +1,5 @@
 #include "vfs.hpp"
-#include "gl.hpp"
+#include <glad/glad.h>
 #include "shader.hpp"
 #include <iostream>
 

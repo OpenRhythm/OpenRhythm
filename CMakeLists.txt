@@ -39,6 +39,7 @@ find_package(SDL2 REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
+
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${GLM_INCLUDE_DIRS})
@@ -47,7 +48,6 @@ include_directories(${OPENGL_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/src/core)
 include_directories(${PROJECT_SOURCE_DIR}/src/engine)
 include_directories(${PROJECT_SOURCE_DIR}/src/game)
-include_directories(${PROJECT_SOURCE_DIR}/src/gl)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
 set(OSX_APP_BUNDLE 0)
@@ -98,7 +98,6 @@ endif()
 
 source_group("src\\core" FILES ${CORE_SOURCE} ${CORE_HEADERS})
 
-
 set(GAME_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.cpp)
@@ -107,13 +106,10 @@ set(GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp
 
 source_group("src\\game" FILES ${GAME_SOURCE} ${GAME_HEADERS})
 
-set(GL ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.h
-       ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl_core32.c
-       ${CMAKE_CURRENT_SOURCE_DIR}/src/gl/gl.hpp)
+include_directories(${PROJECT_SOURCE_DIR}/extern/glad/include)
+set(GLAD ${CMAKE_CURRENT_SOURCE_DIR}/extern/glad/src/glad.c)
+source_group("extern\\glad" FILES ${GLAD})
 
-source_group("src\\gl" FILES ${GL})
-
-include_directories(${CMAKE_SOURCE_DIR}/extern/stb)
 
 if(USE_LIB_PNGCPP)
     find_package(PNG REQUIRED)
@@ -122,9 +118,10 @@ if(USE_LIB_PNGCPP)
     source_group("extern\\png++" FILES ${PNGPP_SRC})
 endif()
 
-source_group("extern\\stb" FILES ${STB_SRC})
 
-set(SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${GL})
+include_directories(${CMAKE_SOURCE_DIR}/extern/stb)
+
+set(SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${GLAD})
 
 add_executable(musicgame ${SOURCE})
 
