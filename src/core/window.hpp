@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#include "SDL.h"
+#include <SDL.h>
 #undef main
 #include "context.hpp"
 

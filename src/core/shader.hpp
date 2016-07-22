@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <array>
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
 namespace MgCore
 {

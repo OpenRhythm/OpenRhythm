@@ -40,11 +40,6 @@ find_package(Freetype REQUIRED)
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
 
-include_directories(${SDL2_INCLUDE_DIR})
-include_directories(${FREETYPE_INCLUDE_DIRS})
-include_directories(${GLM_INCLUDE_DIRS})
-include_directories(${OPENGL_INCLUDE_DIRS})
-
 include_directories(${PROJECT_SOURCE_DIR}/src/core)
 include_directories(${PROJECT_SOURCE_DIR}/src/engine)
 include_directories(${PROJECT_SOURCE_DIR}/src/game)
@@ -106,7 +101,7 @@ set(GAME_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp
 
 source_group("src\\game" FILES ${GAME_SOURCE} ${GAME_HEADERS})
 
-include_directories(${PROJECT_SOURCE_DIR}/extern/glad/include)
+include_directories()
 set(GLAD ${CMAKE_CURRENT_SOURCE_DIR}/extern/glad/src/glad.c)
 source_group("extern\\glad" FILES ${GLAD})
 
@@ -118,8 +113,15 @@ if(USE_LIB_PNGCPP)
     source_group("extern\\png++" FILES ${PNGPP_SRC})
 endif()
 
-
-include_directories(${CMAKE_SOURCE_DIR}/extern/stb)
+# These includes are defined a system headers so any warnings within
+# dont get shown during compilation.
+include_directories(SYSTEM
+    ${CMAKE_SOURCE_DIR}/extern/stb
+    ${PROJECT_SOURCE_DIR}/extern/glad/include
+    ${SDL2_INCLUDE_DIR}
+    ${FREETYPE_INCLUDE_DIRS}
+    ${GLM_INCLUDE_DIRS}
+    ${OPENGL_INCLUDE_DIRS})
 
 set(SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${GLAD})
 

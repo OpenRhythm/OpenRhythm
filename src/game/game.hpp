@@ -4,7 +4,7 @@
 #include <memory>
 
 #include <glad/glad.h>
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 
 #include "window.hpp"
 #include "context.hpp"

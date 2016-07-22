@@ -1,5 +1,5 @@
 #pragma once
-#include "SDL.h"
+#include <SDL.h>
 #undef main
 
 #include "window.hpp"

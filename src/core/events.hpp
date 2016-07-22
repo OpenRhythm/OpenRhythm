@@ -3,7 +3,7 @@
 #include <vector>
 #include <type_traits>
 
-#include "SDL.h"
+#include <SDL.h>
 #undef main
 
 #include "keycode.hpp"

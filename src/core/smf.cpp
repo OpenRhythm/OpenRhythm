@@ -38,7 +38,7 @@ namespace MgCore
         midiEvent.data1 = MgCore::read_type<uint8_t>(*m_smf);
         midiEvent.data2 = MgCore::read_type<uint8_t>(*m_smf);
 
-        std::cout << "Channel " << +midiEvent.channel << std::endl;
+        //std::cout << "Channel " << +midiEvent.channel << std::endl;
 
         m_currentTrack->midiEvents.push_back(midiEvent);
     }
@@ -53,7 +53,7 @@ namespace MgCore
             case meta_SequenceNumber:
             {
                 auto sequenceNumber = MgCore::read_type<uint16_t>(*m_smf);
-                std::cout << "Sequence Number: " << " " << std::hex << sequenceNumber << std::endl;
+                //std::cout << "Sequence Number: " << " " << std::hex << sequenceNumber << std::endl;
                 break;
             }
             case meta_Text:
@@ -89,18 +89,18 @@ namespace MgCore
             }
             case meta_MIDIChannelPrefix: {
                 auto midiChannel = MgCore::read_type<uint8_t>(*m_smf);
-                std::cout << "Midi Channel " << midiChannel << std::hex << std::endl;
+                //std::cout << "Midi Channel " << midiChannel << std::hex << std::endl;
                 break;
             }
             case meta_EndOfTrack:
             {
-                std::cout << "End of Track " << std::endl;
+                //std::cout << "End of Track " << std::endl;
                 break;
             }
             case meta_Tempo:
             {
                 uint32_t bpmChange = read_type<uint32_t>(*m_smf, 3);
-                std::cout << "Tempo Change " << 60000000.0 / bpmChange << "BPM" << std::endl;
+                //std::cout << "Tempo Change " << 60000000.0 / bpmChange << "BPM" << std::endl;
                 TempoEvent tempo {event, bpmChange};
                 m_currentTrack->tempo.push_back(tempo);
                 break;
@@ -227,23 +227,27 @@ namespace MgCore
                     currentTempoEvent = getLastTempoIdViaPulses(m_pulseTime);
                     if (currentTempoEvent != nullptr) {
                         runningTimeSec += event.deltaPulses * ((currentTempoEvent->qnLength / m_header.division) / 1000000.0);
+                    } else {
+                         std::cout << event.deltaPulses << std::endl;
                     }
+
                 }
-                std::cout << m_currentTrack->midiEvents.size() << std::endl;
+                //std::cout << m_currentTrack->midiEvents.size() << std::endl;
                 m_currentTrack->seconds = static_cast<float>(runningTimeSec);
+                std::cout << "Track length: " << m_currentTrack->seconds << std::endl;
 
 
             } else {
-                std::cout << "Supported track chunk not found." << std::endl;
+                //std::cout << "Supported track chunk not found." << std::endl;
             }
 
             m_smf->seekg(pos);
         }
 
         if (pos == fileEnd) {
-            std::cout << "End of MIDI reached." << std::endl;
+            //std::cout << "End of MIDI reached." << std::endl;
         } else {
-            std::cout << "Warning: Reached end of last track chunk, there is possibly data located outside of a track." << std::endl;
+            //std::cout << "Warning: Reached end of last track chunk, there is possibly data located outside of a track." << std::endl;
         }
 
     }

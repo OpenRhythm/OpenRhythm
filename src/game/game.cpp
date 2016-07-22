@@ -93,14 +93,11 @@ GameManager::GameManager()
 
     std::cout << (m_width / 37) * (m_height / 37) << std::endl;
 
-    for (int x = 0; x < (m_width / 37); x++) {
-        for (int y = 0; y < (m_height / 37); y++) {
-            MeshPtr mesh = std::make_unique<MgCore::Mesh2D>(m_program.get(), m_texture.get());
-            mesh->scale(32.0f, 32.0f);
-            mesh->translate(x * 37.0f, y * 37.0f);
-            m_meshes.push_back(std::move(mesh));
-        }
-    }
+
+    MeshPtr mesh = std::make_unique<MgCore::Mesh2D>(m_program.get(), m_texture.get());
+    mesh->scale(512.0f, 8.0f);
+    mesh->translate((m_width/2.0f)-256, (m_height/2.0f) - 4); // center the line on the screen
+    m_meshes.push_back(std::move(mesh));
 
 
     m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);

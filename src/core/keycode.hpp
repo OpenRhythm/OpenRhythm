@@ -4,7 +4,7 @@
 #include <string>
 #include <type_traits>
 #include <memory>
-#include "SDL.h"
+#include <SDL.h>
 #undef main
 
 namespace MgCore
