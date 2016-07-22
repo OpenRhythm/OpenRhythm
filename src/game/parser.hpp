@@ -25,7 +25,7 @@ namespace MgGame
         Bass,
         Drums,
         Vocals,
-        // All non-player tracks after Events
+        // Non-player track types
         Events
     };
 
@@ -39,11 +39,29 @@ namespace MgGame
         Orange,
     };
 
+    struct MidiNoteDefinition
+    {
+        int green;
+        int red;
+        int yellow;
+        int blue;
+        int orange;
+        int power;
+    };
+
     struct TempoEvent
     {
         float bpm;
         double time;
     };
+
+    struct TrackNote
+    {
+        NoteType type;
+        double time;
+        double length;
+    };
+
 
     class TempoTrack
     {
@@ -54,12 +72,6 @@ namespace MgGame
         std::vector<TempoEvent*> getEventsInFrame(double start, double end);
     };
 
-    struct TrackNote
-    {
-        NoteType type;
-        double time;
-        double length;
-    };
 
     class Track
     {
@@ -83,14 +95,12 @@ namespace MgGame
         bool isBigRockEnding(); // move to Song?
         bool isTremolo();
         bool isTrill();
-
-        void listNotesInTrack();
     private:
         Info m_info;
         std::vector<TrackNote> m_notes;
     };
 
-    // Get the tracks for the given song, for in-game
+
     class Song
     {
     private:
@@ -104,12 +114,15 @@ namespace MgGame
 
         void add(TrackType type, Difficulty difficulty);
         bool load();
-        Track *getTrack(TrackType type, Difficulty difficulty);
+        Track *get_track(TrackType type, Difficulty difficulty);
         TempoTrack *getTempoTrack() { return &m_tempoTrack; };
 
         double length() { return m_length; };
     };
 
-    std::string TrackNameForType ( TrackType type );
-    std::string NoteNameForType( NoteType type );
+    // Functions are mainly used within the Song class
+    MidiNoteDefinition get_midi_format(TrackType type, Difficulty difficulty, GameFormat gameFormat);
+    NoteType midi_to_note(TrackType type, int number, Difficulty difficulty);
+    TrackType get_track_type(std::string trackName);
+    std::string track_name_to_type(TrackType type);
 }
