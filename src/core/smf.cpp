@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include <sstream>
+#include <stdexcept>
 
 #include "smf.hpp"
 #include "parseutils.hpp"
