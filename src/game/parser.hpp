@@ -41,13 +41,8 @@ namespace MgGame
 
     struct TempoEvent
     {
-    private:
-        float m_bpm;
-        double m_time;
-    public:
-        TempoEvent(float bpm, double time) : m_bpm(bpm), m_time(time) {};
-        float bpm() { return m_bpm; };
-        double time() { return m_time; };
+        float bpm;
+        double time;
     };
 
     class TempoTrack
@@ -59,15 +54,10 @@ namespace MgGame
         std::vector<TempoEvent*> getEventsInFrame(double start, double end);
     };
 
-    class TrackNote
+    struct TrackNote
     {
-    private:
-        NoteType m_type;
-        double m_time;
-    public:
-        TrackNote( NoteType type, double time ) : m_type(type), m_time(time) {};
-        NoteType type() { return m_type; };
-        double time() { return m_time; };
+        NoteType type;
+        double time;
         double length;
     };
 

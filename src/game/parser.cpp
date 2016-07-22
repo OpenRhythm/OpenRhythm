@@ -200,59 +200,59 @@ namespace MgGame
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     void Track::addNote(NoteType type, double time, bool on)
     {
         if (!on) {
             for(size_t i = m_notes.size(); i >= 0; i--) {
-                if (m_notes[i].type() == type) {
-                    m_notes[i].length = time - m_notes[i].time();
+                if (m_notes[i].type == type) {
+                    m_notes[i].length = time - m_notes[i].time;
                     break;
                 }
             }
             return;
         }
-
-
-        m_notes.push_back( TrackNote(type, time) );
+        m_notes.push_back(TrackNote({type, time}));
     }
 
     std::vector<TrackNote*> Track::getNotesInFrame( double start, double end )
     {
-        std::vector<TrackNote*> v;
-        for (size_t i = 0; i < m_notes.size(); i++)
-        {
-            if (m_notes[i].time() >= start && m_notes[i].time() <= end)
-                v.push_back( &m_notes[i] );
+        std::vector<TrackNote*> notes;
+        for ( auto &note : m_notes) {
+            if (note.time >= start && note.time <= end) {
+                notes.push_back( &note );
+            }
         }
-
-        return v;
+        return notes;
     }
 
     void Track::listNotesInTrack()
     {
-        for(size_t i = 0; i < m_notes.size(); i++)
-            std::cout << NoteNameForType(m_notes[i].type()) << " note at " << m_notes[i].time()/1000 << " seconds (length " << m_notes[i].length << "ms)" << std::endl;
+        for(size_t i = 0; i < m_notes.size(); i++) {
+            std::cout << NoteNameForType(m_notes[i].type)
+                      << " note at " << m_notes[i].time/1000
+                      << " seconds (length " << m_notes[i].length << "ms)"
+                      << std::endl;
+        }
 
         std::cout << m_notes.size() << " notes." << std::endl;
     }
 
     void TempoTrack::addEvent(float bpm, double time)
     {
-        m_tempoEvents.push_back( TempoEvent(bpm, time) );
+        m_tempoEvents.push_back(TempoEvent({bpm, time}));
     }
 
     std::vector<TempoEvent*> TempoTrack::getEventsInFrame(double start, double end)
     {
-        std::vector<TempoEvent*> v;
-        for (size_t i = 0; i < m_tempoEvents.size(); i++)
-        {
-            if (m_tempoEvents[i].time() >= start && m_tempoEvents[i].time() <= end)
-                v.push_back( &m_tempoEvents[i] );
+        std::vector<TempoEvent*> tempoEvents;
+        for (auto &tempo : m_tempoEvents) {
+            if (tempo.time >= start && tempo.time <= end) {
+                tempoEvents.push_back(&tempo);
+            }
         }
-
-        return v;
+        return tempoEvents;
     }
 }
