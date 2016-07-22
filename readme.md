@@ -1,13 +1,10 @@
 # MusicGame
 
-Just as a warning, I have yet to decide on a license for the code.
-
 MusicGame currently depends on the following libs:
 * CMake
 * SDL2
-* Freetype
+* Freetype - I may switch to using stb_freetype haven't decided quite yet.
 * GLM
-* TTVFS (included in extern/ttvfs)
 * STB (included in extern/stb)
 * PNG++ (optional default off, included in extern/png++)
 
