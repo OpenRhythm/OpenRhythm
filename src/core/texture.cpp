@@ -71,7 +71,7 @@ namespace MgCore
         // to prevent potential issues convert each value seperately
         // one could cast the int* to unsigned int* however this could have large issues there can be
         // platform differances on how this is imeplemented.
-        for (int i = 0; i < mem_buf.size(); i++) {
+        for (size_t i = 0; i < mem_buf.size(); i++) {
             conv_mem[i] = static_cast<unsigned char>(mem_buf[i]);
         }
 
