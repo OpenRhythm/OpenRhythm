@@ -18,6 +18,7 @@ namespace MgCore
         ShaderInfo info;
         Shader(ShaderInfo);
         ~Shader();
+        void check_error();
     };
 
     class ShaderProgram
@@ -30,6 +31,8 @@ namespace MgCore
     public:
         ShaderProgram(Shader* vertex, Shader* fragment);
         ~ShaderProgram();
+
+        void check_error();
 
         void use();
         void disuse();

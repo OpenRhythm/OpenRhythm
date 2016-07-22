@@ -86,6 +86,8 @@ GameManager::GameManager()
     MgCore::Shader fragShader(fragInfo);
 
     m_program = std::make_unique<MgCore::ShaderProgram>(&vertShader, &fragShader);
+
+    m_program->check_error();
     m_program->use();
     m_orthoID = m_program->uniform_attribute("ortho");
 

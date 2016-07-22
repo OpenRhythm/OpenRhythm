@@ -2,12 +2,12 @@
 #include <glad/glad.h>
 #include "shader.hpp"
 #include <iostream>
+#include <stdexcept>
 
 namespace MgCore
 {
     Shader::Shader(ShaderInfo _info): info(_info)
     {
-        GLint status;
         shader = glCreateShader(info.type);
         std::string data {read_file(info.path)};
         const char *c_str = data.c_str();
@@ -15,48 +15,78 @@ namespace MgCore
         glShaderSource(shader, 1, &c_str, nullptr);
         glCompileShader(shader);
 
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 
-        if (status != GL_TRUE) {
-            std::cout << "The shader has failed to compile." << std::endl;
-            GLchar message[1024];
-            glGetShaderInfoLog(shader, 1024, nullptr, message);
-        } else {
-            std::cout << "Shader compiled sucessfully." << std::endl;
-        }
     }
     Shader::~Shader()
     {
         glDeleteShader(shader);
     }
 
+    void Shader::check_error()
+    {
+        GLint status;
+
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+        // TODO - probably need to make a custom exception class for this..
+        if (status != GL_TRUE) {
+            GLint length;
+            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+
+            auto logData = std::make_unique<GLchar[]>(length+1);
+            logData[length] = '\0'; // Make sure it is null terminated.
+
+            glGetShaderInfoLog(shader, length, nullptr, logData.get());
+            std::cout << logData.get() << std::endl;
+
+            throw std::runtime_error("Shader compilation failed.");
+        } else {
+            std::cout << "Shader compiled sucessfully." << std::endl;
+        }
+    }
+
 
     ShaderProgram::ShaderProgram(Shader* vertex, Shader* fragment)
     : m_vertex(*vertex), m_fragment(*fragment)
     {
-        GLint status;
-
         m_program = glCreateProgram();
 
         glAttachShader(m_program, m_vertex.shader);
         glAttachShader(m_program, m_fragment.shader);
 
         glLinkProgram(m_program);
-
-        glGetProgramiv(m_program, GL_LINK_STATUS, &status);
-
-        if (status != GL_TRUE) {
-            std::cout << "The program has failed to link." << std::endl;
-            GLchar message[1024];
-            glGetProgramInfoLog(m_program, 1024, nullptr, message);
-            std::cout << message << std::endl;
-        } else {
-            std::cout << "Program linked sucessfully." << std::endl;
-        }
     }
 
     ShaderProgram::~ShaderProgram()
     {
+        glDeleteProgram(m_program);
+    }
+
+    void ShaderProgram::check_error()
+    {
+        // We want to check the compile/link status of the shaders all at once.
+        // At some place that isn't right after the shader compilation step.
+        // That way the drivers can better parallelize shader compilation.
+        m_vertex.check_error();
+        m_fragment.check_error();
+
+        GLint status;
+
+        glGetProgramiv(m_program, GL_LINK_STATUS, &status);
+        // TODO - probably need to make a custom exception class for this..
+        if (status != GL_TRUE) {
+            GLint length;
+            glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &length);
+
+            auto logData = std::make_unique<GLchar[]>(length+1);
+            logData[length] = '\0'; // Make sure it is null terminated.
+
+            glGetProgramInfoLog(m_program, length, nullptr, logData.get());
+            std::cout << logData.get() << std::endl;
+
+            throw std::runtime_error("Shader linkage failed.");
+        } else {
+            std::cout << "Shader linked sucessfully." << std::endl;
+        }
     }
 
 
