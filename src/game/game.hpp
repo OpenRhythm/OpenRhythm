@@ -5,6 +5,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <spdlog/spdlog.h>
 
 #include "window.hpp"
 #include "context.hpp"
@@ -38,6 +39,8 @@ private:
     std::vector<MeshPtr> m_meshes;
     std::unique_ptr<MgCore::Texture> m_texture;
     MgCore::Listener m_lis;
+
+    std::shared_ptr<spdlog::logger> m_logger;
 
     GLuint m_vao;
     std::streamsize m_ss;

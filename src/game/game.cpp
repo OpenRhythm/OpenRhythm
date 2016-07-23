@@ -21,6 +21,9 @@ GameManager::GameManager()
     m_clock = std::make_unique<MgCore::FpsTimer>();
     m_running = true;
 
+    m_logger = spdlog::get("default");
+
+
     m_window->make_current(m_context.get());
 
     //VFS.AddLoader(new ttvfs::DiskLoader);
