@@ -117,7 +117,8 @@ endif()
 # dont get shown during compilation.
 include_directories(SYSTEM
     ${CMAKE_SOURCE_DIR}/extern/stb
-    ${PROJECT_SOURCE_DIR}/extern/glad/include
+    ${CMAKE_SOURCE_DIR}/extern/glad/include
+    ${CMAKE_SOURCE_DIR}/extern/spdlog/include
     ${SDL2_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
