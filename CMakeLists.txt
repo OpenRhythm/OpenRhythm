@@ -24,6 +24,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(ENV{FREETYPE_DIR} "${PROJECT_SOURCE_DIR}/extern/freetype")
     set(ENV{GLM_ROOT_DIR} "${PROJECT_SOURCE_DIR}/extern/glm")
     set(PLATFORM PL_WINDOWS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "Building for Linux.")
