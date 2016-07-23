@@ -133,9 +133,9 @@ namespace MgCore
     void SmfReader::readFile()
     {
 
-        int fileEnd = m_smf->tellg();
+        int fileEnd = static_cast<int>(m_smf->tellg());
         m_smf->seekg(0, std::ios::beg);
-        int fileBeg = m_smf->tellg();
+        int fileBeg = static_cast<int>(m_smf->tellg());
 
         int chunkStart = fileBeg;
         int pos = 0;
