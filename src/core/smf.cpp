@@ -13,13 +13,13 @@ namespace MgCore
 {
     uint32_t SmfReader::readVarLen()
     {
-        uint8_t c = MgCore::read_type<uint8_t>(*m_smf);
+        uint8_t c = MgCore::read_type<uint8_t>(*m_smfFile);
         uint32_t value = c & 0x7F;
 
         if (c & 0x80) {
 
             do {
-                c = MgCore::read_type<uint8_t>(*m_smf);
+                c = MgCore::read_type<uint8_t>(*m_smfFile);
                 value = (value << 7) + (c & 0x7F);
 
             } while (c & 0x80);
@@ -35,25 +35,24 @@ namespace MgCore
         midiEvent.info = event;
         midiEvent.message = event.status & 0xF0;
         midiEvent.channel = event.status & 0xF;
-        midiEvent.data1 = MgCore::read_type<uint8_t>(*m_smf);
-        midiEvent.data2 = MgCore::read_type<uint8_t>(*m_smf);
-
-        //std::cout << "Channel " << +midiEvent.channel << std::endl;
+        midiEvent.data1 = MgCore::read_type<uint8_t>(*m_smfFile);
+        midiEvent.data2 = MgCore::read_type<uint8_t>(*m_smfFile);
 
         m_currentTrack->midiEvents.push_back(midiEvent);
     }
 
     void SmfReader::readMetaEvent(SmfEventInfo &event)
     {
-        event.type = static_cast<MidiMetaEvent>(MgCore::read_type<uint8_t>(*m_smf));
+        event.type = static_cast<MidiMetaEvent>(MgCore::read_type<uint8_t>(*m_smfFile));
         uint32_t length = readVarLen();
 
+        // In the cases where we dont implement an event type log it, and its data.
         switch(event.type)
         {
             case meta_SequenceNumber:
             {
-                auto sequenceNumber = MgCore::read_type<uint16_t>(*m_smf);
-                //std::cout << "Sequence Number: " << " " << std::hex << sequenceNumber << std::endl;
+                auto sequenceNumber = MgCore::read_type<uint16_t>(*m_smfFile);
+                m_logger->trace("Sequence Number {}", sequenceNumber);
                 break;
             }
             case meta_Text:
@@ -62,9 +61,10 @@ namespace MgCore
             case meta_Lyrics:
             case meta_Marker:
             case meta_CuePoint:
+            // RP-019 - SMF Device Name and Program Name Meta Events
+            case meta_ProgramName:
+            case meta_DeviceName:
             // The midi spec says the following text events exist and act the same as meta_Text.
-            case meta_TextReserved1:
-            case meta_TextReserved2:
             case meta_TextReserved3:
             case meta_TextReserved4:
             case meta_TextReserved5:
@@ -74,7 +74,7 @@ namespace MgCore
             {
                 auto textData = std::make_unique<char[]>(length+1);
                 textData[length] = '\0';
-                MgCore::read_type<char>(*m_smf, textData.get(), length);
+                MgCore::read_type<char>(*m_smfFile, textData.get(), length);
                 TextEvent text {event, textData.get()};
                 break;
             }
@@ -83,40 +83,51 @@ namespace MgCore
                 auto textData = std::make_unique<char[]>(length+1);
                 textData[length] = '\0';
 
-                MgCore::read_type<char>(*m_smf, textData.get(), length);
+                MgCore::read_type<char>(*m_smfFile, textData.get(), length);
                 m_currentTrack->name = std::string(textData.get());
                 break;
             }
             case meta_MIDIChannelPrefix: {
-                auto midiChannel = MgCore::read_type<uint8_t>(*m_smf);
-                //std::cout << "Midi Channel " << midiChannel << std::hex << std::endl;
+                auto midiChannel = MgCore::read_type<uint8_t>(*m_smfFile);
+                m_logger->trace("Midi Channel {}", midiChannel);
                 break;
             }
             case meta_EndOfTrack:
             {
-                //std::cout << "End of Track " << std::endl;
+                // TODO - We might be able to use this for some purpose.
+                m_logger->trace("End of Track {}", m_currentTrack->name);
                 break;
             }
             case meta_Tempo:
             {
-                uint32_t bpmChange = read_type<uint32_t>(*m_smf, 3);
-                //std::cout << "Tempo Change " << 60000000.0 / bpmChange << "BPM" << std::endl;
-                TempoEvent tempo {event, bpmChange};
-                m_currentTrack->tempo.push_back(tempo);
+                uint32_t qnLength = read_type<uint32_t>(*m_smfFile, 3);
+                m_currentTrack->tempo.push_back({event, qnLength});
                 break;
             }
-            case meta_SMPTEOffset:
             case meta_TimeSignature:  // TODO - Implement this...
-            case meta_KeySignature:  // Not very useful for us
+            {
+                auto numerator = MgCore::read_type<uint8_t>(*m_smfFile);
+                auto denominator = MgCore::read_type<uint8_t>(*m_smfFile);
+
+                auto clocksPerClick = MgCore::read_type<uint8_t>(*m_smfFile);
+                // The number of 1/32nd notes per quarter note
+                auto thirtySecondPQN = MgCore::read_type<uint8_t>(*m_smfFile);
+
+                m_logger->trace("Time signature {}", m_currentTrack->name);
+                break;
+            }
+            case meta_MIDIPort:  // obsolete no longer used.
+            case meta_SMPTEOffset: // Not currently implemented, maybe someday.
+            case meta_KeySignature: // Not very useful for us
             case meta_XMFPatchType: // probably not used
             case meta_SequencerSpecific:
             {
-                m_smf->seekg(length, std::ios::cur);
+                m_smfFile->seekg(length, std::ios::cur);
                 break;
             }
             default:
             {
-                m_smf->seekg(length, std::ios::cur);
+                m_smfFile->seekg(length, std::ios::cur);
                 break;
             }
         }
@@ -126,154 +137,167 @@ namespace MgCore
     void SmfReader::readSysExEvent(SmfEventInfo &event)
     {
         auto length = readVarLen();
-        std::cout << "sysex event " << m_smf->tellg() << std::endl;
-        m_smf->seekg(length, std::ios::cur);
+        m_logger->info("sysex even at position {}", m_smfFile->tellg());
+        m_smfFile->seekg(length, std::ios::cur);
+    }
+
+    void SmfReader::readEvents(int chunkEnd)
+    {
+        uint32_t pulseTime = 0;
+        double runningTimeSec = 0.0;
+        TempoEvent* currentTempoEvent;
+        uint8_t prevStatus = 0;
+
+        while (m_smfFile->tellg() < chunkEnd)
+        {
+            SmfEventInfo event;
+
+            event.deltaPulses = readVarLen();
+
+            pulseTime += event.deltaPulses;
+
+            event.pulseTime = pulseTime;
+
+            auto status = MgCore::peek_type<uint8_t>(*m_smfFile);
+
+            if (status == status_MetaEvent) {
+                prevStatus = 0; // reset running status
+                event.status = MgCore::read_type<uint8_t>(*m_smfFile);
+                readMetaEvent(event);
+            } else if (status == status_SysexEvent || status == status_SysexEvent2) {
+                prevStatus = 0;  // reset running status
+                event.status = MgCore::read_type<uint8_t>(*m_smfFile);
+                readSysExEvent(event);
+            } else {
+
+                if ((status & 0xF0) >= 0x80) {
+                    event.status = MgCore::read_type<uint8_t>(*m_smfFile);
+                } else {
+                    event.status = prevStatus;
+                }
+                readMidiEvent(event);
+                prevStatus = event.status;
+            }
+
+            currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
+            if (currentTempoEvent != nullptr) {
+                runningTimeSec += event.deltaPulses * ((currentTempoEvent->qnLength / m_header.division) / 1000000.0);
+            }
+        }
+        m_currentTrack->seconds = static_cast<float>(runningTimeSec);
     }
 
     void SmfReader::readFile()
     {
+        // we start the file opened at the end in order to get the fileSize.
+        int fileEnd = static_cast<int>(m_smfFile->tellg());
 
-        int fileEnd = static_cast<int>(m_smf->tellg());
-        m_smf->seekg(0, std::ios::beg);
-        int fileBeg = static_cast<int>(m_smf->tellg());
+        // Now we go back to the beginning and begin reading the file
+        m_smfFile->seekg(0, std::ios::beg);
 
-        int chunkStart = fileBeg;
-        int pos = 0;
+        int fileStart = static_cast<int>(m_smfFile->tellg());
+        int filePos = fileStart;
+        int fileRemaining = fileEnd;
 
         SmfChunkInfo chunk;
 
-        MgCore::read_type<char>(*m_smf, chunk.chunkType, 4);
-        chunk.length = MgCore::read_type<uint32_t>(*m_smf);
+        // set the intial chunk starting position at the beginning of the file.
+        int chunkStart = fileStart;
 
-        if (strcmp(chunk.chunkType, "MThd") == 0)  {
+        // The chunk end will be calculated after a chunk is loaded.
+        int chunkEnd = 0;
 
-            m_header.info = chunk;
-            m_header.format = MgCore::read_type<uint16_t>(*m_smf);
-            m_header.trackNum = MgCore::read_type<uint16_t>(*m_smf);
-            m_header.division = MgCore::read_type<int16_t>(*m_smf);
+        int trackChunkCount = 0;
 
-            // seek to the end of the chunk
-            // 8 is the length of the type plus length fields
-            pos = chunkStart + (8 + chunk.length);
+        // We could loop through the number of track chunks given in the header.
+        // However if there are any unknown chunk types inside the midi file
+        // this will likely break. So we just loop until we hit the end of the
+        // file instead...
+        while (filePos < fileEnd)
+        {
 
-            m_smf->seekg(pos);
+            MgCore::read_type<char>(*m_smfFile, chunk.chunkType, 4);
+            chunk.length = MgCore::read_type<uint32_t>(*m_smfFile);
+            chunkEnd = chunkStart + (8 + chunk.length); // 8 is the length of the type + length fields
 
-            if (m_header.format == smfType0 && m_header.trackNum != 1) {
-                throw std::runtime_error("Not a valid type 0 midi.");
-            }
-        } else {
-            throw std::runtime_error("Not a Standard MIDI file.");
-        }
+            // MThd chunk is only in the beginning of the file.
+            if (chunkStart == fileStart && strcmp(chunk.chunkType, "MThd") == 0) {
+                // Load header chunk
+                m_header.info = chunk;
+                m_header.format = MgCore::read_type<uint16_t>(*m_smfFile);
+                m_header.trackNum = MgCore::read_type<uint16_t>(*m_smfFile);
+                m_header.division = MgCore::read_type<int16_t>(*m_smfFile);
 
-        if ((m_header.division & 0x8000) != 0) {
-            throw std::runtime_error("SMPTE division not supported");
-        }
+                // Make sure we reserve enough space for m_tracks just in-case.
+                m_tracks.reserve(sizeof(SmfTrack) * m_header.trackNum);
 
-        for (int i = 0; i < m_header.trackNum; i++) {
-
-            MgCore::read_type<char>(*m_smf, chunk.chunkType, 4);
-            chunk.length = MgCore::read_type<uint32_t>(*m_smf);
-
-
-            m_pulseTime = 0;
-            double runningTimeSec = 0.0;
-            TempoEvent* currentTempoEvent;
-
-            // seek to the end of the chunk
-            // 8 is the length of the type plus length fields
-            chunkStart = pos;
-            pos = chunkStart + (8 + chunk.length);
-
-            if (strcmp(chunk.chunkType, "MTrk") == 0) {
-
-                uint8_t prevStatus;
-
-                auto track = std::make_unique<SmfTrack>();
-                m_currentTrack = track.get();
-
-                m_tracks.push_back(std::move(track));
-
-
-                while (m_smf->tellg() < pos)
-                {
-                    SmfEventInfo event;
-
-                    event.deltaPulses = readVarLen();
-
-                    m_pulseTime += event.deltaPulses;
-
-                    event.pulseTime = m_pulseTime;
-
-                    auto status = MgCore::peek_type<uint8_t>(*m_smf);
-
-                    if (status == status_MetaEvent) {
-                        event.status = MgCore::read_type<uint8_t>(*m_smf);
-                        readMetaEvent(event);
-                    } else if (status == status_SysexEvent || status == status_SysexEvent2) {
-                        event.status = MgCore::read_type<uint8_t>(*m_smf);
-                        readSysExEvent(event);
-                    } else {
-
-                        if ((status & 0xF0) >= 0x80) {
-                            event.status = MgCore::read_type<uint8_t>(*m_smf);
-                        } else {
-                            event.status = prevStatus;
-                        }
-                        readMidiEvent(event);
-                        prevStatus = event.status;
-
-                    }
-
-                    currentTempoEvent = getLastTempoIdViaPulses(m_pulseTime);
-                    if (currentTempoEvent != nullptr) {
-                        runningTimeSec += event.deltaPulses * ((currentTempoEvent->qnLength / m_header.division) / 1000000.0);
-                    } else {
-                         std::cout << event.deltaPulses << std::endl;
-                    }
-
+                if (m_header.format == smfType0 && m_header.trackNum != 1) {
+                    throw std::runtime_error("Not a valid type 0 midi.");
                 }
-                //std::cout << m_currentTrack->midiEvents.size() << std::endl;
-                m_currentTrack->seconds = static_cast<float>(runningTimeSec);
-                std::cout << "Track length: " << m_currentTrack->seconds << std::endl;
 
+                // TODO - For completionist reasons eventually add support for this.
+                if ((m_header.division & 0x8000) != 0) {
+                    throw std::runtime_error("SMPTE time division not supported");
+                }
+
+            } else if (strcmp(chunk.chunkType, "MTrk") == 0) {
+                trackChunkCount += 1;
+                m_tracks.emplace_back();
+                m_currentTrack = &m_tracks.back();
+                readEvents(chunkEnd);
 
             } else {
-                //std::cout << "Supported track chunk not found." << std::endl;
+                m_logger->warn("Non-standard chunk of type {} detected, skipping.", chunk.chunkType);
             }
 
-            m_smf->seekg(pos);
-        }
+            filePos = chunkEnd;
+            chunkStart = filePos;
 
-        if (pos == fileEnd) {
-            //std::cout << "End of MIDI reached." << std::endl;
-        } else {
-            //std::cout << "Warning: Reached end of last track chunk, there is possibly data located outside of a track." << std::endl;
+            // Make sure that we are in the correct location in the chunk
+            // If not seek to the correct location and output an error in the log.
+            if (static_cast<int>(m_smfFile->tellg()) != filePos) {
+                m_logger->warn("Offset for chunk '{}' incorrect, seeking to correct location.", chunk.chunkType);
+                m_smfFile->seekg(filePos);
+            }
+            fileRemaining = (fileEnd-filePos);
+            if (fileRemaining != 0 && fileRemaining <= 8) {
+                m_logger->warn("To few bytes remaining in midi for another track, this is likely a bug.");
+            }
         }
+        if (trackChunkCount != m_header.trackNum) {
+            m_logger->warn("Track chunk count does not match header.");
+        }
+        m_logger->info("End of MIDI reached.");
 
     }
 
     SmfReader::SmfReader(std::string filename)
     {
-        m_smf = std::make_unique<std::ifstream>(filename, std::ios_base::ate | std::ios_base::binary);
+        m_logger = spdlog::get("default");
+        m_smfFile = std::make_unique<std::ifstream>(filename, std::ios_base::ate | std::ios_base::binary);
+
 
         // TODO - find cleaner way of implementing default the 120 BPM
         // m_currentTempo = 500000; // default 120 BPM
 
-        if (*m_smf) {
+        if (*m_smfFile) {
             readFile();
-            m_smf->close();
+            m_smfFile->close();
         } else {
             throw std::runtime_error("Failed to load MIDI file.");
         }
     }
 
+    // TODO - rework so this isn't called until after a note has arrived
+    // or the first tempo meta event has arrived. Related to not having a
+    // default tempo of 120 bpm as the midi spec defines.
     TempoEvent* SmfReader::getLastTempoIdViaPulses(uint32_t pulseTime)
     {
-        auto tempoTrack = *m_tracks[0];
-        auto tempos = tempoTrack.tempo;
+        SmfTrack &tempoTrack = m_tracks.front();
+        std::vector<TempoEvent> &tempos = tempoTrack.tempo;
 
         if (tempos.size() == 0) {
-            std::cout << "Error too early no tempo changes" << std::endl;
+            m_logger->info("Too early no tempo changes");
             return nullptr;
         }
 
@@ -293,11 +317,10 @@ namespace MgCore
 
     std::vector<SmfTrack*> SmfReader::getTracks()
     {
-
         std::vector<SmfTrack*> tracks;
 
         for (auto &track : m_tracks) {
-            tracks.push_back(track.get());
+            tracks.push_back(&track);
         }
         return tracks;
     }

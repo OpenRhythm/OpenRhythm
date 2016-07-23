@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <spdlog/spdlog.h>
 
 namespace MgCore
 {
@@ -20,9 +21,11 @@ namespace MgCore
         meta_Marker,
         meta_CuePoint,
 
+        // RP-019 - SMF Device Name and Program Name Meta Events
+        meta_ProgramName,
+        meta_DeviceName,
+
         // The midi spec says the following text events exist and act the same as meta_Text.
-        meta_TextReserved1,
-        meta_TextReserved2,
         meta_TextReserved3,
         meta_TextReserved4,
         meta_TextReserved5,
@@ -31,6 +34,7 @@ namespace MgCore
         meta_TextReserved8, // 0x0F
 
         meta_MIDIChannelPrefix = 0x20,
+        meta_MIDIPort = 0x21, // obsolete no longer used.
         meta_EndOfTrack = 0x2F,
         meta_Tempo = 0x51,
         meta_SMPTEOffset = 0x54,
@@ -123,17 +127,19 @@ namespace MgCore
     {
     private:
         typedef std::unique_ptr<SmfTrack> t_SmfTrackPtr;
-        std::vector<t_SmfTrackPtr> m_tracks;
+        std::vector<SmfTrack> m_tracks;
         SmfHeaderChunk m_header;
-        std::unique_ptr<std::ifstream> m_smf;
+        std::unique_ptr<std::ifstream> m_smfFile;
         SmfTrack *m_currentTrack;
-        uint32_t m_pulseTime;
         uint32_t readVarLen();
         void readMidiEvent(SmfEventInfo &event);
         void readMetaEvent(SmfEventInfo &event);
         void readSysExEvent(SmfEventInfo &event);
         TempoEvent* getLastTempoIdViaPulses(uint32_t pulseTime);
+        void readEvents(int chunkEnd);
         void readFile();
+
+        std::shared_ptr<spdlog::logger> m_logger;
 
     public:
         SmfReader(std::string smfData);
