@@ -40,6 +40,7 @@ src/config.hpp
 extern/*
 !extern/stb
 !extern/glad
+!extern/spdlog
 !extern/readme.txt
 
 # ignore cmake files if they end up in the root
