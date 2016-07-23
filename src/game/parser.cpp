@@ -254,7 +254,7 @@ namespace MgGame
         }  else if (number == noteFormat.orange) {
             return NoteType::Orange;
         }
-        return NoteType::NONE
+        return NoteType::NONE;
     }
 
     TrackType get_track_type(std::string trackName)
