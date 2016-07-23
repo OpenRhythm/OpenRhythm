@@ -38,10 +38,8 @@ src/config.hpp
 
 # ignore most of the extern folder
 extern/*
-!extern/ttvfs
 !extern/stb
-!extern/libsmf
-extern/libsmf/compile
+!extern/glad
 !extern/readme.txt
 
 # ignore cmake files if they end up in the root
@@ -50,4 +48,3 @@ CMakeFiles/
 Makefile
 cmake_install.cmake
 musicgame
-
