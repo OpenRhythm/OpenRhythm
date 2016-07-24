@@ -131,6 +131,7 @@ namespace MgCore
         SmfHeaderChunk m_header;
         std::unique_ptr<std::ifstream> m_smfFile;
         SmfTrack *m_currentTrack;
+        SmfTrack *m_tempoTrack;
         uint32_t readVarLen();
         void readMidiEvent(SmfEventInfo &event);
         void readMetaEvent(SmfEventInfo &event);

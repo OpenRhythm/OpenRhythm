@@ -116,15 +116,12 @@ namespace MgCore
                 m_logger->trace("Time signature {}", m_currentTrack->name);
                 break;
             }
+            // These are mainly here to just represent them existing :P
             case meta_MIDIPort:  // obsolete no longer used.
             case meta_SMPTEOffset: // Not currently implemented, maybe someday.
             case meta_KeySignature: // Not very useful for us
             case meta_XMFPatchType: // probably not used
             case meta_SequencerSpecific:
-            {
-                m_smfFile->seekg(length, std::ios::cur);
-                break;
-            }
             default:
             {
                 m_smfFile->seekg(length, std::ios::cur);
@@ -178,10 +175,20 @@ namespace MgCore
                 readMidiEvent(event);
                 prevStatus = event.status;
             }
-
-            currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
-            if (currentTempoEvent != nullptr) {
+            if (m_tempoTrack->tempo.size() != 0) {
+                currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
                 runningTimeSec += event.deltaPulses * ((currentTempoEvent->qnLength / m_header.division) / 1000000.0);
+            } else if (pulseTime != 0) {
+                // We construct a new tempo event that will have a default
+                // equivelent to 120 BPM the same thing will need to be done
+                // for the time signature meta event.
+                SmfEventInfo tempoEvent;
+                tempoEvent.deltaPulses = 0;
+                tempoEvent.type = meta_Tempo;
+                tempoEvent.pulseTime = 0;
+                tempoEvent.absTime = 0.0;
+
+                m_tempoTrack->tempo.push_back({tempoEvent, 500000});
             }
         }
         m_currentTrack->seconds = static_cast<float>(runningTimeSec);
@@ -244,6 +251,13 @@ namespace MgCore
                 trackChunkCount += 1;
                 m_tracks.emplace_back();
                 m_currentTrack = &m_tracks.back();
+
+                // Make sure that for midi type 0 and type 2 the tempoTrack is
+                // changing with m_currentTrack.
+                if (m_header.format != smfType1 || trackChunkCount == 1) {
+                    m_tempoTrack = m_currentTrack;
+                }
+
                 readEvents(chunkEnd);
 
             } else {
@@ -275,10 +289,6 @@ namespace MgCore
     {
         m_logger = spdlog::get("default");
         m_smfFile = std::make_unique<std::ifstream>(filename, std::ios_base::ate | std::ios_base::binary);
-
-
-        // TODO - find cleaner way of implementing default the 120 BPM
-        // m_currentTempo = 500000; // default 120 BPM
 
         if (*m_smfFile) {
             readFile();
