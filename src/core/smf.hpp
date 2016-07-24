@@ -108,9 +108,13 @@ namespace MgCore
         uint32_t qnLength; // Length of a quarter note in microseconds.
     };
 
-    struct TimeSigEvent
+    struct TimeSignatureEvent
     {
         SmfEventInfo info;
+        int numerator;
+        int denominator;
+        int ticksPerBeat;
+        int thirtySecondPQN;
     };
 
     struct SmfTrack
@@ -120,7 +124,7 @@ namespace MgCore
     	std::vector<MidiEvent> midiEvents;
     	std::vector<TextEvent> textEvents;
     	std::vector<TempoEvent> tempo;
-    	std::vector<TimeSigEvent> timeSigEvents;
+    	std::vector<TimeSignatureEvent> timeSigEvents;
     };
 
     class SmfReader

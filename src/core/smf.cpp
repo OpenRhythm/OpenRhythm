@@ -5,6 +5,7 @@
 #include <utility>
 #include <sstream>
 #include <stdexcept>
+#include <cmath>
 
 #include "smf.hpp"
 #include "parseutils.hpp"
@@ -106,14 +107,23 @@ namespace MgCore
             }
             case meta_TimeSignature:  // TODO - Implement this...
             {
-                auto numerator = MgCore::read_type<uint8_t>(*m_smfFile);
-                auto denominator = MgCore::read_type<uint8_t>(*m_smfFile);
+                TimeSignatureEvent tsEvent;
+                tsEvent.numerator = MgCore::read_type<uint8_t>(*m_smfFile); // 4 default
+                tsEvent.denominator = std::pow(2, MgCore::read_type<uint8_t>(*m_smfFile)); // 4 default
 
-                auto clocksPerClick = MgCore::read_type<uint8_t>(*m_smfFile);
+                tsEvent.ticksPerBeat = MgCore::read_type<uint8_t>(*m_smfFile); // Standard is 24
+
                 // The number of 1/32nd notes per quarter note
-                auto thirtySecondPQN = MgCore::read_type<uint8_t>(*m_smfFile);
+                tsEvent.thirtySecondPQN = MgCore::read_type<uint8_t>(*m_smfFile); // 8 default
 
-                m_logger->trace("Time signature {}", m_currentTrack->name);
+                m_logger->trace("Time signature  {}/{} CPC: {} TSPQN: {}",
+                                    tsEvent.numerator,
+                                    tsEvent.denominator,
+                                    tsEvent.ticksPerBeat,
+                                    tsEvent.thirtySecondPQN);
+
+                m_currentTrack->timeSigEvents.push_back(tsEvent);
+
                 break;
             }
             // These are mainly here to just represent them existing :P
@@ -129,7 +139,6 @@ namespace MgCore
             }
         }
     }
-
 
     void SmfReader::readSysExEvent(SmfEventInfo &event)
     {
@@ -179,6 +188,9 @@ namespace MgCore
                 currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
                 runningTimeSec += event.deltaPulses * ((currentTempoEvent->qnLength / m_header.division) / 1000000.0);
             } else if (pulseTime != 0) {
+
+                m_logger->info("No tempo change at deltatime 0 setting default of 120 BPM.");
+
                 // We construct a new tempo event that will have a default
                 // equivelent to 120 BPM the same thing will need to be done
                 // for the time signature meta event.
@@ -189,6 +201,19 @@ namespace MgCore
                 tempoEvent.absTime = 0.0;
 
                 m_tempoTrack->tempo.push_back({tempoEvent, 500000});
+            }
+
+            if (pulseTime != 0 && m_tempoTrack->timeSigEvents.size() == 0) {
+
+                m_logger->info("No time signature change at deltatime 0 setting default of 4/4.");
+
+                TimeSignatureEvent tsEvent;
+                tsEvent.numerator = 4;
+                tsEvent.denominator = 4;
+                tsEvent.ticksPerBeat = 24;
+                tsEvent.thirtySecondPQN = 8;
+
+                m_tempoTrack->timeSigEvents.push_back(tsEvent);
             }
         }
         m_currentTrack->seconds = static_cast<float>(runningTimeSec);
@@ -318,12 +343,6 @@ namespace MgCore
         }
         return nullptr;
     }
-
-    //TempoEvent SmfReader::getTempoViaId(int id)
-    //{
-    //    tempoTrack = m_tracks[0]
-    //    return tempoTrack->tempo[id]
-    //}
 
     std::vector<SmfTrack*> SmfReader::getTracks()
     {
