@@ -13,6 +13,7 @@
 int main()
 {
     std::shared_ptr<spdlog::logger> logger;
+
     try {
         std::vector<spdlog::sink_ptr> sinks;
         // I would like to use the sink that does color output to the console
@@ -24,6 +25,9 @@ int main()
 
         logger = std::make_shared<spdlog::logger>("default", std::begin(sinks), std::end(sinks));
         spdlog::register_logger(logger);
+
+        // Should be set by the configuration eventually.
+        logger->set_level(spdlog::level::trace);
 
     } catch (const spdlog::spdlog_ex& err) {
         std::cout << "Logging Failed: " << err.what() << std::endl;
