@@ -150,27 +150,8 @@ void GameManager::resize(int width, int height)
     m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
     m_program->set_uniform(m_orthoID, m_ortho);
 
-    int size = m_meshes.size();
-    int newSize = (m_width/37) * (m_height/37);
-    if (newSize > size) {
-        m_meshes.resize(newSize);
-    } else if (newSize < size) {
-        while (m_meshes.size() != newSize) {
-            m_meshes.pop_back();
-        }
-    }
-
-    int i = 0;
-    for (int y = 0; y < (m_height/37); y++) {
-        for (int x = 0; x < (m_width/37); x++) {
-            i = (y * (m_width/37) + x);
-            if (i >= size) {
-                MeshPtr mesh = std::make_unique<MgCore::Mesh2D>(m_program.get(), m_texture.get());
-                m_meshes[i] = std::move(mesh);
-            }
-            m_meshes[i]->scale(32.0f, 32.0f);
-            m_meshes[i]->translate(x * 37.0f, y * 37.0f);
-        }
+    for (auto &mesh : m_meshes) {
+        mesh->translate((m_width/2.0f)-256, (m_height/2.0f) - 4); // center the line on the screen
     }
 }
 
