@@ -4,11 +4,11 @@
 #include <stdexcept>
 
 #include "config.hpp"
-#include "parser.hpp"
 #include "vfs.hpp"
 #include "game.hpp"
 
 GameManager::GameManager()
+: m_song("/data/songs/testsong")
 {
     m_width = 800;
     m_height = 600;
@@ -47,18 +47,16 @@ GameManager::GameManager()
 
     //MgCore::mount( "./data", "data" );
 
-    MgGame::Song song( "/data/songs/testsong" ); // dirname of song
+    m_song.add(MgGame::TrackType::Guitar, MgGame::Difficulty::Expert);
 
-    song.add(MgGame::TrackType::Guitar, MgGame::Difficulty::Expert);
+    m_song.load();
 
-    song.load();
+    //std::cout << "Song: " << (m_song.length() / 1000) / 60 << " minutes long" << std::endl;
 
-    //std::cout << "Song: " << (song.length() / 1000) / 60 << " minutes long" << std::endl;
-
-    //MgCore::Track *track = song.getTrack( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
+    //MgCore::Track *track = m_song.getTrack( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
     //std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << std::endl;
 
-    //track->listNotesInTrack();
+    m_tempoTrack = m_song.getTempoTrack();
 
     //std::vector<MgCore::TrackNote*> v = track->getNotesInFrame(0, 10000);
 
@@ -179,6 +177,14 @@ bool GameManager::event_handler(MgCore::Event &event)
 void GameManager::handle_song()
 {
     double songTime = m_clock->get_current_time();
+    std::vector<MgGame::TempoEvent*> temoChanges;
+    temoChanges = m_tempoTrack->getEventsInFrame(songTime-5.0, songTime+5.0);
+    //m_logger->info("Time: {}", songTime);
+
+    for (auto i : temoChanges)
+    {
+        m_logger->info("Tempo change at: {}", i->time);
+    }
 }
 
 void GameManager::update()
@@ -186,7 +192,7 @@ void GameManager::update()
     for (auto& mesh : m_meshes) {
         mesh->update();
     }
-
+    handle_song();
 }
 
 void GameManager::render()

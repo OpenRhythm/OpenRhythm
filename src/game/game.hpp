@@ -15,6 +15,7 @@
 #include "shader.hpp"
 #include "mesh2d.hpp"
 #include "texture.hpp"
+#include "parser.hpp"
 
 
 class GameManager
@@ -29,6 +30,8 @@ private:
 
     int m_mouseX = 0;
     int m_mouseY = 0;
+    MgGame::TempoTrack *m_tempoTrack;
+    MgGame::Song m_song;
 
     std::unique_ptr<MgCore::Window> m_window;
     std::unique_ptr<MgCore::Context> m_context;
