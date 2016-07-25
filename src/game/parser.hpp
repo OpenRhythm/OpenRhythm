@@ -70,7 +70,7 @@ namespace MgGame
 
     	std::vector<TempoEvent> m_tempo;
     public:
-        void addEvent(int bpm, double time);
+        void addEvent(int ppqn, double time);
         std::vector<TempoEvent*> getEventsInFrame(double start, double end);
     };
 
