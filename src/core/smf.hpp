@@ -83,7 +83,7 @@ namespace MgCore
         uint8_t status;
         uint32_t deltaPulses;
         uint32_t pulseTime; // Time in pulses from start to now
-        uint32_t absTime; // Time in milliseconds from start to now
+        double absTime; // Time in milliseconds from start to now
         MidiMetaEvent type;
     };
 
@@ -136,10 +136,12 @@ namespace MgCore
         std::unique_ptr<std::ifstream> m_smfFile;
         SmfTrack *m_currentTrack;
         SmfTrack *m_tempoTrack;
+        TempoEvent* m_currentTempoEvent;
         uint32_t readVarLen();
         void readMidiEvent(SmfEventInfo &event);
         void readMetaEvent(SmfEventInfo &event);
         void readSysExEvent(SmfEventInfo &event);
+        double conv_abstime(uint32_t deltaPulses);
         TempoEvent* getLastTempoIdViaPulses(uint32_t pulseTime);
         void readEvents(int chunkEnd);
         void readFile();

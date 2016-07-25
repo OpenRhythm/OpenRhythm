@@ -11,15 +11,15 @@ namespace MgGame
     // TempoTrack Class methods
     /////////////////////////////////////
 
-    void TempoTrack::addEvent(float bpm, double time)
+    void TempoTrack::addEvent(int ppqn, double time)
     {
-        m_tempoEvents.push_back(TempoEvent({bpm, time}));
+        m_tempo.push_back(TempoEvent({ppqn, time}));
     }
 
     std::vector<TempoEvent*> TempoTrack::getEventsInFrame(double start, double end)
     {
         std::vector<TempoEvent*> tempoEvents;
-        for (auto &tempo : m_tempoEvents) {
+        for (auto &tempo : m_tempo) {
             if (tempo.time >= start && tempo.time <= end) {
                 tempoEvents.push_back(&tempo);
             }
@@ -62,11 +62,11 @@ namespace MgGame
     // Song Class methods
     /////////////////////////////////////
 
-
     Song::Song( std::string songpath ) : m_path(songpath)
     {
         // TODO - I dont really think we should be by default adding a song type
         m_trackInfo.push_back( {TrackType::Events, Difficulty::Easy} );
+        m_logger = spdlog::get("default");
     }
 
     void Song::add( TrackType type, Difficulty difficulty )
@@ -82,10 +82,17 @@ namespace MgGame
     {
         MgCore::SmfReader midi("notes.mid");
 
-        auto tracks = midi.getTracks();
+        auto &tracks = midi.getTracks();
 
-        for (auto track: tracks) {
-            std::cout << track->name << std::endl;
+        for (auto &tempo : (*tracks.begin())->tempo)
+        {
+            m_tempoTrack.addEvent(tempo.qnLength, tempo.info.absTime);
+            //m_logger->info("Tempo change recieved at time {}", tempo.info.);
+        }
+
+
+        for (size_t i=1; i < tracks.size(); ++i) {
+            std::cout << tracks[i]->name << std::endl;
         }
 
 

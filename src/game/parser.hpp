@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <spdlog/spdlog.h>
 
 namespace MgGame
 {
@@ -51,7 +52,7 @@ namespace MgGame
 
     struct TempoEvent
     {
-        float bpm;
+        int ppqn;
         double time;
     };
 
@@ -66,9 +67,10 @@ namespace MgGame
     class TempoTrack
     {
     private:
-        std::vector<TempoEvent> m_tempoEvents;
+
+    	std::vector<TempoEvent> m_tempo;
     public:
-        void addEvent(float bpm, double time);
+        void addEvent(int bpm, double time);
         std::vector<TempoEvent*> getEventsInFrame(double start, double end);
     };
 
@@ -109,6 +111,7 @@ namespace MgGame
         TempoTrack m_tempoTrack;
         std::string m_path;
         double m_length;
+        std::shared_ptr<spdlog::logger> m_logger;
     public:
         Song( std::string songpath );
 

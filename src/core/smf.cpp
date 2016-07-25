@@ -147,12 +147,16 @@ namespace MgCore
         m_smfFile->seekg(length, std::ios::cur);
     }
 
+    double SmfReader::conv_abstime(uint32_t deltaPulses)
+    {
+        return deltaPulses * ((m_currentTempoEvent->qnLength / m_header.division) / 1000000.0);
+    }
+
     void SmfReader::readEvents(int chunkEnd)
     {
         uint32_t pulseTime = 0;
-        double runningTimeSec = 0.0;
-        TempoEvent* currentTempoEvent;
         uint8_t prevStatus = 0;
+        double currentRunningTimeSec = 0;
 
         while (m_smfFile->tellg() < chunkEnd)
         {
@@ -163,6 +167,7 @@ namespace MgCore
             pulseTime += event.deltaPulses;
 
             event.pulseTime = pulseTime;
+            event.absTime = conv_abstime(pulseTime);
 
             auto status = MgCore::peek_type<uint8_t>(*m_smfFile);
 
@@ -184,10 +189,9 @@ namespace MgCore
                 readMidiEvent(event);
                 prevStatus = event.status;
             }
-            if (m_tempoTrack->tempo.size() != 0) {
-                currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
-                runningTimeSec += event.deltaPulses * ((currentTempoEvent->qnLength / m_header.division) / 1000000.0);
-            } else if (pulseTime != 0) {
+
+
+            if (pulseTime != 0 && m_tempoTrack->tempo.size() == 0) {
 
                 m_logger->info("No tempo change at deltatime 0 setting default of 120 BPM.");
 
@@ -215,8 +219,12 @@ namespace MgCore
 
                 m_tempoTrack->timeSigEvents.push_back(tsEvent);
             }
+            if (pulseTime != 0) {
+                m_currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
+                currentRunningTimeSec += event.absTime;
+            }
         }
-        m_currentTrack->seconds = static_cast<float>(runningTimeSec);
+        m_currentTrack->seconds = static_cast<float>(currentRunningTimeSec);
     }
 
     void SmfReader::readFile()
@@ -323,25 +331,35 @@ namespace MgCore
         }
     }
 
-    // TODO - rework so this isn't called until after a note has arrived
-    // or the first tempo meta event has arrived. Related to not having a
-    // default tempo of 120 bpm as the midi spec defines.
     TempoEvent* SmfReader::getLastTempoIdViaPulses(uint32_t pulseTime)
     {
+        static unsigned int value = 0;
         SmfTrack &tempoTrack = m_tracks.front();
         std::vector<TempoEvent> &tempos = tempoTrack.tempo;
 
-        if (tempos.size() == 0) {
-            m_logger->info("Too early no tempo changes");
-            return nullptr;
+        static uint32_t lastPulseTime = 0;
+
+        // Ignore the cached last tempo value if the new pulse time is older.
+        if (lastPulseTime > pulseTime) {
+            //m_logger->trace("Reset tempo id from: {}", value);
+            value = 0;
         }
 
-        for (auto &tempo : tempos) {
-            if (pulseTime >= tempo.info.pulseTime) {
-                return &tempo;
+        for (unsigned int i = 0; i < tempos.size(); i++) {
+            // Restore tempo to previous value
+            if (i < value) {
+                //m_logger->trace("Restored tempo id to: {}", value);
+                i = value;
+            }
+            if (tempos[i].info.pulseTime >=pulseTime) {
+                value = i;
+                lastPulseTime = pulseTime;
+                return &tempos[i];
             }
         }
-        return nullptr;
+        // return last value if nothing else is found
+        return &tempos.back();
+
     }
 
     std::vector<SmfTrack*> SmfReader::getTracks()
