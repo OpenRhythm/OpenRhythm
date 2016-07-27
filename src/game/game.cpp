@@ -178,13 +178,18 @@ void GameManager::handle_song()
 {
     double songTime = m_clock->get_current_time();
     std::vector<MgGame::TempoEvent*> temoChanges;
-    temoChanges = m_tempoTrack->getEventsInFrame(songTime-5.0, songTime+5.0);
+    temoChanges = m_tempoTrack->getEventsInFrame(songTime, songTime+2.5);
     //m_logger->info("Time: {}", songTime);
-
-    for (auto i : temoChanges)
-    {
-        m_logger->info("Tempo change at: {}", i->time);
+    if (temoChanges.size() > 0) {
+        m_logger->info("time per quarter {}", temoChanges.front()->ppqn / 1000000.0);
     }
+
+
+    // for (auto i : temoChanges)
+    // {
+    //     beatTime = i->gnLength
+    //     m_logger->info("Tempo change at: {}", i->time);
+    // }
 }
 
 void GameManager::update()
