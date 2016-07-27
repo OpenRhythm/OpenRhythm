@@ -17,7 +17,7 @@
 // file dependent (now : stereo)
 #define CHANNELS_COUNT 2
 
-namespace FSaudio {
+namespace FScore {
     Codec* mysong_soundio;
 
     static void write_callback(struct SoundIoOutStream *outstream,
@@ -122,4 +122,4 @@ namespace FSaudio {
         soundio_destroy(soundio);
         return 0;
     }
-}
+} // Namespace FSCore

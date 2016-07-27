@@ -3,6 +3,9 @@
 
 #include "codec.hpp"
 
-int pa_main(Codec *thesong);
+namespace FScore {
 
+    int pa_main(Codec *thesong);
+
+} // Namespace FSCore
 #endif
