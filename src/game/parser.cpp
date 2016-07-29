@@ -82,7 +82,7 @@ namespace MgGame
     {
         MgCore::SmfReader midi("notes.mid");
 
-        auto &tracks = midi.getTracks();
+        std::vector<MgCore::SmfTrack*> tracks = midi.getTracks();
 
         for (auto &tempo : (*tracks.begin())->tempo)
         {
