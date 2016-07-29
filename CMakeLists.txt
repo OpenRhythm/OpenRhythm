@@ -144,4 +144,4 @@ if(OSX_APP_BUNDLE)
     set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
 
-target_link_libraries(musicgame ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
+target_link_libraries(musicgame ${CMAKE_DL_LIBS} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
