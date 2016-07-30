@@ -6,7 +6,7 @@
 namespace MgCore
 {
     template<typename T>
-    T read_type(std::ifstream &file)
+    T read_type(std::istream &file)
     {
         T output;
         auto size = sizeof(T);
@@ -19,7 +19,7 @@ namespace MgCore
     }
 
     template<typename T>
-    T read_type(std::ifstream &file, size_t size)
+    T read_type(std::istream &file, size_t size)
     {
         T output = 0;
         if (sizeof(output) < size)
@@ -37,7 +37,7 @@ namespace MgCore
 
     // Main purpose is for reading string-like data from the file.
     template<typename T>
-    void read_type(std::ifstream &file, T *output, unsigned long length)
+    void read_type(std::istream &file, T *output, unsigned long length)
     {
         auto size = sizeof(T);
         int offset;
@@ -50,7 +50,7 @@ namespace MgCore
     }
 
     template<typename T>
-    T peek_type(std::ifstream &file)
+    T peek_type(std::istream &file)
     {
         T output;
         auto size = sizeof(T);
@@ -65,7 +65,7 @@ namespace MgCore
     }
 
     template<typename T>
-    T peek_type(std::ifstream &file, size_t size)
+    T peek_type(std::istream &file, size_t size)
     {
         T output = 0;
         if (sizeof(output) < size)
@@ -85,7 +85,7 @@ namespace MgCore
 
     // Main purpose is for reading string-like data from the file.
     template<typename T>
-    void peek_type(std::ifstream &file, T *output, unsigned int length)
+    void peek_type(std::istream &file, T *output, unsigned int length)
     {
         auto size = sizeof(T);
         unsigned int offset;

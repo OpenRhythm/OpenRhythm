@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <sstream>
 #include <spdlog/spdlog.h>
 
 namespace MgCore
@@ -106,6 +107,7 @@ namespace MgCore
     {
         SmfEventInfo info;
         uint32_t qnLength; // Length of a quarter note in microseconds.
+        double ppqn;
     };
 
     struct TimeSignatureEvent
@@ -133,7 +135,7 @@ namespace MgCore
         typedef std::unique_ptr<SmfTrack> t_SmfTrackPtr;
         std::vector<SmfTrack> m_tracks;
         SmfHeaderChunk m_header;
-        std::unique_ptr<std::ifstream> m_smfFile;
+        std::stringstream m_smfFile;
         SmfTrack *m_currentTrack;
         SmfTrack *m_tempoTrack;
         TempoEvent* m_currentTempoEvent;
