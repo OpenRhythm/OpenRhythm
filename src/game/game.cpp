@@ -18,7 +18,6 @@ GameManager::GameManager()
     m_window = std::make_unique<MgCore::Window>(m_width, m_height, m_fullscreen, m_title);
     m_context = std::make_unique<MgCore::Context>(3, 2, 0);
     m_events = std::make_unique<MgCore::Events>();
-    m_clock = std::make_unique<MgCore::FpsTimer>();
     m_running = true;
 
     m_logger = spdlog::get("default");
@@ -95,11 +94,10 @@ GameManager::GameManager()
 
     std::cout << (m_width / 37) * (m_height / 37) << std::endl;
 
-
-    MeshPtr mesh = std::make_unique<MgCore::Mesh2D>(m_program.get(), m_texture.get());
-    mesh->scale(512.0f, 8.0f);
-    mesh->translate((m_width/2.0f)-256, (m_height/2.0f) - 4); // center the line on the screen
-    m_meshes.push_back(std::move(mesh));
+    m_meshes.emplace_back(m_program.get(), m_texture.get());
+    auto &mesh = m_meshes.back();
+    mesh.scale(512.0f, 8.0f);
+    mesh.translate((m_width/2.0f)-256, (m_height/2.0f) - 4); // center the line on the screen
 
 
     m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
@@ -122,7 +120,7 @@ void GameManager::start()
 
     while (m_running)
     {
-        m_fpsTime += m_clock->tick();
+        m_fpsTime += m_clock.tick();
         m_events->process();
 
         update();
@@ -131,12 +129,11 @@ void GameManager::start()
         m_window->flip();
         if (m_fpsTime >= 2.0) {
             std::cout.precision (5);
-            std::cout << "FPS: " << m_clock->get_fps() << std::endl;
+            std::cout << "FPS: " << m_clock.get_fps() << std::endl;
             std::cout.precision (m_ss);
             m_fpsTime = 0;
         }
     }
-
 }
 
 void GameManager::resize(int width, int height)
@@ -148,7 +145,7 @@ void GameManager::resize(int width, int height)
     m_program->set_uniform(m_orthoID, m_ortho);
 
     for (auto &mesh : m_meshes) {
-        mesh->translate((m_width/2.0f)-256, (m_height/2.0f) - 4); // center the line on the screen
+        mesh.translate((m_width/2.0f)-256, (m_height/2.0f) - 4); // center the line on the screen
     }
 }
 
@@ -175,7 +172,7 @@ bool GameManager::event_handler(MgCore::Event &event)
 
 void GameManager::handle_song()
 {
-    double songTime = m_clock->get_current_time();
+    double songTime = m_clock.get_current_time();
     std::vector<MgGame::TempoEvent*> temoChanges;
     temoChanges = m_tempoTrack->getEventsInFrame(songTime, songTime+2.5);
     //m_logger->info("Time: {}", songTime);
@@ -193,8 +190,8 @@ void GameManager::handle_song()
 
 void GameManager::update()
 {
-    for (auto& mesh : m_meshes) {
-        mesh->update();
+    for (auto &mesh : m_meshes) {
+        mesh.update();
     }
     handle_song();
 }
@@ -204,8 +201,8 @@ void GameManager::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_program->use();
-    for (auto& mesh : m_meshes) {
-        mesh->render();
+    for (auto &mesh : m_meshes) {
+        mesh.render();
     }
 
 }

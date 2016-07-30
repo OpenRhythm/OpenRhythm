@@ -32,14 +32,14 @@ private:
     int m_mouseY = 0;
     MgGame::TempoTrack *m_tempoTrack;
     MgGame::Song m_song;
+    MgCore::FpsTimer m_clock;
 
     std::unique_ptr<MgCore::Window> m_window;
     std::unique_ptr<MgCore::Context> m_context;
     std::unique_ptr<MgCore::Events> m_events;
-    std::unique_ptr<MgCore::FpsTimer> m_clock;
     std::unique_ptr<MgCore::ShaderProgram> m_program;
-    typedef std::unique_ptr<MgCore::Mesh2D> MeshPtr;
-    std::vector<MeshPtr> m_meshes;
+
+    std::vector<MgCore::Mesh2D> m_meshes;
     std::unique_ptr<MgCore::Texture> m_texture;
     MgCore::Listener m_lis;
 
