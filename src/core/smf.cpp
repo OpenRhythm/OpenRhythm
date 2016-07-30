@@ -328,13 +328,17 @@ namespace MgCore
     {
         m_logger = spdlog::get("default");
         m_logger->info("Loading MIDI");
-
-        std::ifstream smfFile(filename, std::ios_base::binary);
-
+        
+        std::ifstream smfFile(filename, std::ios_base::ate | std::ios_base::binary);
 
         if (smfFile) {
-            m_smfFile << smfFile.rdbuf();
+            std::string contents;
+            auto size = smfFile.tellg();
+            smfFile.seekg(0, std::ios::beg);
+            contents.resize(size);
+            smfFile.read(&contents[0], size);
             smfFile.close();
+            m_smfFile.str(contents);
         } else {
             throw std::runtime_error("Failed to load MIDI file.");
         }
