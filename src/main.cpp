@@ -27,7 +27,7 @@ int main()
         spdlog::register_logger(logger);
 
         // Should be set by the configuration eventually.
-        logger->set_level(spdlog::level::trace);
+        logger->set_level(spdlog::level::info);
 
     } catch (const spdlog::spdlog_ex& err) {
         std::cout << "Logging Failed: " << err.what() << std::endl;

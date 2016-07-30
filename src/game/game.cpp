@@ -38,7 +38,7 @@ GameManager::GameManager()
 #endif
     MgCore::mount(MgCore::GetBasePath(), "/bob");
     std::vector<std::string> paths = MgCore::resolveSystemPath("/bob");
-    for (auto i: paths) {
+    for (auto &i: paths) {
         auto bob = MgCore::sysGetPathContents(i);
         std::cout << i << " " << bob.size() << std::endl;
     }
@@ -48,7 +48,6 @@ GameManager::GameManager()
     //MgCore::mount( "./data", "data" );
 
     m_song.add(MgGame::TrackType::Guitar, MgGame::Difficulty::Expert);
-
     m_song.load();
 
     //std::cout << "Song: " << (m_song.length() / 1000) / 60 << " minutes long" << std::endl;

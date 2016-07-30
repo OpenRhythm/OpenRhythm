@@ -167,7 +167,12 @@ namespace MgCore
             pulseTime += event.deltaPulses;
 
             event.pulseTime = pulseTime;
-            event.absTime = conv_abstime(pulseTime);
+
+            if (pulseTime == 0) {
+                event.absTime = 0.0;
+            } else {
+                event.absTime = conv_abstime(pulseTime);
+            }
 
             auto status = MgCore::peek_type<uint8_t>(*m_smfFile);
 
@@ -180,7 +185,6 @@ namespace MgCore
                 event.status = MgCore::read_type<uint8_t>(*m_smfFile);
                 readSysExEvent(event);
             } else {
-
                 if ((status & 0xF0) >= 0x80) {
                     event.status = MgCore::read_type<uint8_t>(*m_smfFile);
                 } else {
@@ -219,7 +223,7 @@ namespace MgCore
 
                 m_tempoTrack->timeSigEvents.push_back(tsEvent);
             }
-            if (pulseTime != 0) {
+            if (pulseTime != 0 || m_tempoTrack->tempo.size() != 0) {
                 m_currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
                 currentRunningTimeSec += event.absTime;
             }
@@ -321,6 +325,7 @@ namespace MgCore
     SmfReader::SmfReader(std::string filename)
     {
         m_logger = spdlog::get("default");
+        m_logger->info("Loading MIDI");
         m_smfFile = std::make_unique<std::ifstream>(filename, std::ios_base::ate | std::ios_base::binary);
 
         if (*m_smfFile) {

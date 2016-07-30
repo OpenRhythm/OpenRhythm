@@ -64,18 +64,14 @@ namespace MgGame
 
     Song::Song( std::string songpath ) : m_path(songpath)
     {
-        // TODO - I dont really think we should be by default adding a song type
-        m_trackInfo.push_back( {TrackType::Events, Difficulty::Easy} );
         m_logger = spdlog::get("default");
     }
 
     void Song::add( TrackType type, Difficulty difficulty )
     {
-        if ( type >= TrackType::Events ) {
-            return; // Non-played tracks are handled seperately
+        if ( type < TrackType::Events ) {
+            m_trackInfo.push_back( {type, difficulty} );
         }
-
-        m_trackInfo.push_back( {type, difficulty} );
     }
 
     bool Song::load()
@@ -87,12 +83,7 @@ namespace MgGame
         for (auto &tempo : (*tracks.begin())->tempo)
         {
             m_tempoTrack.addEvent(tempo.qnLength, tempo.info.absTime);
-            //m_logger->info("Tempo change recieved at time {}", tempo.info.);
-        }
-
-
-        for (size_t i=1; i < tracks.size(); ++i) {
-            std::cout << tracks[i]->name << std::endl;
+            m_logger->trace("Tempo change recieved at time {}", tempo.info.absTime);
         }
 
 

@@ -13,6 +13,7 @@ namespace MgGame
 
     enum class Difficulty
     {
+        NONE,
         Easy,
         Medium,
         Hard,
