@@ -150,7 +150,7 @@ namespace MgCore
 
     double SmfReader::conv_abstime(uint32_t deltaPulses)
     {
-        return deltaPulses * (m_currentTempoEvent->ppqn / 1000000.0);
+        return deltaPulses * (m_currentTempoEvent->qnLength / (m_header.division * 1000000.0));
     }
 
     void SmfReader::readEvents(int chunkEnd)
@@ -172,7 +172,8 @@ namespace MgCore
             if (pulseTime == 0) {
                 event.absTime = 0.0;
             } else {
-                event.absTime = conv_abstime(pulseTime);
+                currentRunningTimeSec += conv_abstime(event.deltaPulses);
+                event.absTime = currentRunningTimeSec;
             }
 
             auto status = MgCore::peek_type<uint8_t>(m_smfFile);
@@ -226,7 +227,6 @@ namespace MgCore
             }
             if (pulseTime != 0 || m_tempoTrack->tempo.size() != 0) {
                 m_currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
-                currentRunningTimeSec += event.absTime;
             }
         }
         m_currentTrack->seconds = static_cast<float>(currentRunningTimeSec);
@@ -328,7 +328,7 @@ namespace MgCore
     {
         m_logger = spdlog::get("default");
         m_logger->info("Loading MIDI");
-        
+
         std::ifstream smfFile(filename, std::ios_base::ate | std::ios_base::binary);
 
         if (smfFile) {

@@ -11,20 +11,49 @@ namespace MgGame
     // TempoTrack Class methods
     /////////////////////////////////////
 
-    void TempoTrack::addEvent(int ppqn, double time)
+    void TempoTrack::add_event(int qnLength, double time)
     {
-        m_tempo.push_back(TempoEvent({ppqn, time}));
+        m_tempo.push_back(TempoEvent({qnLength, time}));
     }
 
-    std::vector<TempoEvent*> TempoTrack::getEventsInFrame(double start, double end)
+    void TempoTrack::mark_bars()
     {
-        std::vector<TempoEvent*> tempoEvents;
+        TempoEvent *previousTempo = nullptr;
+        double lastTempo = 0;
+        double beatSubdivision = 2.0; // How many times to subdivide the beat
+        double beatSegments = 0.0;
+        double incr = 0.0;
         for (auto &tempo : m_tempo) {
-            if (tempo.time >= start && tempo.time <= end) {
-                tempoEvents.push_back(&tempo);
+            if (previousTempo == nullptr) {
+                previousTempo = &tempo;
+                continue;
+            }
+            double incr = (previousTempo->qnLength / 1000000.0) / beatSubdivision;
+            beatSegments = ((tempo.time - previousTempo->time) / incr) + 1;
+            for (int i=0; i<((int)beatSegments); i++) {
+                m_bars.push_back({BarType::beat, previousTempo->time + (incr*i)});
+            }
+            previousTempo = &tempo;
+        }
+    }
+
+    std::vector<TempoTrackEvent> TempoTrack::get_events(double start, double end, EventType type)
+    {
+        std::vector<TempoTrackEvent> events;
+        if (type == EventType::Tempo) {
+            for (auto &tempo : m_tempo) {
+                if (tempo.time >= start && tempo.time <= end) {
+                    events.emplace_back(&tempo);
+                }
+            }
+        } else if (type == EventType::Bar){
+            for (auto &bar : m_bars) {
+                if (bar.time >= start && bar.time <= end) {
+                    events.emplace_back(&bar);
+                }
             }
         }
-        return tempoEvents;
+        return events;
     }
 
 
@@ -82,9 +111,11 @@ namespace MgGame
 
         for (auto &tempo : (*tracks.begin())->tempo)
         {
-            m_tempoTrack.addEvent(tempo.qnLength, tempo.info.absTime);
+            m_tempoTrack.add_event(tempo.qnLength, tempo.info.absTime);
             m_logger->trace("Tempo change recieved at time {}", tempo.info.absTime);
         }
+
+        m_tempoTrack.mark_bars();
 
 
         // TODO - Finish converting to the new midi parser.

@@ -41,6 +41,16 @@ namespace MgGame
         Orange,
     };
 
+    enum class EventType
+    {
+        Note,
+        Tempo,
+        TimeSignature,
+        Bar,
+        Lyric,
+        Other,
+    };
+
     struct MidiNoteDefinition
     {
         int green;
@@ -51,17 +61,46 @@ namespace MgGame
         int power;
     };
 
-    struct TempoEvent
-    {
-        int ppqn;
-        double time;
-    };
-
     struct TrackNote
     {
         NoteType type;
         double time;
         double length;
+    };
+
+    struct TempoEvent
+    {
+        int qnLength;
+        double time;
+    };
+
+    enum class BarType
+    {
+        measure,
+        beat,
+        upbeat, // This isn't always half of a beat one example of this is: 6/8 compound time
+    };
+
+    struct BarEvent
+    {
+        BarType type;
+        double time;
+    };
+
+    union TempoTrackEvent
+    {
+        TempoEvent *tempo;
+        BarEvent *bar;
+
+        TempoTrackEvent(TempoEvent *tmpo):
+        tempo(tmpo)
+        {
+        }
+
+        TempoTrackEvent(BarEvent *brEvent):
+        bar(brEvent)
+        {
+        }
     };
 
 
@@ -70,9 +109,11 @@ namespace MgGame
     private:
 
     	std::vector<TempoEvent> m_tempo;
+        std::vector<BarEvent> m_bars;
     public:
-        void addEvent(int ppqn, double time);
-        std::vector<TempoEvent*> getEventsInFrame(double start, double end);
+        void add_event(int ppqn, double time);
+        void mark_bars();
+        std::vector<TempoTrackEvent> get_events(double start, double end, EventType type);
     };
 
 

@@ -94,12 +94,6 @@ GameManager::GameManager()
 
     std::cout << (m_width / 37) * (m_height / 37) << std::endl;
 
-    m_meshes.emplace_back(m_program.get(), m_texture.get());
-    auto &mesh = m_meshes.back();
-    mesh.scale(512.0f, 8.0f);
-    mesh.translate((m_width/2.0f)-256, (m_height/2.0f) - 4); // center the line on the screen
-
-
     m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
 
     m_program->set_uniform(m_orthoID, m_ortho);
@@ -130,6 +124,7 @@ void GameManager::start()
         if (m_fpsTime >= 2.0) {
             std::cout.precision (5);
             std::cout << "FPS: " << m_clock.get_fps() << std::endl;
+            std::cout << "Song Time: " << m_songTime << std::endl;
             std::cout.precision (m_ss);
             m_fpsTime = 0;
         }
@@ -172,20 +167,6 @@ bool GameManager::event_handler(MgCore::Event &event)
 
 void GameManager::handle_song()
 {
-    double songTime = m_clock.get_current_time();
-    std::vector<MgGame::TempoEvent*> temoChanges;
-    temoChanges = m_tempoTrack->getEventsInFrame(songTime, songTime+2.5);
-    //m_logger->info("Time: {}", songTime);
-    if (temoChanges.size() > 0) {
-        m_logger->info("time per quarter {}", temoChanges.front()->ppqn / 1000000.0);
-    }
-
-
-    // for (auto i : temoChanges)
-    // {
-    //     beatTime = i->gnLength
-    //     m_logger->info("Tempo change at: {}", i->time);
-    // }
 }
 
 void GameManager::update()
@@ -193,11 +174,28 @@ void GameManager::update()
     for (auto &mesh : m_meshes) {
         mesh.update();
     }
-    handle_song();
+}
+
+void GameManager::prep_render_bars()
+{
+    m_songTime = m_clock.get_current_time();
+    m_barsForRender = m_tempoTrack->get_events(m_songTime, m_songTime+2.5, MgGame::EventType::Bar);
+    for (size_t i = 0; i < m_barsForRender.size(); i++) {
+        float z = (m_barsForRender[i].bar->time - m_songTime) * 225.0;
+        if (i >= m_meshes.size()) {
+            m_meshes.emplace_back(m_program.get(), m_texture.get());
+        }
+        m_meshes[i].scale(512.0f, 4.0f);
+        m_meshes[i].translate((m_width/2.0f)-256, 100 + z); // center the line on the screen
+    }
+    // while (m_barsForRender.size() < m_meshes.size()) {
+    //     m_meshes.pop_back();
+    // }
 }
 
 void GameManager::render()
 {
+    prep_render_bars();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_program->use();

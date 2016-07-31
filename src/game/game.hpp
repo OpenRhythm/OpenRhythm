@@ -30,7 +30,11 @@ private:
 
     int m_mouseX = 0;
     int m_mouseY = 0;
+
+    std::vector<MgGame::TempoTrackEvent> m_barsForRender;
     MgGame::TempoTrack *m_tempoTrack;
+    double m_songTime;
+
     MgGame::Song m_song;
     MgCore::FpsTimer m_clock;
 
@@ -57,6 +61,7 @@ public:
     bool event_handler(MgCore::Event &event);
     void handle_song();
     void update();
+    void prep_render_bars();
     void render();
     void resize(int width, int height);
 
