@@ -135,7 +135,7 @@ namespace MgCore
         typedef std::unique_ptr<SmfTrack> t_SmfTrackPtr;
         std::vector<SmfTrack> m_tracks;
         SmfHeaderChunk m_header;
-        std::stringstream m_smfFile;
+        std::istringstream m_smfFile;
         SmfTrack *m_currentTrack;
         SmfTrack *m_tempoTrack;
         TempoEvent* m_currentTempoEvent;
