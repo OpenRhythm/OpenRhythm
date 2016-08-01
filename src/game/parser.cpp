@@ -28,7 +28,7 @@ namespace MgGame
                 previousTempo = &tempo;
                 continue;
             }
-            double incr = (previousTempo->qnLength / 1000000.0) / beatSubdivision;
+            incr = (previousTempo->qnLength / 1000000.0) / beatSubdivision;
             beatSegments = ((tempo.time - previousTempo->time) / incr) + 1;
             for (int i=0; i<((int)beatSegments); i++) {
                 m_bars.push_back({BarType::beat, previousTempo->time + (incr*i)});
