@@ -66,7 +66,6 @@ configure_file (
 set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codec.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/portaudio.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.hpp

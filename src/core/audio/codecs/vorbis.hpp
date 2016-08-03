@@ -21,6 +21,14 @@ namespace FScore {
         // @inherit
         void getInfo();
         // @inherit
+        virtual int getSampleRate();
+        // @inherit
+        virtual int getBitDepth() { return 16; };
+        // @inherit
+        virtual int getChannelCount();
+        // @inherit
+        virtual double getPosition();
+        // @inherit
         int open();
         // @inherit
         int close();
@@ -35,6 +43,6 @@ namespace FScore {
         int current_section = 0;
     };
 
-} // Namespace FSCore
+} // Namespace FScore
 
 #endif  // VORBIS_HPP

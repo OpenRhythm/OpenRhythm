@@ -7,5 +7,5 @@ namespace FScore {
 
     int pa_main(Codec *thesong);
 
-} // Namespace FSCore
+} // Namespace FScore
 #endif
