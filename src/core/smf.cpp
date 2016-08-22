@@ -10,17 +10,17 @@
 #include "smf.hpp"
 #include "parseutils.hpp"
 
-namespace MgCore
+namespace ORCore
 {
     uint32_t SmfReader::readVarLen()
     {
-        uint8_t c = MgCore::read_type<uint8_t>(m_smfFile);
+        uint8_t c = ORCore::read_type<uint8_t>(m_smfFile);
         uint32_t value = c & 0x7F;
 
         if (c & 0x80) {
 
             do {
-                c = MgCore::read_type<uint8_t>(m_smfFile);
+                c = ORCore::read_type<uint8_t>(m_smfFile);
                 value = (value << 7) + (c & 0x7F);
 
             } while (c & 0x80);
@@ -36,15 +36,15 @@ namespace MgCore
         midiEvent.info = event;
         midiEvent.message = event.status & 0xF0;
         midiEvent.channel = event.status & 0xF;
-        midiEvent.data1 = MgCore::read_type<uint8_t>(m_smfFile);
-        midiEvent.data2 = MgCore::read_type<uint8_t>(m_smfFile);
+        midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile);
+        midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile);
 
         m_currentTrack->midiEvents.push_back(midiEvent);
     }
 
     void SmfReader::readMetaEvent(SmfEventInfo &event)
     {
-        event.type = static_cast<MidiMetaEvent>(MgCore::read_type<uint8_t>(m_smfFile));
+        event.type = static_cast<MidiMetaEvent>(ORCore::read_type<uint8_t>(m_smfFile));
         uint32_t length = readVarLen();
 
         // In the cases where we dont implement an event type log it, and its data.
@@ -52,7 +52,7 @@ namespace MgCore
         {
             case meta_SequenceNumber:
             {
-                auto sequenceNumber = MgCore::read_type<uint16_t>(m_smfFile);
+                auto sequenceNumber = ORCore::read_type<uint16_t>(m_smfFile);
                 m_logger->trace("Sequence Number {}", sequenceNumber);
                 break;
             }
@@ -75,7 +75,7 @@ namespace MgCore
             {
                 auto textData = std::make_unique<char[]>(length+1);
                 textData[length] = '\0';
-                MgCore::read_type<char>(m_smfFile, textData.get(), length);
+                ORCore::read_type<char>(m_smfFile, textData.get(), length);
                 TextEvent text {event, textData.get()};
                 break;
             }
@@ -84,12 +84,12 @@ namespace MgCore
                 auto textData = std::make_unique<char[]>(length+1);
                 textData[length] = '\0';
 
-                MgCore::read_type<char>(m_smfFile, textData.get(), length);
+                ORCore::read_type<char>(m_smfFile, textData.get(), length);
                 m_currentTrack->name = std::string(textData.get());
                 break;
             }
             case meta_MIDIChannelPrefix: {
-                auto midiChannel = MgCore::read_type<uint8_t>(m_smfFile);
+                auto midiChannel = ORCore::read_type<uint8_t>(m_smfFile);
                 m_logger->trace("Midi Channel {}", midiChannel);
                 break;
             }
@@ -109,13 +109,13 @@ namespace MgCore
             case meta_TimeSignature:  // TODO - Implement this...
             {
                 TimeSignatureEvent tsEvent;
-                tsEvent.numerator = MgCore::read_type<uint8_t>(m_smfFile); // 4 default
-                tsEvent.denominator = std::pow(2, MgCore::read_type<uint8_t>(m_smfFile)); // 4 default
+                tsEvent.numerator = ORCore::read_type<uint8_t>(m_smfFile); // 4 default
+                tsEvent.denominator = std::pow(2, ORCore::read_type<uint8_t>(m_smfFile)); // 4 default
 
-                tsEvent.ticksPerBeat = MgCore::read_type<uint8_t>(m_smfFile); // Standard is 24
+                tsEvent.ticksPerBeat = ORCore::read_type<uint8_t>(m_smfFile); // Standard is 24
 
                 // The number of 1/32nd notes per quarter note
-                tsEvent.thirtySecondPQN = MgCore::read_type<uint8_t>(m_smfFile); // 8 default
+                tsEvent.thirtySecondPQN = ORCore::read_type<uint8_t>(m_smfFile); // 8 default
 
                 m_logger->trace("Time signature  {}/{} CPC: {} TSPQN: {}",
                                     tsEvent.numerator,
@@ -176,19 +176,19 @@ namespace MgCore
                 event.absTime = currentRunningTimeSec;
             }
 
-            auto status = MgCore::peek_type<uint8_t>(m_smfFile);
+            auto status = ORCore::peek_type<uint8_t>(m_smfFile);
 
             if (status == status_MetaEvent) {
                 prevStatus = 0; // reset running status
-                event.status = MgCore::read_type<uint8_t>(m_smfFile);
+                event.status = ORCore::read_type<uint8_t>(m_smfFile);
                 readMetaEvent(event);
             } else if (status == status_SysexEvent || status == status_SysexEvent2) {
                 prevStatus = 0;  // reset running status
-                event.status = MgCore::read_type<uint8_t>(m_smfFile);
+                event.status = ORCore::read_type<uint8_t>(m_smfFile);
                 readSysExEvent(event);
             } else {
                 if ((status & 0xF0) >= 0x80) {
-                    event.status = MgCore::read_type<uint8_t>(m_smfFile);
+                    event.status = ORCore::read_type<uint8_t>(m_smfFile);
                 } else {
                     event.status = prevStatus;
                 }
@@ -262,17 +262,17 @@ namespace MgCore
         while (filePos < fileEnd)
         {
 
-            MgCore::read_type<char>(m_smfFile, chunk.chunkType, 4);
-            chunk.length = MgCore::read_type<uint32_t>(m_smfFile);
+            ORCore::read_type<char>(m_smfFile, chunk.chunkType, 4);
+            chunk.length = ORCore::read_type<uint32_t>(m_smfFile);
             chunkEnd = chunkStart + (8 + chunk.length); // 8 is the length of the type + length fields
 
             // MThd chunk is only in the beginning of the file.
             if (chunkStart == fileStart && strcmp(chunk.chunkType, "MThd") == 0) {
                 // Load header chunk
                 m_header.info = chunk;
-                m_header.format = MgCore::read_type<uint16_t>(m_smfFile);
-                m_header.trackNum = MgCore::read_type<uint16_t>(m_smfFile);
-                m_header.division = MgCore::read_type<int16_t>(m_smfFile);
+                m_header.format = ORCore::read_type<uint16_t>(m_smfFile);
+                m_header.trackNum = ORCore::read_type<uint16_t>(m_smfFile);
+                m_header.division = ORCore::read_type<int16_t>(m_smfFile);
 
                 // Make sure we reserve enough space for m_tracks just in-case.
                 m_tracks.reserve(sizeof(SmfTrack) * m_header.trackNum);

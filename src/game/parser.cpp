@@ -4,7 +4,7 @@
 #include "vfs.hpp"
 #include "smf.hpp"
 
-namespace MgGame
+namespace ORGame
 {
 
     /////////////////////////////////////
@@ -105,9 +105,9 @@ namespace MgGame
 
     bool Song::load()
     {
-        MgCore::SmfReader midi("notes.mid");
+        ORCore::SmfReader midi("notes.mid");
 
-        std::vector<MgCore::SmfTrack*> tracks = midi.getTracks();
+        std::vector<ORCore::SmfTrack*> tracks = midi.getTracks();
 
         for (auto &tempo : (*tracks.begin())->tempo)
         {

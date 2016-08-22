@@ -1,6 +1,6 @@
 #include <algorithm>
 #include "stringutils.hpp"
-namespace MgCore
+namespace ORCore
 {
     int stringCount(const std::string& str, const std::string& substr)
     {

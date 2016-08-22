@@ -13,11 +13,11 @@ GameManager::GameManager()
     m_width = 800;
     m_height = 600;
     m_fullscreen = false;
-    m_title = "Game";
+    m_title = "OpenRhythm";
 
-    m_window = std::make_unique<MgCore::Window>(m_width, m_height, m_fullscreen, m_title);
-    m_context = std::make_unique<MgCore::Context>(3, 2, 0);
-    m_events = std::make_unique<MgCore::Events>();
+    m_window = std::make_unique<ORCore::Window>(m_width, m_height, m_fullscreen, m_title);
+    m_context = std::make_unique<ORCore::Context>(3, 2, 0);
+    m_events = std::make_unique<ORCore::Events>();
     m_running = true;
 
     m_logger = spdlog::get("default");
@@ -31,32 +31,32 @@ GameManager::GameManager()
     // AppPath gets mounted on osx
     // BasePath gets mounted and overwrites any files similar to those in AppPath (data)
     // HomePath gets mounted and overwrites any files similar to those in BasePath (configs)
-    // std::cout << MgCore::GetBasePath() << std::endl;
+    // std::cout << ORCore::GetBasePath() << std::endl;
 #if OSX_APP_BUNDLE
-    MgCore::mount(MgCore::GetAppPath(), "");
+    ORCore::mount(ORCore::GetAppPath(), "");
 #endif
-    MgCore::mount(MgCore::GetBasePath(), "/bob");
-    std::vector<std::string> paths = MgCore::resolveSystemPath("/bob");
+    ORCore::mount(ORCore::GetBasePath(), "/bob");
+    std::vector<std::string> paths = ORCore::resolveSystemPath("/bob");
     for (auto &i: paths) {
-        auto bob = MgCore::sysGetPathContents(i);
+        auto bob = ORCore::sysGetPathContents(i);
         std::cout << i << " " << bob.size() << std::endl;
     }
-    //VFS.Mount( MgCore::GetBasePath().c_str(), "" );
-    //VFS.Mount( MgCore::GetHomePath().c_str(), "" );
+    //VFS.Mount( ORCore::GetBasePath().c_str(), "" );
+    //VFS.Mount( ORCore::GetHomePath().c_str(), "" );
 
-    //MgCore::mount( "./data", "data" );
+    //ORCore::mount( "./data", "data" );
 
-    m_song.add(MgGame::TrackType::Guitar, MgGame::Difficulty::Expert);
+    m_song.add(ORGame::TrackType::Guitar, ORGame::Difficulty::Expert);
     m_song.load();
 
     //std::cout << "Song: " << (m_song.length() / 1000) / 60 << " minutes long" << std::endl;
 
-    //MgCore::Track *track = m_song.getTrack( MgCore::TrackType::Guitar, MgCore::Difficulty::Expert );
-    //std::cout << "Song: loaded track for " << MgCore::TrackNameForType( track->info().type ) << std::endl;
+    //ORCore::Track *track = m_song.getTrack( ORCore::TrackType::Guitar, ORCore::Difficulty::Expert );
+    //std::cout << "Song: loaded track for " << ORCore::TrackNameForType( track->info().type ) << std::endl;
 
     m_tempoTrack = m_song.getTempoTrack();
 
-    //std::vector<MgCore::TrackNote*> v = track->getNotesInFrame(0, 10000);
+    //std::vector<ORCore::TrackNote*> v = track->getNotesInFrame(0, 10000);
 
     //std::cout << "Song: " << v.size() << " notes in first 10 seconds, first note is " << NoteNameForType(v[0]->type()) << std::endl;
 
@@ -66,7 +66,7 @@ GameManager::GameManager()
     }
 
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);
-    m_lis.mask = MgCore::EventType::EventAll;
+    m_lis.mask = ORCore::EventType::EventAll;
 
 
     m_events->add_listener(m_lis);
@@ -78,19 +78,19 @@ GameManager::GameManager()
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
-    MgCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
-    MgCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
+    ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
+    ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
-    MgCore::Shader vertShader(vertInfo);
-    MgCore::Shader fragShader(fragInfo);
+    ORCore::Shader vertShader(vertInfo);
+    ORCore::Shader fragShader(fragInfo);
 
-    m_program = std::make_unique<MgCore::ShaderProgram>(&vertShader, &fragShader);
+    m_program = std::make_unique<ORCore::ShaderProgram>(&vertShader, &fragShader);
 
     m_program->check_error();
     m_program->use();
     m_orthoID = m_program->uniform_attribute("ortho");
 
-    m_texture = std::make_unique<MgCore::Texture>("data/icon.png", m_program.get());
+    m_texture = std::make_unique<ORCore::Texture>("data/icon.png", m_program.get());
 
     std::cout << (m_width / 37) * (m_height / 37) << std::endl;
 
@@ -144,18 +144,18 @@ void GameManager::resize(int width, int height)
     }
 }
 
-bool GameManager::event_handler(MgCore::Event &event)
+bool GameManager::event_handler(ORCore::Event &event)
 {
-    MgCore::EventType type = event.type;
+    ORCore::EventType type = event.type;
     switch(type) {
-        case MgCore::EventType::Quit:
+        case ORCore::EventType::Quit:
             m_running = false;
             break;
-        case MgCore::EventType::MouseMove:
+        case ORCore::EventType::MouseMove:
             m_mouseX = event.event.mouseMove.x;
             m_mouseY = event.event.mouseMove.y;
             break;
-        case MgCore::EventType::WindowSized:
+        case ORCore::EventType::WindowSized:
             resize(event.event.windowSized.width, event.event.windowSized.height);
             break;
         default:
@@ -179,7 +179,7 @@ void GameManager::update()
 void GameManager::prep_render_bars()
 {
     m_songTime = m_clock.get_current_time();
-    m_barsForRender = m_tempoTrack->get_events(m_songTime, m_songTime+2.5, MgGame::EventType::Bar);
+    m_barsForRender = m_tempoTrack->get_events(m_songTime, m_songTime+2.5, ORGame::EventType::Bar);
     for (size_t i = 0; i < m_barsForRender.size(); i++) {
         float z = (m_barsForRender[i].bar->time - m_songTime) * 225.0;
         if (i >= m_meshes.size()) {

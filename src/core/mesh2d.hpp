@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 
-namespace MgCore
+namespace ORCore
 {
     class Mesh2D
     {

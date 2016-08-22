@@ -1,6 +1,6 @@
 #include "window.hpp"
 
-namespace MgCore
+namespace ORCore
 {
 
     void init_video()

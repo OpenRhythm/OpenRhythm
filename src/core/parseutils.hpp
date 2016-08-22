@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <stdexcept>
 
-namespace MgCore
+namespace ORCore
 {
     template<typename T>
     T read_type(std::istream &file)

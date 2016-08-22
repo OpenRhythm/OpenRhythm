@@ -9,7 +9,7 @@
 #include <sstream>
 #include <spdlog/spdlog.h>
 
-namespace MgCore
+namespace ORCore
 {
     enum MidiMetaEvent: uint8_t
     {

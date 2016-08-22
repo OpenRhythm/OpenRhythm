@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace MgCore
+namespace ORCore
 {
 
     Events::Events()

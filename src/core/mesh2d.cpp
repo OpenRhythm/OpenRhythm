@@ -1,7 +1,7 @@
 #include "mesh2d.hpp"
 #include <iostream>
 
-namespace MgCore
+namespace ORCore
 {
     Mesh2D::Mesh2D(ShaderProgram *program, Texture *texture)
     : m_program(program), m_texture(texture)

@@ -4,7 +4,7 @@
 #include "config.hpp"
 #include "shader.hpp"
 
-namespace MgCore
+namespace ORCore
 {
 
     struct Image

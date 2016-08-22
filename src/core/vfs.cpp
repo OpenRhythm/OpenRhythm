@@ -29,7 +29,7 @@ static std::string appPath;
 #endif
 
 
-namespace MgCore
+namespace ORCore
 {
     #if defined(PLATFORM_WINDOWS)
     static const std::string sys_path_delimiter = "\\";
@@ -62,7 +62,7 @@ namespace MgCore
         int largestCount = 0;
         std::string largestVal;
         for (auto delimit : supported_sys_delimiters) {
-            int count = MgCore::stringCount(path, delimit);
+            int count = ORCore::stringCount(path, delimit);
             if (largestCount != 0 && count != 0) {
                 // string has mixed path delimiters
                 return "";
@@ -76,7 +76,7 @@ namespace MgCore
 
     bool recurse_to(std::string recrsePath, bool failOnNoChild, std::function<void(VFSObjectNode *, std::string, bool)> callback)
     {
-        std::vector<std::string> pathObjects = MgCore::stringSplit(recrsePath, vfs_path_delimiter);
+        std::vector<std::string> pathObjects = ORCore::stringSplit(recrsePath, vfs_path_delimiter);
         std::reverse(pathObjects.begin(), pathObjects.end()); // now we can pop from back of vector
 
 
@@ -93,7 +93,7 @@ namespace MgCore
             pathObjects.pop_back();
 
             pathCurrentLocation.push_back(currentNodeName);
-            vfsNodePath = MgCore::stringJoin(pathCurrentLocation, vfs_path_delimiter);
+            vfsNodePath = ORCore::stringJoin(pathCurrentLocation, vfs_path_delimiter);
 
             for (auto& node : currentNode->children)
             {

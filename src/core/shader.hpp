@@ -3,7 +3,7 @@
 #include <array>
 #include <glm/glm.hpp>
 
-namespace MgCore
+namespace ORCore
 {
     struct ShaderInfo
     {

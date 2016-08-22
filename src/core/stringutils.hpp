@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-namespace MgCore {
+namespace ORCore {
     int stringCount(const std::string& str, const std::string& substr);
 
     std::string stringJoin(const std::vector<std::string>& strElements, const std::string& delimiter);
