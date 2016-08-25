@@ -9,11 +9,11 @@ OpenRhythm currently depends on the following libs:
 * PNG++ (optional default off, included in extern/png++)
 
 ### Submodules
-This project also contains submodules. There are two ways to handle this.
+This project contains submodules. There are two ways to handle this.
 
 When cloning:
 ```
-git clone --recursive http://github.com/user/repo
+git clone --recursive https://github.com/OpenRhythm/OpenRhythm
 ```
 After clone:
 ```
@@ -30,13 +30,19 @@ You will need to get Visual Studio 2015 Community Edition (please expand)
 #### Unix: (MacOS/Linux)
 GCC-4.9+ or Clang-3.4+ (MacOS: download Xcode Command Line Utils)
 
-Note: Replace `<package-manager>` with the package manager for your system. (apt-get, yum, brew, port, etc.)
-
-```
-<package-manager> install cmake sdl2-dev libfreetype-dev libglm-dev
-```
+* Linux
+    * Debian / Ubuntu / Linux Mint
+    ```
+    sudo apt-get install cmake sdl2-dev libfreetype-dev libglm-dev
+    ```
+    * ArchLinux / Manjaro / …
+    ```
+    sudo pacman -S cmake sdl2 freetype2 glm
+    ```
 
 Then build the code
 ```
-./release-build.sh
+./release-build.sh 
+# or
+./release-build.sh --verbose
 ```

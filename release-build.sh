@@ -1,21 +1,26 @@
-#rm -rf build
-mkdir build
-cd ./build
+mkdir build/ -p
+cd    build/
 
-if [ "$1" = "--noapp" ] || [ "$2" = "--noapp" ]
-then
-    export NO_APP="True"
-elif [ "$1" = "--cores" ] || [ "$2" = "--cores" ]
-then
-	export MULCO_COMP="True"
-else
-	export MULCO_COMP="False"
-fi
+export NO_APP="False"
+
+# Read args
+while [[ $1 ]]; do
+    case "$1" in
+        --noapp)
+            export NO_APP="True"
+            shift
+            ;;
+        --cores)
+            MAKE_ARGS+=" -j "
+            shift
+            ;;
+        --verbose|-v)
+            MAKE_ARGS+=" VERBOSE=1 "
+            shift
+            ;;
+    esac
+done
+
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CONFIGURATION_TYPES=Release ..
 
-if [ "$MULCO_COMP" = "True" ]
-then
-	make -j
-else
-	cmake --build .
-fi
+make $MAKE_ARGS
