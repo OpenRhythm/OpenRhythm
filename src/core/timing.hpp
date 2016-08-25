@@ -10,7 +10,7 @@
     #include <mach/mach.h>
 #endif
 
-namespace MgCore
+namespace ORCore
 {
     class FpsTimer
     {

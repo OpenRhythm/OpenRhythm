@@ -1,7 +1,7 @@
 #include <vector>
 #include "keycode.hpp"
 
-namespace MgCore
+namespace ORCore
 {
     std::vector<ModFlag> processModifiers(int value)
     {

@@ -1,6 +1,6 @@
 #include "context.hpp"
 
-namespace MgCore
+namespace ORCore
 {
     Context::Context(int major, int minor, int msaa)
     : m_major(major), m_minor(minor), m_msaa(msaa)

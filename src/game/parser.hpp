@@ -4,7 +4,7 @@
 #include <vector>
 #include <spdlog/spdlog.h>
 
-namespace MgGame
+namespace ORGame
 {
     enum class GameFormat
     {

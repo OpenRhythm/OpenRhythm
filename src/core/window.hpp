@@ -5,7 +5,7 @@
 #undef main
 #include "context.hpp"
 
-namespace MgCore
+namespace ORCore
 {
     class Context;
     const Uint32 defaultWindowFlag = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;

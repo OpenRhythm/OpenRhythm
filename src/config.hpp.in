@@ -13,16 +13,16 @@
 #if PLATFORM==PL_WINDOWS
     #define PLATFORM_WINDOWS
     #define PATH_SEP '\\'
-    #define HOMEPATH_NAME "MusicGame"
+    #define HOMEPATH_NAME "OpenRhythm"
 #elif PLATFORM==PL_LINUX
     #define PLATFORM_LINUX
     #define PATH_SEP '/'
-    #define HOMEPATH_NAME ".musicgame"
+    #define HOMEPATH_NAME ".openrhythm"
 #elif PLATFORM==PL_OSX
     #define PLATFORM_OSX
     #define PATH_SEP '/'
-    #define HOMEPATH_NAME "MusicGame"
-    #define APP_NAME "musicgame.app" // add to cmake command?
+    #define HOMEPATH_NAME "OpenRhythm"
+    #define APP_NAME "openrhythm.app" // add to cmake command?
 #endif
 
 

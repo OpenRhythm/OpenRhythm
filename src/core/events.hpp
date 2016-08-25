@@ -8,7 +8,7 @@
 
 #include "keycode.hpp"
 
-namespace MgCore
+namespace ORCore
 {
     enum class EventType;
 

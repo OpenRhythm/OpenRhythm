@@ -7,7 +7,7 @@
 #include <SDL.h>
 #undef main
 
-namespace MgCore
+namespace ORCore
 {
 
     enum class KeyCode

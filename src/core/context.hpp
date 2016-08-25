@@ -4,7 +4,7 @@
 
 #include "window.hpp"
 
-namespace MgCore
+namespace ORCore
 {
     class Window;
     

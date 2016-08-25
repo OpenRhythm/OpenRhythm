@@ -1,6 +1,6 @@
-# MusicGame
+# OpenRhythm
 
-MusicGame currently depends on the following libs:
+OpenRhythm currently depends on the following libs:
 * CMake
 * SDL2
 * Freetype - I may switch to using stb_freetype haven't decided quite yet.

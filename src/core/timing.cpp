@@ -6,7 +6,7 @@
     #include <mach/clock.h>
 #endif
 
-namespace MgCore
+namespace ORCore
 {
 
 #if defined(PLATFORM_WINDOWS)

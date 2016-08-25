@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace MgCore
+namespace ORCore
 {
     Shader::Shader(ShaderInfo _info): info(_info)
     {

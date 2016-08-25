@@ -5,7 +5,7 @@
 #include <functional>
 
 // Utility functions for finding paths
-namespace MgCore
+namespace ORCore
 {
 
     // TODO - Figure out how to Implement merged mounts

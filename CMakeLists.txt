@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE)
 
-project(musicgame)
+project(openrhythm)
 
 set(PL_WINDOWS 1)
 set(PL_LINUX 2)
@@ -140,24 +140,24 @@ include_directories(SYSTEM
 
 set(SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${GLAD})
 
-add_executable(musicgame ${SOURCE})
+add_executable(openrhythm ${SOURCE})
 
 set(BINARY_DATA_DIR ${CMAKE_BINARY_DIR}/data)
 set(SOURCE_DATA_DIR ${CMAKE_SOURCE_DIR}/data)
 
-add_custom_command(TARGET musicgame PRE_BUILD
+add_custom_command(TARGET openrhythm PRE_BUILD
                   COMMAND ${CMAKE_COMMAND} -E make_directory
                   ${BINARY_DATA_DIR})
-add_custom_command(TARGET musicgame PRE_BUILD
+add_custom_command(TARGET openrhythm PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${SOURCE_DATA_DIR} $<TARGET_FILE_DIR:musicgame>/data/)
+                   ${SOURCE_DATA_DIR} $<TARGET_FILE_DIR:openrhythm>/data/)
 
 
 if(OSX_APP_BUNDLE)
-    set_target_properties(musicgame PROPERTIES MACOSX_BUNDLE TRUE)
+    set_target_properties(openrhythm PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
 
-target_link_libraries(musicgame
+target_link_libraries(openrhythm
     ${CMAKE_DL_LIBS}
     ${OPENGL_LIBRARIES}
     ${SDL2_LIBRARY}
@@ -165,5 +165,4 @@ target_link_libraries(musicgame
     ${SOUNDIO_LIBRARY}
     ${VORBISFILE_LIBRARY}
     ${PORTAUDIO_LIBRARIES}
-
 )

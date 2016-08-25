@@ -21,7 +21,7 @@
 // jpg  png  bmp  tga  hdr
 #include "stb_image.h"
 
-namespace MgCore
+namespace ORCore
 {
     static int _texCount = 0;
     static GLuint _currentBoundtexture = 0;
@@ -30,7 +30,7 @@ namespace MgCore
 #if USE_LIB_PNGCPP
     Image loadPNG(std::string filename)
     {
-        std::istringstream file(MgCore::read_file( filename, FileMode::Binary ));
+        std::istringstream file(ORCore::read_file( filename, FileMode::Binary ));
         png::image<png::rgba_pixel> image(file);
 
         auto pixelBuffer = image.get_pixbuf();
@@ -62,7 +62,7 @@ namespace MgCore
 
     Image loadSTB(std::string filename)
     {
-        std::string mem_buf = MgCore::read_file( filename, FileMode::Binary );
+        std::string mem_buf = ORCore::read_file( filename, FileMode::Binary );
 
         Image imgData;
 
@@ -119,9 +119,9 @@ namespace MgCore
         m_texUnitID = _texCount;
 
 #if USE_LIB_PNGCPP
-        m_image = MgCore::loadPNG(m_path);
+        m_image = ORCore::loadPNG(m_path);
 #else
-        m_image = MgCore::loadSTB(m_path);
+        m_image = ORCore::loadSTB(m_path);
 #endif
 
         m_texSampID = m_program->uniform_attribute("textureSampler");
