@@ -1,22 +1,26 @@
 #ifndef VORBIS_HPP
 #define VORBIS_HPP
 
-#include <string>
-#include <vorbis/vorbisfile.h>
-
-#include "audio/codec.hpp"
-
 #ifdef _WIN32
 #   include <io.h>
 #   include <fcntl.h>
 #endif
+
+#include <memory>
+#include <string>
+#include <vorbis/vorbisfile.h>
+
+#include "spdlog/spdlog.h"
+#include "audio/codec.hpp"
 
 namespace FScore {
 
     class VorbisSong: public Codec {
     public:
         VorbisSong(const std::string filename)
-        : Codec(filename) {};
+        : Codec(filename) {
+            m_logger = spdlog::get("default");
+        };
 
         // @inherit
         void getInfo();
@@ -37,6 +41,8 @@ namespace FScore {
 
 
     protected:
+        std::shared_ptr<spdlog::logger> m_logger;
+
         FILE *myFile;
         OggVorbis_File myVorbisFile;
         int eof=0;

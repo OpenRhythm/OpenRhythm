@@ -1,5 +1,6 @@
 #include "vorbis.hpp"
 
+#include <stdexcept>
 #include <stdlib.h>
 #include <iostream>
 
@@ -18,18 +19,19 @@ namespace FScore {
             case OV_EVERSION:    // Vorbis version mismatch.
             case OV_EBADHEADER:  // Invalid Vorbis bitstream header.
             case OV_EFAULT:      // Internal logic fault; indicates a bug or heap/stack corruption.
-                fprintf(stderr,"Input does not appear to be an Ogg bitstream.\n");
+                m_logger->error("Input does not appear to be an Ogg bitstream.");
                 fclose(myFile);
-                return 1;
+                throw std::runtime_error("Not an ogg bitstream");
                 break;
             case 0:
                 break;
         }
 
-        if (ov_pcm_seek(&myVorbisFile, 0) != 0)  // This is because some files do not seek to 0 automatically
-            fprintf(stderr, "Error seeking file to position 0.\n");
-        else
-            fprintf(stdout, "Seeked file to position 0.\n");
+        if (ov_pcm_seek(&myVorbisFile, 0) != 0){  // This is because some files do not seek to 0 automatically
+            m_logger->error("Error seeking file to position 0.");
+            throw std::runtime_error("Error seeking file to position 0.");
+        } else
+            m_logger->debug("Seeked file to position 0.");
         return 0;
     }
 
@@ -58,10 +60,9 @@ namespace FScore {
         // }
 
         vorbis_info *vi=ov_info(&myVorbisFile,-1);
-        fprintf(stderr,"\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);
-        fprintf(stderr,"\nDecoded length: %ld samples\n",
-                (long)ov_pcm_total(&myVorbisFile,-1));
-        fprintf(stderr,"Encoded by: %s\n\n",ov_comment(&myVorbisFile,-1)->vendor);
+        m_logger->debug("Bitstream is {} channel, {}Hz", vi->channels, vi->rate);
+        m_logger->debug("Decoded length: {} samples", (long)ov_pcm_total(&myVorbisFile,-1));
+        m_logger->debug("Encoded by: {}", ov_comment(&myVorbisFile,-1)->vendor);
 
     }
 
@@ -72,7 +73,7 @@ namespace FScore {
         switch(read_ret) {
             case 0:         // indicates EOF
                 eof = 1;
-                std::cout << "eof" << std::endl;
+                m_logger->debug("eof of {}", filename);
                 return 1;
                 break;
             case OV_HOLE:
@@ -83,7 +84,7 @@ namespace FScore {
             case OV_EINVAL:
                     // indicates the initial file headers couldn't be read or are corrupt, or that the initial open call for vf failed.
                 // There was an error, TL;DR
-                std::cout << "vorbis_read_error: " << read_ret << std::endl;
+                m_logger->error("vorbis_read_error: {}", read_ret);
                 return 0;
                 break;
             default:

@@ -1,6 +1,9 @@
 #ifndef SOUNDIO_HPP
 #define SOUNDIO_HPP
 
+#include <memory>
+#include "spdlog/spdlog.h"
+
 #include <soundio/soundio.h>
 
 #include "codec.hpp"
@@ -11,6 +14,8 @@
 #define DEFAULT_SOUNDIO_LATENCY (0.1)
 
 namespace FScore {
+    std::shared_ptr<spdlog::logger> m_logger;
+
     // To call at the start of the app. Initializes *soundio.
     // @return 0 if correctly initialized, 1 if there was an error.
     int soundio_initialize();
@@ -23,7 +28,9 @@ namespace FScore {
 
     class SoundIoOStream {
     public:
-        SoundIoOStream() {};
+        SoundIoOStream() {
+            m_logger = spdlog::get("default");
+        };
         ~SoundIoOStream(){
             close();
         };
@@ -53,6 +60,7 @@ namespace FScore {
             struct SoundIoOutStream *outstream);
         void underflow_callback(
             struct SoundIoOutStream *outstream);
+
 
 
     };

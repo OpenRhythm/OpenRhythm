@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <iostream>
+#include <stdexcept>
 
 #include "soundio.hpp"
 
@@ -28,18 +29,16 @@ namespace FScore {
 
         soundio = soundio_create();
         if (!soundio) {
-            std::cerr << "SoundIO_create: out of memory" << std::endl;
-            return 1;
+            m_logger->error("SoundIO_create: out of memory");
+            throw std::runtime_error("SoundIO_create: out of memory");
         }
 
         soundio->app_name = APP_NAME;
 
         int err = soundio_connect(soundio);
         if (err) {
-            std::cerr << "SoundIO_connect error: "
-                      << soundio_strerror(err)
-                      << std::endl;
-            return 1;
+            m_logger->error("SoundIO_connect error: {}", soundio_strerror(err));
+            throw std::runtime_error(std::string("SoundIO_connect error: ") + soundio_strerror(err));
         }
 
         soundio_flush_events(soundio);
@@ -57,15 +56,14 @@ namespace FScore {
 
         int default_out_device_index = soundio_default_output_device_index(soundio);
         if (default_out_device_index < 0) {
-            std::cerr << "SoundIO: No output device found"
-                      << std::endl;
-            return 1;
+            m_logger->error("SoundIO: No output device found");
+            throw std::runtime_error("SoundIO: No output device found");
         }
 
         device = soundio_get_output_device(soundio, default_out_device_index);
         if (!device) {
-            std::cerr << "SoundIO: out of memory" << std::endl;
-            return 1;
+            m_logger->error("SoundIO: out of memory");
+            throw std::runtime_error("SoundIO: out of memory");
         }
 
         return 0;
@@ -92,8 +90,8 @@ namespace FScore {
         int err;
 
         if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count_max))) {
-            fprintf(stderr, "%s\n", soundio_strerror(err));
-            exit(1);
+            m_logger->error("{}", soundio_strerror(err));
+            throw runtime_error("SoundIO begin write failed");
         }
 
         int byte_count_max = frame_count_max* BYTES_PER_SAMPLE*CHANNELS_COUNT;
@@ -116,8 +114,8 @@ namespace FScore {
         }
 
         if ((err = soundio_outstream_end_write(outstream))) {
-            fprintf(stderr, "soundio erreur : %s\n", soundio_strerror(err));
-            exit(1);
+            m_logger->error("soundio error : {}\n", soundio_strerror(err));
+            throw runtime_error("SoundIO end write failed");
         }
     }
 
@@ -126,7 +124,7 @@ namespace FScore {
     }
     void SoundIoOStream::underflow_callback(struct SoundIoOutStream *outstream) {
         static int count = 0;
-        fprintf(stderr, "underflow %d\n", count++);
+        m_logger->error("underflow {}\n", count++);
     }
 
 
@@ -160,23 +158,20 @@ namespace FScore {
 
         int err = soundio_outstream_open(outstream);
         if (err) {
-            std::cerr << "unable to open device: "
-                        << soundio_strerror(err) << std::endl;
-            return 1;
+            m_logger->error("unable to open device: {}", soundio_strerror(err));
+            throw std::runtime_error(std::string("unable to open device: ") + soundio_strerror(err));
         }
 
         err = outstream->layout_error;
         if (err) {
-            std::cerr << "unable to set channel layout: "
-                        << soundio_strerror(err) << std::endl;
-            return 1;
+            m_logger->error("unable to set channel layout: ", soundio_strerror(err));
+            throw std::runtime_error(std::string("unable to set channel layout: ") + soundio_strerror(err));
         }
 
         err = soundio_outstream_start(outstream);
         if (err) {
-            std::cerr << "unable to start device: "
-                        << soundio_strerror(err) << std::endl;
-            return 1;
+            m_logger->error("unable to start device: ", soundio_strerror(err));
+            throw std::runtime_error(std::string("unable to start device: ") + soundio_strerror(err));
         }
         return 0;
     }
