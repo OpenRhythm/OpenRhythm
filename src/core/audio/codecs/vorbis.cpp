@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <iostream>
 
-namespace FScore {
+namespace ORCore {
 
     int VorbisSong::open() {
         myFile = fopen(this->filename.c_str(), "rb");
@@ -92,4 +92,4 @@ namespace FScore {
         }
     }
 
-} // Namespace FScore
+} // namespace ORCore

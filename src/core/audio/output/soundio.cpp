@@ -17,7 +17,7 @@
 // file dependent (now : stereo)
 #define CHANNELS_COUNT 2
 
-namespace FScore {
+namespace ORCore {
     // The global soundio instance
     struct SoundIo      *soundio = NULL;
     // The default device instance
@@ -198,4 +198,4 @@ namespace FScore {
     }
 
 
-} // Namespace FScore
+} // namespace ORCore

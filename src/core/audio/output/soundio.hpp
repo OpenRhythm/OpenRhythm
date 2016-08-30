@@ -13,7 +13,7 @@
 
 #define DEFAULT_SOUNDIO_LATENCY (0.1)
 
-namespace FScore {
+namespace ORCore {
     std::shared_ptr<spdlog::logger> m_logger;
 
     // To call at the start of the app. Initializes *soundio.
@@ -68,6 +68,5 @@ namespace FScore {
     // A test function
     int soundio_main(Codec *thesong);
 
-} // Namespace FSore
-
+} // namespace ORCore
 #endif // SOUNDIO_HPP

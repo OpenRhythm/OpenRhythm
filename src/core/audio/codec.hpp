@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace FScore {
+namespace ORCore {
 
     /* This virtual class defines the structure of an audio decoding library.
      * It allows to support multiple audio formats.
@@ -58,6 +58,5 @@ namespace FScore {
         double position;
     };
 
-} // Namespace FScore
-
-#endif
+} // namespace ORCore
+#endif // CODEC_HPP

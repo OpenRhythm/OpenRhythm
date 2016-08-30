@@ -13,7 +13,7 @@
 #include "spdlog/spdlog.h"
 #include "audio/codec.hpp"
 
-namespace FScore {
+namespace ORCore {
 
     class VorbisSong: public Codec {
     public:
@@ -49,6 +49,5 @@ namespace FScore {
         int current_section = 0;
     };
 
-} // Namespace FScore
-
+} // namespace ORCore
 #endif  // VORBIS_HPP

@@ -3,7 +3,7 @@
 #include <portaudio.h>
 #include "portaudio.hpp"
 
-namespace FScore {
+namespace ORCore {
 
     #define NUM_SECONDS   (500)
     #define SAMPLE_RATE   (44100)
@@ -99,4 +99,4 @@ namespace FScore {
         return err;
     }
 
-} // Namespace FScore
+} // namespace ORCore

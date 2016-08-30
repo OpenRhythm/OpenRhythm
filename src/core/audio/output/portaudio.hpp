@@ -3,9 +3,9 @@
 
 #include "codec.hpp"
 
-namespace FScore {
+namespace ORCore {
 
     int pa_main(Codec *thesong);
 
-} // Namespace FScore
-#endif
+} // namespace ORCore
+#endif  // PORTAUDIO_HPP
