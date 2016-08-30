@@ -91,7 +91,7 @@ namespace ORCore {
 
         if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count_max))) {
             m_logger->error("{}", soundio_strerror(err));
-            throw runtime_error("SoundIO begin write failed");
+            throw std::runtime_error("SoundIO begin write failed");
         }
 
         int byte_count_max = frame_count_max* BYTES_PER_SAMPLE*CHANNELS_COUNT;
@@ -115,7 +115,7 @@ namespace ORCore {
 
         if ((err = soundio_outstream_end_write(outstream))) {
             m_logger->error("soundio error : {}\n", soundio_strerror(err));
-            throw runtime_error("SoundIO end write failed");
+            throw std::runtime_error("SoundIO end write failed");
         }
     }
 
