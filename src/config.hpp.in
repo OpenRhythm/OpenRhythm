@@ -1,9 +1,10 @@
 #pragma once
 
 // Platforms
-#define PL_WINDOWS ${PL_WINDOWS}
-#define PL_LINUX ${PL_LINUX}
-#define PL_OSX ${PL_OSX}
+#define PL_DEFAULT  ${PL_DEFAULT}
+#define PL_WINDOWS  ${PL_WINDOWS}
+#define PL_LINUX    ${PL_LINUX}
+#define PL_OSX      ${PL_OSX}
 
 #define PLATFORM ${PLATFORM}
 
