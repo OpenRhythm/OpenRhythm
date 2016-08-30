@@ -20,6 +20,9 @@ while [[ $1 ]]; do
             MAKE_ARGS+=" VERBOSE=1 "
             shift
             ;;
+        *)
+            shift
+            ;;
     esac
 done
 
