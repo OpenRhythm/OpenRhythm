@@ -37,11 +37,15 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif()
 
 find_package(SDL2 REQUIRED)
+find_package(Portaudio  REQUIRED)
+find_package(SoundIO    REQUIRED)
+find_package(OggVorbis  REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(GLM REQUIRED)
 find_package(OpenGL REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/core)
+include_directories(${PROJECT_SOURCE_DIR}/src/core/audio)
 include_directories(${PROJECT_SOURCE_DIR}/src/engine)
 include_directories(${PROJECT_SOURCE_DIR}/src/game)
 include_directories(${PROJECT_SOURCE_DIR}/src)
@@ -60,6 +64,10 @@ configure_file (
 )
 
 set(CORE_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codec.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/portaudio.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.hpp
@@ -73,6 +81,9 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp)
 
 set(CORE_SOURCE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/portaudio.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.cpp
@@ -121,9 +132,11 @@ include_directories(SYSTEM
     ${CMAKE_SOURCE_DIR}/extern/glad/include
     ${CMAKE_SOURCE_DIR}/extern/spdlog/include
     ${SDL2_INCLUDE_DIR}
+    ${SoundIO_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
-    ${OPENGL_INCLUDE_DIRS})
+    ${OPENGL_INCLUDE_DIRS}
+)
 
 set(SOURCE ${CORE_HEADERS} ${CORE_SOURCE} ${GAME_SOURCE} ${GAME_HEADERS} ${GLAD})
 
@@ -144,4 +157,12 @@ if(OSX_APP_BUNDLE)
     set_target_properties(openrhythm PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
 
-target_link_libraries(openrhythm ${CMAKE_DL_LIBS} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})
+target_link_libraries(openrhythm
+    ${CMAKE_DL_LIBS}
+    ${OPENGL_LIBRARIES}
+    ${SDL2_LIBRARY}
+    ${FREETYPE_LIBRARIES}
+    ${SOUNDIO_LIBRARY}
+    ${VORBISFILE_LIBRARY}
+    ${PORTAUDIO_LIBRARIES}
+)
