@@ -49,3 +49,6 @@ CMakeFiles/
 Makefile
 cmake_install.cmake
 openrhythm
+
+# Docs
+/docs
