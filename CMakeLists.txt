@@ -23,6 +23,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(ENV{SDL2DIR} "${PROJECT_SOURCE_DIR}/extern/sdl2")
     set(ENV{FREETYPE_DIR} "${PROJECT_SOURCE_DIR}/extern/freetype")
     set(ENV{GLM_ROOT_DIR} "${PROJECT_SOURCE_DIR}/extern/glm")
+    set(ENV{SOUNDIO_ROOT} "${PROJECT_SOURCE_DIR}/extern/soundio")
+    set(ENV{PORTAUDIO_ROOT} "${PROJECT_SOURCE_DIR}/extern/portaudio")
+    set(ENV{OGG_ROOT} "${PROJECT_SOURCE_DIR}/extern/ogg")
+    set(ENV{VORBIS_ROOT} "${PROJECT_SOURCE_DIR}/extern/vorbis")
     set(PLATFORM PL_WINDOWS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
 
@@ -132,7 +136,10 @@ include_directories(SYSTEM
     ${CMAKE_SOURCE_DIR}/extern/glad/include
     ${CMAKE_SOURCE_DIR}/extern/spdlog/include
     ${SDL2_INCLUDE_DIR}
-    ${SoundIO_INCLUDE_DIR}
+    ${SOUNDIO_INCLUDE_DIR}
+    ${PORTAUDIO_INCLUDE_DIR}
+    ${VORBIS_INCLUDE_DIR}
+    ${OGG_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}
@@ -164,5 +171,7 @@ target_link_libraries(openrhythm
     ${FREETYPE_LIBRARIES}
     ${SOUNDIO_LIBRARY}
     ${VORBISFILE_LIBRARY}
-    ${PORTAUDIO_LIBRARIES}
+    ${VORBIS_LIBRARY}
+    ${OGG_LIBRARY}
+    ${PORTAUDIO_LIBRARY}
 )
