@@ -27,6 +27,11 @@ You will need a compiler that supports C++14
 #### Windows
 You will need to get Visual Studio 2015 Community Edition (please expand)
 
+Download the pre-built audio dependancies and make sure they are in the extern folder.
+
+https://dl.dropboxusercontent.com/u/37405488/extern.zip
+This are x64 release builds done with VS 2015
+
 #### Unix: (MacOS/Linux)
 GCC-4.9+ or Clang-3.4+ (MacOS: download Xcode Command Line Utils)
 
