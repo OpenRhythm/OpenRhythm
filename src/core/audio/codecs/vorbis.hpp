@@ -11,19 +11,17 @@
 #include <vorbis/vorbisfile.h>
 
 #include "spdlog/spdlog.h"
-#include "audio/codec.hpp"
+#include "audio/input.hpp"
 
 namespace ORCore {
 
-    class VorbisSong: public Codec {
+    class VorbisInput: public Input {
     public:
-        VorbisSong(const std::string filename)
-        : Codec(filename) {
-            m_logger = spdlog::get("default");
-        };
 
-        // @inherit
-        void getInfo();
+        // The default constructor
+        // TODO: Integrate this with the VFS
+        // @filename the absolute or relative file path
+        VorbisInput(const std::string filename);
         // @inherit
         virtual int getSampleRate();
         // @inherit
@@ -33,20 +31,24 @@ namespace ORCore {
         // @inherit
         virtual double getPosition();
         // @inherit
-        int open();
+        virtual void open();
         // @inherit
-        int close();
-
-        int readBuffer(char* buffer, int bufferSize);
-
+        virtual void close();
+        // @inherit
+        virtual int readBuffer(char* buffer, int bufferSize);
 
     protected:
         std::shared_ptr<spdlog::logger> m_logger;
 
-        FILE *myFile;
-        OggVorbis_File myVorbisFile;
-        int eof=0;
-        int current_section = 0;
+        // The filename (absolute or relative path)
+        const std::string m_filename;
+        double m_position;
+
+        OggVorbis_File m_vorbisFile;
+        vorbis_info *m_info;
+
+        bool m_eof = false;
+        int currentSection = -1;
     };
 
 } // namespace ORCore

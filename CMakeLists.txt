@@ -24,7 +24,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(ENV{FREETYPE_DIR} "${PROJECT_SOURCE_DIR}/extern/freetype")
     set(ENV{GLM_ROOT_DIR} "${PROJECT_SOURCE_DIR}/extern/glm")
     set(ENV{SOUNDIO_ROOT} "${PROJECT_SOURCE_DIR}/extern/soundio")
-    set(ENV{PORTAUDIO_ROOT} "${PROJECT_SOURCE_DIR}/extern/portaudio")
     set(ENV{OGG_ROOT} "${PROJECT_SOURCE_DIR}/extern/ogg")
     set(ENV{VORBIS_ROOT} "${PROJECT_SOURCE_DIR}/extern/vorbis")
     set(PLATFORM PL_WINDOWS)
@@ -41,7 +40,6 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif()
 
 find_package(SDL2 REQUIRED)
-find_package(Portaudio  REQUIRED)
 find_package(SoundIO    REQUIRED)
 find_package(OggVorbis  REQUIRED)
 find_package(Freetype REQUIRED)
@@ -68,9 +66,8 @@ configure_file (
 )
 
 set(CORE_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codec.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/input.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/portaudio.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.hpp
@@ -86,7 +83,6 @@ set(CORE_HEADERS
 
 set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/portaudio.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.cpp
@@ -137,7 +133,6 @@ include_directories(SYSTEM
     ${CMAKE_SOURCE_DIR}/extern/spdlog/include
     ${SDL2_INCLUDE_DIR}
     ${SOUNDIO_INCLUDE_DIR}
-    ${PORTAUDIO_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
     ${OGG_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
@@ -173,5 +168,4 @@ target_link_libraries(openrhythm
     ${VORBISFILE_LIBRARY}
     ${VORBIS_LIBRARY}
     ${OGG_LIBRARY}
-    ${PORTAUDIO_LIBRARY}
 )

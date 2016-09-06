@@ -5,6 +5,7 @@
 #include <math.h>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 #include "soundio.hpp"
 
@@ -23,21 +24,25 @@ namespace ORCore {
     // The default device instance
     struct SoundIoDevice *device = NULL;
 
+    static std::shared_ptr<spdlog::logger> logger; 
+
     int soundio_initialize() {
         if (soundio) // Already initialized
             return 0;
 
+        logger = spdlog::get("default");
+
         soundio = soundio_create();
         if (!soundio) {
-            m_logger->error("SoundIO_create: out of memory");
+            logger->error("SoundIO_create: out of memory");
             throw std::runtime_error("SoundIO_create: out of memory");
         }
 
-        soundio->app_name = APP_NAME;
+        soundio->app_name = "OpenRhythm";
 
         int err = soundio_connect(soundio);
         if (err) {
-            m_logger->error("SoundIO_connect error: {}", soundio_strerror(err));
+            logger->error("SoundIO_connect error: {}", soundio_strerror(err));
             throw std::runtime_error(std::string("SoundIO_connect error: ") + soundio_strerror(err));
         }
 
@@ -56,13 +61,13 @@ namespace ORCore {
 
         int default_out_device_index = soundio_default_output_device_index(soundio);
         if (default_out_device_index < 0) {
-            m_logger->error("SoundIO: No output device found");
+            logger->error("SoundIO: No output device found");
             throw std::runtime_error("SoundIO: No output device found");
         }
 
         device = soundio_get_output_device(soundio, default_out_device_index);
         if (!device) {
-            m_logger->error("SoundIO: out of memory");
+            logger->error("SoundIO: out of memory");
             throw std::runtime_error("SoundIO: out of memory");
         }
 
@@ -74,63 +79,55 @@ namespace ORCore {
         return 0;
     }
 
-
-    void SoundIoOStream::write_callback_static(
-        struct SoundIoOutStream *outstream,
-        int frame_count_min, int frame_count_max) {
-        return ((SoundIoOStream*)outstream->userdata)
-            ->write_callback(outstream, frame_count_min, frame_count_max);
+    void write_callback(SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {
+        auto stream = static_cast<SoundIoOStream*>(outstream->userdata);
+        stream->write(outstream, frameCountMin, frameCountMax);
     }
 
-    void SoundIoOStream::write_callback(
-        struct SoundIoOutStream *outstream,
-        int frame_count_min, int frame_count_max) {
+    void underflow_callback(SoundIoOutStream *outstream) {
+        auto stream = static_cast<SoundIoOStream*>(outstream->userdata);
+        stream->underflow(outstream);
+    }
+
+    void SoundIoOStream::write(
+        struct SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {
+
         const struct SoundIoChannelLayout *layout = &outstream->layout;
         struct SoundIoChannelArea *areas;
         int err;
 
-        if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count_max))) {
-            m_logger->error("{}", soundio_strerror(err));
+        if ((err = soundio_outstream_begin_write(outstream, &areas, &frameCountMax))) {
+            logger->error("{}", soundio_strerror(err));
             throw std::runtime_error("SoundIO begin write failed");
         }
 
-        int byte_count_max = frame_count_max* BYTES_PER_SAMPLE*CHANNELS_COUNT;
-        int16_t data[byte_count_max];
+        int byte_count_max = frameCountMax* BYTES_PER_SAMPLE*CHANNELS_COUNT;
+        m_dataBuffer.resize(byte_count_max);
 
-        for (int bytes_decoded = 0; bytes_decoded < byte_count_max; ) {
-            // Most decoders won't decode all bytes we need at once,
-            // so we need multiple invocations !
-            bytes_decoded += theSong->readBuffer(
-                ((char*)data)+ bytes_decoded, byte_count_max - bytes_decoded);
-        }
+        theSong->readBuffer(reinterpret_cast<char*>(&m_dataBuffer[0]), byte_count_max);
 
         // Now we copy the data into the outstream !
-        for (int i = 0; i < frame_count_max; ++i) {
+        for (int i = 0; i < frameCountMax; ++i) {
             for (int channel = 0; channel < layout->channel_count; ++channel) {
-                int16_t sample = data[channel + 2*i];
+                int16_t sample = m_dataBuffer[channel + 2*i];
                 int16_t *ptr = (int16_t*)(areas[channel].ptr + areas[channel].step * i);
                 *ptr = sample;
             }
         }
 
         if ((err = soundio_outstream_end_write(outstream))) {
-            m_logger->error("soundio error : {}\n", soundio_strerror(err));
+            logger->error("soundio error : {}\n", soundio_strerror(err));
             throw std::runtime_error("SoundIO end write failed");
         }
     }
 
-    void SoundIoOStream::underflow_callback_static(struct SoundIoOutStream *outstream) {
-        return ((SoundIoOStream*)outstream->userdata)->underflow_callback(outstream);
-    }
-    void SoundIoOStream::underflow_callback(struct SoundIoOutStream *outstream) {
+    void SoundIoOStream::underflow(SoundIoOutStream *outstream) {
         static int count = 0;
-        m_logger->error("underflow {}\n", count++);
+        logger->error("underflow {}\n", count++);
     }
 
-
-    int SoundIoOStream::setInput(Codec *theSong) {
+    void SoundIoOStream::set_input(Input *theSong) {
         this->theSong = theSong;
-        return 0;
     }
 
     int SoundIoOStream::open(double latency) {
@@ -152,25 +149,28 @@ namespace ORCore {
         outstream->sample_rate      = sample_rate;
         outstream->software_latency = latency;
 
+        // The userdata field is used to store the current instance so we
+        // can call the correct class method when the callbacks are used.
         outstream->userdata             = this;
-        outstream->write_callback       = &SoundIoOStream::write_callback_static;
-        outstream->underflow_callback   = &SoundIoOStream::underflow_callback_static;
+
+        outstream->write_callback       = &write_callback;
+        outstream->underflow_callback   = &underflow_callback;
 
         int err = soundio_outstream_open(outstream);
         if (err) {
-            m_logger->error("unable to open device: {}", soundio_strerror(err));
+            logger->error("unable to open device: {}", soundio_strerror(err));
             throw std::runtime_error(std::string("unable to open device: ") + soundio_strerror(err));
         }
 
         err = outstream->layout_error;
         if (err) {
-            m_logger->error("unable to set channel layout: ", soundio_strerror(err));
+            logger->error("unable to set channel layout: ", soundio_strerror(err));
             throw std::runtime_error(std::string("unable to set channel layout: ") + soundio_strerror(err));
         }
 
         err = soundio_outstream_start(outstream);
         if (err) {
-            m_logger->error("unable to start device: ", soundio_strerror(err));
+            logger->error("unable to start device: ", soundio_strerror(err));
             throw std::runtime_error(std::string("unable to start device: ") + soundio_strerror(err));
         }
         return 0;
@@ -180,12 +180,12 @@ namespace ORCore {
         soundio_outstream_destroy(outstream);
     }
 
-    int soundio_main(Codec *thesong) {
+    int soundio_main(Input *thesong) {
 
         soundio_initialize();
         soundio_connect_default_output_device();
         SoundIoOStream *mysoundioostream = new SoundIoOStream();
-        mysoundioostream->setInput(thesong);
+        mysoundioostream->set_input(thesong);
         mysoundioostream->open(0.01);
 
         for (;;)

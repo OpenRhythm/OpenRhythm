@@ -1,95 +1,80 @@
 #include "vorbis.hpp"
 
 #include <stdexcept>
-#include <stdlib.h>
+#include <cstdio>
 #include <iostream>
+#include <map>
+#include <string>
 
 namespace ORCore {
 
-    int VorbisSong::open() {
-        myFile = fopen(this->filename.c_str(), "rb");
-        if (!myFile)
-            return -1;
+    static std::map<int, std::string> errorCodeMap {
+        {OV_HOLE, "Vorbis: data interruption"},
+        {OV_EBADLINK, "Vorbis: Invalid Stream"},
+        {OV_EINVAL, "Vorbis: Invalid Headers"},
+        {OV_EREAD, "Vorbis: Read error."},
+        {OV_ENOTVORBIS, "Vorbis: No vorbis data"},
+        {OV_EVERSION, "Vorbis: Version Mismatch"},
+        {OV_EBADHEADER, "Vorbis: Invalid Vorbis bitstream header."},
+        {OV_EFAULT, "Vorbis: Internal logic fault."},
+    };
 
-        int open_ret = ov_open_callbacks(myFile, &myVorbisFile, NULL, 0, OV_CALLBACKS_NOCLOSE);
+    VorbisInput::VorbisInput(const std::string filename)
+    : m_filename(filename)
+    {
+        m_logger = spdlog::get("default");
+    }
 
-        switch (open_ret) {
-            case OV_EREAD:       // A read from media returned an error.
-            case OV_ENOTVORBIS:  // Bitstream does not contain any Vorbis data.
-            case OV_EVERSION:    // Vorbis version mismatch.
-            case OV_EBADHEADER:  // Invalid Vorbis bitstream header.
-            case OV_EFAULT:      // Internal logic fault; indicates a bug or heap/stack corruption.
-                m_logger->error("Input does not appear to be an Ogg bitstream.");
-                fclose(myFile);
-                throw std::runtime_error("Not an ogg bitstream");
-                break;
-            case 0:
-                break;
+    void VorbisInput::open() {
+        
+        int vorbisError = ov_fopen(m_filename.c_str(), &m_vorbisFile);
+
+        if (vorbisError != 0) {
+            throw std::runtime_error(errorCodeMap[vorbisError]);
         }
 
-        if (ov_pcm_seek(&myVorbisFile, 0) != 0){  // This is because some files do not seek to 0 automatically
-            m_logger->error("Error seeking file to position 0.");
+        m_info = ov_info(&m_vorbisFile,-1);
+
+        if (ov_pcm_seek(&m_vorbisFile, 0) != 0) {  // This is because some files do not seek to 0 automatically
             throw std::runtime_error("Error seeking file to position 0.");
-        } else
+        } else {
             m_logger->debug("Seeked file to position 0.");
-        return 0;
-    }
-
-    int VorbisSong::close() {
-        ov_clear(&myVorbisFile);
-        return 0;
-    }
-
-    int VorbisSong::getSampleRate() {
-        return ov_info(&myVorbisFile,-1)->rate;
-    }
-
-    int VorbisSong::getChannelCount() {
-        return ov_info(&myVorbisFile,-1)->channels;
-    }
-
-    double VorbisSong::getPosition() {
-        return ov_time_tell(&myVorbisFile);
-    }
-
-    void VorbisSong::getInfo() {
-        //char **ptr=ov_comment(&myVorbisFile,-1)->user_comments;
-        // while(*ptr){
-        //   fprintf(stderr,"%s\n",*ptr);
-        //   ++ptr;
-        // }
-
-        vorbis_info *vi=ov_info(&myVorbisFile,-1);
-        m_logger->debug("Bitstream is {} channel, {}Hz", vi->channels, vi->rate);
-        m_logger->debug("Decoded length: {} samples", (long)ov_pcm_total(&myVorbisFile,-1));
-        m_logger->debug("Encoded by: {}", ov_comment(&myVorbisFile,-1)->vendor);
-
-    }
-
-    int VorbisSong::readBuffer(char* buffer, int bufferSize) {
-        long read_ret = ov_read(&myVorbisFile, buffer, bufferSize,
-            0, 2, 1, &current_section);
-
-        switch(read_ret) {
-            case 0:         // indicates EOF
-                eof = 1;
-                m_logger->debug("eof of {}", filename);
-                return 1;
-                break;
-            case OV_HOLE:
-                    // indicates there was an interruption in the data.
-                    // (one of: garbage between pages, loss of sync followed by recapture, or a corrupt page)
-            case OV_EBADLINK:
-                    // indicates that an invalid stream section was supplied to libvorbisfile, or the requested link is corrupt.
-            case OV_EINVAL:
-                    // indicates the initial file headers couldn't be read or are corrupt, or that the initial open call for vf failed.
-                // There was an error, TL;DR
-                m_logger->error("vorbis_read_error: {}", read_ret);
-                return 0;
-                break;
-            default:
-                return read_ret;
         }
+    }
+
+    void VorbisInput::close() {
+        ov_clear(&m_vorbisFile);
+    }
+
+    int VorbisInput::getSampleRate() {
+        return m_info->rate;
+    }
+
+    int VorbisInput::getChannelCount() {
+        return m_info->channels;
+    }
+
+    double VorbisInput::getPosition() {
+        return m_position;
+    }
+
+    int VorbisInput::readBuffer(char* buffer, int bufferSize) {
+        int bytes;
+        for (bytes = 0; bytes < bufferSize; ) {
+            long bytesRead = ov_read(&m_vorbisFile, buffer, bufferSize, 0, 2, 1, &currentSection);
+
+            if (bytesRead < 0) {
+                throw std::runtime_error(errorCodeMap[bytesRead]);
+            } else if (bytesRead == 0) {
+                m_eof = true;
+            }
+            bytes += bytesRead;
+        }
+
+        // ov_time_tell gives position of the next sample. So to be more accurate
+        // we need to check this after the buffers are finished being read.
+        m_position = ov_time_tell(&m_vorbisFile);
+        return bytes;
     }
 
 } // namespace ORCore
