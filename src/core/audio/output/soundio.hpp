@@ -27,8 +27,8 @@ namespace ORCore {
 
     class SoundIoOStream {
     public:
-        SoundIoOStream();
-        ~SoundIoOStream();
+        SoundIoOStream() {};
+        ~SoundIoOStream() {};
 
         void set_input(Input *thesong);
 
