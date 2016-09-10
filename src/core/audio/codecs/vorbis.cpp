@@ -9,24 +9,22 @@
 namespace ORCore {
 
     static std::map<int, std::string> errorCodeMap {
-        {OV_HOLE, "Vorbis: data interruption"},
-        {OV_EBADLINK, "Vorbis: Invalid Stream"},
-        {OV_EINVAL, "Vorbis: Invalid Headers"},
-        {OV_EREAD, "Vorbis: Read error."},
+        {OV_HOLE,       "Vorbis: data interruption"},
+        {OV_EBADLINK,   "Vorbis: Invalid Stream"},
+        {OV_EINVAL,     "Vorbis: Invalid Headers"},
+        {OV_EREAD,      "Vorbis: Read error."},
         {OV_ENOTVORBIS, "Vorbis: No vorbis data"},
-        {OV_EVERSION, "Vorbis: Version Mismatch"},
+        {OV_EVERSION,   "Vorbis: Version Mismatch"},
         {OV_EBADHEADER, "Vorbis: Invalid Vorbis bitstream header."},
-        {OV_EFAULT, "Vorbis: Internal logic fault."},
+        {OV_EFAULT,     "Vorbis: Internal logic fault."},
     };
 
     VorbisInput::VorbisInput(const std::string filename)
-    : m_filename(filename)
-    {
+    : m_filename(filename) {
         m_logger = spdlog::get("default");
     }
 
     void VorbisInput::open() {
-        
         int vorbisError = ov_fopen(m_filename.c_str(), &m_vorbisFile);
 
         if (vorbisError != 0) {
@@ -59,22 +57,46 @@ namespace ORCore {
     }
 
     int VorbisInput::readBuffer(char* buffer, int bufferSize) {
-        int bytes;
-        for (bytes = 0; bytes < bufferSize; ) {
-            long bytesRead = ov_read(&m_vorbisFile, buffer, bufferSize, 0, 2, 1, &currentSection);
+        int bytes_decoded = 0;
 
-            if (bytesRead < 0) {
-                throw std::runtime_error(errorCodeMap[bytesRead]);
-            } else if (bytesRead == 0) {
+        do {
+            int bytes_read = ov_read(&m_vorbisFile,
+                buffer     + bytes_decoded,
+                bufferSize - bytes_decoded, 0, 2, 1, &currentSection);
+
+            if (bytes_read < 0)
+                throw std::runtime_error(errorCodeMap[bytes_read]);
+
+            bytes_decoded += bytes_read;
+
+            // End of file, stop asking for frames !
+            if (bytes_read == 0) {
                 m_eof = true;
+                break;
             }
-            bytes += bytesRead;
-        }
+
+        } while (bytes_decoded < bufferSize);
+
 
         // ov_time_tell gives position of the next sample. So to be more accurate
         // we need to check this after the buffers are finished being read.
         m_position = ov_time_tell(&m_vorbisFile);
-        return bytes;
+        return bytes_decoded;
     }
 
 } // namespace ORCore
+/*
+    void VorbisSong::getInfo() {
+        //char **ptr=ov_comment(&myVorbisFile,-1)->user_comments;
+        // while(*ptr){
+        //   fprintf(stderr,"%s\n",*ptr);
+        //   ++ptr;
+        // }
+
+        vorbis_info *vi=ov_info(&myVorbisFile,-1);
+        m_logger->debug("Bitstream is {} channel, {}Hz", vi->channels, vi->rate);
+        m_logger->debug("Decoded length: {} samples", (long)ov_pcm_total(&myVorbisFile,-1));
+        m_logger->debug("Encoded by: {}", ov_comment(&myVorbisFile,-1)->vendor);
+
+    }
+*/
