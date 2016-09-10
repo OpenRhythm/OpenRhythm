@@ -3,9 +3,12 @@
 ####################################################################
 cmake_minimum_required(VERSION 3.0)
 
-project (openrhythm)
-set     (openrhythm_VERSION_MAJOR 0)
-set     (openrhythm_VERSION_MINOR 1)
+project (OpenRhythm)
+set     (OpenRhythm_VERSION_MAJOR 0)
+set     (OpenRhythm_VERSION_MINOR 1)
+
+set(APPLE_APP_NAME "openrhythm.app")
+set(LINUX_HOMEPATH ".openrhythm")
 
 set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
@@ -30,9 +33,13 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "Building for Windows.")
     set(PLATFORM PL_WINDOWS)
 
-    set(ENV{SDL2DIR}      "${PROJECT_SOURCE_DIR}/extern/sdl2")
-    set(ENV{FREETYPE_DIR} "${PROJECT_SOURCE_DIR}/extern/freetype")
-    set(ENV{GLM_ROOT_DIR} "${PROJECT_SOURCE_DIR}/extern/glm")
+    set(ENV{FREETYPE_DIR}   "${PROJECT_SOURCE_DIR}/extern/freetype")
+    set(ENV{GLM_ROOT_DIR}   "${PROJECT_SOURCE_DIR}/extern/glm")
+    set(ENV{OGG_ROOT}       "${PROJECT_SOURCE_DIR}/extern/ogg")
+    set(ENV{SDL2DIR}        "${PROJECT_SOURCE_DIR}/extern/sdl2")
+    set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
+    set(ENV{VORBIS_ROOT}    "${PROJECT_SOURCE_DIR}/extern/vorbis")
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -57,16 +64,13 @@ endif()
 ####################################################################
 #   Libraries
 ####################################################################
-# I don't think FindPkgConfig is present on w$
-#include(FindPkgConfig)
 
-find_package(SDL2       REQUIRED)
 find_package(Freetype   REQUIRED)
 find_package(GLM        REQUIRED)
-find_package(OpenGL     REQUIRED)
-find_package(Portaudio  REQUIRED)
-find_package(SoundIO    REQUIRED)
 find_package(OggVorbis  REQUIRED)
+find_package(OpenGL     REQUIRED)
+find_package(SDL2       REQUIRED)
+find_package(SoundIO    REQUIRED)
 
 if(NOT DEFINED(USE_LIB_PNGCPP))
     set(USE_LIB_PNGCPP 0)
@@ -88,11 +92,13 @@ include_directories(SYSTEM
     ${CMAKE_SOURCE_DIR}/extern/stb
     ${CMAKE_SOURCE_DIR}/extern/glad/include
     ${CMAKE_SOURCE_DIR}/extern/spdlog/include
-    ${SDL2_INCLUDE_DIR}
-    ${SoundIO_INCLUDE_DIR}
     ${FREETYPE_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
+    ${OGG_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIR}
+    ${SOUNDIO_INCLUDE_DIR}
+    ${VORBIS_INCLUDE_DIR}
 )
 
 if(INC_PATH)
@@ -121,9 +127,8 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codec.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/input.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/portaudio.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
 )
 set(CORE_SOURCE
@@ -139,7 +144,6 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/portaudio.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.cpp
 )
 
@@ -194,5 +198,6 @@ target_link_libraries(openrhythm
     ${FREETYPE_LIBRARIES}
     ${SOUNDIO_LIBRARY}
     ${VORBISFILE_LIBRARY}
-    ${PORTAUDIO_LIBRARIES}
+    ${VORBIS_LIBRARY}
+    ${OGG_LIBRARY}
 )
