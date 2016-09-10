@@ -30,7 +30,7 @@ namespace ORCore {
         // Writes into <buffer> up to <buffersize> bytes of decoded audio
         // TODO - convert bytes to float32
         // @return the number of actually decodec bytes
-        virtual int readBuffer(char* buffer, int bufferSize) = 0;
+        virtual int readBuffer(float *pcm_channels, int samples) = 0;
 
         // Returns the position inside the audio file
         // @return the value (in SOMETHING (seconds ?)) inside the audio file

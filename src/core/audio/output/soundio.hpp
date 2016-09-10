@@ -8,8 +8,8 @@
 
 #define DEFAULT_SOUNDIO_SAMPLERATE  (44100)
 #define DEFAULT_SOUNDIO_LATENCY     (0.1)
-#define DEFAULT_SOUNDIO_FORMAT      (SoundIoFormatS16NE)
-//#define DEFAULT_SOUNDIO_FORMAT      (SoundIoFormatFloat32NE)
+//#define DEFAULT_SOUNDIO_FORMAT      (SoundIoFormatS16NE)
+#define DEFAULT_SOUNDIO_FORMAT      (SoundIoFormatFloat32NE)
 
 namespace ORCore {
     class AudioOutputStream;
@@ -85,7 +85,7 @@ namespace ORCore {
         SoundIoDevice       *device = nullptr;
 
         // The buffer to be sent to the libsoundio backend
-        std::vector<int16_t> m_dataBuffer;
+        std::vector<float> m_dataBuffer;
 
         // Contains all the streams (song, sounds,…) to play together
         std::vector<AudioOutputStream*> m_AllStreams;
@@ -104,9 +104,9 @@ namespace ORCore {
         void set_input(Input *thesong);
 
 
-        void read(int byteCountMax, int frameCountMin, int frameCountMax);
+        void read(int frameCountMax);
 
-        std::vector<int16_t> *get_buffer() {
+        std::vector<float> *get_buffer() {
             return &m_dataBuffer;
         }
 
@@ -115,7 +115,7 @@ namespace ORCore {
         Input* theSong;
 
         // The buffer to be sent to the libsoundio backend
-        std::vector<int16_t> m_dataBuffer;
+        std::vector<float> m_dataBuffer;
 
         std::shared_ptr<spdlog::logger> logger;
     };

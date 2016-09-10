@@ -14,7 +14,7 @@
 // TODO those defines should be runtime variables, dependant of the stream
 
 // file dependant (now : uint16_t)
-#define BYTES_PER_SAMPLE 2
+#define BYTES_PER_SAMPLE 4
 // file dependent (now : stereo)
 #define CHANNELS_COUNT 2
 
@@ -116,21 +116,20 @@ namespace ORCore {
             throw std::runtime_error("SoundIO begin write failed");
         }
 
-        int byteCountMax = frameCountMax* BYTES_PER_SAMPLE*CHANNELS_COUNT;
-        m_dataBuffer.resize(byteCountMax);
+        m_dataBuffer.resize(frameCountMax*CHANNELS_COUNT);
 
 
         for (auto const& stream: m_AllStreams) {
             std::cout  << "auie" << std::endl;
-            stream->read(byteCountMax, frameCountMin, frameCountMax);
+            stream->read(frameCountMax);
             m_dataBuffer = *(stream->get_buffer());
         }
 
         // Now we copy the data into the outstream !
         for (int i = 0; i < frameCountMax; ++i) {
             for (int channel = 0; channel < layout->channel_count; ++channel) {
-                int16_t sample = m_dataBuffer[channel + 2*i];
-                int16_t *ptr = (int16_t*)(areas[channel].ptr + areas[channel].step * i);
+                float sample = m_dataBuffer[channel + 2*i];
+                float *ptr = (float*)(areas[channel].ptr + areas[channel].step * i);
                 *ptr = sample;
             }
         }
@@ -140,9 +139,9 @@ namespace ORCore {
             throw std::runtime_error("SoundIO end write failed");
         }
     }
-    void AudioOutputStream::read(int byteCountMax, int frameCountMin, int frameCountMax) {
-        m_dataBuffer.resize(byteCountMax);
-        theSong->readBuffer(reinterpret_cast<char*>(&m_dataBuffer[0]), byteCountMax);
+    void AudioOutputStream::read(int frameCountMax) {
+        m_dataBuffer.resize(frameCountMax*CHANNELS_COUNT);
+        theSong->readBuffer(reinterpret_cast<float*>(&m_dataBuffer[0]), frameCountMax);
     }
 
     void SoundIoOutput::underflow_callback_static(SoundIoOutStream *outstream) {

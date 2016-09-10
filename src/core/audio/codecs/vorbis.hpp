@@ -35,7 +35,7 @@ namespace ORCore {
         // @inherit
         virtual void close();
         // @inherit
-        virtual int readBuffer(char* buffer, int bufferSize);
+        virtual int readBuffer(float *pcm_channels, int samples);
 
     protected:
         std::shared_ptr<spdlog::logger> m_logger;
