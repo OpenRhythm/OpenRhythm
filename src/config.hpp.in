@@ -1,9 +1,15 @@
 #pragma once
 
+// Version
+#define PROJECT_NAME    "${CMAKE_PROJECT_NAME}"
+#define VERSION_MAJOR   ${${CMAKE_PROJECT_NAME}_VERSION_MAJOR}
+#define VERSION_MINOR   ${${CMAKE_PROJECT_NAME}_VERSION_MINOR}
+
 // Platforms
-#define PL_WINDOWS ${PL_WINDOWS}
-#define PL_LINUX ${PL_LINUX}
-#define PL_OSX ${PL_OSX}
+#define PL_DEFAULT  ${PL_DEFAULT}
+#define PL_WINDOWS  ${PL_WINDOWS}
+#define PL_LINUX    ${PL_LINUX}
+#define PL_OSX      ${PL_OSX}
 
 #define PLATFORM ${PLATFORM}
 
@@ -13,17 +19,14 @@
 #if PLATFORM==PL_WINDOWS
     #define PLATFORM_WINDOWS
     #define PATH_SEP '\\'
-    #define HOMEPATH_NAME "OpenRhythm"
+    #define HOMEPATH_NAME   "${CMAKE_PROJECT_NAME}"
 #elif PLATFORM==PL_LINUX
     #define PLATFORM_LINUX
     #define PATH_SEP '/'
-    #define HOMEPATH_NAME ".openrhythm"
+    #define HOMEPATH_NAME   "${LINUX_HOMEPATH}"
 #elif PLATFORM==PL_OSX
     #define PLATFORM_OSX
     #define PATH_SEP '/'
-    #define HOMEPATH_NAME "OpenRhythm"
-    #define APP_NAME "openrhythm.app" // add to cmake command?
+    #define HOMEPATH_NAME   "${CMAKE_PROJECT_NAME}"
+    #define APP_NAME        "${APPLE_APP_NAME}"
 #endif
-
-
-// will add version info here later on
