@@ -7,7 +7,7 @@
 #include "texture.hpp"
 
 #if USE_LIB_PNGCPP
-#include "png.hpp"
+#include <png.hpp>
 #endif
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -19,7 +19,7 @@
 #define STBI_NO_GIF
 // This leaves us with the following supported image formats:
 // jpg  png  bmp  tga  hdr
-#include "stb_image.h"
+#include <stb_image.h>
 
 namespace ORCore
 {
