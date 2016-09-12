@@ -8,7 +8,9 @@
 #include <vector>
 
 #include "config.hpp"
-
+#if defined(PLATFORM_WINDOWS)
+#define SOUNDIO_STATIC_LIBRARY
+#endif
 #include "soundio.hpp"
 
 // TODO those defines should be runtime variables, dependant of the stream
