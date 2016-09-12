@@ -17,7 +17,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 ####################################################################
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 11)
-add_definitions ("-Wall")
+if(MSVC)
+    add_definitions("/W4")
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+    add_definitions("-Wall")
+endif()
 
 ####################################################################
 #   Platform detection and rules
