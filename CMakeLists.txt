@@ -23,6 +23,9 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     add_definitions("-Wall")
 endif()
 
+# Clean unused sections on link
+add_definitions (" -ffunction-sections -fdata-sections -Wl,--gc-sections")
+
 ####################################################################
 #   Platform detection and rules
 ####################################################################
@@ -32,6 +35,9 @@ set(PL_LINUX    2)
 set(PL_OSX      3)
 
 set(OSX_APP_BUNDLE 0)
+
+## This is needed when cross-compiling
+list(APPEND CMAKE_FIND_ROOT_PATH "${PROJECT_SOURCE_DIR}/extern")
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "Building for Windows.")
@@ -44,7 +50,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
     set(ENV{VORBIS_ROOT}    "${PROJECT_SOURCE_DIR}/extern/vorbis")
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
+    if(MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
+    endif()
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     message(STATUS "Building for Linux.")
