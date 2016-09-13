@@ -213,3 +213,25 @@ target_link_libraries(openrhythm
     ${VORBIS_LIBRARY}
     ${OGG_LIBRARY}
 )
+
+####################################################################
+#   Test binaries
+####################################################################
+
+add_executable(audiotests
+    ${CORE_HEADERS}
+    ${CORE_SOURCE}
+    src/tests/audiotests.cpp
+)
+
+target_link_libraries(audiotests
+    ${CMAKE_DL_LIBS}
+      GLAD
+    ${OPENGL_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
+    ${SOUNDIO_LIBRARY}
+    ${VORBISFILE_LIBRARY}
+    ${VORBIS_LIBRARY}
+    ${OGG_LIBRARY}
+    ${SDL2_LIBRARY}
+)
