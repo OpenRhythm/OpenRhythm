@@ -60,6 +60,8 @@ namespace ORCore {
         outstream->write_callback       = &SoundIoOutput::write_callback_static;
         outstream->underflow_callback   = &SoundIoOutput::underflow_callback_static;
 
+        outstream->name = PROJECT_NAME "SoundIoOutput";
+
         int err = soundio_outstream_open(outstream);
         if (err) {
             logger->error("unable to open device: {}", soundio_strerror(err));
@@ -122,7 +124,6 @@ namespace ORCore {
 
 
         for (auto const& stream: m_AllStreams) {
-            std::cout  << "auie" << std::endl;
             stream->read(frameCountMax);
             m_dataBuffer = *(stream->get_buffer());
         }

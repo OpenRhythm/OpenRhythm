@@ -43,7 +43,7 @@ namespace ORCore {
         void connect_default_output_device();
         void disconnect_device();
 
-        struct SoundIoDevice* getDevice() { return device; };
+        struct SoundIoDevice* get_device() { return device; };
 
         void wait_events() { return soundio_wait_events(soundio); };
 

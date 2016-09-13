@@ -57,35 +57,35 @@ namespace ORCore {
     }
 
     int VorbisInput::readBuffer(float *pcm_channels, int sample_count) {
-        int samples_saved = 0;
-        float **my_pcm_channels; // This pointer will be set by ov_read_float
+        int samplesSaved = 0;
+        float **p_decodedSamples; // This will point on the decoded samples
         do {
-            int samples_read = ov_read_float(&m_vorbisFile, &my_pcm_channels,
-                sample_count - samples_saved, &currentSection);
+            int samplesDecoded = ov_read_float(&m_vorbisFile, &p_decodedSamples,
+                sample_count - samplesSaved, &currentSection);
 
-            if (samples_read < 0)
-                throw std::runtime_error(errorCodeMap[samples_read]);
+            if (samplesDecoded < 0)
+                throw std::runtime_error(errorCodeMap[samplesDecoded]);
 
 
             // TODO a solution valid for any channel count ?
-            for (int i = 0; i < samples_read; ++i) {
-                pcm_channels[2*samples_saved  ] = my_pcm_channels[0][i];
-                pcm_channels[2*samples_saved+1] = my_pcm_channels[1][i];
-                samples_saved++;
+            for (int i = 0; i < samplesDecoded; ++i) {
+                pcm_channels[2*samplesSaved  ] = p_decodedSamples[0][i];
+                pcm_channels[2*samplesSaved+1] = p_decodedSamples[1][i];
+                samplesSaved++;
             }
 
             // End of file, stop asking for frames !
-            if (samples_read == 0) {
+            if (samplesDecoded == 0) {
                 m_eof = true;
                 break;
             }
-        } while (samples_saved < sample_count);
+        } while (samplesSaved < sample_count);
 
 
         // ov_time_tell gives position of the next sample. So to be more accurate
         // we need to check this after the buffers are finished being read.
         m_position = ov_time_tell(&m_vorbisFile);
-        return samples_saved;
+        return samplesSaved;
     }
 
 } // namespace ORCore
