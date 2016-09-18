@@ -22,6 +22,23 @@
 
 namespace ORCore {
 
+    // The reason i seperated these from the class originally, is because they 
+    // are awful looking functions that clutter up the class definition, and they are really
+    // just an implementation detail and they probably shouldn't be shown on documentation.
+    static void write_callback_static(SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {
+        auto stream = static_cast<SoundIoOutput*>(outstream->userdata);
+        stream->write_callback(outstream, frameCountMin, frameCountMax);
+    }
+    static void underflow_callback_static(SoundIoOutStream *outstream) {
+        auto stream = static_cast<SoundIoOutput*>(outstream->userdata);
+        stream->underflow_callback(outstream);
+    }
+
+    SoundIoOutput::SoundIoOutput() {
+        logger = spdlog::get("default");
+        initialize();
+    };
+
     void SoundIoOutput::initialize() {
         if (soundio) // Already initialized
             return;
@@ -43,6 +60,12 @@ namespace ORCore {
         soundio_flush_events(soundio);
     }
 
+    SoundIoOutput::~SoundIoOutput() {
+        close_stream();
+        if (soundio != nullptr)
+            soundio_destroy(soundio);
+    }
+
     void SoundIoOutput::open_stream(SoundIoFormat format, int sample_rate, double latency) {
         if (device == nullptr) {
             throw std::runtime_error("Error while opening libsoundiostream : the device is not yet set !");
@@ -57,8 +80,8 @@ namespace ORCore {
         // can call the correct class method when the callbacks are used.
         outstream->userdata             = this;
 
-        outstream->write_callback       = &SoundIoOutput::write_callback_static;
-        outstream->underflow_callback   = &SoundIoOutput::underflow_callback_static;
+        outstream->write_callback       = &write_callback_static;
+        outstream->underflow_callback   = &underflow_callback_static;
 
         outstream->name = PROJECT_NAME "SoundIoOutput";
 
@@ -81,6 +104,16 @@ namespace ORCore {
         }
     }
 
+    void SoundIoOutput::add_stream(AudioOutputStream *stream) {
+        m_AllStreams.push_back(stream);
+    }
+
+    // Closes the stream
+    void SoundIoOutput::close_stream() {
+        if (outstream != nullptr) {
+            soundio_outstream_destroy(outstream);
+        }
+    }
 
     void SoundIoOutput::connect_default_output_device() {
         if (device) // Already initialized
@@ -103,11 +136,14 @@ namespace ORCore {
         soundio_device_unref(device);
     }
 
+    SoundIoDevice* SoundIoOutput::get_device() {
+        return device;
+    };
 
-    void SoundIoOutput::write_callback_static(SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {
-        return ((SoundIoOutput*)outstream->userdata)->write_callback
-            (outstream, frameCountMin, frameCountMax);
-    }
+    void SoundIoOutput::wait_events() {
+        return soundio_wait_events(soundio);
+    };
+
     void SoundIoOutput::write_callback(
         struct SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {
 
@@ -142,15 +178,7 @@ namespace ORCore {
             throw std::runtime_error("SoundIO end write failed");
         }
     }
-    void AudioOutputStream::read(int frameCountMax) {
-        m_dataBuffer.resize(frameCountMax*CHANNELS_COUNT);
-        theSong->readBuffer(reinterpret_cast<float*>(&m_dataBuffer[0]), frameCountMax);
-    }
 
-    void SoundIoOutput::underflow_callback_static(SoundIoOutStream *outstream) {
-        return ((SoundIoOutput*)outstream->userdata)->underflow_callback
-            (outstream);
-    }
     void SoundIoOutput::underflow_callback(SoundIoOutStream *outstream) {
         static int count = 0;
         logger->error("underflow {}\n", count++);
@@ -160,25 +188,31 @@ namespace ORCore {
         this->theSong = theSong;
     }
 
+    void AudioOutputStream::read(int frameCountMax) {
+        m_dataBuffer.resize(frameCountMax*CHANNELS_COUNT);
+        theSong->readBuffer(&m_dataBuffer[0], frameCountMax);
+    }
 
-
-
+    std::vector<float> *AudioOutputStream::get_buffer() {
+        return &m_dataBuffer;
+    }
 
     int soundio_main(Input *thesong) {
-        SoundIoOutput &mySoundIoOutput = SoundIoOutput::getInstance();
-        mySoundIoOutput.connect_default_output_device();
-        mySoundIoOutput.open_stream();
+        auto soundOutput = SoundIoOutput();
+        soundOutput.connect_default_output_device();
+        soundOutput.open_stream();
 
+        // We should use a smart pointer raw new/delete is considered bad style nowdays.
         AudioOutputStream *mysoundioostream = new AudioOutputStream();
         mysoundioostream->set_input(thesong);
 
-        mySoundIoOutput.add_stream(mysoundioostream);
+        soundOutput.add_stream(mysoundioostream);
 
         for (;;)
-            mySoundIoOutput.wait_events();
+            soundOutput.wait_events();
 
         delete(mysoundioostream);
-        mySoundIoOutput.disconnect_device();
+        soundOutput.disconnect_device();
         return 0;
     }
 

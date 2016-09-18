@@ -17,25 +17,18 @@ namespace ORCore {
     // Singleton class describing the libSoundIO output
     class SoundIoOutput {
     public:
-        static SoundIoOutput& getInstance() {
-            static SoundIoOutput instance;  // Guaranteed to be destroyed.
-                                            // Instantiated on first use.
-            return instance;
-        }
-        SoundIoOutput (SoundIoOutput const&)    = delete;
-        void operator=(SoundIoOutput const&)    = delete;
-
-
+        SoundIoOutput();
+       ~SoundIoOutput();
 
         // Opens a stream using the current output device, sample rate and latency
         void open_stream(SoundIoFormat format = DEFAULT_SOUNDIO_FORMAT,
                          int sample_rate = DEFAULT_SOUNDIO_SAMPLERATE,
                          double latency = DEFAULT_SOUNDIO_LATENCY);
+
+        void add_stream(AudioOutputStream *stream);
+
         // Closes the stream
-        void close_stream() {
-            if (outstream != nullptr)
-                soundio_outstream_destroy(outstream);
-        }
+        void close_stream();
 
 
         // To call at the start of the app. Initializes *device.
@@ -43,35 +36,13 @@ namespace ORCore {
         void connect_default_output_device();
         void disconnect_device();
 
-        struct SoundIoDevice* get_device() { return device; };
+        SoundIoDevice* get_device();
+        void wait_events();
 
-        void wait_events() { return soundio_wait_events(soundio); };
-
-
-        static
-        void write_callback_static
-            (SoundIoOutStream *outstream, int frameCountMin, int frameCountMax);
-        void write_callback
-            (SoundIoOutStream *outstream, int frameCountMin, int frameCountMax);
-
-        static
-        void underflow_callback_static(SoundIoOutStream *outstream);
-        void underflow_callback       (SoundIoOutStream *outstream);
-
-        void add_stream(AudioOutputStream *stream) {
-            m_AllStreams.push_back(stream);
-        }
+        void write_callback(SoundIoOutStream *outstream, int frameCountMin, int frameCountMax);
+        void underflow_callback(SoundIoOutStream *outstream);
 
     protected:
-        SoundIoOutput() {
-            logger = spdlog::get("default");
-            initialize();
-        };
-       ~SoundIoOutput() {
-            close_stream();
-            if (soundio != nullptr)
-                soundio_destroy(soundio);
-        }
 
         // Called in the SoundIoOutput constructor
         // @throws runtime_errors on error
@@ -103,13 +74,9 @@ namespace ORCore {
 
         void set_input(Input *thesong);
 
-
         void read(int frameCountMax);
 
-        std::vector<float> *get_buffer() {
-            return &m_dataBuffer;
-        }
-
+        std::vector<float> *get_buffer();
 
     protected:
         Input* theSong;
