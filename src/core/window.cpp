@@ -27,6 +27,12 @@ namespace ORCore
         SDL_DestroyWindow(m_sdlWindow);
     }
 
+
+    SDL_Window* Window::get_platform_window()
+    {
+        return m_sdlWindow;
+    }
+
     void Window::make_current(Context* context)
     {
 

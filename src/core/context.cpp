@@ -32,4 +32,8 @@ namespace ORCore
             m_context = SDL_GL_CreateContext(m_window->get_platform_window());
         }
     }
+
+    SDL_GLContext Context::get_platform_context() {
+        return m_context;
+    }
 }

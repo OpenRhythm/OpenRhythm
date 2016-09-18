@@ -107,14 +107,14 @@ namespace ORCore
 
     class Events
     {
-    private:
-        std::vector<Listener*> m_listeners;
-        Event m_event;
     public:
         Events();
         void add_listener(Listener &listener);
         void remove_listener(Listener &listener);
         void broadcast_event(Event &event);
         void process();
+    private:
+        std::vector<Listener*> m_listeners;
+        Event m_event;
     };
 }

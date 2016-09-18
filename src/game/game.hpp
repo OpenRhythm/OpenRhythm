@@ -20,6 +20,16 @@
 
 class GameManager
 {
+public:
+    GameManager();
+    ~GameManager();
+    void start();
+    bool event_handler(ORCore::Event &event);
+    void handle_song();
+    void update();
+    void prep_render_bars();
+    void render();
+    void resize(int width, int height);
 private:
     bool m_running;
     double m_fpsTime;
@@ -53,16 +63,4 @@ private:
     std::streamsize m_ss;
     glm::mat4 m_ortho;
     int m_orthoID;
-
-public:
-    GameManager();
-    ~GameManager();
-    void start();
-    bool event_handler(ORCore::Event &event);
-    void handle_song();
-    void update();
-    void prep_render_bars();
-    void render();
-    void resize(int width, int height);
-
 };

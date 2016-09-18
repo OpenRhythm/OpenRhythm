@@ -14,6 +14,13 @@ namespace ORCore
 {
     class FpsTimer
     {
+    public:
+        FpsTimer();
+        ~FpsTimer();
+        double tick();
+        double get_current_time();
+        double get_fps();
+
     private:
         int m_frames;
         double m_currentTime;
@@ -31,11 +38,6 @@ namespace ORCore
 
         double get_time();
 
-    public:
-        FpsTimer();
-        ~FpsTimer();
-        double tick();
-        double get_current_time();
-        double get_fps();
+
     };
 }

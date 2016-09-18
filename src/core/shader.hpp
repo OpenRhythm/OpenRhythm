@@ -23,11 +23,6 @@ namespace ORCore
 
     class ShaderProgram
     {
-    private:
-        Shader m_vertex;
-        Shader m_fragment;
-        unsigned int m_program;
-
     public:
         ShaderProgram(Shader* vertex, Shader* fragment);
         ~ShaderProgram();
@@ -58,6 +53,11 @@ namespace ORCore
         void set_uniform(int uniform, const std::array<int, 2>& value);
         void set_uniform(int uniform, const std::array<int, 3>& value);
         void set_uniform(int uniform, const std::array<int, 4>& value);
+
+    private:
+        Shader m_vertex;
+        Shader m_fragment;
+        unsigned int m_program;
 
     };
 }

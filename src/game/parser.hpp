@@ -106,14 +106,14 @@ namespace ORGame
 
     class TempoTrack
     {
-    private:
-
-    	std::vector<TempoEvent> m_tempo;
-        std::vector<BarEvent> m_bars;
     public:
         void add_event(int ppqn, double time);
         void mark_bars();
         std::vector<TempoTrackEvent> get_events(double start, double end, EventType type);
+
+    private:
+    	std::vector<TempoEvent> m_tempo;
+        std::vector<BarEvent> m_bars;
     };
 
 
@@ -126,19 +126,13 @@ namespace ORGame
             Difficulty difficulty;
         };
 
-        Track( Info info ) : m_info(info) {};
+        Track(Info info);
 
-        Info info() { return m_info; };
+        Info info();
 
-        void addNote(NoteType type, double time, bool on);
-        std::vector<TrackNote*> getNotesInFrame(double start, double end);
+        void add_note(NoteType type, double time, bool on);
+        std::vector<TrackNote*> get_notes_in_frame(double start, double end);
 
-        bool isSolo();
-        bool isDrumRoll();
-        bool isOverDrive();
-        bool isBigRockEnding(); // move to Song?
-        bool isTremolo();
-        bool isTrill();
     private:
         Info m_info;
         std::vector<TrackNote> m_notes;
@@ -147,6 +141,15 @@ namespace ORGame
 
     class Song
     {
+    public:
+        Song( std::string songpath );
+        void add(TrackType type, Difficulty difficulty);
+        bool load();
+        Track *get_track(TrackType type, Difficulty difficulty);
+        TempoTrack *get_tempo_track();
+
+        double length();
+
     private:
         std::vector<Track::Info> m_trackInfo;
         std::vector<Track> m_tracks;
@@ -154,15 +157,7 @@ namespace ORGame
         std::string m_path;
         double m_length;
         std::shared_ptr<spdlog::logger> m_logger;
-    public:
-        Song( std::string songpath );
 
-        void add(TrackType type, Difficulty difficulty);
-        bool load();
-        Track *get_track(TrackType type, Difficulty difficulty);
-        TempoTrack *getTempoTrack() { return &m_tempoTrack; };
-
-        double length() { return m_length; };
     };
 
     // Functions are mainly used within the Song class

@@ -131,6 +131,10 @@ namespace ORCore
 
     class SmfReader
     {
+    public:
+        SmfReader(std::string smfData);
+        std::vector<SmfTrack*> getTracks();
+
     private:
         typedef std::unique_ptr<SmfTrack> t_SmfTrackPtr;
         std::vector<SmfTrack> m_tracks;
@@ -149,9 +153,5 @@ namespace ORCore
         void readFile();
 
         std::shared_ptr<spdlog::logger> m_logger;
-
-    public:
-        SmfReader(std::string smfData);
-        std::vector<SmfTrack*> getTracks();
     };
 }

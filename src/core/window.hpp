@@ -14,6 +14,19 @@ namespace ORCore
 
     class Window
     {
+    public:
+        Window(int width=800,
+                int height=600,
+                bool fullscreen=false,
+                std::string title="Game");
+
+        ~Window();
+
+        SDL_Window* get_platform_window();
+
+        void make_current(Context* context);
+        void flip();
+
     private:
         std::string m_title;
         bool m_fullscreen;
@@ -28,19 +41,6 @@ namespace ORCore
 
         Context* m_context;
 
-    public:
-
-        Window(int width=800,
-                int height=600,
-                bool fullscreen=false,
-                std::string title="Game");
-
-        ~Window();
-
-        SDL_Window* get_platform_window() {return m_sdlWindow;}
-
-        void make_current(Context* context);
-        void flip();
 
     };
 

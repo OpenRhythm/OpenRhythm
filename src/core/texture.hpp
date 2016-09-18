@@ -23,6 +23,11 @@ namespace ORCore
 
     class Texture
     {
+    public:
+        Texture(std::string path, ShaderProgram *program);
+        void bind();
+        //~Texture();
+
     private:
         Image m_image;
         ShaderProgram *m_program;
@@ -31,9 +36,5 @@ namespace ORCore
         int m_texUnitID;
         GLuint m_texID;
 
-    public:
-        Texture(std::string path, ShaderProgram *program);
-        void bind();
-        //~Texture();
     };
 }

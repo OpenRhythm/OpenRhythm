@@ -58,10 +58,18 @@ namespace ORGame
 
 
     /////////////////////////////////////
-    // Track Class methods
+    // Track Class
     /////////////////////////////////////
 
-    void Track::addNote(NoteType type, double time, bool on)
+    Track::Track(Info info)
+    : m_info(info)
+    {};
+
+    Info Track::info() {
+        return m_info;
+    };
+
+    void Track::add_note(NoteType type, double time, bool on)
     {
         if (!on) {
             for(size_t i = m_notes.size(); i >= 0; i--) {
@@ -75,7 +83,7 @@ namespace ORGame
         m_notes.push_back(TrackNote({type, time}));
     }
 
-    std::vector<TrackNote*> Track::getNotesInFrame( double start, double end )
+    std::vector<TrackNote*> Track::get_notes_in_frame( double start, double end )
     {
         std::vector<TrackNote*> notes;
         for ( auto &note : m_notes) {
@@ -187,7 +195,7 @@ namespace ORGame
         //             eTypeComp = midi_to_note(nTrack->info().type, sEvent->midi_buffer[1], nTrack->info().difficulty);
         //
         //             if ( eTypeComp != NoteType::NONE )
-        //                 nTrack->addNote(eTypeComp, sEvent->time_seconds * 1000,  (status == 0x90) ? true : false);
+        //                 nTrack->add_note(eTypeComp, sEvent->time_seconds * 1000,  (status == 0x90) ? true : false);
         //
         //         }
         //     }
@@ -208,6 +216,13 @@ namespace ORGame
         return nullptr;
     }
 
+    TempoTrack *Song::get_tempo_track() {
+        return &m_tempoTrack;
+    };
+
+    double Song::length() {
+        return m_length;
+    };
 
     // generic functions, though they are mostly used within the Song class.
 

@@ -8,6 +8,15 @@ namespace ORCore
 {
     class Mesh2D
     {
+    public:
+        Mesh2D(ShaderProgram *program, Texture *texture);
+        ~Mesh2D();
+        void render();
+        void update();
+        void init_gl();
+        void scale(float x, float y);
+        void translate(float x, float y);
+
     private:
         ShaderProgram *m_program;
         Texture *m_texture;
@@ -25,13 +34,5 @@ namespace ORCore
         float m_yPos;
         GLfloat m_vertData[8];
 
-    public:
-        Mesh2D(ShaderProgram *program, Texture *texture);
-        ~Mesh2D();
-        void render();
-        void update();
-        void init_gl();
-        void scale(float x, float y);
-        void translate(float x, float y);
     };
 }
