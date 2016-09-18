@@ -180,12 +180,9 @@ include_directories(
 source_group("src\\core"  FILES ${CORE_SOURCE}  ${CORE_HEADERS})
 source_group("src\\game"  FILES ${GAME_SOURCE}  ${GAME_HEADERS})
 
-set(SOURCE
-    ${CORE_HEADERS}  ${CORE_SOURCE}
-    ${GAME_HEADERS}  ${GAME_SOURCE}
-)
+add_library(ORCore-obj OBJECT ${CORE_SOURCE})
 
-add_executable(openrhythm ${SOURCE})
+add_executable(openrhythm  $<TARGET_OBJECTS:ORCore-obj> ${GAME_SOURCE})
 
 set(BINARY_DATA_DIR ${CMAKE_BINARY_DIR}/data)
 set(SOURCE_DATA_DIR ${CMAKE_SOURCE_DIR}/data)
@@ -218,10 +215,8 @@ target_link_libraries(openrhythm
 #   Test binaries
 ####################################################################
 
-add_executable(audiotests
-    ${CORE_HEADERS}
-    ${CORE_SOURCE}
-    src/tests/audiotests.cpp
+add_executable(audiotests $<TARGET_OBJECTS:ORCore-obj>
+    ${PROJECT_SOURCE_DIR}/src/tests/audiotests.cpp
 )
 
 target_link_libraries(audiotests
