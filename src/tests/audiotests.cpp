@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]) {
         sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
         // Probably will want to switch this to ostream_sink_mt once
         // the vfs is setup fully.
-        sinks.push_back(std::make_shared<spdlog::sinks::simple_file_sink_mt>("openrhythm.log"));
+        sinks.push_back(std::make_shared<spdlog::sinks::simple_file_sink_mt>("openrhythmaudio.log"));
 
         logger = std::make_shared<spdlog::logger>("default", std::begin(sinks), std::end(sinks));
         spdlog::register_logger(logger);
