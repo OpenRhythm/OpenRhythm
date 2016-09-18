@@ -61,13 +61,16 @@ namespace ORGame
     // Track Class
     /////////////////////////////////////
 
-    Track::Track(Info info)
+    Track::Track(Track::Info info)
     : m_info(info)
-    {};
+    {
+        std::cout << "test" << std::endl;
+    }
 
-    Info Track::info() {
+
+    Track::Info Track::info() {
         return m_info;
-    };
+    }
 
     void Track::add_note(NoteType type, double time, bool on)
     {
