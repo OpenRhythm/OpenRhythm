@@ -24,7 +24,9 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 # Clean unused sections on link
-add_definitions (" -ffunction-sections -fdata-sections -Wl,--gc-sections")
+if(CMAKE_COMPILER_IS_GNUXX)
+    add_definitions (" -ffunction-sections -fdata-sections -Wl,--gc-sections")
+endif()
 
 ####################################################################
 #   Platform detection and rules
