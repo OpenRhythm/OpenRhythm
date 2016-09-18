@@ -54,9 +54,9 @@ GameManager::GameManager()
     //ORCore::Track *track = m_song.getTrack( ORCore::TrackType::Guitar, ORCore::Difficulty::Expert );
     //std::cout << "Song: loaded track for " << ORCore::TrackNameForType( track->info().type ) << std::endl;
 
-    m_tempoTrack = m_song.getTempoTrack();
+    m_tempoTrack = m_song.get_tempo_track();
 
-    //std::vector<ORCore::TrackNote*> v = track->getNotesInFrame(0, 10000);
+    //std::vector<ORCore::TrackNote*> v = track->get_notes_in_frame(0, 10000);
 
     //std::cout << "Song: " << v.size() << " notes in first 10 seconds, first note is " << NoteNameForType(v[0]->type()) << std::endl;
 
