@@ -4,6 +4,7 @@
 #include <soundio/soundio.h>
 #include "spdlog/spdlog.h"
 
+#include "stream.hpp"
 #include "input.hpp"
 
 #define DEFAULT_SOUNDIO_SAMPLERATE  (44100)

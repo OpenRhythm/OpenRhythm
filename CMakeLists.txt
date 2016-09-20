@@ -146,6 +146,8 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/input.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/stream.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.hpp
 )
 set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
@@ -161,6 +163,7 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.cpp
 )
 
 set(GAME_HEADERS
