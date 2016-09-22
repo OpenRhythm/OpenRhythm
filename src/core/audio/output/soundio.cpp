@@ -1,17 +1,15 @@
+#include "soundio.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <iostream>
+#include <iomanip>
 #include <stdexcept>
 #include <vector>
 
 #include "config.hpp"
-#if defined(PLATFORM_WINDOWS)
-#define SOUNDIO_STATIC_LIBRARY
-#endif
-#include "soundio.hpp"
 
 // TODO those defines should be runtime variables, dependant of the stream
 
@@ -22,7 +20,7 @@
 
 namespace ORCore {
 
-    // The reason i seperated these from the class originally, is because they 
+    // The reason i seperated these from the class originally, is because they
     // are awful looking functions that clutter up the class definition, and they are really
     // just an implementation detail and they probably shouldn't be shown on documentation.
     static void write_callback_static(SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {

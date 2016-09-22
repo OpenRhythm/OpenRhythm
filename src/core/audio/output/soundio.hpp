@@ -1,6 +1,9 @@
 #ifndef SOUNDIO_HPP
 #define SOUNDIO_HPP
 
+#if defined(PLATFORM_WINDOWS)
+#   define SOUNDIO_STATIC_LIBRARY
+#endif
 #include <soundio/soundio.h>
 #include "spdlog/spdlog.h"
 

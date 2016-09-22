@@ -30,16 +30,16 @@ public:
     AudioStream(AudioStream *inputStream) {};
    ~AudioStream() {};
 
-   AudioBuffer* getFilledOutputBuffer() { return &outputBuffer; };
+   AudioBuffer* getFilledOutputBuffer() { return &m_outputBuffer; };
 
 
    // Should not change. Thus, defined in constructor ?
-   int getChannelCount() { return inputStream->getChannelCount(); };
+   int getChannelCount() { return m_inputStream->getChannelCount(); };
 
 protected:
-    AudioStream *inputStream;
-    AudioBuffer *inputBuffer;
-    AudioBuffer outputBuffer;
+    AudioStream *m_inputStream;
+    AudioBuffer *m_inputBuffer;
+    AudioBuffer m_outputBuffer;
 
 
 };

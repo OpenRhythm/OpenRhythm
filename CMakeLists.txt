@@ -84,6 +84,7 @@ find_package(Freetype   REQUIRED)
 find_package(GLM        REQUIRED)
 find_package(OggVorbis  REQUIRED)
 find_package(OpenGL     REQUIRED)
+find_package(SampleRate REQUIRED)
 find_package(SDL2       REQUIRED)
 set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
 find_package(SoundIO    REQUIRED)
@@ -112,6 +113,7 @@ include_directories(SYSTEM
     ${GLM_INCLUDE_DIRS}
     ${OGG_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIRS}
+    ${SAMPLERATE_INCLUDE_DIRS}
     ${SDL2_INCLUDE_DIR}
     ${SOUNDIO_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
@@ -212,6 +214,7 @@ target_link_libraries(openrhythm
     ${OPENGL_LIBRARIES}
     ${SDL2_LIBRARY}
     ${FREETYPE_LIBRARIES}
+    ${SAMPLERATE_LIBRARY}
     ${SOUNDIO_LIBRARY}
     ${VORBISFILE_LIBRARY}
     ${VORBIS_LIBRARY}
@@ -235,5 +238,6 @@ target_link_libraries(audiotests
     ${VORBISFILE_LIBRARY}
     ${VORBIS_LIBRARY}
     ${OGG_LIBRARY}
+    ${SAMPLERATE_LIBRARY}
     ${SDL2_LIBRARY}
 )

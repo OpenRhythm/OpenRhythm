@@ -11,20 +11,31 @@
 //     SRC_ZERO_ORDER_HOLD         = 3,
 //     SRC_LINEAR                  = 4
 // };
+
 #define DEFAULT_SAMPLERATE_QUALITY SRC_SINC_MEDIUM_QUALITY
 
 class ResamplerStream: public AudioStream {
 public:
-    ResamplerStream() {};
-    ~ResamplerStream() {
-        src_delete(m_src_state);
-    };
+    ResamplerStream(int quality);
+    ResamplerStream();
+    ~ResamplerStream();
 
 
     void init();
+    void process(int frameCount);
 
 protected:
     SRC_STATE* m_src_state = nullptr;
+    SRC_DATA   m_src_data = {
+        nullptr,// *data_in,
+        nullptr,// *data_out ;
+        0,      // input_frames,
+        0,      // output_frames ;
+        0,      // input_frames_used,
+        0,      // output_frames_gen ;
+        0,      // end_of_input ;
+        1,      // src_ratio ;
+    };
 
 };
 

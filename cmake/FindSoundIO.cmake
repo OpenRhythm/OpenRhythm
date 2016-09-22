@@ -2,7 +2,7 @@
 #  SOUNDIO_FOUND
 #  SOUNDIO_INCLUDE_DIR
 #  SOUNDIO_LIBRARY
-# 
+#
 # Environment variables used:
 #  SOUNDIO_ROOT
 
