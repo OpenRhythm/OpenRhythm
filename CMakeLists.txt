@@ -49,7 +49,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(ENV{GLM_ROOT_DIR}   "${PROJECT_SOURCE_DIR}/extern/glm")
     set(ENV{OGG_ROOT}       "${PROJECT_SOURCE_DIR}/extern/ogg")
     set(ENV{SDL2DIR}        "${PROJECT_SOURCE_DIR}/extern/sdl2")
-    set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
     set(ENV{VORBIS_ROOT}    "${PROJECT_SOURCE_DIR}/extern/vorbis")
 
     if(MSVC)
@@ -78,12 +77,15 @@ endif()
 ####################################################################
 #   Libraries
 ####################################################################
+# The *_ROOT variables specify the location of a local clone
+# to be used if a system-wide library is not found
 
 find_package(Freetype   REQUIRED)
 find_package(GLM        REQUIRED)
 find_package(OggVorbis  REQUIRED)
 find_package(OpenGL     REQUIRED)
 find_package(SDL2       REQUIRED)
+set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
 find_package(SoundIO    REQUIRED)
 
 if(NOT DEFINED(USE_LIB_PNGCPP))
