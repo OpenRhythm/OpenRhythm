@@ -49,3 +49,8 @@ CMakeFiles/
 Makefile
 cmake_install.cmake
 openrhythm
+audiotests
+
+# Files for testing/outputs
+*.log
+TestOgg.ogg
