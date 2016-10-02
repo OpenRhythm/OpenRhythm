@@ -154,7 +154,21 @@ namespace ORCore {
             throw std::runtime_error("SoundIO begin write failed");
         }
 
-        m_dataBuffer.resize(frameCountMax*CHANNELS_COUNT);
+        m_dataBuffer.resize(frameCountMax*layout->channel_count);
+
+
+        for (auto stream: m_AudioStreams) {
+            stream->process(frameCountMax);
+            AudioBuffer streamBuffer = stream->getFilledOutputBuffer();
+            // Now we copy the data into the outstream !
+            for (int i = 0; i < frameCountMax; ++i) {
+                for (int channel = 0; channel < layout->channel_count; ++channel) {
+                    float sample = streamBuffer[i][channel];
+                    float *ptr = (float*)(areas[channel].ptr + areas[channel].step * i);
+                    *ptr = sample;
+                }
+            }
+        }
 
 
         for (auto const& stream: m_AllStreams) {
@@ -168,6 +182,15 @@ namespace ORCore {
                 float sample = m_dataBuffer[channel + 2*i];
                 float *ptr = (float*)(areas[channel].ptr + areas[channel].step * i);
                 *ptr = sample;
+            }
+        }
+
+        // Pass tanh() to all the buffer to remove possible overflows
+        // due to decoding and mixing
+        for (int i = 0; i < frameCountMax; ++i) {
+            for (int channel = 0; channel < layout->channel_count; ++channel) {
+                float *ptr = (float*)(areas[channel].ptr + areas[channel].step * i);
+                *ptr = tanh(*ptr);
             }
         }
 

@@ -11,7 +11,7 @@
 #include "input.hpp"
 
 #define DEFAULT_SOUNDIO_SAMPLERATE  (44100)
-#define DEFAULT_SOUNDIO_LATENCY     (0.1)
+#define DEFAULT_SOUNDIO_LATENCY     (0.010)
 //#define DEFAULT_SOUNDIO_FORMAT      (SoundIoFormatS16NE)
 #define DEFAULT_SOUNDIO_FORMAT      (SoundIoFormatFloat32NE)
 
@@ -63,7 +63,8 @@ namespace ORCore {
         std::vector<float> m_dataBuffer;
 
         // Contains all the streams (song, sounds,…) to play together
-        std::vector<AudioOutputStream*> m_AllStreams;
+        std::vector<AudioOutputStream*> m_AllStreams; // Legacy, to remove ASAP
+        std::vector<AudioStream*> m_AudioStreams;
 
         // The spdlogger global instance
         std::shared_ptr<spdlog::logger> logger;
