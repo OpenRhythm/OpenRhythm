@@ -30,11 +30,11 @@ public:
     AudioStream(AudioStream *inputStream) {};
    ~AudioStream() {};
 
-   AudioBuffer* getFilledOutputBuffer() { return &m_outputBuffer; };
+   AudioBuffer& getFilledOutputBuffer() { return m_outputBuffer; };
 
-
+   virtual void process(int frameCount) = 0;
    // Should not change. Thus, defined in constructor ?
-   int getChannelCount() { return m_inputStream->getChannelCount(); };
+   virtual int getChannelCount() { return m_inputStream->getChannelCount(); };
 
 protected:
     AudioStream *m_inputStream;

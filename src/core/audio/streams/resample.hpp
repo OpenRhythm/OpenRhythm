@@ -2,6 +2,7 @@
 #define RESAMPLE_HPP
 #include <samplerate.h>
 
+#include "output/soundio.hpp"
 #include "stream.hpp"
 
 // enum SampleRateQuality {
@@ -13,6 +14,7 @@
 // };
 
 #define DEFAULT_SAMPLERATE_QUALITY SRC_SINC_MEDIUM_QUALITY
+#define DEFAULT_SAMPLERATE_SAMPLERATE 44100
 
 class ResamplerStream: public AudioStream {
 public:
@@ -20,11 +22,17 @@ public:
     ResamplerStream();
     ~ResamplerStream();
 
+    void setInputSampleRate(double samplerate_in);
+    void setOutputSampleRate(double samplerate_out);
 
     void init();
     void process(int frameCount);
 
 protected:
+    double samplerate_in = DEFAULT_SAMPLERATE_SAMPLERATE;
+    double samplerate_out= DEFAULT_SAMPLERATE_SAMPLERATE;
+    double sampleRatio = 1;
+
     SRC_STATE* m_src_state = nullptr;
     SRC_DATA   m_src_data = {
         nullptr,// *data_in,
