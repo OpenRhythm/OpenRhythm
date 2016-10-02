@@ -11,6 +11,8 @@
 
 #include "config.hpp"
 
+#include "chrono.hpp"
+
 // TODO those defines should be runtime variables, dependant of the stream
 
 // file dependant (now : uint16_t)
@@ -144,6 +146,7 @@ namespace ORCore {
 
     void SoundIoOutput::write_callback(
         struct SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {
+        Timer bench_timer;
 
         const struct SoundIoChannelLayout *layout = &outstream->layout;
         struct SoundIoChannelArea *areas;
@@ -198,6 +201,9 @@ namespace ORCore {
             logger->error("soundio error : {}\n", soundio_strerror(err));
             throw std::runtime_error("SoundIO end write failed");
         }
+        std::cout << "time in audio callback (max/real): "
+                  << frameCountMax/48000.0 << " "
+                  << std::fixed << bench_timer.finish() << std::endl;
     }
 
     void SoundIoOutput::underflow_callback(SoundIoOutStream *outstream) {
