@@ -146,12 +146,19 @@ namespace ORCore {
 
     void SoundIoOutput::write_callback(
         struct SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {
-        Timer bench_timer;
+        // Timer bench_timer;
 
         const struct SoundIoChannelLayout *layout = &outstream->layout;
         struct SoundIoChannelArea *areas;
 
-        int err = soundio_outstream_begin_write(outstream, &areas, &frameCountMax);
+        int min = frameCountMax;
+        for (auto stream: m_AudioStreams) {
+            int framesProcessed = stream->process(frameCountMax);
+            if (framesProcessed != 0)
+                min = framesProcessed;
+        }
+
+        int err = soundio_outstream_begin_write(outstream, &areas, &min);
         if (err) {
             logger->error("{}", soundio_strerror(err));
             throw std::runtime_error("SoundIO begin write failed");
@@ -159,40 +166,18 @@ namespace ORCore {
 
         m_dataBuffer.resize(frameCountMax*layout->channel_count);
 
-
-        for (auto stream: m_AudioStreams) {
-            stream->process(frameCountMax);
-            AudioBuffer streamBuffer = stream->getFilledOutputBuffer();
-            // Now we copy the data into the outstream !
-            for (int i = 0; i < frameCountMax; ++i) {
-                for (int channel = 0; channel < layout->channel_count; ++channel) {
-                    float sample = streamBuffer[i][channel];
-                    float *ptr = (float*)(areas[channel].ptr + areas[channel].step * i);
-                    *ptr = sample;
-                }
-            }
-        }
-
-
-        for (auto const& stream: m_AllStreams) {
-            stream->read(frameCountMax);
-            m_dataBuffer = *(stream->get_buffer());
-        }
-
         // Now we copy the data into the outstream !
         for (int i = 0; i < frameCountMax; ++i) {
             for (int channel = 0; channel < layout->channel_count; ++channel) {
-                float sample = m_dataBuffer[channel + 2*i];
                 float *ptr = (float*)(areas[channel].ptr + areas[channel].step * i);
-                *ptr = sample;
-            }
-        }
-
-        // Pass tanh() to all the buffer to remove possible overflows
-        // due to decoding and mixing
-        for (int i = 0; i < frameCountMax; ++i) {
-            for (int channel = 0; channel < layout->channel_count; ++channel) {
-                float *ptr = (float*)(areas[channel].ptr + areas[channel].step * i);
+                *ptr = 0;
+                for (auto stream: m_AudioStreams) {
+                    float sample = stream->getFilledOutputBuffer()
+                        ->at(channel + layout->channel_count * i);
+                    *ptr += sample;
+                }
+                // Pass tanh() to the samples to remove possible overflows
+                // due to decoding and mixing
                 *ptr = tanh(*ptr);
             }
         }
@@ -201,9 +186,9 @@ namespace ORCore {
             logger->error("soundio error : {}\n", soundio_strerror(err));
             throw std::runtime_error("SoundIO end write failed");
         }
-        std::cout << "time in audio callback (max/real): "
-                  << frameCountMax/48000.0 << " "
-                  << std::fixed << bench_timer.finish() << std::endl;
+        // std::cout << "time in audio callback (max/real): "
+        //           << frameCountMax/48000.0 << " "
+        //           << std::fixed << bench_timer.finish() << std::endl;
     }
 
     void SoundIoOutput::underflow_callback(SoundIoOutStream *outstream) {

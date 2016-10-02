@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "core/audio/codecs/vorbis.hpp"
+#include "core/audio/streams/resample.hpp"
 #include "core/audio/output/soundio.hpp"
 
 
@@ -32,8 +33,12 @@ int main(int argc, char const *argv[]) {
     }
 
 
-    std::string filename;
+    auto soundOutput = new ORCore::SoundIoOutput();
+    soundOutput->connect_default_output_device();
+    soundOutput->open_stream();
 
+
+    // We should use a smart pointer raw new/delete is considered bad style nowdays.
     ORCore::VorbisInput *mysong;
     try {
         mysong = new ORCore::VorbisInput(OggTestFile);
@@ -45,21 +50,14 @@ int main(int argc, char const *argv[]) {
     std::cout << "####################" << std::endl;
     //mysong->getInfo();
 
+    auto *resamplerstream =
+        new ResamplerStream(mysong, SRC_SINC_MEDIUM_QUALITY);
 
-    auto soundOutput = new ORCore::SoundIoOutput();
-    soundOutput->connect_default_output_device();
-    soundOutput->open_stream();
-
-    // We should use a smart pointer raw new/delete is considered bad style nowdays.
-    auto *mysoundioostream = new ORCore::AudioOutputStream();
-    mysoundioostream->set_input(mysong);
-
-    soundOutput->add_stream(mysoundioostream);
+    soundOutput->add_stream(resamplerstream);
 
     for (;;)
         soundOutput->wait_events();
 
-    delete(mysoundioostream);
     soundOutput->disconnect_device();
 
 

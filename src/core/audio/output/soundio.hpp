@@ -8,9 +8,8 @@
 #include "spdlog/spdlog.h"
 
 #include "stream.hpp"
-#include "input.hpp"
 
-#define DEFAULT_SOUNDIO_SAMPLERATE  (44100)
+#define DEFAULT_SOUNDIO_SAMPLERATE  (48000)
 #define DEFAULT_SOUNDIO_LATENCY     (0.010)
 //#define DEFAULT_SOUNDIO_FORMAT      (SoundIoFormatS16NE)
 #define DEFAULT_SOUNDIO_FORMAT      (SoundIoFormatFloat32NE)
@@ -67,30 +66,6 @@ namespace ORCore {
         std::shared_ptr<spdlog::logger> logger;
     };
 
-
-
-    class AudioOutputStream {
-    public:
-        AudioOutputStream() {};
-        ~AudioOutputStream() {};
-
-        void set_input(Input *thesong);
-
-        void read(int frameCountMax);
-
-        std::vector<float> *get_buffer();
-
-    protected:
-        Input* theSong;
-
-        // The buffer to be sent to the libsoundio backend
-        std::vector<float> m_dataBuffer;
-
-        std::shared_ptr<spdlog::logger> logger;
-    };
-
-    // A test function
-    int soundio_main(Input *thesong);
 
 } // namespace ORCore
 #endif // SOUNDIO_HPP
