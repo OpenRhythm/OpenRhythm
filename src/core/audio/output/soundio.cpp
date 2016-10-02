@@ -104,8 +104,8 @@ namespace ORCore {
         }
     }
 
-    void SoundIoOutput::add_stream(AudioOutputStream *stream) {
-        m_AllStreams.push_back(stream);
+    void SoundIoOutput::add_stream(AudioStream *stream) {
+        m_AudioStreams.push_back(stream);
     }
 
     // Closes the stream
@@ -209,19 +209,6 @@ namespace ORCore {
     void SoundIoOutput::underflow_callback(SoundIoOutStream *outstream) {
         static int count = 0;
         logger->error("underflow {}\n", count++);
-    }
-
-    void AudioOutputStream::set_input(Input *theSong) {
-        this->theSong = theSong;
-    }
-
-    void AudioOutputStream::read(int frameCountMax) {
-        m_dataBuffer.resize(frameCountMax*CHANNELS_COUNT);
-        theSong->readBuffer(&m_dataBuffer[0], frameCountMax);
-    }
-
-    std::vector<float> *AudioOutputStream::get_buffer() {
-        return &m_dataBuffer;
     }
 
 } // namespace ORCore

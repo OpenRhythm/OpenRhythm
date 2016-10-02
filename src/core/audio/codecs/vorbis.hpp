@@ -11,11 +11,11 @@
 #include <vorbis/vorbisfile.h>
 
 #include "spdlog/spdlog.h"
-#include "audio/input.hpp"
+#include "audio/stream.hpp"
 
 namespace ORCore {
 
-    class VorbisInput: public Input {
+    class VorbisInput: public AudioInputStream {
     public:
 
         // The default constructor
@@ -35,7 +35,7 @@ namespace ORCore {
         // @inherit
         virtual void close();
         // @inherit
-        virtual int readBuffer(float *pcm_channels, int samples);
+        virtual int process(int frameCount);
 
     protected:
         std::shared_ptr<spdlog::logger> m_logger;

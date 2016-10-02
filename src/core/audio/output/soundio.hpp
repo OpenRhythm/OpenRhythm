@@ -16,8 +16,6 @@
 #define DEFAULT_SOUNDIO_FORMAT      (SoundIoFormatFloat32NE)
 
 namespace ORCore {
-    class AudioOutputStream;
-
     // Singleton class describing the libSoundIO output
     class SoundIoOutput {
     public:
@@ -29,7 +27,7 @@ namespace ORCore {
                          int sample_rate = DEFAULT_SOUNDIO_SAMPLERATE,
                          double latency = DEFAULT_SOUNDIO_LATENCY);
 
-        void add_stream(AudioOutputStream *stream);
+        void add_stream(AudioStream *stream);
 
         // Closes the stream
         void close_stream();
@@ -63,7 +61,6 @@ namespace ORCore {
         std::vector<float> m_dataBuffer;
 
         // Contains all the streams (song, sounds,…) to play together
-        std::vector<AudioOutputStream*> m_AllStreams; // Legacy, to remove ASAP
         std::vector<AudioStream*> m_AudioStreams;
 
         // The spdlogger global instance

@@ -18,15 +18,16 @@
 
 class ResamplerStream: public AudioStream {
 public:
-    ResamplerStream(int quality);
-    ResamplerStream();
+    ResamplerStream(AudioStream *inputStream, int quality);
+    ResamplerStream(AudioStream *inputStream)
+    : ResamplerStream(inputStream, DEFAULT_SAMPLERATE_QUALITY) {}
     ~ResamplerStream();
 
     void setInputSampleRate(double samplerate_in);
     void setOutputSampleRate(double samplerate_out);
 
     void init();
-    void process(int frameCount);
+    int process(int frameCount);
 
 protected:
     double samplerate_in = DEFAULT_SAMPLERATE_SAMPLERATE;
