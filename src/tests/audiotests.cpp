@@ -8,7 +8,6 @@
 #define OggTestFile "TestOgg.ogg"
 
 
-
 int main(int argc, char const *argv[]) {
     std::shared_ptr<spdlog::logger> logger;
 
@@ -46,6 +45,22 @@ int main(int argc, char const *argv[]) {
     std::cout << "####################" << std::endl;
     //mysong->getInfo();
 
-    soundio_main(mysong);
+
+    auto soundOutput = new ORCore::SoundIoOutput();
+    soundOutput->connect_default_output_device();
+    soundOutput->open_stream();
+
+    // We should use a smart pointer raw new/delete is considered bad style nowdays.
+    auto *mysoundioostream = new ORCore::AudioOutputStream();
+    mysoundioostream->set_input(mysong);
+
+    soundOutput->add_stream(mysoundioostream);
+
+    for (;;)
+        soundOutput->wait_events();
+
+    delete(mysoundioostream);
+    soundOutput->disconnect_device();
+
 
 }

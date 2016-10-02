@@ -224,24 +224,4 @@ namespace ORCore {
         return &m_dataBuffer;
     }
 
-    int soundio_main(Input *thesong) {
-        auto soundOutput = SoundIoOutput();
-        soundOutput.connect_default_output_device();
-        soundOutput.open_stream();
-
-        // We should use a smart pointer raw new/delete is considered bad style nowdays.
-        AudioOutputStream *mysoundioostream = new AudioOutputStream();
-        mysoundioostream->set_input(thesong);
-
-        soundOutput.add_stream(mysoundioostream);
-
-        for (;;)
-            soundOutput.wait_events();
-
-        delete(mysoundioostream);
-        soundOutput.disconnect_device();
-        return 0;
-    }
-
-
 } // namespace ORCore
