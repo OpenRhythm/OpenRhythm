@@ -12,7 +12,7 @@ find_path(SOUNDIO_INCLUDE_DIR soundio/soundio.h
 
 find_library(SOUNDIO_LIBRARY NAMES soundio)
 find_library(SOUNDIO_LIBRARY NAMES soundio
-    HINTS $ENV{SOUNDIO_ROOT})
+    HINTS $ENV{SOUNDIO_ROOT}/lib)
 
 
 include(FindPackageHandleStandardArgs)
