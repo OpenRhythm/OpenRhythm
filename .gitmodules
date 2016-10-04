@@ -7,3 +7,6 @@
 [submodule "extern/spdlog"]
 	path = extern/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "extern/readerwriterqueue"]
+	path = extern/readerwriterqueue
+	url = https://github.com/cameron314/readerwriterqueue.git
