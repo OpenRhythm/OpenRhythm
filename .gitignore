@@ -50,6 +50,7 @@ Makefile
 cmake_install.cmake
 openrhythm
 audiotests
+.idea/*
 
 # Files for testing/outputs
 *.log
