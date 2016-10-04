@@ -10,21 +10,8 @@
 
 namespace ORCore
 {
-    enum class EventType;
 
-    using underlying = std::underlying_type<EventType>::type;
-
-    static EventType operator|(const EventType& left, const EventType& right)
-    {
-        return static_cast<EventType>(static_cast<underlying>(left) | static_cast<underlying>(right));
-    }
-
-    static EventType operator&(const EventType& left, const EventType& right)
-    {
-        return static_cast<EventType>(static_cast<underlying>(left) & static_cast<underlying>(right));
-    }
-
-    enum class EventType
+    enum EventType
     {
         EventNone    = 0,
         Quit         = 1 << 0,
@@ -87,6 +74,13 @@ namespace ORCore
         KeyUpEvent keyUp;
         KeyDownEvent keyDown;
         QuitEvent quit;
+        EventMan(MouseMoveEvent mM) :mouseMove(mM) {};
+        EventMan(WindowSizeEvent wS) :windowSized(wS) {};
+        EventMan(WindowCloseEvent wC) :windowClose(wC) {};
+        EventMan(KeyUpEvent kUp) :keyUp(kUp) {};
+        EventMan(KeyDownEvent kDn) :keyDown(kDn) {};
+        EventMan(QuitEvent q) :quit(q) {};
+        EventMan() {};
     };
 
     struct Event
@@ -94,7 +88,6 @@ namespace ORCore
         EventType type;
         float time;
         EventMan event;
-
     };
 
     struct Listener
@@ -105,16 +98,22 @@ namespace ORCore
         // more to come
     };
 
-    class Events
+    class EventManager
     {
     public:
-        Events();
         void add_listener(Listener &listener);
         void remove_listener(Listener &listener);
         void broadcast_event(Event &event);
-        void process();
     private:
         std::vector<Listener*> m_listeners;
-        Event m_event;
+    };
+
+    class EventPumpSDL2
+    {
+    public:
+        EventPumpSDL2(EventManager *events);
+        void process();
+    private:
+        EventManager *m_events;
     };
 }

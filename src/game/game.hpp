@@ -50,7 +50,8 @@ private:
 
     std::unique_ptr<ORCore::Window> m_window;
     std::unique_ptr<ORCore::Context> m_context;
-    std::unique_ptr<ORCore::Events> m_events;
+    std::unique_ptr<ORCore::EventManager> m_eventManager;
+    std::unique_ptr<ORCore::EventPumpSDL2> m_eventPump;
     std::unique_ptr<ORCore::ShaderProgram> m_program;
 
     std::vector<ORCore::Mesh2D> m_meshes;

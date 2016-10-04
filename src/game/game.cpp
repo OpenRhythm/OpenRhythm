@@ -17,7 +17,8 @@ GameManager::GameManager()
 
     m_window = std::make_unique<ORCore::Window>(m_width, m_height, m_fullscreen, m_title);
     m_context = std::make_unique<ORCore::Context>(3, 2, 0);
-    m_events = std::make_unique<ORCore::Events>();
+    m_eventManager = std::make_unique<ORCore::EventManager>();
+    m_eventPump = std::make_unique<ORCore::EventPumpSDL2>(m_eventManager.get());
     m_running = true;
 
     m_logger = spdlog::get("default");
@@ -69,7 +70,7 @@ GameManager::GameManager()
     m_lis.mask = ORCore::EventType::EventAll;
 
 
-    m_events->add_listener(m_lis);
+    m_eventManager->add_listener(m_lis);
 
     m_fpsTime = 0.0;
 
@@ -115,7 +116,7 @@ void GameManager::start()
     while (m_running)
     {
         m_fpsTime += m_clock.tick();
-        m_events->process();
+        m_eventPump->process();
 
         update();
         render();
