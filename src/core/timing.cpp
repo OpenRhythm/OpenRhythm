@@ -10,7 +10,7 @@ namespace ORCore
 {
 
 #if defined(PLATFORM_WINDOWS)
-    double FpsTimer::get_time()
+    double Timer::get_time()
     {
         LARGE_INTEGER startingTime;
         QueryPerformanceCounter(&startingTime);
@@ -18,7 +18,7 @@ namespace ORCore
     }
 
 #elif defined(PLATFORM_LINUX)
-    double FpsTimer::get_time()
+    double Timer::get_time()
     {
         timespec mt;
         clock_gettime(CLOCK_MONOTONIC, &mt);
@@ -26,7 +26,7 @@ namespace ORCore
     }
 
 #elif defined(PLATFORM_OSX)
-    double FpsTimer::get_time()
+    double Timer::get_time()
     {
         mach_timespec_t mts;
         clock_get_time(m_cclock, &mts);
@@ -34,7 +34,7 @@ namespace ORCore
     }
 
 #else
-    double FpsTimer::get_time()
+    double Timer::get_time()
     {
         return 1.0;
     }
@@ -42,7 +42,7 @@ namespace ORCore
 #endif
 
 
-    FpsTimer::FpsTimer()
+    Timer::Timer()
     {
 
 #if defined(PLATFORM_OSX)
@@ -50,47 +50,43 @@ namespace ORCore
 #elif defined(PLATFORM_WINDOWS)
         QueryPerformanceFrequency(&m_frequency);
 #endif
-        m_frames = 1;
+        m_tickCount = 1;
         m_currentTime = get_time();
         m_previousTime = m_currentTime;
         m_startTime = m_currentTime;
-        m_delta = 0.0;
-        m_fpsTime = 0.0;
-        m_fps = 0.0f;
     }
 
-    FpsTimer::~FpsTimer()
+    Timer::~Timer()
     {
 #if defined(PLATFORM_OSX)
         mach_port_deallocate(mach_task_self(), m_cclock);
 #endif
     }
 
-    double FpsTimer::tick()
+    double Timer::tick()
     {
-        m_frames++;
+        m_tickCount++;
         m_previousTime = m_currentTime;
         m_currentTime = get_time();
 
-        m_delta = m_currentTime - m_previousTime;
-        m_fpsTime += m_delta;
-
-        return m_delta;
+        return m_currentTime - m_previousTime;
     }
 
-    double FpsTimer::get_current_time() {
+    double Timer::get_current_time() {
         return m_currentTime - m_startTime;
+    }
+
+    FpsTimer::FpsTimer()
+    :Timer()
+    {
+        m_fpsPreviousTime = m_currentTime-1; // prevent divide by 0 if get_fps() is called before tick()
     }
 
     double FpsTimer::get_fps()
     {
-        if (m_fpsTime == 0) {
-            m_fpsTime += 1;
-        }
-
-        m_fps = m_frames / m_fpsTime;
-        m_fpsTime = 0;
-        m_frames = 0;
-        return m_fps;
+        double fps = m_tickCount / (m_currentTime - m_fpsPreviousTime);
+        m_tickCount = 0;
+        m_fpsPreviousTime = m_currentTime;
+        return fps;
     }
 }

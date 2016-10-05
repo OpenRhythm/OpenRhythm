@@ -12,32 +12,36 @@
 
 namespace ORCore
 {
-    class FpsTimer
+    class Timer
     {
     public:
-        FpsTimer();
-        ~FpsTimer();
+        Timer();
+        virtual ~Timer();
         double tick();
         double get_current_time();
-        double get_fps();
 
-    private:
-        int m_frames;
+    protected:
+        int m_tickCount;
         double m_currentTime;
         double m_previousTime;
         double m_startTime;
-        double m_delta;
-        double m_fpsTime;
-        double m_fps;
+        double get_time();
 
+    private:
 #if defined(PLATFORM_WINDOWS)
         LARGE_INTEGER m_frequency;
 #elif defined(PLATFORM_OSX)
         clock_serv_t m_cclock;
 #endif
+    };
 
-        double get_time();
+    class FpsTimer: public Timer
+    {
+    public:
+        FpsTimer();
+        double get_fps();
 
-
+    private:
+        double m_fpsPreviousTime;
     };
 }
