@@ -24,7 +24,7 @@ public:
     GameManager();
     ~GameManager();
     void start();
-    bool event_handler(ORCore::Event &event);
+    bool event_handler(const ORCore::Event &event);
     void handle_song();
     void update();
     void prep_render_bars();

@@ -145,7 +145,7 @@ void GameManager::resize(int width, int height)
     }
 }
 
-bool GameManager::event_handler(ORCore::Event &event)
+bool GameManager::event_handler(const ORCore::Event &event)
 {
     ORCore::EventType type = event.type;
     switch(type) {

@@ -94,7 +94,7 @@ namespace ORCore
     {
         int id;
         EventType mask;
-        std::function<bool (Event&)> handler;
+        std::function<bool (const Event&)> handler;
         // more to come
     };
 
