@@ -108,6 +108,7 @@ include_directories(SYSTEM
     ${CMAKE_SOURCE_DIR}/extern/stb
     ${CMAKE_SOURCE_DIR}/extern/glad/include
     ${CMAKE_SOURCE_DIR}/extern/spdlog/include
+    ${CMAKE_SOURCE_DIR}/extern/readerwriterqueue
     ${FREETYPE_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
     ${OGG_INCLUDE_DIR}
