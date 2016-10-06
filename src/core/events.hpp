@@ -66,29 +66,93 @@ namespace ORCore
 
     };
 
-    union EventMan
-    {
-        MouseMoveEvent mouseMove;
-        WindowSizeEvent windowSized;
-        WindowCloseEvent windowClose;
-        KeyUpEvent keyUp;
-        KeyDownEvent keyDown;
-        QuitEvent quit;
-        EventMan(MouseMoveEvent mM) :mouseMove(mM) {};
-        EventMan(WindowSizeEvent wS) :windowSized(wS) {};
-        EventMan(WindowCloseEvent wC) :windowClose(wC) {};
-        EventMan(KeyUpEvent kUp) :keyUp(kUp) {};
-        EventMan(KeyDownEvent kDn) :keyDown(kDn) {};
-        EventMan(QuitEvent q) :quit(q) {};
-        EventMan() {};
-    };
-
+    // This is functionally works similar to boost::any but customized to the event system.
+    // Basically the idea is to use polymorphism and templates to store any type of data
+    // in the same object. We use this idea to deliver many different types of event structs
+    // within a single object.
+    // Also since this has a lot of template stuff in it, I decided to put the entire implementation
+    // in the header.
     struct Event
     {
         EventType type;
         float time;
-        EventMan event;
+        template<class Type> friend
+        Type event_cast(const Event&);
+
+        Event(Event&& other)
+        : ptr(std::move(other.ptr))
+        {
+            time = other.time;
+            type = other.type;
+            other.time = 0.0;
+            other.type = EventNone;
+        }
+
+        Event(const Event& other) {
+            if (other.ptr) {
+                ptr = other.ptr->clone();
+            }
+            time = other.time;
+            type = other.type;
+        }
+
+        Event& operator=(Event&& other) {
+            ptr = std::move(other.ptr);
+            time = other.time;
+            type = other.type;
+            other.time = 0.0;
+            other.type = EventNone;
+            return *this;
+        }
+
+        Event& operator=(const Event& other) {
+            ptr =  std::move(Event(other).ptr);
+            return *this;
+        }
+
+        Event()
+        : type(EventNone), time(0.0), ptr(nullptr)
+        {}
+
+        template<typename T>
+        Event(EventType eType, float eTime, const T& event)
+        : type(eType), time(eTime), ptr(new Concrete<T>(event))
+        {
+        }
+    private:
+        struct Placeholder
+        {
+            virtual ~Placeholder() {};
+            virtual std::unique_ptr<Placeholder> clone() = 0;
+        };
+
+        template<typename T>
+        struct Concrete : public Placeholder
+        {
+            Concrete(T&& x)
+            : value(std::move(x))
+            {}
+
+            Concrete(const T& x)
+            : value(x)
+            {}
+
+
+            virtual std::unique_ptr<Placeholder> clone()
+            {
+                return std::make_unique<Concrete>(value);
+            }
+
+            T value;
+        };
+        std::unique_ptr<Placeholder> ptr;
     };
+
+    // Used to get the event data out of the event.
+    template<class Type>
+    Type event_cast(const Event& val) {
+        return static_cast<Event::Concrete<Type>*>(val.ptr.get())->value;
+    }
 
     struct Listener
     {
@@ -103,7 +167,7 @@ namespace ORCore
     public:
         void add_listener(Listener &listener);
         void remove_listener(Listener &listener);
-        void broadcast_event(Event &event);
+        void broadcast_event(const Event &event);
     private:
         std::vector<Listener*> m_listeners;
     };

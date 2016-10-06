@@ -6,6 +6,8 @@
 namespace ORCore
 {
 
+    // Event Manager methods
+
     void EventManager::add_listener(Listener &listener)
     {
         static int id {0};
@@ -14,7 +16,6 @@ namespace ORCore
         listener.id = id;
 
         m_listeners.push_back(&listener);
-
     }
 
     void EventManager::remove_listener(Listener &listener)
@@ -25,19 +26,18 @@ namespace ORCore
         if (vecLoc != vecEnd) {
             m_listeners.erase(vecLoc);
         }
-
     }
 
-    void EventManager::broadcast_event(Event &event)
+    void EventManager::broadcast_event(const Event &event)
     {
         for (Listener *listener : m_listeners) {
             if ((listener->mask & event.type) != EventNone) {
                 listener->handler(event);
             }
         }
-
     }
 
+    // SDL Event Pump methods
 
     EventPumpSDL2::EventPumpSDL2(EventManager *events)
     : m_events(events)
@@ -70,7 +70,7 @@ namespace ORCore
                 }
             }
 
-            if (eventProcessed == true) {
+            if (eventProcessed) {
                 m_events->broadcast_event(eventContainer);
             }
 

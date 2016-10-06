@@ -147,21 +147,25 @@ void GameManager::resize(int width, int height)
 
 bool GameManager::event_handler(const ORCore::Event &event)
 {
-    ORCore::EventType type = event.type;
-    switch(type) {
-        case ORCore::EventType::Quit:
+    switch(event.type) {
+        case ORCore::Quit: {
             m_running = false;
             break;
-        case ORCore::EventType::MouseMove:
-            m_mouseX = event.event.mouseMove.x;
-            m_mouseY = event.event.mouseMove.y;
+        }
+        case ORCore::MouseMove: {
+            auto ev = ORCore::event_cast<ORCore::MouseMoveEvent>(event);
+            std::cout << "mouse x: " << ev.x << " mouse y" << ev.y << std::endl;
+            m_mouseX = ev.x;
+            m_mouseY = ev.y;
             break;
-        case ORCore::EventType::WindowSized:
-            resize(event.event.windowSized.width, event.event.windowSized.height);
+        }
+        case ORCore::WindowSized: {
+            auto ev = ORCore::event_cast<ORCore::WindowSizeEvent>(event);
+            resize(ev.width, ev.height);
             break;
+        }
         default:
             break;
-
     }
     return true;
 }
