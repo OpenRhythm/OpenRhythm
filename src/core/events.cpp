@@ -65,7 +65,7 @@ namespace ORCore
                     eventProcessed = true;
                 }
                 else if (winEvent.event == SDL_WINDOWEVENT_RESIZED) {
-                    eventContainer = Event{WindowSized, 0.0, WindowSizeEvent{winEvent.windowID, winEvent.data1, winEvent.data2}};
+                    eventContainer = Event{WindowSize, 0.0, WindowSizeEvent{winEvent.windowID, winEvent.data1, winEvent.data2}};
                     eventProcessed = true;
                 }
             }
