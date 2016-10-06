@@ -145,13 +145,14 @@ namespace ORCore
 
             T value;
         };
+
         std::unique_ptr<Placeholder> ptr;
     };
 
     // Used to get the event data out of the event.
-    template<class Type>
-    Type event_cast(const Event& val) {
-        return static_cast<Event::Concrete<Type>*>(val.ptr.get())->value;
+    template<typename T>
+    T event_cast(const Event& val) {
+        return static_cast<Event::Concrete<T>*>(val.ptr.get())->value;
     }
 
     struct Listener
