@@ -17,10 +17,10 @@ namespace ORCore
         Quit         = 1 << 0,
         MouseMove    = 1 << 1,
         WindowClose  = 1 << 2,
-        WindowSized  = 1 << 3,
+        WindowSize  = 1 << 3,
         KeyUp        = 1 << 4,
         KeyDown      = 1 << 5,
-        EventAll = Quit | MouseMove | WindowClose | WindowSized | KeyUp | KeyDown
+        EventAll = Quit | MouseMove | WindowClose | WindowSize | KeyUp | KeyDown
     };
 
 
