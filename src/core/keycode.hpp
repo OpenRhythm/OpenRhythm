@@ -118,7 +118,7 @@ namespace ORCore
         KEY_RIGHT_SUPER
     };
 
-    enum class ModFlag
+    enum ModFlag
     {
         MOD_NONE            = 0,
         MOD_LEFT_SHIFT      = 1 << 0,
@@ -133,31 +133,19 @@ namespace ORCore
         MOD_CAPS            = 1 << 9,
     };
 
-    using underlying = std::underlying_type<ModFlag>::type;
-
-    static ModFlag operator|(const ModFlag& left, const ModFlag& right)
-    {
-        return static_cast<ModFlag>(static_cast<underlying>(left) | static_cast<underlying>(right));
-    }
-
-    static ModFlag operator&(const ModFlag& left, const ModFlag& right)
-    {
-        return static_cast<ModFlag>(static_cast<underlying>(left) & static_cast<underlying>(right));
-    }
-
 
     static std::map<int, ModFlag> modMap {
-        {KMOD_NONE, ModFlag::MOD_NONE},
-        {KMOD_LSHIFT, ModFlag::MOD_LEFT_SHIFT},
-        {KMOD_RSHIFT, ModFlag::MOD_RIGHT_SHIFT},
-        {KMOD_LCTRL, ModFlag::MOD_LEFT_CTRL},
-        {KMOD_RCTRL, ModFlag::MOD_RIGHT_CTRL},
-        {KMOD_LALT, ModFlag::MOD_LEFT_ALT},
-        {KMOD_RALT, ModFlag::MOD_RIGHT_ALT},
-        {KMOD_LGUI, ModFlag::MOD_LEFT_SUPER},
-        {KMOD_RGUI, ModFlag::MOD_RIGHT_SUPER},
-        {KMOD_NUM, ModFlag::MOD_NUM},
-        {KMOD_CAPS, ModFlag::MOD_CAPS}};
+        {KMOD_NONE, MOD_NONE},
+        {KMOD_LSHIFT, MOD_LEFT_SHIFT},
+        {KMOD_RSHIFT, MOD_RIGHT_SHIFT},
+        {KMOD_LCTRL, MOD_LEFT_CTRL},
+        {KMOD_RCTRL, MOD_RIGHT_CTRL},
+        {KMOD_LALT, MOD_LEFT_ALT},
+        {KMOD_RALT, MOD_RIGHT_ALT},
+        {KMOD_LGUI, MOD_LEFT_SUPER},
+        {KMOD_RGUI, MOD_RIGHT_SUPER},
+        {KMOD_NUM, MOD_NUM},
+        {KMOD_CAPS, MOD_CAPS}};
 
 
     static std::map<int, KeyCode> keyMap {

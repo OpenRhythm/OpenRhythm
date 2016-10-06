@@ -58,6 +58,12 @@ namespace ORCore
             } else if (sdlevent.type == SDL_MOUSEMOTION) {
                 eventContainer = Event{MouseMove, 0.0, MouseMoveEvent{sdlevent.motion.x, sdlevent.motion.y}};
                 eventProcessed = true;
+            } else if (sdlevent.type == SDL_KEYDOWN) {
+                eventContainer = Event{KeyDown, 0.0, KeyDownEvent{keyMap[sdlevent.key.keysym.scancode], static_cast<ModFlag>(sdlevent.key.keysym.mod)}};
+                eventProcessed = true;
+            } else if (sdlevent.type == SDL_KEYUP) {
+                eventContainer = Event{KeyUp, 0.0, KeyUpEvent{keyMap[sdlevent.key.keysym.scancode], static_cast<ModFlag>(sdlevent.key.keysym.mod)}};
+                eventProcessed = true;
             } else if (sdlevent.type == SDL_WINDOWEVENT) {
                 const SDL_WindowEvent winEvent = sdlevent.window;
                 if (winEvent.event == SDL_WINDOWEVENT_CLOSE) {
