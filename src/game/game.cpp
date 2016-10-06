@@ -159,7 +159,7 @@ bool GameManager::event_handler(const ORCore::Event &event)
             m_mouseY = ev.y;
             break;
         }
-        case ORCore::WindowSized: {
+        case ORCore::WindowSize: {
             auto ev = ORCore::event_cast<ORCore::WindowSizeEvent>(event);
             resize(ev.width, ev.height);
             break;
