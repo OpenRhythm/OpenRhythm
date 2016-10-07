@@ -164,6 +164,17 @@ bool GameManager::event_handler(const ORCore::Event &event)
             resize(ev.width, ev.height);
             break;
         }
+        case ORCore::KeyDown: {
+            auto ev = ORCore::event_cast<ORCore::KeyDownEvent>(event);
+            switch(ev.key) {
+                case ORCore::KeyCode::KEY_F:
+                    std::cout << "Key F" << std::endl;
+                    break;
+                default:
+                    std::cout << "Other Key" << std::endl;
+                    break;
+            }
+        }
         default:
             break;
     }
