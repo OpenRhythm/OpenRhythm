@@ -90,9 +90,9 @@ namespace ORCore
 
     struct MidiEvent
     {
-    	SmfEventInfo info;
-    	uint8_t message;
-    	uint8_t channel;
+        SmfEventInfo info;
+        uint8_t message;
+        uint8_t channel;
         uint8_t data1;
         uint8_t data2;
     };
@@ -115,18 +115,18 @@ namespace ORCore
         SmfEventInfo info;
         int numerator;
         int denominator;
-        int ticksPerBeat;
+        int clocksPerBeat;
         int thirtySecondPQN;
     };
 
     struct SmfTrack
     {
-    	std::string name;
+        std::string name;
         float seconds;
-    	std::vector<MidiEvent> midiEvents;
-    	std::vector<TextEvent> textEvents;
-    	std::vector<TempoEvent> tempo;
-    	std::vector<TimeSignatureEvent> timeSigEvents;
+        std::vector<MidiEvent> midiEvents;
+        std::vector<TextEvent> textEvents;
+        std::vector<TempoEvent> tempo;
+        std::vector<TimeSignatureEvent> timeSigEvents;
     };
 
     class SmfReader
@@ -142,6 +142,7 @@ namespace ORCore
         std::istringstream m_smfFile;
         SmfTrack *m_currentTrack;
         SmfTrack *m_tempoTrack;
+        SmfTrack *m_timeSigTrack;
         TempoEvent* m_currentTempoEvent;
         uint32_t readVarLen();
         void readMidiEvent(SmfEventInfo &event);

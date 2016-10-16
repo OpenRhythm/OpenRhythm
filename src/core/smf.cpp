@@ -15,7 +15,7 @@ namespace ORCore
     uint32_t SmfReader::readVarLen()
     {
         uint8_t c = ORCore::read_type<uint8_t>(m_smfFile);
-        uint32_t value = c & 0x7F;
+        uint32_t value = static_cast<uint32_t>(c & 0x7F);
 
         if (c & 0x80) {
 
@@ -34,8 +34,8 @@ namespace ORCore
 
         MidiEvent midiEvent;
         midiEvent.info = event;
-        midiEvent.message = event.status & 0xF0;
-        midiEvent.channel = event.status & 0xF;
+        midiEvent.message = static_cast<uint8_t>(event.status & 0xF0);
+        midiEvent.channel = static_cast<uint8_t>(event.status & 0xF);
         midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile);
         midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile);
 
@@ -96,6 +96,8 @@ namespace ORCore
             case meta_EndOfTrack:
             {
                 // TODO - We might be able to use this for some purpose.
+                // Actually yeah, this will be needed for proper bpm marking.
+                // That way we can mark bpm until the end of a track
                 m_logger->trace("End of Track {}", m_currentTrack->name);
                 break;
             }
@@ -104,6 +106,9 @@ namespace ORCore
                 uint32_t qnLength = read_type<uint32_t>(m_smfFile, 3);
                 double ppqn = qnLength/static_cast<double>(m_header.division);
                 m_currentTrack->tempo.push_back({event, qnLength, ppqn});
+                if (m_tempoTrack == nullptr || m_header.format != smfType1) {
+                    m_tempoTrack = m_currentTrack;
+                }
                 break;
             }
             case meta_TimeSignature:  // TODO - Implement this...
@@ -112,18 +117,22 @@ namespace ORCore
                 tsEvent.numerator = ORCore::read_type<uint8_t>(m_smfFile); // 4 default
                 tsEvent.denominator = std::pow(2, ORCore::read_type<uint8_t>(m_smfFile)); // 4 default
 
-                tsEvent.ticksPerBeat = ORCore::read_type<uint8_t>(m_smfFile); // Standard is 24
+                // This should be used to scale each beat for compound time signatures.
+                tsEvent.clocksPerBeat = ORCore::read_type<uint8_t>(m_smfFile); // Standard is 24
 
-                // The number of 1/32nd notes per quarter note
+                // The number of 1/32nd notes per quarter note not quite sure of its use yet.
                 tsEvent.thirtySecondPQN = ORCore::read_type<uint8_t>(m_smfFile); // 8 default
 
                 m_logger->trace("Time signature  {}/{} CPC: {} TSPQN: {}",
                                     tsEvent.numerator,
                                     tsEvent.denominator,
-                                    tsEvent.ticksPerBeat,
+                                    tsEvent.clocksPerBeat,
                                     tsEvent.thirtySecondPQN);
 
                 m_currentTrack->timeSigEvents.push_back(tsEvent);
+                if (m_timeSigTrack == nullptr || m_header.format != smfType1) {
+                    m_timeSigTrack = m_currentTrack;
+                }
 
                 break;
             }
@@ -135,6 +144,7 @@ namespace ORCore
             case meta_SequencerSpecific:
             default:
             {
+                m_logger->info("Unused event type {}.", event.type);
                 m_smfFile.seekg(length, std::ios::cur);
                 break;
             }
@@ -165,6 +175,9 @@ namespace ORCore
 
             event.deltaPulses = readVarLen();
 
+            // DO NOT use this for time calculations.
+            // You must convert each deltaPulse to a time
+            // within the currently active tempo.
             pulseTime += event.deltaPulses;
 
             event.pulseTime = pulseTime;
@@ -175,7 +188,6 @@ namespace ORCore
                 currentRunningTimeSec += conv_abstime(event.deltaPulses);
                 event.absTime = currentRunningTimeSec;
             }
-
             auto status = ORCore::peek_type<uint8_t>(m_smfFile);
 
             if (status == status_MetaEvent) {
@@ -196,8 +208,7 @@ namespace ORCore
                 prevStatus = event.status;
             }
 
-
-            if (pulseTime != 0 && m_tempoTrack->tempo.size() == 0) {
+            if (pulseTime != 0 && (m_tempoTrack == nullptr || m_tempoTrack->tempo.size() == 0)) {
 
                 m_logger->info("No tempo change at deltatime 0 setting default of 120 BPM.");
 
@@ -210,22 +221,37 @@ namespace ORCore
                 tempoEvent.pulseTime = 0;
                 tempoEvent.absTime = 0.0;
 
+                if (m_tempoTrack == nullptr) {
+                    if (m_header.format != smfType1) {
+                        m_tempoTrack = m_currentTrack;
+                    } else {
+                        m_tempoTrack = &m_tracks.front();
+                    }
+                }
+
                 m_tempoTrack->tempo.push_back({tempoEvent, 500000}); // last value is ppqn
             }
-
-            if (pulseTime != 0 && m_tempoTrack->timeSigEvents.size() == 0) {
+            if (pulseTime != 0 && (m_tempoTrack == nullptr || m_timeSigTrack->timeSigEvents.size() == 0)) {
 
                 m_logger->info("No time signature change at deltatime 0 setting default of 4/4.");
 
                 TimeSignatureEvent tsEvent;
                 tsEvent.numerator = 4;
                 tsEvent.denominator = 4;
-                tsEvent.ticksPerBeat = 24;
+                tsEvent.clocksPerBeat = 24;
                 tsEvent.thirtySecondPQN = 8;
 
-                m_tempoTrack->timeSigEvents.push_back(tsEvent);
+                if (m_timeSigTrack == nullptr) {
+                    if (m_header.format != smfType1) {
+                        m_timeSigTrack = m_currentTrack;
+                    } else {
+                        m_timeSigTrack = &m_tracks.front();
+                    }
+                }
+
+                m_timeSigTrack->timeSigEvents.push_back(tsEvent);
             }
-            if (pulseTime != 0 || m_tempoTrack->tempo.size() != 0) {
+            if (pulseTime != 0 || (m_tempoTrack != nullptr && m_tempoTrack->tempo.size() != 0)) {
                 m_currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
             }
         }
@@ -266,6 +292,7 @@ namespace ORCore
             chunk.length = ORCore::read_type<uint32_t>(m_smfFile);
             chunkEnd = chunkStart + (8 + chunk.length); // 8 is the length of the type + length fields
 
+            m_logger->trace("chunk of type {} detected.", chunk.chunkType);
             // MThd chunk is only in the beginning of the file.
             if (chunkStart == fileStart && strcmp(chunk.chunkType, "MThd") == 0) {
                 // Load header chunk
@@ -290,13 +317,6 @@ namespace ORCore
                 trackChunkCount += 1;
                 m_tracks.emplace_back();
                 m_currentTrack = &m_tracks.back();
-
-                // Make sure that for midi type 0 and type 2 the tempoTrack is
-                // changing with m_currentTrack.
-                if (m_header.format != smfType1 || trackChunkCount == 1) {
-                    m_tempoTrack = m_currentTrack;
-                }
-
                 readEvents(chunkEnd);
 
             } else {
@@ -310,7 +330,8 @@ namespace ORCore
             // If not seek to the correct location and output an error in the log.
             if (static_cast<int>(m_smfFile.tellg()) != filePos) {
                 m_logger->warn("Offset for chunk '{}' incorrect, seeking to correct location.", chunk.chunkType);
-                m_smfFile.seekg(filePos);
+                m_logger->warn("Offset difference. expected: '{}' actual: '{}'", m_smfFile.tellg(), filePos);
+                //m_smfFile.seekg(filePos);
             }
             fileRemaining = (fileEnd-filePos);
             if (fileRemaining != 0 && fileRemaining <= 8) {
@@ -325,6 +346,7 @@ namespace ORCore
     }
 
     SmfReader::SmfReader(std::string filename)
+    :m_tempoTrack(nullptr), m_timeSigTrack(nullptr)
     {
         m_logger = spdlog::get("default");
         m_logger->info("Loading MIDI");
@@ -352,8 +374,7 @@ namespace ORCore
     TempoEvent* SmfReader::getLastTempoIdViaPulses(uint32_t pulseTime)
     {
         static unsigned int value = 0;
-        SmfTrack &tempoTrack = m_tracks.front();
-        std::vector<TempoEvent> &tempos = tempoTrack.tempo;
+        std::vector<TempoEvent> &tempos = m_tempoTrack->tempo;
 
         static uint32_t lastPulseTime = 0;
 
