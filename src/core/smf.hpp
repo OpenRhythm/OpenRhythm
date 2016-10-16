@@ -9,6 +9,8 @@
 #include <sstream>
 #include <spdlog/spdlog.h>
 
+#include "parseutils.hpp"
+
 namespace ORCore
 {
     enum MidiMetaEvent: uint8_t
@@ -139,7 +141,7 @@ namespace ORCore
         typedef std::unique_ptr<SmfTrack> t_SmfTrackPtr;
         std::vector<SmfTrack> m_tracks;
         SmfHeaderChunk m_header;
-        std::istringstream m_smfFile;
+        FileBuffer m_smfFile;
         SmfTrack *m_currentTrack;
         SmfTrack *m_tempoTrack;
         SmfTrack *m_timeSigTrack;

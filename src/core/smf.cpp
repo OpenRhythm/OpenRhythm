@@ -8,7 +8,6 @@
 #include <cmath>
 
 #include "smf.hpp"
-#include "parseutils.hpp"
 
 namespace ORCore
 {
@@ -145,7 +144,7 @@ namespace ORCore
             default:
             {
                 m_logger->info("Unused event type {}.", event.type);
-                m_smfFile.seekg(length, std::ios::cur);
+                m_smfFile.set_pos_rel(length);
                 break;
             }
         }
@@ -154,8 +153,8 @@ namespace ORCore
     void SmfReader::readSysExEvent(SmfEventInfo &event)
     {
         auto length = readVarLen();
-        m_logger->info("sysex even at position {}", m_smfFile.tellg());
-        m_smfFile.seekg(length, std::ios::cur);
+        m_logger->info("sysex even at position {}", m_smfFile.get_pos());
+        m_smfFile.set_pos_rel(length);
     }
 
     double SmfReader::conv_abstime(uint32_t deltaPulses)
@@ -169,7 +168,7 @@ namespace ORCore
         uint8_t prevStatus = 0;
         double currentRunningTimeSec = 0;
 
-        while (m_smfFile.tellg() < chunkEnd)
+        while (m_smfFile.get_pos() < chunkEnd)
         {
             SmfEventInfo event;
 
@@ -260,14 +259,9 @@ namespace ORCore
 
     void SmfReader::readFile()
     {
-        // seek to the end in order to get the fileSize.
-        m_smfFile.seekg(0, std::ios::end);
-        int fileEnd = static_cast<int>(m_smfFile.tellg());
+        int fileEnd = static_cast<int>(m_smfFile.get_size());
 
-        // Now we go back to the beginning and begin reading the file
-        m_smfFile.seekg(0, std::ios::beg);
-
-        int fileStart = static_cast<int>(m_smfFile.tellg());
+        int fileStart = static_cast<int>(m_smfFile.get_pos());
         int filePos = fileStart;
         int fileRemaining = fileEnd;
 
@@ -328,10 +322,10 @@ namespace ORCore
 
             // Make sure that we are in the correct location in the chunk
             // If not seek to the correct location and output an error in the log.
-            if (static_cast<int>(m_smfFile.tellg()) != filePos) {
+            if (static_cast<int>(m_smfFile.get_pos()) != filePos) {
                 m_logger->warn("Offset for chunk '{}' incorrect, seeking to correct location.", chunk.chunkType);
-                m_logger->warn("Offset difference. expected: '{}' actual: '{}'", m_smfFile.tellg(), filePos);
-                //m_smfFile.seekg(filePos);
+                m_logger->warn("Offset difference. expected: '{}' actual: '{}'", m_smfFile.get_pos(), filePos);
+                m_smfFile.set_pos(filePos);
             }
             fileRemaining = (fileEnd-filePos);
             if (fileRemaining != 0 && fileRemaining <= 8) {
@@ -346,51 +340,33 @@ namespace ORCore
     }
 
     SmfReader::SmfReader(std::string filename)
-    :m_tempoTrack(nullptr), m_timeSigTrack(nullptr)
+    :m_tempoTrack(nullptr), m_timeSigTrack(nullptr), m_logger(spdlog::get("default"))
     {
-        m_logger = spdlog::get("default");
         m_logger->info("Loading MIDI");
 
-        std::ifstream smfFile(filename, std::ios_base::ate | std::ios_base::binary);
-
-        if (smfFile) {
-            std::string contents;
-            auto size = smfFile.tellg();
-            smfFile.seekg(0, std::ios::beg);
-            contents.resize(size);
-            smfFile.read(&contents[0], size);
-            smfFile.close();
-            m_smfFile.str(contents);
-        } else {
+        try {
+            m_smfFile.load(filename);
+        } catch (std::runtime_error &err) {
             throw std::runtime_error("Failed to load MIDI file.");
         }
 
         readFile();
-        // Release midifile data after we are finished reading.
-        m_smfFile.str( std::string() );
-        m_smfFile.clear();
     }
 
     TempoEvent* SmfReader::getLastTempoIdViaPulses(uint32_t pulseTime)
     {
         static unsigned int value = 0;
-        std::vector<TempoEvent> &tempos = m_tempoTrack->tempo;
-
         static uint32_t lastPulseTime = 0;
+
+        std::vector<TempoEvent> &tempos = m_tempoTrack->tempo;
 
         // Ignore the cached last tempo value if the new pulse time is older.
         if (lastPulseTime > pulseTime) {
-            //m_logger->trace("Reset tempo id from: {}", value);
             value = 0;
         }
 
-        for (unsigned int i = 0; i < tempos.size(); i++) {
-            // Restore tempo to previous value
-            if (i < value) {
-                //m_logger->trace("Restored tempo id to: {}", value);
-                i = value;
-            }
-            if (tempos[i].info.pulseTime >=pulseTime) {
+        for (unsigned int i = value; i < tempos.size(); i++) {
+            if (tempos[i].info.pulseTime >= pulseTime) {
                 value = i;
                 lastPulseTime = pulseTime;
                 return &tempos[i];
@@ -398,7 +374,6 @@ namespace ORCore
         }
         // return last value if nothing else is found
         return &tempos.back();
-
     }
 
     std::vector<SmfTrack*> SmfReader::getTracks()
