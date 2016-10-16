@@ -1,6 +1,9 @@
 #pragma once
 #include <fstream>
 #include <cstdint>
+#include <cstdint>
+#include <string>
+#include <vector>
 #include <stdexcept>
 
 namespace ORCore
