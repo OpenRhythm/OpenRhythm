@@ -22,7 +22,7 @@ if(MSVC)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     add_definitions("-Wall")
     # Clean unused sections on link
-    add_definitions (" -ffunction-sections -fdata-sections -Wl,--gc-sections")
+    add_definitions("-ffunction-sections -fdata-sections -Wl,--gc-sections")
 endif()
 
 ####################################################################
@@ -142,7 +142,6 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/input.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/stream.hpp

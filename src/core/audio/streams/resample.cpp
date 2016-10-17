@@ -5,9 +5,9 @@
 ResamplerStream::ResamplerStream(AudioStream *inputStream, int quality)
 : AudioStream(inputStream) {
     int error = 0;
-    m_src_state = src_new (quality, this->getChannelCount(), &error) ;
+    m_src_state = src_new(quality, this->getChannelCount(), &error);
     if (!m_src_state) {
-        throw std::runtime_error("Failed to init LibSampleRate");
+        throw std::runtime_error(std::string("Failed to init LibSampleRate: ") + src_strerror(error));
     }
 }
 
@@ -24,14 +24,11 @@ void ResamplerStream::setOutputSampleRate(double samplerate_out_) {
     sampleRatio = samplerate_out / samplerate_in;
 }
 
-void ResamplerStream::init() {
-    // TODO remove as it may not be necessary after all
-}
-
 int ResamplerStream::process(int frameCount) {
     // Ask more frames to the input stream
     int inputFramesMax = frameCount * sampleRatio + 1;
     m_inputStream->process(inputFramesMax);
+
     m_outputBuffer.resize(frameCount * getChannelCount());
 
     m_src_data.data_in = m_inputStream->getFilledOutputBuffer()->data();
@@ -41,9 +38,9 @@ int ResamplerStream::process(int frameCount) {
     m_src_data.end_of_input = 0;
     m_src_data.src_ratio    = 48000.0/44100.0;
 
-    int src_process_state = src_process(m_src_state, &m_src_data);
-    if (src_process_state != 0) {
-        throw std::runtime_error(src_strerror(src_process_state));
+    int error = src_process(m_src_state, &m_src_data);
+    if (error != 0) {
+        throw std::runtime_error(std::string("LibSampleRate error: ") + src_strerror(error));
     }
 
     return m_src_data.output_frames_gen;

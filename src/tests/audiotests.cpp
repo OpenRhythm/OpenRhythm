@@ -5,6 +5,8 @@
 #include "core/audio/streams/resample.hpp"
 #include "core/audio/output/soundio.hpp"
 
+#include <chrono>
+#include <thread>
 
 #define OggTestFile "TestOgg.ogg"
 
@@ -33,11 +35,6 @@ int main(int argc, char const *argv[]) {
     }
 
 
-    auto soundOutput = new ORCore::SoundIoOutput();
-    soundOutput->connect_default_output_device();
-    soundOutput->open_stream();
-
-
     // We should use a smart pointer raw new/delete is considered bad style nowdays.
     ORCore::VorbisInput *mysong;
     try {
@@ -47,17 +44,25 @@ int main(int argc, char const *argv[]) {
         std::cout << "opening ogg vorbis file failed: " << err.what() << std::endl;
     }
 
-    std::cout << "####################" << std::endl;
-    //mysong->getInfo();
+    int songSampleRate = mysong->getSampleRate();
+    int outputSampleRate = 44100;
+
+    logger->info("SongSampleRate: {}", songSampleRate);
+
+
+    auto soundOutput = new ORCore::SoundIoOutput();
+    soundOutput->connect_default_output_device();
+    soundOutput->open_stream_with_sample_rate(outputSampleRate);
 
     auto *resamplerstream =
         new ResamplerStream(mysong, SRC_SINC_MEDIUM_QUALITY);
+    resamplerstream->setInputSampleRate(songSampleRate);
+    resamplerstream->setOutputSampleRate(outputSampleRate);
+
 
     soundOutput->add_stream(resamplerstream);
-
-    for (;;)
-        soundOutput->wait_events();
-
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    soundOutput->destroy();
     soundOutput->disconnect_device();
 
 

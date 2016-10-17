@@ -24,6 +24,16 @@ namespace ORCore {
         m_logger = spdlog::get("default");
     }
 
+    int VorbisInput::getBitDepth() {
+        return 16;
+    }
+    int VorbisInput::getChannelCount() {
+        return m_info->channels;
+    }
+    int VorbisInput::getSampleRate() {
+        return m_info->rate;
+    }
+
     void VorbisInput::open() {
         int vorbisError = ov_fopen(m_filename.c_str(), &m_vorbisFile);
 
@@ -44,13 +54,6 @@ namespace ORCore {
         ov_clear(&m_vorbisFile);
     }
 
-    int VorbisInput::getSampleRate() {
-        return m_info->rate;
-    }
-
-    int VorbisInput::getChannelCount() {
-        return m_info->channels;
-    }
 
     double VorbisInput::getPosition() {
         return m_position;

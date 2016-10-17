@@ -66,7 +66,7 @@ namespace ORCore {
             soundio_destroy(soundio);
     }
 
-    void SoundIoOutput::open_stream(SoundIoFormat format, int sample_rate, double latency) {
+    void SoundIoOutput::open_stream(int sample_rate, double latency, SoundIoFormat format) {
         if (device == nullptr) {
             throw std::runtime_error("Error while opening libsoundiostream : the device is not yet set !");
         }

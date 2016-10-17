@@ -31,6 +31,9 @@ public:
 
     AudioBuffer *getFilledOutputBuffer() { return &m_outputBuffer; };
 
+    // Has to be called by the downstream to fill the buffer with frames
+    // before accessing them
+    // @return if this is the end of the stream
     virtual int process(int frameCount) = 0;
     // Should not change. Thus, defined in constructor ?
     virtual int getChannelCount() {
@@ -45,9 +48,8 @@ public:
 
 protected:
     AudioStream *m_inputStream;
-    AudioBuffer *m_inputBuffer;
-    AudioBuffer m_outputBuffer;
 
+    AudioBuffer m_outputBuffer;
 
 }; // class AudioStream
 

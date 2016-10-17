@@ -23,11 +23,11 @@ namespace ORCore {
         // @filename the absolute or relative file path
         VorbisInput(const std::string filename);
         // @inherit
-        virtual int getSampleRate();
-        // @inherit
-        virtual int getBitDepth() { return 16; };
+        virtual int getBitDepth();
         // @inherit
         virtual int getChannelCount();
+        // @inherit
+        virtual int getSampleRate();
         // @inherit
         virtual double getPosition();
         // @inherit

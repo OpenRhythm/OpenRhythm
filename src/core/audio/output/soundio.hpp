@@ -22,14 +22,26 @@ namespace ORCore {
        ~SoundIoOutput();
 
         // Opens a stream using the current output device, sample rate and latency
-        void open_stream(SoundIoFormat format = DEFAULT_SOUNDIO_FORMAT,
-                         int sample_rate = DEFAULT_SOUNDIO_SAMPLERATE,
-                         double latency = DEFAULT_SOUNDIO_LATENCY);
+        void open_stream(int sample_rate = DEFAULT_SOUNDIO_SAMPLERATE,
+                         double latency = DEFAULT_SOUNDIO_LATENCY,
+                         SoundIoFormat format = DEFAULT_SOUNDIO_FORMAT);
+        void open_stream_with_sample_rate(int sample_rate) {
+             open_stream(sample_rate, DEFAULT_SOUNDIO_LATENCY, DEFAULT_SOUNDIO_FORMAT);
+        }
+        void open_stream_with_latency(double latency) {
+            open_stream(DEFAULT_SOUNDIO_SAMPLERATE, latency,   DEFAULT_SOUNDIO_FORMAT);
+        }
 
         void add_stream(AudioStream *stream);
 
         // Closes the stream
         void close_stream();
+        void destroy() {
+            soundio_destroy(soundio);
+        }
+        void flush_events() {
+            soundio_flush_events(soundio);
+        }
 
 
         // To call at the start of the app. Initializes *device.
