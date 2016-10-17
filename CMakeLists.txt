@@ -21,10 +21,7 @@ if(MSVC)
     add_definitions("/W4")
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     add_definitions("-Wall")
-endif()
-
-# Clean unused sections on link
-if(CMAKE_COMPILER_IS_GNUXX)
+    # Clean unused sections on link
     add_definitions (" -ffunction-sections -fdata-sections -Wl,--gc-sections")
 endif()
 
