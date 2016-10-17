@@ -4,47 +4,50 @@
 
 #include "stream.hpp"
 
-// enum SampleRateQuality {
-//     SRC_SINC_BEST_QUALITY       = 0,
-//     SRC_SINC_MEDIUM_QUALITY     = 1,
-//     SRC_SINC_FASTEST            = 2,
-//     SRC_ZERO_ORDER_HOLD         = 3,
-//     SRC_LINEAR                  = 4
-// };
+namespace ORCore {
 
-#define DEFAULT_SAMPLERATE_QUALITY SRC_SINC_MEDIUM_QUALITY
-#define DEFAULT_SAMPLERATE_SAMPLERATE 44100.0
+    // enum SampleRateQuality {
+    //     SRC_SINC_BEST_QUALITY       = 0,
+    //     SRC_SINC_MEDIUM_QUALITY     = 1,
+    //     SRC_SINC_FASTEST            = 2,
+    //     SRC_ZERO_ORDER_HOLD         = 3,
+    //     SRC_LINEAR                  = 4
+    // };
 
-class ResamplerStream: public AudioStream {
-public:
-    ResamplerStream(AudioStream *inputStream, int quality);
-    ResamplerStream(AudioStream *inputStream)
-    : ResamplerStream(inputStream, DEFAULT_SAMPLERATE_QUALITY) {}
-    ~ResamplerStream();
+    #define DEFAULT_SAMPLERATE_QUALITY SRC_SINC_MEDIUM_QUALITY
+    #define DEFAULT_SAMPLERATE_SAMPLERATE 44100.0
 
-    void setInputSampleRate(double samplerate_in);
-    void setOutputSampleRate(double samplerate_out);
+    class ResamplerStream: public AudioStream {
+    public:
+        ResamplerStream(AudioStream *inputStream, int quality);
+        ResamplerStream(AudioStream *inputStream)
+        : ResamplerStream(inputStream, DEFAULT_SAMPLERATE_QUALITY) {}
+        ~ResamplerStream();
 
-    int process(int frameCount);
+        void setInputSampleRate(double samplerate_in);
+        void setOutputSampleRate(double samplerate_out);
 
-protected:
-    double samplerate_in = DEFAULT_SAMPLERATE_SAMPLERATE;
-    double samplerate_out= DEFAULT_SAMPLERATE_SAMPLERATE;
-    double sampleRatio = samplerate_out / samplerate_in;
+        int process(int frameCount);
 
-    SRC_STATE* m_src_state = nullptr;
-    SRC_DATA   m_src_data = {
-        nullptr,// *data_in,
-        nullptr,// *data_out ;
-        0,      // input_frames,
-        0,      // output_frames ;
-        0,      // input_frames_used,
-        0,      // output_frames_gen ;
-        0,      // end_of_input ;
-        1,      // src_ratio ;
+    protected:
+        double samplerate_in = DEFAULT_SAMPLERATE_SAMPLERATE;
+        double samplerate_out= DEFAULT_SAMPLERATE_SAMPLERATE;
+        double sampleRatio = samplerate_out / samplerate_in;
+
+        SRC_STATE* m_src_state = nullptr;
+        SRC_DATA   m_src_data = {
+            nullptr,// *data_in,
+            nullptr,// *data_out ;
+            0,      // input_frames,
+            0,      // output_frames ;
+            0,      // input_frames_used,
+            0,      // output_frames_gen ;
+            0,      // end_of_input ;
+            1,      // src_ratio ;
+        };
+
     };
 
-};
-
+} // namespace ORCore
 
 #endif // RESAMPLE_HPP

@@ -60,23 +60,21 @@ namespace ORCore {
     }
 
     int VorbisInput::process(int frameCount) {
-        m_outputBuffer.resize(frameCount * getChannelCount());
-
-        int framesSaved = 0;
         float **p_decodedFrames; // This will point on the decoded frames
-        do {
+        while (m_framesInBuffer < frameCount) {
             int framesDecoded = ov_read_float(&m_vorbisFile, &p_decodedFrames,
-                frameCount - framesSaved, &currentSection);
+                frameCount - m_framesInBuffer, &currentSection);
 
             if (framesDecoded < 0)
                 throw std::runtime_error(errorCodeMap[framesDecoded]);
 
 
             // TODO a solution valid for any channel count ?
-            for (int i = 0; i < framesDecoded; ++i) {
-                m_outputBuffer[framesSaved*getChannelCount() + 0] = p_decodedFrames[0][i];
-                m_outputBuffer[framesSaved*getChannelCount() + 1] = p_decodedFrames[1][i];
-                framesSaved++;
+            for (int f = 0; f < framesDecoded; ++f) {
+                for (int c = 0; c < getChannelCount(); ++c) {
+                    m_outputBuffer.push_back(p_decodedFrames[c][f]);
+                }
+                m_framesInBuffer++;
             }
 
             // End of file, stop asking for frames !
@@ -84,28 +82,12 @@ namespace ORCore {
                 m_eof = true;
                 break;
             }
-        } while (framesSaved < frameCount);
-
+        }
 
         // ov_time_tell gives position of the next frame. So to be more accurate
         // we need to check this after the buffers are finished being read.
         m_position = ov_time_tell(&m_vorbisFile);
-        return framesSaved;
+        return m_eof;
     }
 
 } // namespace ORCore
-/*
-    void VorbisSong::getInfo() {
-        //char **ptr=ov_comment(&myVorbisFile,-1)->user_comments;
-        // while(*ptr){
-        //   fprintf(stderr,"%s\n",*ptr);
-        //   ++ptr;
-        // }
-
-        vorbis_info *vi=ov_info(&myVorbisFile,-1);
-        m_logger->debug("Bitstream is {} channel, {}Hz", vi->channels, vi->rate);
-        m_logger->debug("Decoded length: {} frames", (long)ov_pcm_total(&myVorbisFile,-1));
-        m_logger->debug("Encoded by: {}", ov_comment(&myVorbisFile,-1)->vendor);
-
-    }
-*/

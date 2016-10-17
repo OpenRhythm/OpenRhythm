@@ -35,7 +35,17 @@ public:
     // before accessing them
     // @return if this is the end of the stream
     virtual int process(int frameCount) = 0;
-    // Should not change. Thus, defined in constructor ?
+
+    // Has to be called by the downstream to remove
+    // the (only used) frames from the output buffer
+    void cleanReadFrames(int readFrames) {
+        m_outputBuffer.erase(
+            m_outputBuffer.begin(),
+            m_outputBuffer.begin()+readFrames*getChannelCount());
+        m_framesInBuffer -= readFrames;
+    }
+
+    // TODO Should not change. Thus, defined in constructor/input setting ?
     virtual int getChannelCount() {
         return m_inputStream ?
                m_inputStream->getChannelCount() : 0;
@@ -48,8 +58,8 @@ public:
 
 protected:
     AudioStream *m_inputStream;
-
     AudioBuffer m_outputBuffer;
+    int m_framesInBuffer = 0;
 
 }; // class AudioStream
 

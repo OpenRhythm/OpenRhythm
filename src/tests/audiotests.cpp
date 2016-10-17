@@ -55,15 +55,17 @@ int main(int argc, char const *argv[]) {
     soundOutput->open_stream_with_sample_rate(outputSampleRate);
 
     auto *resamplerstream =
-        new ResamplerStream(mysong, SRC_SINC_MEDIUM_QUALITY);
+        new ORCore::ResamplerStream(mysong, SRC_SINC_MEDIUM_QUALITY);
     resamplerstream->setInputSampleRate(songSampleRate);
     resamplerstream->setOutputSampleRate(outputSampleRate);
 
 
+    logger->debug("addstream resamplerstream");
     soundOutput->add_stream(resamplerstream);
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     soundOutput->destroy();
     soundOutput->disconnect_device();
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 }

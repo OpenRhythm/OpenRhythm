@@ -182,6 +182,11 @@ namespace ORCore {
             }
         }
 
+        for (auto stream: m_AudioStreams) {
+            stream->cleanReadFrames(frameCountMax);
+        }
+
+
         if ((err = soundio_outstream_end_write(outstream))) {
             logger->error("soundio error : {}\n", soundio_strerror(err));
             throw std::runtime_error("SoundIO end write failed");
