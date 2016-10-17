@@ -9,6 +9,7 @@
 #include <thread>
 
 #define OggTestFile "TestOgg.ogg"
+#define OggAnotherFile "/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga"
 
 
 int main(int argc, char const *argv[]) {
@@ -34,6 +35,7 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
 
+    int outputSampleRate = 44100;
 
     // We should use a smart pointer raw new/delete is considered bad style nowdays.
     ORCore::VorbisInput *mysong;
@@ -45,14 +47,6 @@ int main(int argc, char const *argv[]) {
     }
 
     int songSampleRate = mysong->getSampleRate();
-    int outputSampleRate = 44100;
-
-    logger->info("SongSampleRate: {}", songSampleRate);
-
-
-    auto soundOutput = new ORCore::SoundIoOutput();
-    soundOutput->connect_default_output_device();
-    soundOutput->open_stream_with_sample_rate(outputSampleRate);
 
     auto *resamplerstream =
         new ORCore::ResamplerStream(mysong, SRC_SINC_MEDIUM_QUALITY);
@@ -60,8 +54,36 @@ int main(int argc, char const *argv[]) {
     resamplerstream->setOutputSampleRate(outputSampleRate);
 
 
+    logger->info("SongSampleRate: {}", songSampleRate);
+
+
+    // Add another sound to test multiple streams output
+    ORCore::VorbisInput *anotherOgg;
+    try {
+        anotherOgg = new ORCore::VorbisInput(OggAnotherFile);
+        anotherOgg->open();
+    } catch (const std::runtime_error& err) {
+        std::cout << "opening ogg vorbis file failed: " << err.what() << std::endl;
+    }
+
+    int anotherOggSampleRate = mysong->getSampleRate();
+
+    auto *anotherResamplerstream =
+        new ORCore::ResamplerStream(anotherOgg, SRC_SINC_MEDIUM_QUALITY);
+    anotherResamplerstream->setInputSampleRate(anotherOggSampleRate);
+    anotherResamplerstream->setOutputSampleRate(outputSampleRate);
+
+
+
+    auto soundOutput = new ORCore::SoundIoOutput();
+    soundOutput->connect_default_output_device();
+    soundOutput->open_stream_with_sample_rate(outputSampleRate);
+
+
+
     logger->debug("addstream resamplerstream");
     soundOutput->add_stream(resamplerstream);
+    soundOutput->add_stream(anotherResamplerstream);
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     soundOutput->destroy();
     soundOutput->disconnect_device();
