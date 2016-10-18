@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <sstream>
 #include <spdlog/spdlog.h>
 
 #include "parseutils.hpp"
@@ -54,6 +55,17 @@ namespace ORCore
         status_SysexEvent2 = 0xF7,
     };
 
+    enum MidiChannelMessage: uint8_t
+    {
+        NoteOn          = 0x90,
+        NoteOff         = 0x80,
+        Aftertouch      = 0xA0,
+        ControlChange   = 0xB0,
+        ProgramChange   = 0xC0,
+        ChannelPressure = 0xD0,
+        PitchWheel      = 0xE0,
+    };
+
     enum SmfType
     {
         smfType0,
@@ -83,16 +95,41 @@ namespace ORCore
     struct SmfEventInfo
     {
         uint8_t status;
+
+        // number of pulses relative to the previous event
         uint32_t deltaPulses;
-        uint32_t pulseTime; // Time in pulses from start to now
-        double absTime; // Time in milliseconds from start to now
+
+        // Time in pulses from start to now
+        uint32_t pulseTime;
+
+        // Time in milliseconds from midi start to now
+        double absTime; ;
+    };
+
+    struct MetaEvent
+    {
+        SmfEventInfo info;
         MidiMetaEvent type;
+        uint32_t length;
+    };
+
+    struct MetaStorageEvent
+    {
+        MetaEvent event;
+        std::vector<char> data;
+    };
+
+    struct SysexEvent
+    {
+        SmfEventInfo info;
+        MidiMetaEvent type;
+        uint32_t length;
     };
 
     struct MidiEvent
     {
         SmfEventInfo info;
-        uint8_t message;
+        MidiChannelMessage message;
         uint8_t channel;
         uint8_t data1;
         uint8_t data2;
@@ -100,20 +137,20 @@ namespace ORCore
 
     struct TextEvent
     {
-        SmfEventInfo info;
+        MetaEvent info;
         std::string text;
     };
 
     struct TempoEvent
     {
-        SmfEventInfo info;
+        MetaEvent info;
         uint32_t qnLength; // Length of a quarter note in microseconds.
         double ppqn;
     };
 
     struct TimeSignatureEvent
     {
-        SmfEventInfo info;
+        MetaEvent info;
         int numerator;
         int denominator;
         int clocksPerBeat;
@@ -127,6 +164,7 @@ namespace ORCore
         std::vector<MidiEvent> midiEvents;
         std::vector<TextEvent> textEvents;
         std::vector<TempoEvent> tempo;
+        std::vector<MetaStorageEvent> miscMeta;
         std::vector<TimeSignatureEvent> timeSigEvents;
     };
 

@@ -30,21 +30,47 @@ namespace ORCore
 
     void SmfReader::readMidiEvent(SmfEventInfo &event)
     {
-
         MidiEvent midiEvent;
         midiEvent.info = event;
-        midiEvent.message = static_cast<uint8_t>(event.status & 0xF0);
+        midiEvent.message = static_cast<MidiChannelMessage>(event.status & 0xF0);
         midiEvent.channel = static_cast<uint8_t>(event.status & 0xF);
-        midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile);
-        midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile);
+
+        switch (midiEvent.message) {
+            case NoteOff:      // note off           (2 more bytes)
+            case NoteOn:       // note on            (2 more bytes)
+                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // note
+                midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile); // velocity
+                break;
+            case Aftertouch:
+                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // note
+                midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile); // pressure
+                break;
+            case ControlChange:
+                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // controller
+                midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile); // cont_value
+                break;
+            case ProgramChange:
+                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // program
+                midiEvent.data2 = 0; // no data
+                break;
+            case ChannelPressure:
+                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // pressure
+                midiEvent.data2 = 0; // no data
+                break;
+            case PitchWheel:
+                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // pitch_low
+                midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile); // pitch_high
+                break;
+            default:
+                m_logger->warn("Bad Midi control message");
+        }
 
         m_currentTrack->midiEvents.push_back(midiEvent);
     }
 
-    void SmfReader::readMetaEvent(SmfEventInfo &event)
+    void SmfReader::readMetaEvent(SmfEventInfo &eventInfo)
     {
-        event.type = static_cast<MidiMetaEvent>(ORCore::read_type<uint8_t>(m_smfFile));
-        uint32_t length = readVarLen();
+        MetaEvent event {eventInfo, ORCore::read_type<MidiMetaEvent>(m_smfFile), readVarLen()};
 
         // In the cases where we dont implement an event type log it, and its data.
         switch(event.type)
@@ -72,18 +98,18 @@ namespace ORCore
             case meta_TextReserved7:
             case meta_TextReserved8:
             {
-                auto textData = std::make_unique<char[]>(length+1);
-                textData[length] = '\0';
-                ORCore::read_type<char>(m_smfFile, textData.get(), length);
-                TextEvent text {event, textData.get()};
+                auto textData = std::make_unique<char[]>(event.length+1);
+                textData[event.length] = '\0';
+                ORCore::read_type<char>(m_smfFile, textData.get(), event.length);
+                m_currentTrack->textEvents.push_back({event, std::string(textData.get())});
                 break;
             }
             case meta_TrackName:
             {
-                auto textData = std::make_unique<char[]>(length+1);
-                textData[length] = '\0';
+                auto textData = std::make_unique<char[]>(event.length+1);
+                textData[event.length] = '\0';
 
-                ORCore::read_type<char>(m_smfFile, textData.get(), length);
+                ORCore::read_type<char>(m_smfFile, textData.get(), event.length);
                 m_currentTrack->name = std::string(textData.get());
                 break;
             }
@@ -98,6 +124,7 @@ namespace ORCore
                 // Actually yeah, this will be needed for proper bpm marking.
                 // That way we can mark bpm until the end of a track
                 m_logger->trace("End of Track {}", m_currentTrack->name);
+                m_currentTrack->miscMeta.push_back({event, std::vector<char>()});
                 break;
             }
             case meta_Tempo:
@@ -144,7 +171,7 @@ namespace ORCore
             default:
             {
                 m_logger->info("Unused event type {}.", event.type);
-                m_smfFile.set_pos_rel(length);
+                m_smfFile.set_pos_rel(event.length);
                 break;
             }
         }
@@ -153,8 +180,10 @@ namespace ORCore
     void SmfReader::readSysExEvent(SmfEventInfo &event)
     {
         auto length = readVarLen();
+        std::vector<char> sysex;
+        sysex.resize(length);
+        read_type<char>(m_smfFile, &sysex[0], length);
         m_logger->info("sysex even at position {}", m_smfFile.get_pos());
-        m_smfFile.set_pos_rel(length);
     }
 
     double SmfReader::conv_abstime(uint32_t deltaPulses)
@@ -170,41 +199,41 @@ namespace ORCore
 
         while (m_smfFile.get_pos() < chunkEnd)
         {
-            SmfEventInfo event;
+            SmfEventInfo eventInfo;
 
-            event.deltaPulses = readVarLen();
+            eventInfo.deltaPulses = readVarLen();
 
             // DO NOT use this for time calculations.
             // You must convert each deltaPulse to a time
             // within the currently active tempo.
-            pulseTime += event.deltaPulses;
+            pulseTime += eventInfo.deltaPulses;
 
-            event.pulseTime = pulseTime;
+            eventInfo.pulseTime = pulseTime;
 
             if (pulseTime == 0) {
-                event.absTime = 0.0;
+                eventInfo.absTime = 0.0;
             } else {
-                currentRunningTimeSec += conv_abstime(event.deltaPulses);
-                event.absTime = currentRunningTimeSec;
+                currentRunningTimeSec += conv_abstime(eventInfo.deltaPulses);
+                eventInfo.absTime = currentRunningTimeSec;
             }
             auto status = ORCore::peek_type<uint8_t>(m_smfFile);
 
             if (status == status_MetaEvent) {
                 prevStatus = 0; // reset running status
-                event.status = ORCore::read_type<uint8_t>(m_smfFile);
-                readMetaEvent(event);
+                eventInfo.status = ORCore::read_type<uint8_t>(m_smfFile);
+                readMetaEvent(eventInfo);
             } else if (status == status_SysexEvent || status == status_SysexEvent2) {
                 prevStatus = 0;  // reset running status
-                event.status = ORCore::read_type<uint8_t>(m_smfFile);
-                readSysExEvent(event);
+                eventInfo.status = ORCore::read_type<uint8_t>(m_smfFile);
+                readSysExEvent(eventInfo);
             } else {
                 if ((status & 0xF0) >= 0x80) {
-                    event.status = ORCore::read_type<uint8_t>(m_smfFile);
+                    eventInfo.status = ORCore::read_type<uint8_t>(m_smfFile);
                 } else {
-                    event.status = prevStatus;
+                    eventInfo.status = prevStatus;
                 }
-                readMidiEvent(event);
-                prevStatus = event.status;
+                readMidiEvent(eventInfo);
+                prevStatus = eventInfo.status;
             }
 
             if (pulseTime != 0 && (m_tempoTrack == nullptr || m_tempoTrack->tempo.size() == 0)) {
@@ -214,11 +243,7 @@ namespace ORCore
                 // We construct a new tempo event that will have a default
                 // equivelent to 120 BPM the same thing will need to be done
                 // for the time signature meta event.
-                SmfEventInfo tempoEvent;
-                tempoEvent.deltaPulses = 0;
-                tempoEvent.type = meta_Tempo;
-                tempoEvent.pulseTime = 0;
-                tempoEvent.absTime = 0.0;
+                MetaEvent tempoEvent {{status_MetaEvent,0,0,0.0}, meta_Tempo, 3};
 
                 if (m_tempoTrack == nullptr) {
                     if (m_header.format != smfType1) {
@@ -366,7 +391,7 @@ namespace ORCore
         }
 
         for (unsigned int i = value; i < tempos.size(); i++) {
-            if (tempos[i].info.pulseTime >= pulseTime) {
+            if (tempos[i].info.info.pulseTime >= pulseTime) {
                 value = i;
                 lastPulseTime = pulseTime;
                 return &tempos[i];
