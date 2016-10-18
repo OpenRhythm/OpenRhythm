@@ -81,6 +81,7 @@ endif()
 # to be used if a system-wide library is not found
 
 find_package(Freetype   REQUIRED)
+find_package(Gettext    REQUIRED)
 find_package(GLM        REQUIRED)
 find_package(OggVorbis  REQUIRED)
 find_package(OpenGL     REQUIRED)
@@ -216,6 +217,8 @@ target_link_libraries(openrhythm
     ${OGG_LIBRARY}
 )
 
+install(TARGETS openrhythm DESTINATION bin)
+
 ####################################################################
 #   Test binaries
 ####################################################################
@@ -235,3 +238,11 @@ target_link_libraries(audiotests
     ${OGG_LIBRARY}
     ${SDL2_LIBRARY}
 )
+
+####################################################################
+#   Localization
+####################################################################
+include(GettextTranslate)
+GettextTranslateTargets(ALL)
+
+add_subdirectory(po)

@@ -30,3 +30,10 @@
     #define HOMEPATH_NAME   "${CMAKE_PROJECT_NAME}"
     #define APP_NAME        "${APPLE_APP_NAME}"
 #endif
+
+
+// Variables
+#define PACKAGE_BIN_DIR     "${CMAKE_INSTALL_PREFIX}/bin"
+#define PACKAGE_LIB_DIR     "${CMAKE_INSTALL_PREFIX}/lib"
+#define PACKAGE_DATA_DIR    "${CMAKE_INSTALL_PREFIX}/share/${CMAKE_PROJECT_NAME}"
+#define LOCALE_DIR          "${CMAKE_INSTALL_PREFIX}/share/locale"
