@@ -11,9 +11,14 @@ namespace ORGame
     // TempoTrack Class methods
     /////////////////////////////////////
 
-    void TempoTrack::add_event(int qnLength, double time)
+    void TempoTrack::add_tempo_event(int qnLength, double time)
     {
-        m_tempo.push_back(TempoEvent({qnLength, time}));
+        m_tempo.push_back({qnLength, time});
+    }
+
+    void TempoTrack::add_time_sig_event(int numerator, int denominator, int compoundFactor, double time)
+    {
+        m_ts.push_back({numerator, denominator, compoundFactor, time});
     }
 
     void TempoTrack::mark_bars()
@@ -46,6 +51,12 @@ namespace ORGame
                     events.emplace_back(&tempo);
                 }
             }
+        } else if (type == EventType::TimeSignature){
+            for (auto &ts : m_ts) {
+                if (ts.time >= start && ts.time <= end) {
+                    events.emplace_back(&ts);
+                }
+            }
         } else if (type == EventType::Bar){
             for (auto &bar : m_bars) {
                 if (bar.time >= start && bar.time <= end) {
@@ -74,6 +85,7 @@ namespace ORGame
 
     void Track::add_note(NoteType type, double time, bool on)
     {
+        // TODO - Fix this it looks incorrect.
         if (!on) {
             for(size_t i = m_notes.size(); i >= 0; i--) {
                 if (m_notes[i].type == type) {
@@ -118,12 +130,18 @@ namespace ORGame
     {
         ORCore::SmfReader midi("notes.mid");
 
-        std::vector<ORCore::SmfTrack*> tracks = midi.getTracks();
+        std::vector<ORCore::SmfTrack*> tracks = midi.get_tracks();
 
-        for (auto &tempo : (*tracks.begin())->tempo)
+        for (auto &tempo : midi.get_tempo_track()->tempo)
         {
-            m_tempoTrack.add_event(tempo.qnLength, tempo.info.absTime);
-            m_logger->trace("Tempo change recieved at time {}", tempo.info.absTime);
+            m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.info.info.absTime);
+            m_logger->trace("Tempo change recieved at time {}", tempo.info.info.absTime);
+        }
+
+        for (auto &ts : midi.get_time_sig_track()->timeSigEvents)
+        {
+            m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.clocksPerBeat/24.0, ts.info.info.absTime);
+            m_logger->trace("Time signature change recieved at time {}", ts.info.info.absTime);
         }
 
         m_tempoTrack.mark_bars();

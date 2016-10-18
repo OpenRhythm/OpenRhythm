@@ -172,7 +172,9 @@ namespace ORCore
     {
     public:
         SmfReader(std::string smfData);
-        std::vector<SmfTrack*> getTracks();
+        std::vector<SmfTrack*> get_tracks();
+        SmfTrack* get_tempo_track();
+        SmfTrack* get_time_sig_track();
 
     private:
         typedef std::unique_ptr<SmfTrack> t_SmfTrackPtr;
@@ -183,14 +185,14 @@ namespace ORCore
         SmfTrack *m_tempoTrack;
         SmfTrack *m_timeSigTrack;
         TempoEvent* m_currentTempoEvent;
-        uint32_t readVarLen();
-        void readMidiEvent(SmfEventInfo &event);
-        void readMetaEvent(SmfEventInfo &event);
-        void readSysExEvent(SmfEventInfo &event);
+        uint32_t read_var_len();
+        void read_midi_event(SmfEventInfo &event);
+        void read_meta_event(SmfEventInfo &event);
+        void read_sysex_event(SmfEventInfo &event);
         double conv_abstime(uint32_t deltaPulses);
-        TempoEvent* getLastTempoIdViaPulses(uint32_t pulseTime);
-        void readEvents(int chunkEnd);
-        void readFile();
+        TempoEvent* get_last_tempo_via_pulses(uint32_t pulseTime);
+        void read_events(int chunkEnd);
+        void read_file();
 
         std::shared_ptr<spdlog::logger> m_logger;
     };

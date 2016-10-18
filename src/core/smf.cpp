@@ -11,7 +11,7 @@
 
 namespace ORCore
 {
-    uint32_t SmfReader::readVarLen()
+    uint32_t SmfReader::read_var_len()
     {
         uint8_t c = ORCore::read_type<uint8_t>(m_smfFile);
         uint32_t value = static_cast<uint32_t>(c & 0x7F);
@@ -28,7 +28,7 @@ namespace ORCore
         return value;
     }
 
-    void SmfReader::readMidiEvent(SmfEventInfo &event)
+    void SmfReader::read_midi_event(SmfEventInfo &event)
     {
         MidiEvent midiEvent;
         midiEvent.info = event;
@@ -68,9 +68,9 @@ namespace ORCore
         m_currentTrack->midiEvents.push_back(midiEvent);
     }
 
-    void SmfReader::readMetaEvent(SmfEventInfo &eventInfo)
+    void SmfReader::read_meta_event(SmfEventInfo &eventInfo)
     {
-        MetaEvent event {eventInfo, ORCore::read_type<MidiMetaEvent>(m_smfFile), readVarLen()};
+        MetaEvent event {eventInfo, ORCore::read_type<MidiMetaEvent>(m_smfFile), read_var_len()};
 
         // In the cases where we dont implement an event type log it, and its data.
         switch(event.type)
@@ -177,9 +177,9 @@ namespace ORCore
         }
     }
 
-    void SmfReader::readSysExEvent(SmfEventInfo &event)
+    void SmfReader::read_sysex_event(SmfEventInfo &event)
     {
-        auto length = readVarLen();
+        auto length = read_var_len();
         std::vector<char> sysex;
         sysex.resize(length);
         read_type<char>(m_smfFile, &sysex[0], length);
@@ -191,7 +191,7 @@ namespace ORCore
         return deltaPulses * (m_currentTempoEvent->qnLength / (m_header.division * 1000000.0));
     }
 
-    void SmfReader::readEvents(int chunkEnd)
+    void SmfReader::read_events(int chunkEnd)
     {
         uint32_t pulseTime = 0;
         uint8_t prevStatus = 0;
@@ -201,7 +201,7 @@ namespace ORCore
         {
             SmfEventInfo eventInfo;
 
-            eventInfo.deltaPulses = readVarLen();
+            eventInfo.deltaPulses = read_var_len();
 
             // DO NOT use this for time calculations.
             // You must convert each deltaPulse to a time
@@ -221,18 +221,18 @@ namespace ORCore
             if (status == status_MetaEvent) {
                 prevStatus = 0; // reset running status
                 eventInfo.status = ORCore::read_type<uint8_t>(m_smfFile);
-                readMetaEvent(eventInfo);
+                read_meta_event(eventInfo);
             } else if (status == status_SysexEvent || status == status_SysexEvent2) {
                 prevStatus = 0;  // reset running status
                 eventInfo.status = ORCore::read_type<uint8_t>(m_smfFile);
-                readSysExEvent(eventInfo);
+                read_sysex_event(eventInfo);
             } else {
                 if ((status & 0xF0) >= 0x80) {
                     eventInfo.status = ORCore::read_type<uint8_t>(m_smfFile);
                 } else {
                     eventInfo.status = prevStatus;
                 }
-                readMidiEvent(eventInfo);
+                read_midi_event(eventInfo);
                 prevStatus = eventInfo.status;
             }
 
@@ -276,13 +276,13 @@ namespace ORCore
                 m_timeSigTrack->timeSigEvents.push_back(tsEvent);
             }
             if (pulseTime != 0 || (m_tempoTrack != nullptr && m_tempoTrack->tempo.size() != 0)) {
-                m_currentTempoEvent = getLastTempoIdViaPulses(pulseTime);
+                m_currentTempoEvent = get_last_tempo_via_pulses(pulseTime);
             }
         }
         m_currentTrack->seconds = static_cast<float>(currentRunningTimeSec);
     }
 
-    void SmfReader::readFile()
+    void SmfReader::read_file()
     {
         int fileEnd = static_cast<int>(m_smfFile.get_size());
 
@@ -336,7 +336,7 @@ namespace ORCore
                 trackChunkCount += 1;
                 m_tracks.emplace_back();
                 m_currentTrack = &m_tracks.back();
-                readEvents(chunkEnd);
+                read_events(chunkEnd);
 
             } else {
                 m_logger->warn("Non-standard chunk of type {} detected, skipping.", chunk.chunkType);
@@ -375,10 +375,10 @@ namespace ORCore
             throw std::runtime_error("Failed to load MIDI file.");
         }
 
-        readFile();
+        read_file();
     }
 
-    TempoEvent* SmfReader::getLastTempoIdViaPulses(uint32_t pulseTime)
+    TempoEvent* SmfReader::get_last_tempo_via_pulses(uint32_t pulseTime)
     {
         static unsigned int value = 0;
         static uint32_t lastPulseTime = 0;
@@ -401,7 +401,7 @@ namespace ORCore
         return &tempos.back();
     }
 
-    std::vector<SmfTrack*> SmfReader::getTracks()
+    std::vector<SmfTrack*> SmfReader::get_tracks()
     {
         std::vector<SmfTrack*> tracks;
 
@@ -409,5 +409,19 @@ namespace ORCore
             tracks.push_back(&track);
         }
         return tracks;
+    }
+    SmfTrack* SmfReader::get_tempo_track()
+    {
+        if (m_header.format == smfType2) {
+            return nullptr;
+        }
+        return m_timeSigTrack;
+    }
+    SmfTrack* SmfReader::get_time_sig_track()
+    {
+        if (m_header.format == smfType2) {
+            return nullptr;
+        }
+        return m_timeSigTrack;
     }
 }

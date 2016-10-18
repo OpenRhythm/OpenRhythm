@@ -74,6 +74,14 @@ namespace ORGame
         double time;
     };
 
+    struct TimeSigEvent
+    {
+        int numerator;
+        int denominator;
+        int compoundFactor;
+        double time;
+    };
+
     enum class BarType
     {
         measure,
@@ -90,6 +98,7 @@ namespace ORGame
     union TempoTrackEvent
     {
         TempoEvent *tempo;
+        TimeSigEvent *ts;
         BarEvent *bar;
 
         TempoTrackEvent(TempoEvent *tmpo):
@@ -97,22 +106,30 @@ namespace ORGame
         {
         }
 
+        TempoTrackEvent(TimeSigEvent *tsEvent):
+        ts(tsEvent)
+        {
+        }
+
         TempoTrackEvent(BarEvent *brEvent):
         bar(brEvent)
         {
         }
+
     };
 
 
     class TempoTrack
     {
     public:
-        void add_event(int ppqn, double time);
+        void add_tempo_event(int ppqn, double time);
+        void add_time_sig_event(int numerator, int denominator, int compoundFactor, double time);
         void mark_bars();
         std::vector<TempoTrackEvent> get_events(double start, double end, EventType type);
 
     private:
     	std::vector<TempoEvent> m_tempo;
+        std::vector<TimeSigEvent> m_ts;
         std::vector<BarEvent> m_bars;
     };
 
@@ -142,7 +159,7 @@ namespace ORGame
     class Song
     {
     public:
-        Song( std::string songpath );
+        Song(std::string songpath);
         void add(TrackType type, Difficulty difficulty);
         bool load();
         Track *get_track(TrackType type, Difficulty difficulty);
