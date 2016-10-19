@@ -88,6 +88,7 @@ find_package(OpenGL     REQUIRED)
 find_package(SDL2       REQUIRED)
 set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
 find_package(SoundIO    REQUIRED)
+find_package(YamlCpp    REQUIRED)
 
 if(NOT DEFINED(USE_LIB_PNGCPP))
     set(USE_LIB_PNGCPP 0)
@@ -117,6 +118,7 @@ include_directories(SYSTEM
     ${SDL2_INCLUDE_DIR}
     ${SOUNDIO_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
+    ${YAMLCPP_INCLUDE_DIR}
 )
 
 if(INC_PATH)
@@ -215,6 +217,7 @@ target_link_libraries(openrhythm
     ${SOUNDIO_LIBRARY}
     ${VORBIS_LIBRARY}
     ${VORBISFILE_LIBRARY}
+    ${YAMLCPP_LIBRARY}
 )
 
 install(TARGETS openrhythm DESTINATION bin)
@@ -237,6 +240,7 @@ target_link_libraries(audiotests
     ${SOUNDIO_LIBRARY}
     ${VORBIS_LIBRARY}
     ${VORBISFILE_LIBRARY}
+    ${YAMLCPP_LIBRARY}
 )
 
 install(TARGETS audiotests DESTINATION bin)
