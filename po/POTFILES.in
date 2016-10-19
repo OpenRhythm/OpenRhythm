@@ -11,6 +11,7 @@ src/core/keycode.cpp
 src/core/keycode.hpp
 src/core/mesh2d.cpp
 src/core/mesh2d.hpp
+src/core/parseutils.hpp
 src/core/shader.cpp
 src/core/shader.hpp
 src/core/smf.cpp
@@ -29,5 +30,6 @@ src/game/game.cpp
 src/game/game.hpp
 src/game/parser.cpp
 src/game/parser.hpp
-src/main.cpp
+src/tests/audiotests.cpp
+src/config.hpp
 src/main.cpp

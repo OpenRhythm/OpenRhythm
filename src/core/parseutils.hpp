@@ -6,9 +6,12 @@
 #include <vector>
 #include <stdexcept>
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
 namespace ORCore
 {
-    // This is 
+    // This is
     struct FileBuffer
     {
         std::vector<char> data;
@@ -27,7 +30,7 @@ namespace ORCore
                 dataFile.read(&data[0], size);
                 dataFile.close();
             } else {
-                throw std::runtime_error("Failed to load file.");
+                throw std::runtime_error(_("Failed to load file."));
             }
         }
         size_t get_pos() {
@@ -59,7 +62,7 @@ namespace ORCore
         }
         fileData.position += size;
         return output;
-    } 
+    }
 
     template<typename T>
     T read_type(FileBuffer &fileData, size_t size)
@@ -67,7 +70,7 @@ namespace ORCore
         T output = 0;
         if (sizeof(output) < size)
         {
-            throw std::runtime_error("Size greater than container type");
+            throw std::runtime_error(_("Size greater than container type"));
         } else {
             char *outPtr = reinterpret_cast<char*>(&output);
             char *inPtr = &fileData.data[fileData.position];
@@ -78,7 +81,7 @@ namespace ORCore
             fileData.position += size;
         }
         return output;
-    } 
+    }
 
     // Main purpose is for reading string-like data from the file.
     template<typename T>
@@ -112,7 +115,7 @@ namespace ORCore
             outPtr[i] = inPtr[size-1 - i];
         }
         return output;
-    } 
+    }
 
     template<typename T>
     T peek_type(FileBuffer &fileData, size_t size)
@@ -120,7 +123,7 @@ namespace ORCore
         T output = 0;
         if (sizeof(output) < size)
         {
-            throw std::runtime_error("Size greater than container type");
+            throw std::runtime_error(_("Size greater than container type"));
         } else {
             char *outPtr = reinterpret_cast<char*>(&output);
             char *inPtr = &fileData.data[fileData.position];
@@ -130,7 +133,7 @@ namespace ORCore
             }
         }
         return output;
-    } 
+    }
 
     // Main purpose is for reading string-like data from the file.
     template<typename T>
@@ -171,7 +174,7 @@ namespace ORCore
         T output = 0;
         if (sizeof(output) < size)
         {
-            throw std::runtime_error("Size greater than container type");
+            throw std::runtime_error(_("Size greater than container type"));
         } else {
             int offset;
             for (size_t i = 0; i < size; i++) {
@@ -217,7 +220,7 @@ namespace ORCore
         T output = 0;
         if (sizeof(output) < size)
         {
-            throw std::runtime_error("Size greater than container type");
+            throw std::runtime_error(_("Size greater than container type"));
         } else {
             int offset;
             uint8_t *val;

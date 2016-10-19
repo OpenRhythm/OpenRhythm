@@ -6,17 +6,20 @@
 #include <map>
 #include <string>
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
 namespace ORCore {
 
     static std::map<int, std::string> errorCodeMap {
-        {OV_HOLE,       "Vorbis: data interruption"},
-        {OV_EBADLINK,   "Vorbis: Invalid Stream"},
-        {OV_EINVAL,     "Vorbis: Invalid Headers"},
-        {OV_EREAD,      "Vorbis: Read error."},
-        {OV_ENOTVORBIS, "Vorbis: No vorbis data"},
-        {OV_EVERSION,   "Vorbis: Version Mismatch"},
-        {OV_EBADHEADER, "Vorbis: Invalid Vorbis bitstream header."},
-        {OV_EFAULT,     "Vorbis: Internal logic fault."},
+        {OV_HOLE,       _("Vorbis: data interruption")},
+        {OV_EBADLINK,   _("Vorbis: Invalid Stream")},
+        {OV_EINVAL,     _("Vorbis: Invalid Headers")},
+        {OV_EREAD,      _("Vorbis: Read error.")},
+        {OV_ENOTVORBIS, _("Vorbis: No vorbis data")},
+        {OV_EVERSION,   _("Vorbis: Version Mismatch")},
+        {OV_EBADHEADER, _("Vorbis: Invalid Vorbis bitstream header.")},
+        {OV_EFAULT,     _("Vorbis: Internal logic fault.")},
     };
 
     VorbisInput::VorbisInput(const std::string filename)
@@ -34,9 +37,9 @@ namespace ORCore {
         m_info = ov_info(&m_vorbisFile,-1);
 
         if (ov_pcm_seek(&m_vorbisFile, 0) != 0) {  // This is because some files do not seek to 0 automatically
-            throw std::runtime_error("Error seeking file to position 0.");
+            throw std::runtime_error(_("Error seeking file to position 0."));
         } else {
-            m_logger->debug("Seeked file to position 0.");
+            m_logger->debug(_("Seeked file to position 0."));
         }
     }
 

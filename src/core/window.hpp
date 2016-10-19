@@ -5,6 +5,9 @@
 #undef main
 #include "context.hpp"
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
 namespace ORCore
 {
     class Context;
@@ -18,7 +21,7 @@ namespace ORCore
         Window(int width=800,
                 int height=600,
                 bool fullscreen=false,
-                std::string title="Game");
+                std::string title=_("Game"));
 
         ~Window();
 

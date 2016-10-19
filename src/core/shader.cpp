@@ -4,6 +4,10 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
+
 namespace ORCore
 {
     Shader::Shader(ShaderInfo _info): info(_info)
@@ -38,9 +42,9 @@ namespace ORCore
             glGetShaderInfoLog(shader, length, nullptr, logData.get());
             std::cout << logData.get() << std::endl;
 
-            throw std::runtime_error("Shader compilation failed.");
+            throw std::runtime_error(_("Shader compilation failed."));
         } else {
-            std::cout << "Shader compiled sucessfully." << std::endl;
+            std::cout << _("Shader compiled sucessfully.") << std::endl;
         }
     }
 
@@ -83,9 +87,9 @@ namespace ORCore
             glGetProgramInfoLog(m_program, length, nullptr, logData.get());
             std::cout << logData.get() << std::endl;
 
-            throw std::runtime_error("Shader linkage failed.");
+            throw std::runtime_error(_("Shader linkage failed."));
         } else {
-            std::cout << "Shader linked sucessfully." << std::endl;
+            std::cout << _("Shader linked sucessfully.") << std::endl;
         }
     }
 

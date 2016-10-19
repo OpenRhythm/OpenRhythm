@@ -13,6 +13,10 @@
 #endif
 #include "soundio.hpp"
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
+
 // TODO those defines should be runtime variables, dependant of the stream
 
 // file dependant (now : uint16_t)
@@ -22,7 +26,7 @@
 
 namespace ORCore {
 
-    // The reason i seperated these from the class originally, is because they 
+    // The reason i seperated these from the class originally, is because they
     // are awful looking functions that clutter up the class definition, and they are really
     // just an implementation detail and they probably shouldn't be shown on documentation.
     static void write_callback_static(SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {
@@ -45,16 +49,16 @@ namespace ORCore {
 
         soundio = soundio_create();
         if (!soundio) {
-            logger->error("SoundIO_create: out of memory");
-            throw std::runtime_error("SoundIO_create: out of memory");
+            logger->error(_("SoundIO_create: out of memory"));
+            throw std::runtime_error(_("SoundIO_create: out of memory"));
         }
 
         soundio->app_name = PROJECT_NAME;
 
         int err = soundio_connect(soundio);
         if (err) {
-            logger->error("SoundIO_connect error: {}", soundio_strerror(err));
-            throw std::runtime_error(std::string("SoundIO_connect error: ") + soundio_strerror(err));
+            logger->error(_("SoundIO_connect error: {}"), soundio_strerror(err));
+            throw std::runtime_error(std::string(_("SoundIO_connect error: ")) + soundio_strerror(err));
         }
 
         soundio_flush_events(soundio);
@@ -68,7 +72,7 @@ namespace ORCore {
 
     void SoundIoOutput::open_stream(SoundIoFormat format, int sample_rate, double latency) {
         if (device == nullptr) {
-            throw std::runtime_error("Error while opening libsoundiostream : the device is not yet set !");
+            throw std::runtime_error(_("Error while opening libsoundiostream : the device is not yet set !"));
         }
 
         outstream = soundio_outstream_create(device);
@@ -87,20 +91,20 @@ namespace ORCore {
 
         int err = soundio_outstream_open(outstream);
         if (err) {
-            logger->error("unable to open device: {}", soundio_strerror(err));
-            throw std::runtime_error(std::string("unable to open device: ") + soundio_strerror(err));
+            logger->error(_("unable to open device: {}"), soundio_strerror(err));
+            throw std::runtime_error(std::string(_("unable to open device: ")) + soundio_strerror(err));
         }
 
         err = outstream->layout_error;
         if (err) {
-            logger->error("unable to set channel layout: ", soundio_strerror(err));
-            throw std::runtime_error(std::string("unable to set channel layout: ") + soundio_strerror(err));
+            logger->error(_("unable to set channel layout: "), soundio_strerror(err));
+            throw std::runtime_error(std::string(_("unable to set channel layout: ")) + soundio_strerror(err));
         }
 
         err = soundio_outstream_start(outstream);
         if (err) {
-            logger->error("unable to start device: ", soundio_strerror(err));
-            throw std::runtime_error(std::string("unable to start device: ") + soundio_strerror(err));
+            logger->error(_("unable to start device: "), soundio_strerror(err));
+            throw std::runtime_error(std::string(_("unable to start device: ")) + soundio_strerror(err));
         }
     }
 
@@ -121,14 +125,14 @@ namespace ORCore {
 
         int default_out_device_index = soundio_default_output_device_index(soundio);
         if (default_out_device_index < 0) {
-            logger->error("SoundIO: No output device found");
-            throw std::runtime_error("SoundIO: No output device found");
+            logger->error(_("SoundIO: No output device found"));
+            throw std::runtime_error(_("SoundIO: No output device found"));
         }
 
         device = soundio_get_output_device(soundio, default_out_device_index);
         if (!device) {
-            logger->error("SoundIO: out of memory");
-            throw std::runtime_error("SoundIO: out of memory");
+            logger->error(_("SoundIO: out of memory"));
+            throw std::runtime_error(_("SoundIO: out of memory"));
         }
     }
 
@@ -152,8 +156,8 @@ namespace ORCore {
 
         int err = soundio_outstream_begin_write(outstream, &areas, &frameCountMax);
         if (err) {
-            logger->error("{}", soundio_strerror(err));
-            throw std::runtime_error("SoundIO begin write failed");
+            logger->error(_("{}"), soundio_strerror(err));
+            throw std::runtime_error(_("SoundIO begin write failed"));
         }
 
         m_dataBuffer.resize(frameCountMax*CHANNELS_COUNT);
@@ -174,14 +178,14 @@ namespace ORCore {
         }
 
         if ((err = soundio_outstream_end_write(outstream))) {
-            logger->error("soundio error : {}\n", soundio_strerror(err));
-            throw std::runtime_error("SoundIO end write failed");
+            logger->error(_("soundio error : {}\n"), soundio_strerror(err));
+            throw std::runtime_error(_("SoundIO end write failed"));
         }
     }
 
     void SoundIoOutput::underflow_callback(SoundIoOutStream *outstream) {
         static int count = 0;
-        logger->error("underflow {}\n", count++);
+        logger->error(_("underflow {}\n"), count++);
     }
 
     void AudioOutputStream::set_input(Input *theSong) {

@@ -106,10 +106,10 @@ set_target_properties(GLAD PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
 # These includes are defined a system headers so any warnings within
 # don't get shown during compilation.
 include_directories(SYSTEM
-    ${CMAKE_SOURCE_DIR}/extern/stb
     ${CMAKE_SOURCE_DIR}/extern/glad/include
-    ${CMAKE_SOURCE_DIR}/extern/spdlog/include
     ${CMAKE_SOURCE_DIR}/extern/readerwriterqueue
+    ${CMAKE_SOURCE_DIR}/extern/spdlog/include
+    ${CMAKE_SOURCE_DIR}/extern/stb
     ${FREETYPE_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
     ${OGG_INCLUDE_DIR}
@@ -206,15 +206,15 @@ if(OSX_APP_BUNDLE)
 endif()
 
 target_link_libraries(openrhythm
-    ${CMAKE_DL_LIBS}
       GLAD
+    ${CMAKE_DL_LIBS}
+    ${FREETYPE_LIBRARIES}
+    ${OGG_LIBRARY}
     ${OPENGL_LIBRARIES}
     ${SDL2_LIBRARY}
-    ${FREETYPE_LIBRARIES}
     ${SOUNDIO_LIBRARY}
-    ${VORBISFILE_LIBRARY}
     ${VORBIS_LIBRARY}
-    ${OGG_LIBRARY}
+    ${VORBISFILE_LIBRARY}
 )
 
 install(TARGETS openrhythm DESTINATION bin)
@@ -228,20 +228,23 @@ add_executable(audiotests $<TARGET_OBJECTS:ORCore-obj>
 )
 
 target_link_libraries(audiotests
-    ${CMAKE_DL_LIBS}
       GLAD
-    ${OPENGL_LIBRARIES}
+    ${CMAKE_DL_LIBS}
     ${FREETYPE_LIBRARIES}
-    ${SOUNDIO_LIBRARY}
-    ${VORBISFILE_LIBRARY}
-    ${VORBIS_LIBRARY}
     ${OGG_LIBRARY}
+    ${OPENGL_LIBRARIES}
     ${SDL2_LIBRARY}
+    ${SOUNDIO_LIBRARY}
+    ${VORBIS_LIBRARY}
+    ${VORBISFILE_LIBRARY}
 )
+
+install(TARGETS audiotests DESTINATION bin)
 
 ####################################################################
 #   Localization
 ####################################################################
+set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
 include(GettextTranslate)
 GettextTranslateTargets(ALL)
 

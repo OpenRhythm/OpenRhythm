@@ -4,12 +4,26 @@
 #include "core/audio/codecs/vorbis.hpp"
 #include "core/audio/output/soundio.hpp"
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
+#include "config.hpp"
+
 
 #define OggTestFile "TestOgg.ogg"
 
 
 
 int main(int argc, char const *argv[]) {
+
+    /* Setting the i18n environment */
+    setlocale (LC_ALL, "");
+    bindtextdomain ("openrhythm", LOCALE_DIR);
+    textdomain ("openrhythm");
+
+    /* Example of i18n usage */
+    printf(_("Hello World\n"));
+
     std::shared_ptr<spdlog::logger> logger;
 
     try {
@@ -28,7 +42,7 @@ int main(int argc, char const *argv[]) {
         logger->set_level(spdlog::level::debug);
 
     } catch (const spdlog::spdlog_ex& err) {
-        std::cout << "Logging Failed: " << err.what() << std::endl;
+        std::cout << _("Logging Failed: ") << err.what() << std::endl;
         return 1;
     }
 
@@ -40,7 +54,7 @@ int main(int argc, char const *argv[]) {
         mysong = new ORCore::VorbisInput(OggTestFile);
         mysong->open();
     } catch (const std::runtime_error& err) {
-        std::cout << "opening ogg vorbis file failed: " << err.what() << std::endl;
+        std::cout << _("opening ogg vorbis file failed: ") << err.what() << std::endl;
     }
 
     std::cout << "####################" << std::endl;

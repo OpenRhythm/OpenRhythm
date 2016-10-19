@@ -2,16 +2,29 @@
 #include <vector>
 #include <memory>
 #include <iterator>
-#include "game.hpp"
 #include <SDL.h>
 #define SPDLOG_NO_NAME
 #define SPDLOG_NO_THREAD_ID // Might be useful to enable later but atm meh
 #include <spdlog/spdlog.h>
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
+#include "game.hpp"
+#include "config.hpp"
+
 // Eventually we will want to load configuration files somewhere in here.
 // This also means the VFS needs to be setup here as well
 int main()
 {
+    /* Setting the i18n environment */
+    setlocale (LC_ALL, "");
+    bindtextdomain ("openrhythm", LOCALE_DIR);
+    textdomain ("openrhythm");
+
+    /* Example of i18n usage */
+    printf(_("Hello World\n"));
+
     std::shared_ptr<spdlog::logger> logger;
 
     try {
@@ -30,8 +43,8 @@ int main()
         logger->set_level(spdlog::level::info);
 
     } catch (const spdlog::spdlog_ex& err) {
-        std::cout << "Logging Failed: " << err.what() << std::endl;
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Runtime Error", err.what(), nullptr);
+        std::cout << _("Logging Failed: ") << err.what() << std::endl;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _("Runtime Error"), err.what(), nullptr);
         return 1;
     }
 
@@ -39,8 +52,8 @@ int main()
         GameManager game;
         game.start();
     } catch (std::runtime_error &err) {
-        logger->critical("Runtime Error:\n{}", err.what());
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Runtime Error", err.what(), nullptr);
+        logger->critical(_("Runtime Error:\n{}"), err.what());
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _("Runtime Error"), err.what(), nullptr);
         return 1;
     }
     return 0;

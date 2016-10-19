@@ -7,6 +7,9 @@
 #include <stdexcept>
 #include <cmath>
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
 #include "smf.hpp"
 
 namespace ORCore
@@ -62,7 +65,7 @@ namespace ORCore
                 midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile); // pitch_high
                 break;
             default:
-                m_logger->warn("Bad Midi control message");
+                m_logger->warn(_("Bad Midi control message"));
         }
 
         m_currentTrack->midiEvents.push_back(midiEvent);
@@ -78,7 +81,7 @@ namespace ORCore
             case meta_SequenceNumber:
             {
                 auto sequenceNumber = ORCore::read_type<uint16_t>(m_smfFile);
-                m_logger->trace("Sequence Number {}", sequenceNumber);
+                m_logger->trace(_("Sequence Number {}"), sequenceNumber);
                 break;
             }
             case meta_Text:
@@ -115,7 +118,7 @@ namespace ORCore
             }
             case meta_MIDIChannelPrefix: {
                 auto midiChannel = ORCore::read_type<uint8_t>(m_smfFile);
-                m_logger->trace("Midi Channel {}", midiChannel);
+                m_logger->trace(_("Midi Channel {}"), midiChannel);
                 break;
             }
             case meta_EndOfTrack:
@@ -123,7 +126,7 @@ namespace ORCore
                 // TODO - We might be able to use this for some purpose.
                 // Actually yeah, this will be needed for proper bpm marking.
                 // That way we can mark bpm until the end of a track
-                m_logger->trace("End of Track {}", m_currentTrack->name);
+                m_logger->trace(_("End of Track {}"), m_currentTrack->name);
                 m_currentTrack->miscMeta.push_back({event, std::vector<char>()});
                 break;
             }
@@ -149,7 +152,7 @@ namespace ORCore
                 // The number of 1/32nd notes per quarter note not quite sure of its use yet.
                 tsEvent.thirtySecondPQN = ORCore::read_type<uint8_t>(m_smfFile); // 8 default
 
-                m_logger->trace("Time signature  {}/{} CPC: {} TSPQN: {}",
+                m_logger->trace(_("Time signature  {}/{} CPC: {} TSPQN: {}"),
                                     tsEvent.numerator,
                                     tsEvent.denominator,
                                     tsEvent.clocksPerBeat,
@@ -170,7 +173,7 @@ namespace ORCore
             case meta_SequencerSpecific:
             default:
             {
-                m_logger->info("Unused event type {}.", event.type);
+                m_logger->info(_("Unused event type {}."), event.type);
                 m_smfFile.set_pos_rel(event.length);
                 break;
             }
@@ -183,7 +186,7 @@ namespace ORCore
         std::vector<char> sysex;
         sysex.resize(length);
         read_type<char>(m_smfFile, &sysex[0], length);
-        m_logger->info("sysex even at position {}", m_smfFile.get_pos());
+        m_logger->info(_("sysex even at position {}"), m_smfFile.get_pos());
     }
 
     double SmfReader::conv_abstime(uint32_t deltaPulses)
@@ -238,7 +241,7 @@ namespace ORCore
 
             if (pulseTime != 0 && (m_tempoTrack == nullptr || m_tempoTrack->tempo.size() == 0)) {
 
-                m_logger->info("No tempo change at deltatime 0 setting default of 120 BPM.");
+                m_logger->info(_("No tempo change at deltatime 0 setting default of 120 BPM."));
 
                 // We construct a new tempo event that will have a default
                 // equivelent to 120 BPM the same thing will need to be done
@@ -257,7 +260,7 @@ namespace ORCore
             }
             if (pulseTime != 0 && (m_tempoTrack == nullptr || m_timeSigTrack->timeSigEvents.size() == 0)) {
 
-                m_logger->info("No time signature change at deltatime 0 setting default of 4/4.");
+                m_logger->info(_("No time signature change at deltatime 0 setting default of 4/4."));
 
                 TimeSignatureEvent tsEvent;
                 tsEvent.numerator = 4;
@@ -311,7 +314,7 @@ namespace ORCore
             chunk.length = ORCore::read_type<uint32_t>(m_smfFile);
             chunkEnd = chunkStart + (8 + chunk.length); // 8 is the length of the type + length fields
 
-            m_logger->trace("chunk of type {} detected.", chunk.chunkType);
+            m_logger->trace(_("chunk of type {} detected."), chunk.chunkType);
             // MThd chunk is only in the beginning of the file.
             if (chunkStart == fileStart && strcmp(chunk.chunkType, "MThd") == 0) {
                 // Load header chunk
@@ -324,12 +327,12 @@ namespace ORCore
                 m_tracks.reserve(sizeof(SmfTrack) * m_header.trackNum);
 
                 if (m_header.format == smfType0 && m_header.trackNum != 1) {
-                    throw std::runtime_error("Not a valid type 0 midi.");
+                    throw std::runtime_error(_("Not a valid type 0 midi."));
                 }
 
                 // TODO - For completionist reasons eventually add support for this.
                 if ((m_header.division & 0x8000) != 0) {
-                    throw std::runtime_error("SMPTE time division not supported");
+                    throw std::runtime_error(_("SMPTE time division not supported"));
                 }
 
             } else if (strcmp(chunk.chunkType, "MTrk") == 0) {
@@ -339,7 +342,7 @@ namespace ORCore
                 read_events(chunkEnd);
 
             } else {
-                m_logger->warn("Non-standard chunk of type {} detected, skipping.", chunk.chunkType);
+                m_logger->warn(_("Non-standard chunk of type {} detected, skipping."), chunk.chunkType);
             }
 
             filePos = chunkEnd;
@@ -348,31 +351,31 @@ namespace ORCore
             // Make sure that we are in the correct location in the chunk
             // If not seek to the correct location and output an error in the log.
             if (static_cast<int>(m_smfFile.get_pos()) != filePos) {
-                m_logger->warn("Offset for chunk '{}' incorrect, seeking to correct location.", chunk.chunkType);
-                m_logger->warn("Offset difference. expected: '{}' actual: '{}'", m_smfFile.get_pos(), filePos);
+                m_logger->warn(_("Offset for chunk '{}' incorrect, seeking to correct location."), chunk.chunkType);
+                m_logger->warn(_("Offset difference. expected: '{}' actual: '{}'"), m_smfFile.get_pos(), filePos);
                 m_smfFile.set_pos(filePos);
             }
             fileRemaining = (fileEnd-filePos);
             if (fileRemaining != 0 && fileRemaining <= 8) {
-                m_logger->warn("To few bytes remaining in midi for another track, this is likely a bug.");
+                m_logger->warn(_("To few bytes remaining in midi for another track, this is likely a bug."));
             }
         }
         if (trackChunkCount != m_header.trackNum) {
-            m_logger->warn("Track chunk count does not match header.");
+            m_logger->warn(_("Track chunk count does not match header."));
         }
-        m_logger->info("End of MIDI reached.");
+        m_logger->info(_("End of MIDI reached."));
 
     }
 
     SmfReader::SmfReader(std::string filename)
     :m_tempoTrack(nullptr), m_timeSigTrack(nullptr), m_logger(spdlog::get("default"))
     {
-        m_logger->info("Loading MIDI");
+        m_logger->info(_("Loading MIDI"));
 
         try {
             m_smfFile.load(filename);
         } catch (std::runtime_error &err) {
-            throw std::runtime_error("Failed to load MIDI file.");
+            throw std::runtime_error(_("Failed to load MIDI file."));
         }
 
         read_file();

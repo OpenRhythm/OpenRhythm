@@ -28,6 +28,9 @@ static std::string homePath;
 static std::string appPath;
 #endif
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
 
 namespace ORCore
 {
@@ -177,7 +180,7 @@ namespace ORCore
             in.close();
             return contents;
         } else {
-            std::cout << "Failed to load: " << filename << std::endl;
+            std::cout << _("Failed to load: ") << filename << std::endl;
             return "";
         }
     }

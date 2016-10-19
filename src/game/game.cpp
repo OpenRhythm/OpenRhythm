@@ -7,6 +7,10 @@
 #include "vfs.hpp"
 #include "game.hpp"
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
+
 GameManager::GameManager()
 : m_song("/data/songs/testsong")
 {
@@ -63,7 +67,7 @@ GameManager::GameManager()
 
     if(!gladLoadGL())
     {
-        throw std::runtime_error("Error: GLAD failed to load.");
+        throw std::runtime_error(_("Error: GLAD failed to load."));
     }
 
     m_lis.handler = std::bind(&GameManager::event_handler, this, std::placeholders::_1);

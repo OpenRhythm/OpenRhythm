@@ -23,6 +23,10 @@
 #include <stb_image.h>
 #pragma warning(pop)
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
+
 namespace ORCore
 {
     static int _texCount = 0;
@@ -83,7 +87,7 @@ namespace ORCore
         img_buf = stbi_load_from_memory( &conv_mem[0], mem_buf.size(), &imgData.width, &imgData.height, &comp, 0 );
 
         if ( img_buf == nullptr )
-            std::cout << "Failed to get image data" << std::endl;
+            std::cout << _("Failed to get image data") << std::endl;
 
 
         imgData.length = imgData.width * imgData.height * 4;
@@ -146,7 +150,7 @@ namespace ORCore
             glActiveTexture(GL_TEXTURE0+m_texUnitID);
             glBindTexture(GL_TEXTURE_2D, m_texID);
             m_program->set_uniform(m_texSampID, m_texUnitID);
-            std::cout << "Texture bound" << std::endl;
+            std::cout << _("Texture bound") << std::endl;
 
         }
     }

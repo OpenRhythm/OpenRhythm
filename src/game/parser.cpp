@@ -4,6 +4,10 @@
 #include "vfs.hpp"
 #include "smf.hpp"
 
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
+
 namespace ORGame
 {
 
@@ -135,13 +139,13 @@ namespace ORGame
         for (auto &tempo : midi.get_tempo_track()->tempo)
         {
             m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.info.info.absTime);
-            m_logger->trace("Tempo change recieved at time {}", tempo.info.info.absTime);
+            m_logger->trace(_("Tempo change recieved at time {}"), tempo.info.info.absTime);
         }
 
         for (auto &ts : midi.get_time_sig_track()->timeSigEvents)
         {
             m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.clocksPerBeat/24.0, ts.info.info.absTime);
-            m_logger->trace("Time signature change recieved at time {}", ts.info.info.absTime);
+            m_logger->trace(_("Time signature change recieved at time {}"), ts.info.info.absTime);
         }
 
         m_tempoTrack.mark_bars();
