@@ -257,3 +257,31 @@ target_link_libraries(audiotests
 )
 
 install(TARGETS audiotests DESTINATION bin)
+
+####################################################################
+#   Documentation
+####################################################################
+find_package(Cldoc)
+
+if(Cldoc_FOUND)
+    # Adds "doc" and "doc/fast" make targets
+    add_cldoc_documentation(
+        FILES ${SOURCE}
+        FLAGS
+            -I${SDL2_INCLUDE_DIR}/.
+            -I${SDL2Mixer_INCLUDE_DIRS}/.
+            -I${LibVorbis_INCLUDE_DIRS}/.
+            -I${PortAudio_INCLUDE_DIRS}/.
+            -I${CMAKE_SOURCE_DIR}/extern/stb
+            -I${CMAKE_SOURCE_DIR}/extern/glad/include
+            -I${CMAKE_SOURCE_DIR}/extern/spdlog/include
+            -I"${PROJECT_SOURCE_DIR}/src"
+            -I"${PROJECT_SOURCE_DIR}/src/core"
+            -I"${PROJECT_SOURCE_DIR}/src/core/audio"
+            -I"${PROJECT_SOURCE_DIR}/src/engine"
+            -I"${PROJECT_SOURCE_DIR}/src/game"
+            -std=gnu++14
+        OUTPUT "docs"
+        LANGUAGE c++
+    )
+endif()

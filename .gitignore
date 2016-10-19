@@ -56,3 +56,6 @@ audiotests
 # Files for testing/outputs
 *.log
 TestOgg.ogg
+
+# Docs
+/docs
