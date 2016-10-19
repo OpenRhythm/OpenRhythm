@@ -27,6 +27,16 @@ namespace ORCore {
         m_logger = spdlog::get("default");
     }
 
+    int VorbisInput::getBitDepth() {
+        return 16;
+    }
+    int VorbisInput::getChannelCount() {
+        return m_info->channels;
+    }
+    int VorbisInput::getSampleRate() {
+        return m_info->rate;
+    }
+
     void VorbisInput::open() {
         int vorbisError = ov_fopen(m_filename.c_str(), &m_vorbisFile);
 
@@ -47,63 +57,39 @@ namespace ORCore {
         ov_clear(&m_vorbisFile);
     }
 
-    int VorbisInput::getSampleRate() {
-        return m_info->rate;
-    }
-
-    int VorbisInput::getChannelCount() {
-        return m_info->channels;
-    }
 
     double VorbisInput::getPosition() {
         return m_position;
     }
 
-    int VorbisInput::readBuffer(float *pcm_channels, int sample_count) {
-        int samplesSaved = 0;
-        float **p_decodedSamples; // This will point on the decoded samples
-        do {
-            int samplesDecoded = ov_read_float(&m_vorbisFile, &p_decodedSamples,
-                sample_count - samplesSaved, &currentSection);
+    int VorbisInput::process(int frameCount) {
+        float **p_decodedFrames; // This will point on the decoded frames
+        while (m_framesInBuffer < frameCount) {
+            int framesDecoded = ov_read_float(&m_vorbisFile, &p_decodedFrames,
+                frameCount - m_framesInBuffer, &currentSection);
 
-            if (samplesDecoded < 0)
-                throw std::runtime_error(errorCodeMap[samplesDecoded]);
+            if (framesDecoded < 0)
+                throw std::runtime_error(errorCodeMap[framesDecoded]);
 
 
-            // TODO a solution valid for any channel count ?
-            for (int i = 0; i < samplesDecoded; ++i) {
-                pcm_channels[2*samplesSaved  ] = p_decodedSamples[0][i];
-                pcm_channels[2*samplesSaved+1] = p_decodedSamples[1][i];
-                samplesSaved++;
+            for (int f = 0; f < framesDecoded; ++f) {
+                for (int c = 0; c < getChannelCount(); ++c) {
+                    m_outputBuffer.push_back(p_decodedFrames[c][f]);
+                }
+                m_framesInBuffer++;
             }
 
             // End of file, stop asking for frames !
-            if (samplesDecoded == 0) {
+            if (framesDecoded == 0) {
                 m_eof = true;
                 break;
             }
-        } while (samplesSaved < sample_count);
+        }
 
-
-        // ov_time_tell gives position of the next sample. So to be more accurate
+        // ov_time_tell gives position of the next frame. So to be more accurate
         // we need to check this after the buffers are finished being read.
         m_position = ov_time_tell(&m_vorbisFile);
-        return samplesSaved;
+        return m_eof;
     }
 
 } // namespace ORCore
-/*
-    void VorbisSong::getInfo() {
-        //char **ptr=ov_comment(&myVorbisFile,-1)->user_comments;
-        // while(*ptr){
-        //   fprintf(stderr,"%s\n",*ptr);
-        //   ++ptr;
-        // }
-
-        vorbis_info *vi=ov_info(&myVorbisFile,-1);
-        m_logger->debug("Bitstream is {} channel, {}Hz", vi->channels, vi->rate);
-        m_logger->debug("Decoded length: {} samples", (long)ov_pcm_total(&myVorbisFile,-1));
-        m_logger->debug("Encoded by: {}", ov_comment(&myVorbisFile,-1)->vendor);
-
-    }
-*/

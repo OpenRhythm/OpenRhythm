@@ -21,11 +21,8 @@ if(MSVC)
     add_definitions("/W4")
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     add_definitions("-Wall")
-endif()
-
-# Clean unused sections on link
-if(CMAKE_COMPILER_IS_GNUXX)
-    add_definitions (" -ffunction-sections -fdata-sections -Wl,--gc-sections")
+    # Clean unused sections on link
+    add_definitions("-ffunction-sections -fdata-sections -Wl,--gc-sections")
 endif()
 
 ####################################################################
@@ -85,6 +82,7 @@ find_package(Gettext    REQUIRED)
 find_package(GLM        REQUIRED)
 find_package(OggVorbis  REQUIRED)
 find_package(OpenGL     REQUIRED)
+find_package(SampleRate REQUIRED)
 find_package(SDL2       REQUIRED)
 set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
 find_package(SoundIO    REQUIRED)
@@ -115,6 +113,7 @@ include_directories(SYSTEM
     ${GLM_INCLUDE_DIRS}
     ${OGG_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIRS}
+    ${SAMPLERATE_INCLUDE_DIRS}
     ${SDL2_INCLUDE_DIR}
     ${SOUNDIO_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
@@ -127,6 +126,16 @@ if(INC_PATH)
         include_directories(SYSTEM ${PATH})
     endforeach()
 endif()
+
+####################################################################
+#   Localization
+####################################################################
+set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
+include(GettextTranslate)
+GettextTranslateTargets(ALL)
+
+add_subdirectory(po)
+
 ####################################################################
 #   Source
 ####################################################################
@@ -136,35 +145,37 @@ configure_file (
 )
 
 set(CORE_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/input.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/stream.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.hpp
 )
 set(CORE_SOURCE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
 )
 
 set(GAME_HEADERS
@@ -172,14 +183,14 @@ set(GAME_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.hpp
 )
 set(GAME_SOURCE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
 )
 
 include_directories(
-    ${PROJECT_SOURCE_DIR}/src/core
     ${PROJECT_SOURCE_DIR}/src/core/audio
+    ${PROJECT_SOURCE_DIR}/src/core
     ${PROJECT_SOURCE_DIR}/src/engine
     ${PROJECT_SOURCE_DIR}/src/game
     ${PROJECT_SOURCE_DIR}/src
@@ -213,6 +224,7 @@ target_link_libraries(openrhythm
     ${FREETYPE_LIBRARIES}
     ${OGG_LIBRARY}
     ${OPENGL_LIBRARIES}
+    ${SAMPLERATE_LIBRARY}
     ${SDL2_LIBRARY}
     ${SOUNDIO_LIBRARY}
     ${VORBIS_LIBRARY}
@@ -236,6 +248,7 @@ target_link_libraries(audiotests
     ${FREETYPE_LIBRARIES}
     ${OGG_LIBRARY}
     ${OPENGL_LIBRARIES}
+    ${SAMPLERATE_LIBRARY}
     ${SDL2_LIBRARY}
     ${SOUNDIO_LIBRARY}
     ${VORBIS_LIBRARY}
@@ -244,12 +257,3 @@ target_link_libraries(audiotests
 )
 
 install(TARGETS audiotests DESTINATION bin)
-
-####################################################################
-#   Localization
-####################################################################
-set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
-include(GettextTranslate)
-GettextTranslateTargets(ALL)
-
-add_subdirectory(po)

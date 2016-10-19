@@ -1,17 +1,17 @@
+#include "soundio.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <iostream>
+#include <iomanip>
 #include <stdexcept>
 #include <vector>
 
 #include "config.hpp"
-#if defined(PLATFORM_WINDOWS)
-#define SOUNDIO_STATIC_LIBRARY
-#endif
-#include "soundio.hpp"
+
+#include "chrono.hpp"
 
 #include <libintl.h>
 #define _(STRING) gettext(STRING)
@@ -70,7 +70,7 @@ namespace ORCore {
             soundio_destroy(soundio);
     }
 
-    void SoundIoOutput::open_stream(SoundIoFormat format, int sample_rate, double latency) {
+    void SoundIoOutput::open_stream(int sample_rate, double latency, SoundIoFormat format) {
         if (device == nullptr) {
             throw std::runtime_error(_("Error while opening libsoundiostream : the device is not yet set !"));
         }
@@ -108,8 +108,8 @@ namespace ORCore {
         }
     }
 
-    void SoundIoOutput::add_stream(AudioOutputStream *stream) {
-        m_AllStreams.push_back(stream);
+    void SoundIoOutput::add_stream(AudioStream *stream) {
+        m_AudioStreams.push_back(stream);
     }
 
     // Closes the stream
@@ -150,75 +150,59 @@ namespace ORCore {
 
     void SoundIoOutput::write_callback(
         struct SoundIoOutStream *outstream, int frameCountMin, int frameCountMax) {
+        // Timer bench_timer;
 
         const struct SoundIoChannelLayout *layout = &outstream->layout;
         struct SoundIoChannelArea *areas;
 
-        int err = soundio_outstream_begin_write(outstream, &areas, &frameCountMax);
+        int min = frameCountMax;
+        for (auto stream: m_AudioStreams) {
+            int framesProcessed = stream->process(frameCountMax);
+            if (framesProcessed != 0)
+                min = framesProcessed;
+        }
+
+        int err = soundio_outstream_begin_write(outstream, &areas, &min);
         if (err) {
             logger->error(_("{}"), soundio_strerror(err));
             throw std::runtime_error(_("SoundIO begin write failed"));
         }
 
-        m_dataBuffer.resize(frameCountMax*CHANNELS_COUNT);
-
-
-        for (auto const& stream: m_AllStreams) {
-            stream->read(frameCountMax);
-            m_dataBuffer = *(stream->get_buffer());
-        }
+        m_dataBuffer.resize(frameCountMax*layout->channel_count);
 
         // Now we copy the data into the outstream !
         for (int i = 0; i < frameCountMax; ++i) {
             for (int channel = 0; channel < layout->channel_count; ++channel) {
-                float sample = m_dataBuffer[channel + 2*i];
                 float *ptr = (float*)(areas[channel].ptr + areas[channel].step * i);
-                *ptr = sample;
+                *ptr = 0;
+                for (auto stream: m_AudioStreams) {
+                    float sample = stream->getFilledOutputBuffer()
+                        ->at(channel + layout->channel_count * i);
+                    *ptr += sample;
+                }
+                // Pass tanh() to the samples to remove possible overflows
+                // due to decoding and mixing
+                *ptr = tanh(*ptr);
             }
         }
+
+        for (auto stream: m_AudioStreams) {
+            stream->cleanReadFrames(frameCountMax);
+        }
+
 
         if ((err = soundio_outstream_end_write(outstream))) {
             logger->error(_("soundio error : {}\n"), soundio_strerror(err));
             throw std::runtime_error(_("SoundIO end write failed"));
         }
+        // std::cout << "time in audio callback (max/real): "
+        //           << frameCountMax/48000.0 << " "
+        //           << std::fixed << bench_timer.finish() << std::endl;
     }
 
     void SoundIoOutput::underflow_callback(SoundIoOutStream *outstream) {
         static int count = 0;
         logger->error(_("underflow {}\n"), count++);
     }
-
-    void AudioOutputStream::set_input(Input *theSong) {
-        this->theSong = theSong;
-    }
-
-    void AudioOutputStream::read(int frameCountMax) {
-        m_dataBuffer.resize(frameCountMax*CHANNELS_COUNT);
-        theSong->readBuffer(&m_dataBuffer[0], frameCountMax);
-    }
-
-    std::vector<float> *AudioOutputStream::get_buffer() {
-        return &m_dataBuffer;
-    }
-
-    int soundio_main(Input *thesong) {
-        auto soundOutput = SoundIoOutput();
-        soundOutput.connect_default_output_device();
-        soundOutput.open_stream();
-
-        // We should use a smart pointer raw new/delete is considered bad style nowdays.
-        AudioOutputStream *mysoundioostream = new AudioOutputStream();
-        mysoundioostream->set_input(thesong);
-
-        soundOutput.add_stream(mysoundioostream);
-
-        for (;;)
-            soundOutput.wait_events();
-
-        delete(mysoundioostream);
-        soundOutput.disconnect_device();
-        return 0;
-    }
-
 
 } // namespace ORCore

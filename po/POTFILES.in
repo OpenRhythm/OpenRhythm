@@ -1,8 +1,11 @@
 src/core/audio/codecs/vorbis.cpp
 src/core/audio/codecs/vorbis.hpp
-src/core/audio/input.hpp
+src/core/audio/output/chrono.hpp
 src/core/audio/output/soundio.cpp
 src/core/audio/output/soundio.hpp
+src/core/audio/stream.hpp
+src/core/audio/streams/resample.cpp
+src/core/audio/streams/resample.hpp
 src/core/context.cpp
 src/core/context.hpp
 src/core/events.cpp
@@ -30,6 +33,5 @@ src/game/game.cpp
 src/game/game.hpp
 src/game/parser.cpp
 src/game/parser.hpp
-src/tests/audiotests.cpp
-src/config.hpp
 src/main.cpp
+src/tests/audiotests.cpp
