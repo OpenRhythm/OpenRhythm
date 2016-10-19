@@ -88,19 +88,24 @@ set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
 find_package(SoundIO    REQUIRED)
 find_package(YamlCpp    REQUIRED)
 
-if(NOT DEFINED(USE_LIB_PNGCPP))
-    set(USE_LIB_PNGCPP 0)
-endif()
-if(USE_LIB_PNGCPP)
-    find_package(PNG    REQUIRED)
-    include_directories(${PNG_INCLUDE_DIR})
-    include_directories(${CMAKE_SOURCE_DIR}/extern/png++)
-    source_group("extern\\png++" FILES ${PNGPP_SRC})
-endif()
-
 add_library(GLAD STATIC ${CMAKE_CURRENT_SOURCE_DIR}/extern/glad/src/glad.c)
 set_target_properties(GLAD PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
     "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}")
+
+set(LIBRARIES
+      GLAD
+    ${CMAKE_DL_LIBS}
+    ${FREETYPE_LIBRARIES}
+    ${OGG_LIBRARY}
+    ${OPENGL_LIBRARIES}
+    ${SAMPLERATE_LIBRARY}
+    ${SDL2_LIBRARY}
+    ${SOUNDIO_LIBRARY}
+    ${VORBIS_LIBRARY}
+    ${VORBISFILE_LIBRARY}
+    ${YAMLCPP_LIBRARY}
+)
+
 
 # These includes are defined a system headers so any warnings within
 # don't get shown during compilation.
@@ -196,12 +201,15 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/src
 )
 
+# To create tabs in VisualStudio
 source_group("src\\core"  FILES ${CORE_SOURCE}  ${CORE_HEADERS})
 source_group("src\\game"  FILES ${GAME_SOURCE}  ${GAME_HEADERS})
 
 add_library(ORCore-obj OBJECT ${CORE_SOURCE})
 
-add_executable(openrhythm  $<TARGET_OBJECTS:ORCore-obj> ${GAME_SOURCE})
+add_executable(       openrhythm $<TARGET_OBJECTS:ORCore-obj> ${GAME_SOURCE})
+target_link_libraries(openrhythm ${LIBRARIES})
+install(TARGETS       openrhythm DESTINATION bin)
 
 set(BINARY_DATA_DIR ${CMAKE_BINARY_DIR}/data)
 set(SOURCE_DATA_DIR ${CMAKE_SOURCE_DIR}/data)
@@ -218,45 +226,18 @@ if(OSX_APP_BUNDLE)
     set_target_properties(openrhythm PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
 
-target_link_libraries(openrhythm
-      GLAD
-    ${CMAKE_DL_LIBS}
-    ${FREETYPE_LIBRARIES}
-    ${OGG_LIBRARY}
-    ${OPENGL_LIBRARIES}
-    ${SAMPLERATE_LIBRARY}
-    ${SDL2_LIBRARY}
-    ${SOUNDIO_LIBRARY}
-    ${VORBIS_LIBRARY}
-    ${VORBISFILE_LIBRARY}
-    ${YAMLCPP_LIBRARY}
-)
-
-install(TARGETS openrhythm DESTINATION bin)
 
 ####################################################################
 #   Test binaries
 ####################################################################
+add_executable(       audiotests $<TARGET_OBJECTS:ORCore-obj> ${PROJECT_SOURCE_DIR}/src/tests/audiotests.cpp)
+target_link_libraries(audiotests ${LIBRARIES})
+install(TARGETS       audiotests DESTINATION bin)
 
-add_executable(audiotests $<TARGET_OBJECTS:ORCore-obj>
-    ${PROJECT_SOURCE_DIR}/src/tests/audiotests.cpp
-)
+add_executable(       general_tests $<TARGET_OBJECTS:ORCore-obj> ${PROJECT_SOURCE_DIR}/src/tests/general_tests.cpp)
+target_link_libraries(general_tests ${LIBRARIES})
+install(TARGETS       general_tests DESTINATION bin)
 
-target_link_libraries(audiotests
-      GLAD
-    ${CMAKE_DL_LIBS}
-    ${FREETYPE_LIBRARIES}
-    ${OGG_LIBRARY}
-    ${OPENGL_LIBRARIES}
-    ${SAMPLERATE_LIBRARY}
-    ${SDL2_LIBRARY}
-    ${SOUNDIO_LIBRARY}
-    ${VORBIS_LIBRARY}
-    ${VORBISFILE_LIBRARY}
-    ${YAMLCPP_LIBRARY}
-)
-
-install(TARGETS audiotests DESTINATION bin)
 
 ####################################################################
 #   Documentation
@@ -266,7 +247,7 @@ find_package(Cldoc)
 if(Cldoc_FOUND)
     # Adds "doc" and "doc/fast" make targets
     add_cldoc_documentation(
-        FILES ${SOURCE}
+        FILES ${CORE_SOURCE} ${CORE_HEADERS} ${GAME_SOURCE} ${GAME_HEADERS}
         FLAGS
             -I${SDL2_INCLUDE_DIR}/.
             -I${SDL2Mixer_INCLUDE_DIRS}/.
