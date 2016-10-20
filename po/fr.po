@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openrhythm\n"
 "Report-Msgid-Bugs-To: https://github.com/OpenRhythm/OpenRhythm/issues\n"
-"POT-Creation-Date: 2016-10-18 17:10+0200\n"
+"POT-Creation-Date: 2016-10-20 15:35+0200\n"
 "PO-Revision-Date: 2012-01-25 14:58+0100\n"
 "Last-Translator: Salamandar <felix@piedallu.me>\n"
 "Language-Team: français <feilx@piedallu.me>\n"
@@ -19,13 +19,277 @@ msgstr ""
 "X-Poedit-Country: FRANCE\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: src/main.cpp:46 src/tests/audiotests.cpp:28
+#: src/core/audio/codecs/vorbis.cpp:15
+msgid "Vorbis: data interruption"
+msgstr ""
+
+#: src/core/audio/codecs/vorbis.cpp:16
+msgid "Vorbis: Invalid Stream"
+msgstr ""
+
+#: src/core/audio/codecs/vorbis.cpp:17
+msgid "Vorbis: Invalid Headers"
+msgstr ""
+
+#: src/core/audio/codecs/vorbis.cpp:18
+msgid "Vorbis: Read error."
+msgstr ""
+
+#: src/core/audio/codecs/vorbis.cpp:19
+msgid "Vorbis: No vorbis data"
+msgstr ""
+
+#: src/core/audio/codecs/vorbis.cpp:20
+msgid "Vorbis: Version Mismatch"
+msgstr ""
+
+#: src/core/audio/codecs/vorbis.cpp:21
+msgid "Vorbis: Invalid Vorbis bitstream header."
+msgstr ""
+
+#: src/core/audio/codecs/vorbis.cpp:22
+msgid "Vorbis: Internal logic fault."
+msgstr ""
+
+#: src/core/audio/codecs/vorbis.cpp:50
+msgid "Error seeking file to position 0."
+msgstr ""
+
+#: src/core/audio/codecs/vorbis.cpp:52
+msgid "Seeked file to position 0."
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:52 src/core/audio/output/soundio.cpp:53
+msgid "SoundIO_create: out of memory"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:60
+msgid "SoundIO_connect error: {}"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:61
+msgid "SoundIO_connect error: "
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:75
+msgid "Error while opening libsoundiostream : the device is not yet set !"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:94
+msgid "unable to open device: {}"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:95
+msgid "unable to open device: "
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:100 src/core/audio/output/soundio.cpp:101
+msgid "unable to set channel layout: "
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:106 src/core/audio/output/soundio.cpp:107
+msgid "unable to start device: "
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:128 src/core/audio/output/soundio.cpp:129
+msgid "SoundIO: No output device found"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:134 src/core/audio/output/soundio.cpp:135
+msgid "SoundIO: out of memory"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:167
+msgid "{}"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:168
+msgid "SoundIO begin write failed"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:195
+msgid "soundio error : {}\n"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:196
+msgid "SoundIO end write failed"
+msgstr ""
+
+#: src/core/audio/output/soundio.cpp:205
+msgid "underflow {}\n"
+msgstr ""
+
+#: src/core/audio/streams/resample.cpp:15
+msgid "Failed to init LibSampleRate: "
+msgstr ""
+
+#: src/core/audio/streams/resample.cpp:54
+msgid "LibSampleRate error: "
+msgstr ""
+
+#: src/core/parseutils.hpp:33
+msgid "Failed to load file."
+msgstr ""
+
+#: src/core/parseutils.hpp:73 src/core/parseutils.hpp:126
+#: src/core/parseutils.hpp:177 src/core/parseutils.hpp:223
+msgid "Size greater than container type"
+msgstr ""
+
+#: src/core/shader.cpp:45
+msgid "Shader compilation failed."
+msgstr ""
+
+#: src/core/shader.cpp:47
+msgid "Shader compiled sucessfully."
+msgstr ""
+
+#: src/core/shader.cpp:90
+msgid "Shader linkage failed."
+msgstr ""
+
+#: src/core/shader.cpp:92
+msgid "Shader linked sucessfully."
+msgstr ""
+
+#: src/core/smf.cpp:68
+msgid "Bad Midi control message"
+msgstr ""
+
+#: src/core/smf.cpp:84
+msgid "Sequence Number {}"
+msgstr ""
+
+#: src/core/smf.cpp:121
+msgid "Midi Channel {}"
+msgstr ""
+
+#: src/core/smf.cpp:129
+msgid "End of Track {}"
+msgstr ""
+
+#: src/core/smf.cpp:155
+msgid "Time signature  {}/{} CPC: {} TSPQN: {}"
+msgstr ""
+
+#: src/core/smf.cpp:176
+msgid "Unused event type {}."
+msgstr ""
+
+#: src/core/smf.cpp:189
+msgid "sysex even at position {}"
+msgstr ""
+
+#: src/core/smf.cpp:244
+msgid "No tempo change at deltatime 0 setting default of 120 BPM."
+msgstr ""
+
+#: src/core/smf.cpp:263
+msgid "No time signature change at deltatime 0 setting default of 4/4."
+msgstr ""
+
+#: src/core/smf.cpp:317
+msgid "chunk of type {} detected."
+msgstr ""
+
+#: src/core/smf.cpp:330
+msgid "Not a valid type 0 midi."
+msgstr ""
+
+#: src/core/smf.cpp:335
+msgid "SMPTE time division not supported"
+msgstr ""
+
+#: src/core/smf.cpp:345
+msgid "Non-standard chunk of type {} detected, skipping."
+msgstr ""
+
+#: src/core/smf.cpp:354
+msgid "Offset for chunk '{}' incorrect, seeking to correct location."
+msgstr ""
+
+#: src/core/smf.cpp:355
+msgid "Offset difference. expected: '{}' actual: '{}'"
+msgstr ""
+
+#: src/core/smf.cpp:360
+msgid "To few bytes remaining in midi for another track, this is likely a bug."
+msgstr ""
+
+#: src/core/smf.cpp:364
+msgid "Track chunk count does not match header."
+msgstr ""
+
+#: src/core/smf.cpp:366
+msgid "End of MIDI reached."
+msgstr ""
+
+#: src/core/smf.cpp:373
+msgid "Loading MIDI"
+msgstr ""
+
+#: src/core/smf.cpp:378
+msgid "Failed to load MIDI file."
+msgstr ""
+
+#: src/core/texture.cpp:90
+msgid "Failed to get image data"
+msgstr ""
+
+#: src/core/texture.cpp:153
+msgid "Texture bound"
+msgstr ""
+
+#: src/core/vfs.cpp:183
+msgid "Failed to load: "
+msgstr ""
+
+#: src/core/window.hpp:24
+msgid "Game"
+msgstr ""
+
+#: src/game/game.cpp:70
+msgid "Error: GLAD failed to load."
+msgstr ""
+
+#: src/game/parser.cpp:142
+msgid "Tempo change recieved at time {}"
+msgstr ""
+
+#: src/game/parser.cpp:148
+msgid "Time signature change recieved at time {}"
+msgstr ""
+
+#: src/main.cpp:26 src/tests/audiotests.cpp:28
 #, c-format
 msgid "Hello World\n"
 msgstr "Bonjour le Monde\n"
 
-#: src/main.cpp:30
-#, c-format
-msgid "Goodbye World\n"
-msgstr "Au revoir le Monde\n"
+#: src/main.cpp:46 src/tests/audiotests.cpp:48
+msgid "Logging Failed: "
+msgstr ""
 
+#: src/main.cpp:47 src/main.cpp:56
+msgid "Runtime Error"
+msgstr ""
+
+#: src/main.cpp:55
+msgid ""
+"Runtime Error:\n"
+"{}"
+msgstr ""
+
+#: src/tests/audiotests.cpp:60 src/tests/audiotests.cpp:80
+msgid "opening ogg vorbis file failed: "
+msgstr ""
+
+#: src/tests/audiotests.cpp:71
+msgid "SongSampleRate: {}"
+msgstr ""
+
+#: src/tests/audiotests.cpp:98
+msgid "addstream resamplerstream"
+msgstr ""
+
+#~ msgid "Goodbye World\n"
+#~ msgstr "Au revoir le Monde\n"
