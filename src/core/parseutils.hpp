@@ -1,9 +1,8 @@
 #pragma once
 #include <fstream>
 #include <cstdint>
-#include <cstdint>
 #include <string>
-#include <vector>
+#include <memory>
 #include <stdexcept>
 
 #include <libintl.h>
@@ -11,10 +10,13 @@
 
 namespace ORCore
 {
-    // This is
+    // TODO - Could be useful to move into the VFS at some point.
+    // Also in the future we can have an alternative memory mapped file 
+    // implementation when speed is less important than memory usage.
+    // This is just mainly a basic starting point.
     struct FileBuffer
     {
-        std::vector<char> data;
+        std::unique_ptr<char[]> data;
         uint32_t position = 0;
         uint32_t size = 0;
 
@@ -24,7 +26,7 @@ namespace ORCore
 
             if (dataFile) {
                 size = dataFile.tellg();
-                data.resize(size);
+                data = std::make_unique<char[]>(size);
                 dataFile.seekg(0, std::ios::beg);
 
                 dataFile.read(&data[0], size);
