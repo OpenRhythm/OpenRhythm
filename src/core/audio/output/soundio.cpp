@@ -51,10 +51,10 @@ namespace ORCore {
 
         soundio->app_name = PROJECT_NAME;
 
-        int err = soundio_connect(soundio);
-        if (err) {
-            logger->error("SoundIO_connect error: {}", soundio_strerror(err));
-            throw std::runtime_error(std::string("SoundIO_connect error: ") + soundio_strerror(err));
+        SoundIoError err = soundio_connect(soundio);
+        if (err != SoundIoErrorNone) {
+            logger->error("SoundIO_connect error: {}", soundio_error_name(err));
+            throw std::runtime_error(std::string("SoundIO_connect error: ") + soundio_error_name(err));
         }
 
         soundio_flush_events(soundio);
@@ -85,22 +85,22 @@ namespace ORCore {
 
         outstream->name = PROJECT_NAME "SoundIoOutput";
 
-        int err = soundio_outstream_open(outstream);
-        if (err) {
-            logger->error("unable to open device: {}", soundio_strerror(err));
-            throw std::runtime_error(std::string("unable to open device: ") + soundio_strerror(err));
+        SoundIoError err = soundio_outstream_open(outstream);
+        if (err != SoundIoErrorNone) {
+            logger->error("unable to open device: {}", soundio_error_name(err));
+            throw std::runtime_error(std::string("unable to open device: ") + soundio_error_name(err));
         }
 
         err = outstream->layout_error;
-        if (err) {
-            logger->error("unable to set channel layout: ", soundio_strerror(err));
-            throw std::runtime_error(std::string("unable to set channel layout: ") + soundio_strerror(err));
+        if (err != SoundIoErrorNone) {
+            logger->error("unable to set channel layout: ", soundio_error_name(err));
+            throw std::runtime_error(std::string("unable to set channel layout: ") + soundio_error_name(err));
         }
 
         err = soundio_outstream_start(outstream);
-        if (err) {
-            logger->error("unable to start device: ", soundio_strerror(err));
-            throw std::runtime_error(std::string("unable to start device: ") + soundio_strerror(err));
+        if (err != SoundIoErrorNone) {
+            logger->error("unable to start device: ", soundio_error_name(err));
+            throw std::runtime_error(std::string("unable to start device: ") + soundio_error_name(err));
         }
     }
 
@@ -158,9 +158,9 @@ namespace ORCore {
                 min = framesProcessed;
         }
 
-        int err = soundio_outstream_begin_write(outstream, &areas, &min);
-        if (err) {
-            logger->error("{}", soundio_strerror(err));
+        SoundIoError err = soundio_outstream_begin_write(outstream, &areas, &min);
+        if (err != SoundIoErrorNone) {
+            logger->error("{}", soundio_error_name(err));
             throw std::runtime_error("SoundIO begin write failed");
         }
 
@@ -186,9 +186,9 @@ namespace ORCore {
             stream->cleanReadFrames(frameCountMax);
         }
 
-
-        if ((err = soundio_outstream_end_write(outstream))) {
-            logger->error("soundio error : {}\n", soundio_strerror(err));
+        err = soundio_outstream_end_write(outstream);
+        if (err != SoundIoErrorNone) {
+            logger->error("soundio error : {}\n", soundio_error_name(err));
             throw std::runtime_error("SoundIO end write failed");
         }
         // std::cout << "time in audio callback (max/real): "
