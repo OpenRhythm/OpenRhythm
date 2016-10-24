@@ -191,7 +191,7 @@ namespace ORCore
         void read_sysex_event(SmfEventInfo &event);
         double conv_abstime(uint32_t deltaPulses);
         TempoEvent* get_last_tempo_via_pulses(uint32_t pulseTime);
-        void read_events(int chunkEnd);
+        void read_events(uint32_t chunkEnd);
         void read_file();
 
         std::shared_ptr<spdlog::logger> m_logger;

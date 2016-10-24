@@ -194,7 +194,7 @@ namespace ORCore
         return deltaPulses * (m_currentTempoEvent->qnLength / (m_header.division * 1000000.0));
     }
 
-    void SmfReader::read_events(int chunkEnd)
+    void SmfReader::read_events(uint32_t chunkEnd)
     {
         uint32_t pulseTime = 0;
         uint8_t prevStatus = 0;
@@ -299,7 +299,7 @@ namespace ORCore
         int chunkStart = fileStart;
 
         // The chunk end will be calculated after a chunk is loaded.
-        int chunkEnd = 0;
+        uint32_t chunkEnd = 0;
 
         int trackChunkCount = 0;
 

@@ -266,6 +266,7 @@ namespace ORCore
 
             basePath = basePath.substr( 0, pos+1 );
             pos = basePath.rfind( "."+sys_path_delimiter );
+#pragma GCC diagnostic ignored "-Wsign-compare"
             if (pos != std::string::npos)
             {
                 basePath = basePath.substr( 0, pos-1 );

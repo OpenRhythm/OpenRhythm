@@ -119,7 +119,7 @@ namespace ORCore
 
 
     Texture::Texture(std::string path, ShaderProgram *program)
-    : m_path(path), m_program(program)
+    : m_program(program), m_path(path)
     {
         _texCount++;
         m_texUnitID = _texCount;
@@ -144,7 +144,7 @@ namespace ORCore
 
     void Texture::bind()
     {
-        if (_currentBoundtexture != m_texUnitID) {
+        if (_currentBoundtexture != (GLuint)m_texUnitID) {
             _currentBoundtexture = m_texUnitID;
 
             glActiveTexture(GL_TEXTURE0+m_texUnitID);

@@ -37,4 +37,3 @@ namespace ORCore
         GLuint m_texID;
 
     };
-}

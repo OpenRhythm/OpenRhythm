@@ -33,7 +33,7 @@ namespace ORCore
                 throw std::runtime_error(_("Failed to load file."));
             }
         }
-        size_t get_pos() {
+        uint32_t get_pos() {
             return position;
         }
         void set_pos(uint32_t pos) {
@@ -42,7 +42,7 @@ namespace ORCore
         void set_pos_rel(uint32_t pos) {
             position += pos;
         }
-        size_t get_size() {
+        uint32_t get_size() {
             return size;
         }
     };

@@ -10,7 +10,7 @@ namespace ORCore
     }
 
     Window::Window(int width, int height, bool fullscreen, std::string title)
-    : m_width(width), m_height(height), m_fullscreen(fullscreen), m_title(title)
+    : m_title(title), m_fullscreen(fullscreen), m_width(width), m_height(height)
     {
     // TODO - Implement fullscreen mode
         m_x = SDL_WINDOWPOS_CENTERED;

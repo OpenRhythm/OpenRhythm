@@ -29,7 +29,7 @@ namespace ORCore
         std::string output;
         output.reserve(strSize);
         const std::string &vec_back = strElements.back();
-        std::size_t vecSize = strElements.size();
+        // int vecSize = strElements.size();
         for (const auto &str : strElements)
         {
             output.append(str);
@@ -45,8 +45,8 @@ namespace ORCore
     {
         std::vector<std::string> split;
 
-        std::size_t start = 0;
-        std::size_t end = 0;
+        size_t start = 0;
+        size_t end = 0;
         bool running = true;
 
         while (running) {
