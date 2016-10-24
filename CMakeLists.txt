@@ -88,7 +88,7 @@ set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
 find_package(SoundIO    REQUIRED)
 find_package(YamlCpp    REQUIRED)
 
-add_definitions(-DUSE_LIB_PNGCPP=0)
+set(USE_LIB_PNGCPP 0)
 
 add_library(GLAD STATIC ${CMAKE_CURRENT_SOURCE_DIR}/extern/glad/src/glad.c)
 set_target_properties(GLAD PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
