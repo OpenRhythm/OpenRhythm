@@ -19,9 +19,7 @@
 #define STBI_NO_GIF
 // This leaves us with the following supported image formats:
 // jpg  png  bmp  tga  hdr
-#pragma warning(push, 0)
 #include <stb_image.h>
-#pragma warning(pop)
 
 #include <libintl.h>
 #define _(STRING) gettext(STRING)

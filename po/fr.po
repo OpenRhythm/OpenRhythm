@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openrhythm\n"
 "Report-Msgid-Bugs-To: https://github.com/OpenRhythm/OpenRhythm/issues\n"
-"POT-Creation-Date: 2016-10-20 15:35+0200\n"
+"POT-Creation-Date: 2016-10-24 20:07+0200\n"
 "PO-Revision-Date: 2012-01-25 14:58+0100\n"
 "Last-Translator: Salamandar <felix@piedallu.me>\n"
 "Language-Team: français <feilx@piedallu.me>\n"
@@ -232,11 +232,11 @@ msgstr ""
 msgid "Failed to load MIDI file."
 msgstr ""
 
-#: src/core/texture.cpp:90
+#: src/core/texture.cpp:88
 msgid "Failed to get image data"
 msgstr ""
 
-#: src/core/texture.cpp:153
+#: src/core/texture.cpp:151
 msgid "Texture bound"
 msgstr ""
 
