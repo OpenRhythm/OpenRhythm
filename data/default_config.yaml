@@ -1,0 +1,119 @@
+--- !OpenRhythm_Config
+global:
+  language: system
+
+paths:
+  library: /home/salamandar/FoF/songs/
+  last_song: Puppetz Hero/Puppetz Hero IV/Tier 08 - Amp-Exploder/08.3 Stratovarius - Black Diamond
+
+window:
+  resolution: [1024, 768]
+  samples: 4
+  fullscreen: false
+  fps: fixed
+  fps_max: 60
+
+interface:
+  theme: MegaLight GH3
+  note_rotate: true
+  neck: defaultneck
+
+
+audio:
+  backend:
+    bits: 16
+    framerate: 44100
+    latency_ms: 10
+    stereo: true
+  volumes:
+    track       : 100
+    background  :  80
+    screw-up    :  40
+    miss        :  20
+    crowd       :  80
+    kill        :  00
+    effects     :  70
+    menu        :  60
+
+
+menus:
+  audio_preview:  true
+  preview_delay:  100
+
+game:
+  music_delay_ms: 0
+  enable_crowd:   true
+  mute_end_secs:  0
+  default_speed:  1
+  whammy_effect:  false
+  hit_window: 0
+
+
+debug:
+  show_fps: true
+  show_bpm: false
+  show_overlay: false
+  show_raw_vocal: false
+  log_level: debug
+  test_songs:
+    - name: TestOgg.ogg
+    - name: /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga
+
+
+## May be in a separated file
+# Keys may not be named (more keycodes) but that'd be a plus
+
+users:
+- name:         Salamandar
+  date-created: 2016-10-18
+# From fofix:
+  assist_mode: 0
+  auto_kick: 0
+  difficulty: 0
+  drumflip: 0
+  leftymode: 0
+  neck:
+  necktype: 0
+  part: 0
+  two_chord_max: 0
+  analog_drum: 0
+  analog_fx: 0
+  analog_kill: 0
+  analog_slide: 0
+  analog_sp: 0
+  analog_sp_sensitivity: 4
+  analog_sp_threshold: 60
+  key_action1: 234
+  key_action2: 224
+  key_star: 98
+  mic_device: -1
+  mic_passthrough_volume: 0.0
+  mic_tap_sensitivity: 5
+  two_chord_max: 0
+
+
+controllers:
+  guitars:
+    - name:   Default Guitar
+      id:     1
+      notes:  [F1, F2, F3, F4, F5]
+      solo:   [F1, F2, F3, F4, F5]
+      picks:  [Return, Right Shift]
+      star:   Right Ctrl
+      whammy: None
+      menus:
+        left:   Left
+        right:  Right
+        up:     Up
+        down:   Down
+        cancel: Escape
+        kill:   PageUp
+  microphones:
+    - name:   Default Microphone
+      id:     1
+  drums:
+    - name:   Default Drums
+
+
+
+
