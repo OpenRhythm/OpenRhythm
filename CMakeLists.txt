@@ -186,10 +186,12 @@ set(CORE_SOURCE
 )
 
 set(GAME_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration/parameter.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.hpp
 )
 set(GAME_SOURCE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration/parameter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp

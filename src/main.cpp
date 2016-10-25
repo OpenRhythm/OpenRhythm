@@ -17,12 +17,12 @@
 // This also means the VFS needs to be setup here as well
 int main()
 {
-    /* Setting the i18n environment */
+    // Setting the i18n environment
     setlocale (LC_ALL, "");
     bindtextdomain ("openrhythm", LOCALE_DIR);
     textdomain ("openrhythm");
 
-    /* Example of i18n usage */
+    // Example of i18n usage
     printf(_("Hello World\n"));
 
     std::shared_ptr<spdlog::logger> logger;
