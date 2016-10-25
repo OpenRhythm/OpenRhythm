@@ -211,7 +211,7 @@ macro(GettextTranslate)
     )
     add_custom_target(${GMO_TARGET} DEPENDS ${GMO_FILE_NAME})
 
-    add_custom_target(${PO_TARGET} DEPENDS ${PO_FILE_NAME})
+    add_custom_target(${PO_TARGET} DEPENDS ${PO_FILE_NAME}.flag)
 
     install(FILES ${GMO_FILE_NAME} DESTINATION
       ${LOCALEDIR}/${lang}/LC_MESSAGES

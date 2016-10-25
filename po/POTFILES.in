@@ -6,6 +6,8 @@ src/core/audio/output/soundio.hpp
 src/core/audio/stream.hpp
 src/core/audio/streams/resample.cpp
 src/core/audio/streams/resample.hpp
+src/core/configuration/parameter.cpp
+src/core/configuration/parameter.hpp
 src/core/context.cpp
 src/core/context.hpp
 src/core/events.cpp
@@ -29,9 +31,12 @@ src/core/vfs.cpp
 src/core/vfs.hpp
 src/core/window.cpp
 src/core/window.hpp
+src/game/configuration.cpp
+src/game/configuration.hpp
 src/game/game.cpp
 src/game/game.hpp
 src/game/parser.cpp
 src/game/parser.hpp
 src/main.cpp
 src/tests/audiotests.cpp
+src/tests/general_tests.cpp

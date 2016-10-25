@@ -6,10 +6,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openrhythm\n"
 "Report-Msgid-Bugs-To: https://github.com/OpenRhythm/OpenRhythm/issues\n"
-"POT-Creation-Date: 2016-10-24 20:07+0200\n"
+"POT-Creation-Date: 2016-10-25 21:12+0200\n"
 "PO-Revision-Date: 2012-01-25 14:58+0100\n"
 "Last-Translator: Salamandar <felix@piedallu.me>\n"
-"Language-Team: français <feilx@piedallu.me>\n"
+"Language-Team: français <felix@piedallu.me>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -232,11 +232,11 @@ msgstr ""
 msgid "Failed to load MIDI file."
 msgstr ""
 
-#: src/core/texture.cpp:88
+#: src/core/texture.cpp:94
 msgid "Failed to get image data"
 msgstr ""
 
-#: src/core/texture.cpp:151
+#: src/core/texture.cpp:157
 msgid "Texture bound"
 msgstr ""
 
@@ -246,6 +246,25 @@ msgstr ""
 
 #: src/core/window.hpp:24
 msgid "Game"
+msgstr ""
+
+#: src/game/configuration.cpp:11
+msgid "Language"
+msgstr ""
+
+#: src/game/configuration.cpp:11
+msgid "The language"
+msgstr ""
+
+#: src/game/configuration.cpp:15 src/game/configuration.cpp:18
+#: src/game/configuration.cpp:22 src/game/configuration.cpp:25
+#: src/game/configuration.cpp:28 src/game/configuration.cpp:31
+#: src/game/configuration.cpp:34
+msgid " "
+msgstr ""
+
+#: src/game/configuration.cpp:22
+msgid "Window Resolution"
 msgstr ""
 
 #: src/game/game.cpp:70
