@@ -192,11 +192,12 @@ macro(GettextTranslate)
 
     else()
 
-      add_custom_command(OUTPUT ${PO_FILE_NAME}
+      add_custom_command(OUTPUT ${PO_FILE_NAME}.flag
         COMMAND ${MSGMERGE_BINARY} --lang=${lang}
           ${PO_FILE_NAME} ${TEMPLATE_FILE_ABS}
           -o ${PO_FILE_NAME}.new
         COMMAND mv ${PO_FILE_NAME}.new ${PO_FILE_NAME}
+        COMMAND touch ${PO_FILE_NAME}.flag
         DEPENDS ${TEMPLATE_FILE_ABS}
       )
 
