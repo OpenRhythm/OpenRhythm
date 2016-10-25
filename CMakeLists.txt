@@ -23,6 +23,8 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     add_definitions("-Wall")
     # Clean unused sections on link
     add_definitions("-ffunction-sections -fdata-sections -Wl,--gc-sections")
+    # Colored output
+    add_definitions("-fdiagnostics-color")
 endif()
 
 ####################################################################
@@ -188,10 +190,12 @@ set(CORE_SOURCE
 )
 
 set(GAME_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.hpp
 )
 set(GAME_SOURCE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp

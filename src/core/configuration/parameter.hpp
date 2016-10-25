@@ -8,7 +8,11 @@ class Parameter {
 public:
     Parameter(std::string nameVisible, std::string description,
               std::string cliName, char cliNameShort,
-              T valueDefault);
+              T valueDefault)
+    :   m_nameVisible(nameVisible), m_description(description),
+        m_cliName(cliName), m_cliNameShort(cliNameShort),
+        m_valueDefault(valueDefault) { };
+    ~Parameter() {};
 
     void setCliValue(T value);
     void setConfigValue(T value);
@@ -17,7 +21,6 @@ public:
     T getConfigValue();
 
 
-    ~Parameter();
 
 private:
     std::string m_nameVisible;
