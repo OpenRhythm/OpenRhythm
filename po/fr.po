@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openrhythm\n"
 "Report-Msgid-Bugs-To: https://github.com/OpenRhythm/OpenRhythm/issues\n"
-"POT-Creation-Date: 2016-10-26 12:34+0200\n"
+"POT-Creation-Date: 2016-10-26 12:45+0200\n"
 "PO-Revision-Date: 2012-01-25 14:58+0100\n"
 "Last-Translator: Salamandar <felix@piedallu.me>\n"
 "Language-Team: français <felix@piedallu.me>\n"
@@ -18,10 +18,6 @@ msgstr ""
 "X-Poedit-Language: French\n"
 "X-Poedit-Country: FRANCE\n"
 "X-Poedit-SourceCharset: utf-8\n"
-
-#: src/core/window.hpp:24
-msgid "Game"
-msgstr ""
 
 #: src/core/audio/codecs/vorbis.cpp:15
 msgid "Vorbis: data interruption"
@@ -239,22 +235,35 @@ msgstr ""
 msgid "Failed to load: "
 msgstr ""
 
-#: src/game/configuration.cpp:11
+#: src/core/parseutils.hpp:33
+msgid "Failed to load file."
+msgstr ""
+
+#: src/core/parseutils.hpp:73 src/core/parseutils.hpp:126
+#: src/core/parseutils.hpp:177 src/core/parseutils.hpp:223
+msgid "Size greater than container type"
+msgstr ""
+
+#: src/core/window.hpp:24
+msgid "Game"
+msgstr ""
+
+#: src/game/configuration.cpp:12
 msgid "Language"
 msgstr ""
 
-#: src/game/configuration.cpp:11
+#: src/game/configuration.cpp:12
 msgid "The language"
 msgstr ""
 
-#: src/game/configuration.cpp:15 src/game/configuration.cpp:18
-#: src/game/configuration.cpp:22 src/game/configuration.cpp:25
-#: src/game/configuration.cpp:28 src/game/configuration.cpp:31
-#: src/game/configuration.cpp:34
+#: src/game/configuration.cpp:16 src/game/configuration.cpp:19
+#: src/game/configuration.cpp:23 src/game/configuration.cpp:26
+#: src/game/configuration.cpp:29 src/game/configuration.cpp:32
+#: src/game/configuration.cpp:35
 msgid " "
 msgstr ""
 
-#: src/game/configuration.cpp:22
+#: src/game/configuration.cpp:23
 msgid "Window Resolution"
 msgstr ""
 
@@ -287,15 +296,6 @@ msgstr ""
 msgid ""
 "Runtime Error:\n"
 "{}"
-msgstr ""
-
-#: src/core/parseutils.hpp:33
-msgid "Failed to load file."
-msgstr ""
-
-#: src/core/parseutils.hpp:73 src/core/parseutils.hpp:126
-#: src/core/parseutils.hpp:177 src/core/parseutils.hpp:223
-msgid "Size greater than container type"
 msgstr ""
 
 #: src/tests/audiotests.cpp:60 src/tests/audiotests.cpp:80

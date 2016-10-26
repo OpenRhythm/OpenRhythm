@@ -147,6 +147,7 @@ configure_file (
 
 set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/chrono.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/stream.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.hpp
@@ -155,6 +156,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/parseutils.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.hpp
@@ -190,7 +192,13 @@ set(GAME_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/parser.cpp
+)
+
+set(ALL_SOURCE
+    ${CORE_SOURCE} ${CORE_HEADERS} ${GAME_SOURCE} ${GAME_HEADERS}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/general_tests.cpp
 )
 
 include_directories(
@@ -207,7 +215,9 @@ source_group("src\\game"  FILES ${GAME_SOURCE}  ${GAME_HEADERS})
 
 add_library(ORCore-obj OBJECT ${CORE_SOURCE})
 
-add_executable(       openrhythm $<TARGET_OBJECTS:ORCore-obj> ${GAME_SOURCE})
+add_executable(       openrhythm $<TARGET_OBJECTS:ORCore-obj>
+                                 ${GAME_SOURCE}
+                                 ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 target_link_libraries(openrhythm ${LIBRARIES})
 install(TARGETS       openrhythm DESTINATION bin)
 
@@ -238,11 +248,14 @@ add_subdirectory(po)
 ####################################################################
 #   Test binaries
 ####################################################################
-add_executable(       audiotests $<TARGET_OBJECTS:ORCore-obj> ${PROJECT_SOURCE_DIR}/src/tests/audiotests.cpp)
+add_executable(       audiotests $<TARGET_OBJECTS:ORCore-obj>
+                                 ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp)
 target_link_libraries(audiotests ${LIBRARIES})
 install(TARGETS       audiotests DESTINATION bin)
 
-add_executable(       general_tests $<TARGET_OBJECTS:ORCore-obj> ${PROJECT_SOURCE_DIR}/src/tests/general_tests.cpp)
+add_executable(       general_tests $<TARGET_OBJECTS:ORCore-obj>
+                                    ${GAME_SOURCE}
+                                    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/general_tests.cpp)
 target_link_libraries(general_tests ${LIBRARIES})
 install(TARGETS       general_tests DESTINATION bin)
 
@@ -255,7 +268,7 @@ find_package(Cldoc)
 if(Cldoc_FOUND)
     # Adds "doc" and "doc/fast" make targets
     add_cldoc_documentation(
-        FILES ${CORE_SOURCE} ${CORE_HEADERS} ${GAME_SOURCE} ${GAME_HEADERS}
+        FILES ${ALL_SOURCE}
         FLAGS
             -I${SDL2_INCLUDE_DIR}/.
             -I${SDL2Mixer_INCLUDE_DIRS}/.
@@ -264,11 +277,11 @@ if(Cldoc_FOUND)
             -I${CMAKE_SOURCE_DIR}/extern/stb
             -I${CMAKE_SOURCE_DIR}/extern/glad/include
             -I${CMAKE_SOURCE_DIR}/extern/spdlog/include
-            -I"${PROJECT_SOURCE_DIR}/src"
-            -I"${PROJECT_SOURCE_DIR}/src/core"
-            -I"${PROJECT_SOURCE_DIR}/src/core/audio"
-            -I"${PROJECT_SOURCE_DIR}/src/engine"
-            -I"${PROJECT_SOURCE_DIR}/src/game"
+            -I"${CMAKE_CURRENT_SOURCE_DIR}/src"
+            -I"${CMAKE_CURRENT_SOURCE_DIR}/src/core"
+            -I"${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio"
+            -I"${CMAKE_CURRENT_SOURCE_DIR}/src/engine"
+            -I"${CMAKE_CURRENT_SOURCE_DIR}/src/game"
             -std=gnu++14
         OUTPUT "docs"
         LANGUAGE c++
