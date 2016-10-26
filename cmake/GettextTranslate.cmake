@@ -109,7 +109,6 @@ macro(GettextTranslate)
 
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/POTFILES.in
     ${CMAKE_CURRENT_BINARY_DIR}/POTFILES
-    COPYONLY
   )
 
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/LINGUAS
@@ -121,7 +120,7 @@ macro(GettextTranslate)
   set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     PROPERTY CLEAN_NO_CUSTOM true)
 
-  file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/POTFILES.in potfiles
+  file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/POTFILES potfiles
     REGEX "^[^#].*"
   )
 
@@ -145,11 +144,11 @@ macro(GettextTranslate)
       --copyright-holder=${MAKEVAR_COPYRIGHT_HOLDER}
       --msgid-bugs-address="${MAKEVAR_MSGID_BUGS_ADDRESS}"
       --directory=${MAKEVAR_top_builddir}
-      --files-from=${CMAKE_CURRENT_SOURCE_DIR}/POTFILES.in
+      --files-from=${CMAKE_CURRENT_SOURCE_DIR}/POTFILES
       --package-version=${VERSION}
       --package-name=${CMAKE_PROJECT_NAME}
     DEPENDS ${source_translatable}
-    ${CMAKE_CURRENT_SOURCE_DIR}/POTFILES.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/POTFILES
     #    VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )

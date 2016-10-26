@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openrhythm\n"
 "Report-Msgid-Bugs-To: https://github.com/OpenRhythm/OpenRhythm/issues\n"
-"POT-Creation-Date: 2016-10-25 21:12+0200\n"
+"POT-Creation-Date: 2016-10-26 12:34+0200\n"
 "PO-Revision-Date: 2012-01-25 14:58+0100\n"
 "Last-Translator: Salamandar <felix@piedallu.me>\n"
 "Language-Team: français <felix@piedallu.me>\n"
@@ -18,6 +18,10 @@ msgstr ""
 "X-Poedit-Language: French\n"
 "X-Poedit-Country: FRANCE\n"
 "X-Poedit-SourceCharset: utf-8\n"
+
+#: src/core/window.hpp:24
+msgid "Game"
+msgstr ""
 
 #: src/core/audio/codecs/vorbis.cpp:15
 msgid "Vorbis: data interruption"
@@ -125,15 +129,6 @@ msgstr ""
 
 #: src/core/audio/streams/resample.cpp:54
 msgid "LibSampleRate error: "
-msgstr ""
-
-#: src/core/parseutils.hpp:33
-msgid "Failed to load file."
-msgstr ""
-
-#: src/core/parseutils.hpp:73 src/core/parseutils.hpp:126
-#: src/core/parseutils.hpp:177 src/core/parseutils.hpp:223
-msgid "Size greater than container type"
 msgstr ""
 
 #: src/core/shader.cpp:45
@@ -244,10 +239,6 @@ msgstr ""
 msgid "Failed to load: "
 msgstr ""
 
-#: src/core/window.hpp:24
-msgid "Game"
-msgstr ""
-
 #: src/game/configuration.cpp:11
 msgid "Language"
 msgstr ""
@@ -296,6 +287,15 @@ msgstr ""
 msgid ""
 "Runtime Error:\n"
 "{}"
+msgstr ""
+
+#: src/core/parseutils.hpp:33
+msgid "Failed to load file."
+msgstr ""
+
+#: src/core/parseutils.hpp:73 src/core/parseutils.hpp:126
+#: src/core/parseutils.hpp:177 src/core/parseutils.hpp:223
+msgid "Size greater than container type"
 msgstr ""
 
 #: src/tests/audiotests.cpp:60 src/tests/audiotests.cpp:80

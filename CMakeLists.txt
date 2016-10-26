@@ -136,14 +136,6 @@ if(INC_PATH)
     endforeach()
 endif()
 
-####################################################################
-#   Localization
-####################################################################
-set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
-include(GettextTranslate)
-GettextTranslateTargets(ALL)
-
-add_subdirectory(po)
 
 ####################################################################
 #   Source
@@ -234,6 +226,14 @@ if(OSX_APP_BUNDLE)
     set_target_properties(openrhythm PROPERTIES MACOSX_BUNDLE TRUE)
 endif()
 
+####################################################################
+#   Localization
+####################################################################
+set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
+include(GettextTranslate)
+GettextTranslateTargets(ALL)
+
+add_subdirectory(po)
 
 ####################################################################
 #   Test binaries
