@@ -6,7 +6,7 @@
 #include "configuration/parameter.hpp"
 
 void readConfiguration();
-void writeConfigurationFile(std::string path);
+void writeConfigurationFile();
 extern Parameter<std::string> global_language;
 
 extern Parameter<std::string> path_library;

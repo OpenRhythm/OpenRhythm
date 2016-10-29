@@ -15,6 +15,6 @@ int main(int argc, char const *argv[]) {
 
 
 
-    writeConfigurationFile("");
+    writeConfigurationFile();
     return 0;
 }
