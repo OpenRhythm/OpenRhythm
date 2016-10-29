@@ -169,7 +169,6 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/configuration/parameter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.cpp

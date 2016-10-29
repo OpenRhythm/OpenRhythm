@@ -56,8 +56,9 @@ debug:
   show_raw_vocal: false
   log_level: debug
   test_songs:
-    - name: TestOgg.ogg
-    - name: /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga
+    - TestOgg.ogg
+    - /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga
+  test_midis:
 
 
 ## May be in a separated file
