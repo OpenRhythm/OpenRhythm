@@ -2,11 +2,12 @@
 # This file is put in the public domain.
 # dazibao <dazibao@sfr.fr>, 2012.
 #
+#: src/game/configuration.cpp:24
 msgid ""
 msgstr ""
 "Project-Id-Version: openrhythm\n"
 "Report-Msgid-Bugs-To: https://github.com/OpenRhythm/OpenRhythm/issues\n"
-"POT-Creation-Date: 2016-10-26 12:45+0200\n"
+"POT-Creation-Date: 2016-10-30 15:57+0100\n"
 "PO-Revision-Date: 2012-01-25 14:58+0100\n"
 "Last-Translator: Salamandar <felix@piedallu.me>\n"
 "Language-Team: français <felix@piedallu.me>\n"
@@ -235,12 +236,11 @@ msgstr ""
 msgid "Failed to load: "
 msgstr ""
 
-#: src/core/parseutils.hpp:33
+#: src/core/parseutils.hpp:35
 msgid "Failed to load file."
 msgstr ""
 
-#: src/core/parseutils.hpp:73 src/core/parseutils.hpp:126
-#: src/core/parseutils.hpp:177 src/core/parseutils.hpp:223
+#: src/core/parseutils.hpp:75 src/core/parseutils.hpp:128
 msgid "Size greater than container type"
 msgstr ""
 
@@ -256,15 +256,31 @@ msgstr ""
 msgid "The language"
 msgstr ""
 
-#: src/game/configuration.cpp:16 src/game/configuration.cpp:19
-#: src/game/configuration.cpp:23 src/game/configuration.cpp:26
-#: src/game/configuration.cpp:29 src/game/configuration.cpp:32
-#: src/game/configuration.cpp:35
+#: src/game/configuration.cpp:16 src/game/configuration.cpp:18
+#: src/game/configuration.cpp:21 src/game/configuration.cpp:24
+#: src/game/configuration.cpp:26 src/game/configuration.cpp:28
+#: src/game/configuration.cpp:30 src/game/configuration.cpp:34
+#: src/game/configuration.cpp:36 src/game/configuration.cpp:38
+#: src/game/configuration.cpp:40 src/game/configuration.cpp:44
+#: src/game/configuration.cpp:46 src/game/configuration.cpp:48
+#: src/game/configuration.cpp:50
 msgid " "
 msgstr ""
 
-#: src/game/configuration.cpp:23
+#: src/game/configuration.cpp:21
 msgid "Window Resolution"
+msgstr ""
+
+#: src/game/configuration.cpp:64
+msgid "Reading config file "
+msgstr ""
+
+#: src/game/configuration.cpp:68
+msgid " does not exist !"
+msgstr ""
+
+#: src/game/configuration.cpp:89
+msgid " is an invalid YAML sequence in "
 msgstr ""
 
 #: src/game/game.cpp:70

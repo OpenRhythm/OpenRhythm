@@ -25,6 +25,13 @@ public:
         m_configFileOverriden = true;
     }
 
+    std::string getName() {
+        return m_nameVisible;
+    }
+    std::string getDescription() {
+        return m_description;
+    }
+
     T getValue() {
         return m_cliOverriden ?
               m_valueCliOverride
@@ -41,8 +48,6 @@ public:
     friend YAML::Emitter &operator<<(YAML::Emitter& output, Parameter &P) {
         return output << P.getConfigValue();
     }
-
-
 
 private:
     std::string m_nameVisible;
