@@ -3,6 +3,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <iostream>
+
 template<typename T>
 class Parameter {
 public:
@@ -34,6 +36,10 @@ public:
         return m_configFileOverriden ?
               m_valueConfigFile
             : m_valueDefault;
+    }
+
+    friend YAML::Emitter &operator<<(YAML::Emitter& output, Parameter &P) {
+        return output << P.getConfigValue();
     }
 
 

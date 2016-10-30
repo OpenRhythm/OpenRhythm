@@ -1,6 +1,7 @@
 #include "configuration.hpp"
 #include "config.hpp"
 #include <iostream>
+#include <fstream>
 #include <libintl.h>
 #define _(STRING) gettext(STRING)
 
@@ -28,6 +29,17 @@ Parameter<std::string>  window_fps("fixed",
 Parameter<int>          window_fps_max(60,
     _(" "), _(" "), "", 0);
 
+
+Parameter<int>  audio_bits(16,
+    _(" "), _(" "), "", 0);
+Parameter<int>  audio_framerate(44100,
+    _(" "), _(" "), "", 0);
+Parameter<int>  audio_latency_ms(10,
+    _(" "), _(" "), "", 0);
+Parameter<bool>  audio_stereo(true,
+    _(" "), _(" "), "", 0);
+
+
 Parameter<std::string>  debug_song1("",
     _(" "), _(" "), "", 0);
 Parameter<std::string>  debug_song2("",
@@ -36,6 +48,7 @@ Parameter<std::string>  debug_midi1("",
     _(" "), _(" "), "", 0);
 Parameter<std::string>  debug_midi2("",
     _(" "), _(" "), "", 0);
+
 
 
 template<typename T>
@@ -89,7 +102,13 @@ void writeConfigurationFile() {
 
     << YAML::Key << "global"
         << YAML::BeginMap
-        << YAML::Key << "language"      << YAML::Value << global_language.getConfigValue()
+        << YAML::Key << "language"      << YAML::Value << global_language
+        << YAML::EndMap
+
+    << YAML::Key << "paths"
+        << YAML::BeginMap
+        << YAML::Key << "library"       << YAML::Value << path_library
+        << YAML::Key << "last_song"     << YAML::Value << path_last_song
         << YAML::EndMap
 
     << YAML::Key << "window"
@@ -98,27 +117,27 @@ void writeConfigurationFile() {
             << window_resolution.getConfigValue().first
             << window_resolution.getConfigValue().second
             << YAML::EndSeq
-        << YAML::Key << "samples"       << YAML::Value << window_samples.getConfigValue()
-        << YAML::Key << "fullscreen"    << YAML::Value << window_fullscreen.getConfigValue()
-        << YAML::Key << "fps"           << YAML::Value << window_fps.getConfigValue()
-        << YAML::Key << "fps_max"       << YAML::Value << window_fps_max.getConfigValue()
+        << YAML::Key << "samples"       << YAML::Value << window_samples
+        << YAML::Key << "fullscreen"    << YAML::Value << window_fullscreen
+        << YAML::Key << "fps"           << YAML::Value << window_fps
+        << YAML::Key << "fps_max"       << YAML::Value << window_fps_max
         << YAML::EndMap
 
     << YAML::Key << "interface"
         << YAML::BeginMap
-        << YAML::Key << "theme"         << YAML::Value << " "
-        << YAML::Key << "note_rotate"   << YAML::Value << " "
-        << YAML::Key << "neck"          << YAML::Value << " "
+        << YAML::Key << "theme"         << YAML::Value << "MegaLight GH3"
+        << YAML::Key << "note_rotate"   << YAML::Value << true
+        << YAML::Key << "neck"          << YAML::Value << "defaultneck"
         << YAML::EndMap
 
     << YAML::Key << "audio"
         << YAML::BeginMap
         << YAML::Key << "backend"
             << YAML::BeginMap
-            << YAML::Key << "bits"      << YAML::Value << 16
-            << YAML::Key << "framerate" << YAML::Value << 44100
-            << YAML::Key << "latency_ms"<< YAML::Value << 10
-            << YAML::Key << "stereo"    << YAML::Value << true
+            << YAML::Key << "bits"      << YAML::Value << audio_bits
+            << YAML::Key << "framerate" << YAML::Value << audio_framerate
+            << YAML::Key << "latency_ms"<< YAML::Value << audio_latency_ms
+            << YAML::Key << "stereo"    << YAML::Value << audio_stereo
             << YAML::EndMap
         << YAML::Key << "volumes"
             << YAML::BeginMap
@@ -157,12 +176,12 @@ void writeConfigurationFile() {
         << YAML::Key << "show_raw_vocal"<< YAML::Value << false
         << YAML::Key << "log_level"     << YAML::Value << "debug"
         << YAML::Key << "test_songs"    << YAML::BeginSeq
-            << debug_song1.getConfigValue()
-            << debug_song2.getConfigValue()
+            << debug_song1
+            << debug_song2
             << YAML::EndSeq
         << YAML::Key << "test_midis"    << YAML::BeginSeq
-            << debug_midi1.getConfigValue()
-            << debug_midi2.getConfigValue()
+            << debug_midi1
+            << debug_midi2
             << YAML::EndSeq
         << YAML::EndMap
 
@@ -207,8 +226,8 @@ void writeConfigurationFile() {
                 << "Return"
                 << "Right Shift"
                 << YAML::EndSeq
-            << YAML::Key << "star"          << YAML::Value << i
-            << YAML::Key << "whammy"        << YAML::Value << i
+            << YAML::Key << "star"          << YAML::Value << "Right Ctrl"
+            << YAML::Key << "whammy"        << YAML::Value << "None"
             << YAML::Key << "menus"
                 << YAML::BeginMap
                 << YAML::Key << "left"          << YAML::Value << "Left"
@@ -242,7 +261,8 @@ void writeConfigurationFile() {
     << YAML::EndMap
     << YAML::EndDoc;
 
-    std::cout << "Here's the output YAML:\n" << configFile.c_str();
+    std::ofstream fout(CONFIGURATION_FILE_NAME);
+    fout << configFile.c_str();
 }
 
 
@@ -255,7 +275,6 @@ void readConfiguration() {
     readCommandLine();
 
     readConfigurationFile("data/default_config.yaml");
-    // readConfigurationFile("custom_config.yaml");
-    // readConfigurationFile(PACKAGE_DATA_DIR "/default_config.yaml");
-
+    // readConfigurationFile(PACKAGE_DATA_DIR "/default_config.yaml" CONFIGURATION_FILE_NAME);
+    readConfigurationFile(CONFIGURATION_FILE_NAME);
 }

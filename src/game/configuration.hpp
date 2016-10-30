@@ -1,9 +1,12 @@
 #ifndef CONFIGURATION_HPP
 #define CONFIGURATION_HPP
 
-#include <map>
-
 #include "configuration/parameter.hpp"
+
+
+#define CONFIGURATION_FILE_NAME "OpenRhythm.yaml"
+
+
 
 void readConfiguration();
 void writeConfigurationFile();

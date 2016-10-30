@@ -10,7 +10,7 @@
 int main(int argc, char const *argv[]) {
     //std::cout << get_config_directory() << std::endl;
     readConfiguration();
-    std::cout << debug_song1.getValue() << std::endl;;
+    std::cout << path_library.getValue() << std::endl;;
 
 
 

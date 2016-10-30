@@ -1,4 +1,5 @@
---- !OpenRhythm_Config
+# OpenRhythm Config
+---
 global:
   language: system
 
@@ -37,9 +38,8 @@ audio:
 
 
 menus:
-  audio_preview:  true
-  preview_delay:  100
-
+  audio_preview: true
+  preview_delay: 100
 game:
   music_delay_ms: 0
   enable_crowd:   true
@@ -59,6 +59,8 @@ debug:
     - TestOgg.ogg
     - /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga
   test_midis:
+    - ""
+    - ""
 
 
 ## May be in a separated file
@@ -95,12 +97,12 @@ users:
 
 controllers:
   guitars:
-    - name:   Default Guitar
-      id:     1
-      notes:  [F1, F2, F3, F4, F5]
-      solo:   [F1, F2, F3, F4, F5]
-      picks:  [Return, Right Shift]
-      star:   Right Ctrl
+    - name:  Default Guitar
+      id:    1
+      notes: [F1, F2, F3, F4, F5]
+      solos: [F1, F2, F3, F4, F5]
+      picks: [Return, Right Shift]
+      star:  Right Ctrl
       whammy: None
       menus:
         left:   Left
@@ -115,6 +117,4 @@ controllers:
   drums:
     - name:   Default Drums
 
-
-
-
+...
