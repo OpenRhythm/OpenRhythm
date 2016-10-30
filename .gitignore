@@ -50,6 +50,7 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 openrhythm
+OpenRhythm.yaml
 audiotests
 general_tests
 .idea/*
