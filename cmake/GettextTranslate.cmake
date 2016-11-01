@@ -120,7 +120,7 @@ macro(GettextTranslate)
   set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     PROPERTY CLEAN_NO_CUSTOM true)
 
-  file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/POTFILES potfiles
+  file(STRINGS ${CMAKE_CURRENT_BINARY_DIR}/POTFILES potfiles
     REGEX "^[^#].*"
   )
 

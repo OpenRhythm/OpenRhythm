@@ -4,12 +4,12 @@
 # Find libsamplerate.
 
 find_path(SAMPLERATE_INCLUDE_DIR samplerate.h
-    HINTS $ENV{SOUNDIO_ROOT}/include)
+    HINTS $ENV{SAMPLERATE_ROOT}/include)
 
 set(SAMPLERATE_NAMES ${SAMPLERATE_NAMES} samplerate libsamplerate)
 
 find_library(SAMPLERATE_LIBRARY NAMES ${SAMPLERATE_NAMES}
-    HINTS $ENV{SOUNDIO_ROOT}/lib
+    HINTS $ENV{SAMPLERATE_ROOT}/lib
     PATH)
 
 include(FindPackageHandleStandardArgs)

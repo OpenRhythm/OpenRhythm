@@ -44,11 +44,16 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "Building for Windows.")
     set(PLATFORM PL_WINDOWS)
 
-    set(ENV{FREETYPE_DIR}   "${PROJECT_SOURCE_DIR}/extern/freetype")
-    set(ENV{GLM_ROOT_DIR}   "${PROJECT_SOURCE_DIR}/extern/glm")
-    set(ENV{OGG_ROOT}       "${PROJECT_SOURCE_DIR}/extern/ogg")
-    set(ENV{SDL2DIR}        "${PROJECT_SOURCE_DIR}/extern/sdl2")
-    set(ENV{VORBIS_ROOT}    "${PROJECT_SOURCE_DIR}/extern/vorbis")
+    set(ENV{FREETYPE_DIR}    "${PROJECT_SOURCE_DIR}/extern/freetype")
+    set(ENV{GLM_ROOT_DIR}    "${PROJECT_SOURCE_DIR}/extern/glm")
+    set(ENV{OGG_ROOT}        "${PROJECT_SOURCE_DIR}/extern/ogg")
+    set(ENV{SDL2DIR}         "${PROJECT_SOURCE_DIR}/extern/sdl2")
+    set(ENV{VORBIS_ROOT}     "${PROJECT_SOURCE_DIR}/extern/vorbis")
+    set(ENV{SOUNDIO_ROOT}    "${PROJECT_SOURCE_DIR}/extern/soundio")
+    set(ENV{YAMLCPP_ROOT}    "${PROJECT_SOURCE_DIR}/extern/yaml-cpp")
+    set(ENV{SAMPLERATE_ROOT} "${PROJECT_SOURCE_DIR}/extern/samplerate")
+    set(Gettext_BINARIES     "${PROJECT_SOURCE_DIR}/extern/gettext")
+
 
     if(MSVC)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
@@ -80,17 +85,14 @@ endif()
 # to be used if a system-wide library is not found
 
 find_package(Freetype   REQUIRED)
-find_package(Gettext    REQUIRED)
+find_package(Gettext    )
 find_package(GLM        REQUIRED)
 find_package(OggVorbis  REQUIRED)
 find_package(OpenGL     REQUIRED)
 find_package(SampleRate REQUIRED)
 find_package(SDL2       REQUIRED)
-set(ENV{SOUNDIO_ROOT}   "${PROJECT_SOURCE_DIR}/extern/soundio")
 find_package(SoundIO    REQUIRED)
 find_package(YamlCpp    REQUIRED)
-
-set(USE_LIB_PNGCPP 0)
 
 add_library(GLAD STATIC ${CMAKE_CURRENT_SOURCE_DIR}/extern/glad/src/glad.c)
 set_target_properties(GLAD PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
