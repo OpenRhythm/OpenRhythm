@@ -36,40 +36,6 @@ namespace ORCore
     static int _texCount = 0;
     static GLuint _currentBoundtexture = 0;
 
-
-#if USE_LIB_PNGCPP
-    Image loadPNG(std::string filename)
-    {
-        std::istringstream file(ORCore::read_file( filename, FileMode::Binary ));
-        png::image<png::rgba_pixel> image(file);
-
-        auto pixelBuffer = image.get_pixbuf();
-
-        Image imgData;
-
-        imgData.width = image.get_width();
-        imgData.height = image.get_height();
-        imgData.length = imgData.width * imgData.height * 4;
-        imgData.pixelData = std::make_unique<unsigned char[]>(imgData.length);
-
-        int i = 0;
-
-        for (int x = 0;x < imgData.width; x++) {
-            for (int y = 0; y < imgData.height; y++) {
-                auto pixel = pixelBuffer.get_pixel(x, y);
-                i = 4 * (y * imgData.width + x);
-
-                imgData.pixelData[i+0] = pixel.red;
-                imgData.pixelData[i+1] = pixel.green;
-                imgData.pixelData[i+2] = pixel.blue;
-                imgData.pixelData[i+3] = pixel.alpha;
-
-            }
-        }
-        return imgData;
-    }
-#endif
-
     Image loadSTB(std::string filename)
     {
         std::string mem_buf = ORCore::read_file( filename, FileMode::Binary );
@@ -128,11 +94,7 @@ namespace ORCore
         _texCount++;
         m_texUnitID = _texCount;
 
-#if USE_LIB_PNGCPP
-        m_image = ORCore::loadPNG(m_path);
-#else
         m_image = ORCore::loadSTB(m_path);
-#endif
 
         m_texSampID = m_program->uniform_attribute("textureSampler");
 
