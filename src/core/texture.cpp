@@ -1,14 +1,8 @@
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <utility>
-#include <glad/glad.h>
-#include "vfs.hpp"
+#include "config.hpp"
 #include "texture.hpp"
+#include <iostream>
 
-#if USE_LIB_PNGCPP
-#include <png.hpp>
-#endif
+#include "vfs.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_NO_STDIO
@@ -26,10 +20,6 @@
 #   ifdef _MSC_VER
 #   pragma warning(pop)
 #endif
-
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
-
 
 namespace ORCore
 {
@@ -120,4 +110,4 @@ namespace ORCore
 
         }
     }
-}
+} // namespace ORCore

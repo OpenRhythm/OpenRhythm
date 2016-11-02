@@ -1,12 +1,8 @@
-#include <iostream>
-
+#include "config.hpp"
 #include "parser.hpp"
+
 #include "vfs.hpp"
 #include "smf.hpp"
-
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
-
 
 namespace ORGame
 {
@@ -79,7 +75,7 @@ namespace ORGame
     Track::Track(Track::Info info)
     : m_info(info)
     {
-        std::cout << "test" << std::endl;
+        // std::cout << "test" << std::endl;
     }
 
 
@@ -357,4 +353,4 @@ namespace ORGame
         }
     }
 
-}
+} // namespace ORGame

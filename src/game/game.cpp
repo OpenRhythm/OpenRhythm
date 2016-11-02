@@ -1,15 +1,10 @@
-#include <iostream>
-#include <functional>
-#include <utility>
-#include <stdexcept>
-
 #include "config.hpp"
-#include "vfs.hpp"
 #include "game.hpp"
 
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
+#include <iostream>
+#include <stdexcept>
 
+#include "vfs.hpp"
 
 GameManager::GameManager()
 : m_song("/data/songs/testsong")

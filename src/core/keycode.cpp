@@ -1,5 +1,5 @@
-#include <vector>
 #include "keycode.hpp"
+#include <vector>
 
 namespace ORCore
 {

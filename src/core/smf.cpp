@@ -1,15 +1,4 @@
-#include <cstring>
-#include <iostream>
-#include <iomanip>
-#include <vector>
-#include <utility>
-#include <sstream>
-#include <stdexcept>
-#include <cmath>
-
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
-
+#include "config.hpp"
 #include "smf.hpp"
 
 namespace ORCore
@@ -427,4 +416,4 @@ namespace ORCore
         }
         return m_timeSigTrack;
     }
-}
+} // namespace ORCore

@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <functional>
 
 // Utility functions for finding paths
 namespace ORCore
@@ -48,7 +47,7 @@ namespace ORCore
         Normal,
     };
 
-    // TODO - Merge these functions to be more integrated with the VFS 
+    // TODO - Merge these functions to be more integrated with the VFS
     std::vector<FileInfo> sysGetPathContents(std::string sysPath);
     std::string read_file(std::string filename, FileMode mode = FileMode::Normal);
     void SetBasePath( std::string newPath ); // set basePath
@@ -58,4 +57,4 @@ namespace ORCore
 #if OSX_APP_BUNDLE
     std::string GetAppPath(); // OSX get internal app path
 #endif
-}
+} // namespace ORCore

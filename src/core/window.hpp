@@ -1,12 +1,12 @@
 #pragma once
-#include <string>
+#include "config.hpp"
 
+#include <string>
 #include <SDL.h>
 #undef main
+
 #include "context.hpp"
 
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
 
 namespace ORCore
 {
@@ -47,4 +47,4 @@ namespace ORCore
 
     };
 
-}
+} // namespace ORCore

@@ -59,4 +59,4 @@ namespace ORCore
     {
         SDL_GL_SwapWindow(m_sdlWindow);
     }
-}
+} // namespace ORCore

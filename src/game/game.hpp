@@ -1,16 +1,9 @@
 #pragma once
-#include <ios>
-#include <string>
-#include <memory>
-
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <spdlog/spdlog.h>
+#include <vector>
 
 #include "window.hpp"
 #include "context.hpp"
 #include "events.hpp"
-#include "config.hpp"
 #include "timing.hpp"
 #include "shader.hpp"
 #include "mesh2d.hpp"

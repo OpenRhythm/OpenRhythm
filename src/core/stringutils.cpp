@@ -1,5 +1,5 @@
-#include <algorithm>
 #include "stringutils.hpp"
+
 namespace ORCore
 {
     int stringCount(const std::string& str, const std::string& substr)
@@ -61,4 +61,4 @@ namespace ORCore
 
         return split;
     }
-}
+} // namespace ORCore

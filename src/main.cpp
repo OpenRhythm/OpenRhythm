@@ -7,9 +7,6 @@
 #define SPDLOG_NO_THREAD_ID // Might be useful to enable later but atm meh
 #include <spdlog/spdlog.h>
 
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
-
 #include "game.hpp"
 #include "config.hpp"
 

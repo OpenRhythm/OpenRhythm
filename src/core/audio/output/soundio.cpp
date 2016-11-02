@@ -1,21 +1,9 @@
+#include "config.hpp"
 #include "soundio.hpp"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <iostream>
-#include <iomanip>
 #include <stdexcept>
-#include <vector>
-
-#include "config.hpp"
 
 #include "chrono.hpp"
-
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
-
 
 // TODO those defines should be runtime variables, dependant of the stream
 

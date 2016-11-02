@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <memory>
 #include <vector>
 #include <spdlog/spdlog.h>
 
@@ -182,4 +181,4 @@ namespace ORGame
     NoteType midi_to_note(TrackType type, int number, Difficulty difficulty);
     TrackType get_track_type(std::string trackName);
     std::string track_name_to_type(TrackType type);
-}
+} // namespace ORGame

@@ -1,8 +1,9 @@
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "shader.hpp"
 #include "texture.hpp"
-#include <glm/glm.hpp>
-#include "glm/gtc/matrix_transform.hpp"
 
 namespace ORCore
 {
@@ -35,4 +36,4 @@ namespace ORCore
         GLfloat m_vertData[8];
 
     };
-}
+} // namespace ORCore

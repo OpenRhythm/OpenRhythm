@@ -1,9 +1,7 @@
-#include "configuration.hpp"
 #include "config.hpp"
+#include "configuration.hpp"
 #include <iostream>
 #include <fstream>
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
 
 // valueDefault,
 // nameVisible, description, cliName, cliNameShort,

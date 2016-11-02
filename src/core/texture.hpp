@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
 #include <memory>
-#include "config.hpp"
+#include <glad/glad.h>
+
 #include "shader.hpp"
 
 namespace ORCore
@@ -34,3 +35,4 @@ namespace ORCore
         GLuint m_texID;
 
     };
+} // namespace ORCore

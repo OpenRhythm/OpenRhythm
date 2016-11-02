@@ -1,12 +1,8 @@
 #pragma once
 
+#include <stdexcept>
 #include <string>
-#include <fstream>
-#include <cstdint>
-#include <string>
-#include <vector>
 #include <memory>
-#include <sstream>
 #include <spdlog/spdlog.h>
 
 #include "parseutils.hpp"
@@ -196,4 +192,4 @@ namespace ORCore
 
         std::shared_ptr<spdlog::logger> m_logger;
     };
-}
+} // namespace ORCore

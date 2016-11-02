@@ -82,4 +82,4 @@ namespace ORCore
         m_yPos = y;
         m_vecTrans = glm::vec3(m_xPos, m_yPos, 0.0f);
     }
-}
+} // namespace ORCore

@@ -1,5 +1,12 @@
 #pragma once
 
+
+// ************ Useful includes and definitions
+// Translations
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
+
 // Version
 #define PROJECT_NAME    "${CMAKE_PROJECT_NAME}"
 #define VERSION_MAJOR   ${${CMAKE_PROJECT_NAME}_VERSION_MAJOR}

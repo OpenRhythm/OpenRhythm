@@ -1,5 +1,4 @@
 #pragma once
-#include "config.hpp"
 
 #if defined(PLATFORM_WINDOWS)
     #ifndef WIN32_LEAN_AND_MEAN
@@ -44,4 +43,4 @@ namespace ORCore
     private:
         double m_fpsPreviousTime;
     };
-}
+} // namespace ORCore

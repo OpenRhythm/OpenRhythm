@@ -60,4 +60,4 @@ namespace ORCore
         unsigned int m_program;
 
     };
-}
+} // namespace ORCore

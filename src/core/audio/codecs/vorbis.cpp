@@ -1,13 +1,9 @@
+#include "config.hpp"
 #include "vorbis.hpp"
 
 #include <stdexcept>
-#include <cstdio>
-#include <iostream>
 #include <map>
 #include <string>
-
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
 
 namespace ORCore {
 

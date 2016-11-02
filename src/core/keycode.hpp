@@ -1,9 +1,10 @@
 #pragma once
-
+#include <vector>
 #include <map>
 #include <string>
 #include <type_traits>
 #include <memory>
+
 #include <SDL.h>
 #undef main
 
@@ -258,4 +259,4 @@ namespace ORCore
 
     std::vector<ModFlag> processModifiers(int value);
 
-}
+} // namespace ORCore

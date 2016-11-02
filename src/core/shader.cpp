@@ -1,11 +1,11 @@
-#include "vfs.hpp"
-#include <glad/glad.h>
-#include "shader.hpp"
+#include "config.hpp"
 #include <iostream>
 #include <stdexcept>
 
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
+#include <glad/glad.h>
+#include "vfs.hpp"
+#include "shader.hpp"
+
 
 
 namespace ORCore
@@ -192,4 +192,4 @@ namespace ORCore
 
 
 
-}
+} // namespace ORCore

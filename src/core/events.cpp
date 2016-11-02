@@ -1,7 +1,6 @@
 #include "events.hpp"
 
 #include <algorithm>
-#include <iostream>
 #include <thread>
 
 namespace ORCore
@@ -84,4 +83,4 @@ namespace ORCore
 
     }
 
-}
+} // namespace ORCore

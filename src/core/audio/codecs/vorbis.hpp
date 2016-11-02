@@ -1,5 +1,4 @@
-#ifndef VORBIS_HPP
-#define VORBIS_HPP
+#pragma once
 
 #ifdef _WIN32
 #   include <io.h>
@@ -52,4 +51,3 @@ namespace ORCore {
     };
 
 } // namespace ORCore
-#endif  // VORBIS_HPP

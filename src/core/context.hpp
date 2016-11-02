@@ -7,7 +7,7 @@
 namespace ORCore
 {
     class Window;
-    
+
     class Context
     {
     public:
@@ -26,4 +26,5 @@ namespace ORCore
         Window* m_window = nullptr;
         SDL_GLContext m_context = nullptr;
     };
-}
+
+} // namespace ORCore

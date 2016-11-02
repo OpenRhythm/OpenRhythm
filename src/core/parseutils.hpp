@@ -1,17 +1,15 @@
 #pragma once
+#include "config.hpp"
 #include <fstream>
-#include <cstdint>
 #include <string>
 #include <memory>
 #include <stdexcept>
 
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
 
 namespace ORCore
 {
     // TODO - Could be useful to move into the VFS at some point.
-    // Also in the future we can have an alternative memory mapped file 
+    // Also in the future we can have an alternative memory mapped file
     // implementation when speed is less important than memory usage.
     // This is just mainly a basic starting point.
     struct FileBuffer
@@ -154,4 +152,4 @@ namespace ORCore
             outPtr += size;
         }
     }
-}
+} // namespace ORCore

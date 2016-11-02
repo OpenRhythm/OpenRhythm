@@ -1,5 +1,4 @@
-#ifndef RESAMPLE_HPP
-#define RESAMPLE_HPP
+#pragma once
 #include <samplerate.h>
 
 #include "stream.hpp"
@@ -49,5 +48,3 @@ namespace ORCore {
     };
 
 } // namespace ORCore
-
-#endif // RESAMPLE_HPP

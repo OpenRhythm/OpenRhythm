@@ -16,7 +16,7 @@ namespace ORCore
 
         if (m_msaa < 0) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_msaa);    
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_msaa);
         }
     }
 
@@ -36,4 +36,4 @@ namespace ORCore
     SDL_GLContext Context::get_platform_context() {
         return m_context;
     }
-}
+} // namespace ORCore

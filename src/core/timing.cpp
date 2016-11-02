@@ -1,3 +1,4 @@
+#include "config.hpp"
 #include "timing.hpp"
 
 #if defined(PLATFORM_LINUX)
@@ -89,4 +90,4 @@ namespace ORCore
         m_fpsPreviousTime = m_currentTime;
         return fps;
     }
-}
+} // namespace ORCore

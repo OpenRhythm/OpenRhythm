@@ -1,35 +1,31 @@
+#include "config.hpp"
+#include "vfs.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-
-#include "config.hpp"
-#include "vfs.hpp"
 #include "stringutils.hpp"
 
 #if defined(PLATFORM_WINDOWS)
-#include <windows.h>
-#include <Winerror.h>
-#include <shlobj.h>
-#elif defined(PLATFORM_OSX)
-#include <mach-o/dyld.h>
+#   include <windows.h>
+#   include <Winerror.h>
+#   include <shlobj.h>
 #else
-#include <unistd.h>
-#include <linux/limits.h>
-#endif
-
-#if !defined(PLATFORM_WINDOWS)
-#include <dirent.h>
-#include <sys/stat.h>
+#   include <dirent.h>
+#   include <sys/stat.h>
+#   if defined(PLATFORM_OSX)
+#       include <mach-o/dyld.h>
+#   else
+#       include <unistd.h>
+#       include <linux/limits.h>
+#   endif
 #endif
 
 static std::string basePath;
 static std::string homePath;
 #if OSX_APP_BUNDLE
-static std::string appPath;
+    static std::string appPath;
 #endif
-
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
 
 
 namespace ORCore
@@ -346,4 +342,4 @@ namespace ORCore
         return appPath;
     }
 #endif
-}
+} // namespace ORCore

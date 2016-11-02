@@ -1,12 +1,9 @@
-#ifndef CONFIGURATION_HPP
-#define CONFIGURATION_HPP
-
+#pragma once
 #include "configuration/parameter.hpp"
-
 
 #define CONFIGURATION_FILE_NAME "OpenRhythm.yaml"
 
-
+using namespace ORCore;
 
 void readConfiguration();
 void writeConfigurationFile();
@@ -27,5 +24,3 @@ extern Parameter<std::string> debug_song1;
 extern Parameter<std::string> debug_song2;
 extern Parameter<std::string> debug_midi1;
 extern Parameter<std::string> debug_midi2;
-
-#endif // CONFIGURATION_HPP

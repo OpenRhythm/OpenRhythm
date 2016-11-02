@@ -1,6 +1,4 @@
-#ifndef SOUNDIO_HPP
-#define SOUNDIO_HPP
-
+#pragma once
 #if defined(PLATFORM_WINDOWS)
 #   define SOUNDIO_STATIC_LIBRARY
 #endif
@@ -80,4 +78,3 @@ namespace ORCore {
 
 
 } // namespace ORCore
-#endif // SOUNDIO_HPP

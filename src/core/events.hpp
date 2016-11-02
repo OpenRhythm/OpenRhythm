@@ -181,4 +181,5 @@ namespace ORCore
     private:
         EventManager *m_events;
     };
-}
+
+} // namespace ORCore

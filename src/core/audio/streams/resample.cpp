@@ -1,9 +1,7 @@
+#include "config.hpp"
 #include "resample.hpp"
 
-#include <iostream>
-
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
+#include <stdexcept>
 
 namespace ORCore {
 
