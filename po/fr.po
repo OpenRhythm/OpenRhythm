@@ -2,12 +2,11 @@
 # This file is put in the public domain.
 # dazibao <dazibao@sfr.fr>, 2012.
 #
-#: src/game/configuration.cpp:24
 msgid ""
 msgstr ""
 "Project-Id-Version: openrhythm\n"
 "Report-Msgid-Bugs-To: https://github.com/OpenRhythm/OpenRhythm/issues\n"
-"POT-Creation-Date: 2016-10-30 15:57+0100\n"
+"POT-Creation-Date: 2016-11-02 21:10+0100\n"
 "PO-Revision-Date: 2012-01-25 14:58+0100\n"
 "Last-Translator: Salamandar <felix@piedallu.me>\n"
 "Language-Team: français <felix@piedallu.me>\n"
@@ -20,111 +19,111 @@ msgstr ""
 "X-Poedit-Country: FRANCE\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: src/core/audio/codecs/vorbis.cpp:15
+#: src/core/audio/codecs/vorbis.cpp:11
 msgid "Vorbis: data interruption"
 msgstr ""
 
-#: src/core/audio/codecs/vorbis.cpp:16
+#: src/core/audio/codecs/vorbis.cpp:12
 msgid "Vorbis: Invalid Stream"
 msgstr ""
 
-#: src/core/audio/codecs/vorbis.cpp:17
+#: src/core/audio/codecs/vorbis.cpp:13
 msgid "Vorbis: Invalid Headers"
 msgstr ""
 
-#: src/core/audio/codecs/vorbis.cpp:18
+#: src/core/audio/codecs/vorbis.cpp:14
 msgid "Vorbis: Read error."
 msgstr ""
 
-#: src/core/audio/codecs/vorbis.cpp:19
+#: src/core/audio/codecs/vorbis.cpp:15
 msgid "Vorbis: No vorbis data"
 msgstr ""
 
-#: src/core/audio/codecs/vorbis.cpp:20
+#: src/core/audio/codecs/vorbis.cpp:16
 msgid "Vorbis: Version Mismatch"
 msgstr ""
 
-#: src/core/audio/codecs/vorbis.cpp:21
+#: src/core/audio/codecs/vorbis.cpp:17
 msgid "Vorbis: Invalid Vorbis bitstream header."
 msgstr ""
 
-#: src/core/audio/codecs/vorbis.cpp:22
+#: src/core/audio/codecs/vorbis.cpp:18
 msgid "Vorbis: Internal logic fault."
 msgstr ""
 
-#: src/core/audio/codecs/vorbis.cpp:50
+#: src/core/audio/codecs/vorbis.cpp:46
 msgid "Error seeking file to position 0."
 msgstr ""
 
-#: src/core/audio/codecs/vorbis.cpp:52
+#: src/core/audio/codecs/vorbis.cpp:48
 msgid "Seeked file to position 0."
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:52 src/core/audio/output/soundio.cpp:53
+#: src/core/audio/output/soundio.cpp:40 src/core/audio/output/soundio.cpp:41
 msgid "SoundIO_create: out of memory"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:60
+#: src/core/audio/output/soundio.cpp:48
 msgid "SoundIO_connect error: {}"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:61
+#: src/core/audio/output/soundio.cpp:49
 msgid "SoundIO_connect error: "
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:75
+#: src/core/audio/output/soundio.cpp:63
 msgid "Error while opening libsoundiostream : the device is not yet set !"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:94
+#: src/core/audio/output/soundio.cpp:82
 msgid "unable to open device: {}"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:95
+#: src/core/audio/output/soundio.cpp:83
 msgid "unable to open device: "
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:100 src/core/audio/output/soundio.cpp:101
+#: src/core/audio/output/soundio.cpp:88 src/core/audio/output/soundio.cpp:89
 msgid "unable to set channel layout: "
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:106 src/core/audio/output/soundio.cpp:107
+#: src/core/audio/output/soundio.cpp:94 src/core/audio/output/soundio.cpp:95
 msgid "unable to start device: "
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:128 src/core/audio/output/soundio.cpp:129
+#: src/core/audio/output/soundio.cpp:116 src/core/audio/output/soundio.cpp:117
 msgid "SoundIO: No output device found"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:134 src/core/audio/output/soundio.cpp:135
+#: src/core/audio/output/soundio.cpp:122 src/core/audio/output/soundio.cpp:123
 msgid "SoundIO: out of memory"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:167
+#: src/core/audio/output/soundio.cpp:155
 msgid "{}"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:168
+#: src/core/audio/output/soundio.cpp:156
 msgid "SoundIO begin write failed"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:195
+#: src/core/audio/output/soundio.cpp:183
 msgid "soundio error : {}\n"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:196
+#: src/core/audio/output/soundio.cpp:184
 msgid "SoundIO end write failed"
 msgstr ""
 
-#: src/core/audio/output/soundio.cpp:205
+#: src/core/audio/output/soundio.cpp:193
 msgid "underflow {}\n"
 msgstr ""
 
-#: src/core/audio/streams/resample.cpp:15
+#: src/core/audio/streams/resample.cpp:13
 msgid "Failed to init LibSampleRate: "
 msgstr ""
 
-#: src/core/audio/streams/resample.cpp:54
+#: src/core/audio/streams/resample.cpp:52
 msgid "LibSampleRate error: "
 msgstr ""
 
@@ -144,91 +143,91 @@ msgstr ""
 msgid "Shader linked sucessfully."
 msgstr ""
 
-#: src/core/smf.cpp:68
+#: src/core/smf.cpp:57
 msgid "Bad Midi control message"
 msgstr ""
 
-#: src/core/smf.cpp:84
+#: src/core/smf.cpp:73
 msgid "Sequence Number {}"
 msgstr ""
 
-#: src/core/smf.cpp:121
+#: src/core/smf.cpp:110
 msgid "Midi Channel {}"
 msgstr ""
 
-#: src/core/smf.cpp:129
+#: src/core/smf.cpp:118
 msgid "End of Track {}"
 msgstr ""
 
-#: src/core/smf.cpp:155
+#: src/core/smf.cpp:144
 msgid "Time signature  {}/{} CPC: {} TSPQN: {}"
 msgstr ""
 
-#: src/core/smf.cpp:176
+#: src/core/smf.cpp:165
 msgid "Unused event type {}."
 msgstr ""
 
-#: src/core/smf.cpp:189
+#: src/core/smf.cpp:178
 msgid "sysex even at position {}"
 msgstr ""
 
-#: src/core/smf.cpp:244
+#: src/core/smf.cpp:233
 msgid "No tempo change at deltatime 0 setting default of 120 BPM."
 msgstr ""
 
-#: src/core/smf.cpp:263
+#: src/core/smf.cpp:252
 msgid "No time signature change at deltatime 0 setting default of 4/4."
 msgstr ""
 
-#: src/core/smf.cpp:317
+#: src/core/smf.cpp:306
 msgid "chunk of type {} detected."
 msgstr ""
 
-#: src/core/smf.cpp:330
+#: src/core/smf.cpp:319
 msgid "Not a valid type 0 midi."
 msgstr ""
 
-#: src/core/smf.cpp:335
+#: src/core/smf.cpp:324
 msgid "SMPTE time division not supported"
 msgstr ""
 
-#: src/core/smf.cpp:345
+#: src/core/smf.cpp:334
 msgid "Non-standard chunk of type {} detected, skipping."
 msgstr ""
 
-#: src/core/smf.cpp:354
+#: src/core/smf.cpp:343
 msgid "Offset for chunk '{}' incorrect, seeking to correct location."
 msgstr ""
 
-#: src/core/smf.cpp:355
+#: src/core/smf.cpp:344
 msgid "Offset difference. expected: '{}' actual: '{}'"
 msgstr ""
 
-#: src/core/smf.cpp:360
+#: src/core/smf.cpp:349
 msgid "To few bytes remaining in midi for another track, this is likely a bug."
 msgstr ""
 
-#: src/core/smf.cpp:364
+#: src/core/smf.cpp:353
 msgid "Track chunk count does not match header."
 msgstr ""
 
-#: src/core/smf.cpp:366
+#: src/core/smf.cpp:355
 msgid "End of MIDI reached."
 msgstr ""
 
-#: src/core/smf.cpp:373
+#: src/core/smf.cpp:362
 msgid "Loading MIDI"
 msgstr ""
 
-#: src/core/smf.cpp:378
+#: src/core/smf.cpp:367
 msgid "Failed to load MIDI file."
 msgstr ""
 
-#: src/core/texture.cpp:94
+#: src/core/texture.cpp:49
 msgid "Failed to get image data"
 msgstr ""
 
-#: src/core/texture.cpp:157
+#: src/core/texture.cpp:108
 msgid "Texture bound"
 msgstr ""
 
@@ -236,11 +235,11 @@ msgstr ""
 msgid "Failed to load: "
 msgstr ""
 
-#: src/core/parseutils.hpp:35
+#: src/core/parseutils.hpp:33
 msgid "Failed to load file."
 msgstr ""
 
-#: src/core/parseutils.hpp:75 src/core/parseutils.hpp:128
+#: src/core/parseutils.hpp:73 src/core/parseutils.hpp:126
 msgid "Size greater than container type"
 msgstr ""
 
@@ -295,20 +294,20 @@ msgstr ""
 msgid "Time signature change recieved at time {}"
 msgstr ""
 
-#: src/main.cpp:26 src/tests/audiotests.cpp:28
+#: src/main.cpp:23 src/tests/audiotests.cpp:28
 #, c-format
 msgid "Hello World\n"
 msgstr "Bonjour le Monde\n"
 
-#: src/main.cpp:46 src/tests/audiotests.cpp:48
+#: src/main.cpp:43 src/tests/audiotests.cpp:48
 msgid "Logging Failed: "
 msgstr ""
 
-#: src/main.cpp:47 src/main.cpp:56
+#: src/main.cpp:44 src/main.cpp:53
 msgid "Runtime Error"
 msgstr ""
 
-#: src/main.cpp:55
+#: src/main.cpp:52
 msgid ""
 "Runtime Error:\n"
 "{}"
