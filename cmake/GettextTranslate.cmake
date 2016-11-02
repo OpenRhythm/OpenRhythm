@@ -195,7 +195,8 @@ macro(GettextTranslate)
         COMMAND ${MSGMERGE_BINARY} --lang=${lang}
           ${PO_FILE_NAME} ${TEMPLATE_FILE_ABS}
           -o ${PO_FILE_NAME}.new
-        COMMAND mv ${PO_FILE_NAME}.new ${PO_FILE_NAME}
+          2>/dev/null
+        COMMAND mv -f ${PO_FILE_NAME}.new ${PO_FILE_NAME}
         COMMAND touch ${PO_FILE_NAME}.flag
         DEPENDS ${TEMPLATE_FILE_ABS}
       )
@@ -206,6 +207,7 @@ macro(GettextTranslate)
       COMMAND ${MSGFMT_BINARY} -c --statistics --verbose -o
         ${CMAKE_CURRENT_BINARY_DIR}/${lang}.gmo
         ${CMAKE_CURRENT_SOURCE_DIR}/${lang}.po
+        2>/dev/null
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${lang}.po
     )
     add_custom_target(${GMO_TARGET} DEPENDS ${GMO_FILE_NAME})
