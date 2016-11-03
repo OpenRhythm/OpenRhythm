@@ -6,7 +6,7 @@ OpenRhythm currently depends on the following libs:
 * Freetype - I may switch to using stb_freetype haven't decided quite yet.
 * GLM
 * STB (included in extern/stb)
-* PNG++ (optional default off, included in extern/png++)
+* Gettext
 
 ### Submodules
 This project contains submodules. There are two ways to handle this.
