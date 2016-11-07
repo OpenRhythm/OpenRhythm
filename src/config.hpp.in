@@ -1,10 +1,14 @@
 #pragma once
 
 
-// ************ Useful includes and definitions
+// ************ Useful includes, definitions and macros
 // Translations
 #include <libintl.h>
 #define _(STRING) gettext(STRING)
+
+// Prepocessor to string
+#define S(x) #x
+#define TO_STRING(x) S(x)
 
 
 // Version
