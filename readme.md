@@ -21,8 +21,23 @@ git submodule init
 git submodule update
 ```
 
-## Compiling
+## Compiling and packaging
 You will need a compiler that supports C++14
+
+* Makedepends : dependencies for compiling but not for executing :
+    - CMake (3.0 minimum)
+    - TCLAP (Args parsing, header only)
+    - GLM   (Graphics, header only)
+
+* Dependencies : for compiling and executing :
+    - Freetype2
+    - Gettext
+    - OggVorbis
+    - Samplerate (SRC)
+    - SDL2
+    - SoundIO
+    - Yaml-cpp
+
 
 #### Windows
 You will need to get Visual Studio 2015 Community Edition (please expand)
