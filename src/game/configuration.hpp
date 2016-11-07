@@ -5,7 +5,7 @@
 
 using namespace ORCore;
 
-void readConfiguration();
+void readConfiguration(int argc, char** argv);
 void writeConfigurationFile();
 extern Parameter<std::string> global_language;
 

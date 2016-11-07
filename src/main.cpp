@@ -12,7 +12,7 @@
 
 // Eventually we will want to load configuration files somewhere in here.
 // This also means the VFS needs to be setup here as well
-int main()
+int main(int argc, char** argv)
 {
     // Setting the i18n environment
     setlocale (LC_ALL, "");
