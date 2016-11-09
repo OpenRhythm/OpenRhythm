@@ -24,7 +24,7 @@ namespace ORCore {
         AudioStream() {};
         AudioStream(AudioStream *inputStream)
         : m_inputStream(inputStream) { };
-       ~AudioStream() {};
+       virtual ~AudioStream() = 0;
 
         AudioBuffer *getFilledOutputBuffer() { return &m_outputBuffer; };
 
