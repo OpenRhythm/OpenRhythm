@@ -1,0 +1,46 @@
+#pragma once
+
+// ************ Useful includes, definitions and macros
+// Translations
+#include <libintl.h>
+#define _(STRING) gettext(STRING)
+
+// Prepocessor to string
+#define S(x) #x
+#define TO_STRING(x) S(x)
+
+// Version
+#mesondefine PROJECT_NAME
+#mesondefine VERSION_MAJOR
+#mesondefine VERSION_MINOR
+
+// Platforms
+#mesondefine PL_DEFAULT
+#mesondefine PL_WINDOWS
+#mesondefine PL_LINUX
+#mesondefine PL_OSX
+
+#mesondefine OSX_APP_BUNDLE
+#mesondefine USE_LIB_PNGCPP
+
+#mesondefine PATH_SEP
+#mesondefine HOMEPATH_NAME
+#mesondefine APP_NAME
+
+// Variables
+#mesondefine PACKAGE_BIN_DIR
+#mesondefine PACKAGE_LIB_DIR
+#mesondefine PACKAGE_DATA_DIR
+#mesondefine LOCALE_DIR
+
+
+#define PATH_SEP '/'
+#define HOMEPATH_NAME ".config/openrhythm"
+#define APP_NAME "OpenRhythm"
+
+#define PACKAGE_BIN_DIR     "/usr/local/bin"
+#define PACKAGE_LIB_DIR     "/usr/local/lib"
+#define PACKAGE_DATA_DIR    "/usr/local/share/openrhythm"
+#define LOCALE_DIR          "/usr/locale"
+
+
