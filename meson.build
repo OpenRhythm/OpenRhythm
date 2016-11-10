@@ -87,25 +87,28 @@ SDL2        = dependency('sdl2')
 SoundIO     = meson.get_compiler('cpp').find_library('soundio')
 YAMLCpp     = dependency('yaml-cpp')
 
-GLAD_includes = include_directories('extern/glad/include')
-GLAD = static_library('glad',
+GLAD_includes = include_directories('extern/glad/include', is_system : true)
+GLADlib = static_library('GLAD',
     'extern/glad/src/glad.c',
-    dependencies : [],
-    include_directories : [GLAD_includes],)
-
+    include_directories : GLAD_includes
+)
+GLAD = declare_dependency(
+    include_directories : GLAD_includes,
+    link_with : GLADlib,
+)
 
 syst_includes = include_directories(
-    'extern/glad/include',
     'extern/spdlog/include',
     'extern/stb',
     is_system : true,
 )
 
-syst_libs = [
+syst_deps = [
     meson.get_compiler('cpp').find_library('dl'),
     freetype,
     # Gettext
     Glm,
+    GLAD,
     vorbisFile,
     OpenGL,
     SampleRate,
@@ -116,12 +119,11 @@ syst_libs = [
 
 
 subdir('src')
+subdir('po')
 
 
 
-####################################################################
-#   Localization
-####################################################################
+
 # set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
 # include(GettextTranslate)
 # GettextTranslateTargets(ALL)
@@ -145,17 +147,6 @@ subdir('src')
 #     set_target_properties(openrhythm PROPERTIES MACOSX_BUNDLE TRUE)
 # endif()
 
-
-# ####################################################################
-# #   Test binaries
-# ####################################################################
-# add_executable(       audiotests $<TARGET_OBJECTS:ORCore-obj> ${PROJECT_SOURCE_DIR}/src/tests/audiotests.cpp)
-# target_link_libraries(audiotests ${LIBRARIES})
-# install(TARGETS       audiotests DESTINATION bin)
-
-# add_executable(       general_tests $<TARGET_OBJECTS:ORCore-obj> ${PROJECT_SOURCE_DIR}/src/tests/general_tests.cpp)
-# target_link_libraries(general_tests ${LIBRARIES})
-# install(TARGETS       general_tests DESTINATION bin)
 
 
 ####################################################################
