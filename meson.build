@@ -39,12 +39,6 @@ endif
 ####################################################################
 #   Platform detection and rules
 ####################################################################
-# set(PL_DEFAULT  0)
-# set(PL_WINDOWS  1)
-# set(PL_LINUX    2)
-# set(PL_OSX      3)
-
-# set(OSX_APP_BUNDLE 0)
 
 if   (host_machine.system() == 'windows')
     message('Building for Windows.')
@@ -123,25 +117,11 @@ subdir('po')
 
 
 
-
-# set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
-# include(GettextTranslate)
-# GettextTranslateTargets(ALL)
-
-# add_subdirectory(po)
-
-# install(TARGETS       openrhythm DESTINATION bin)
-
-# set(BINARY_DATA_DIR ${CMAKE_BINARY_DIR}/data)
-# set(SOURCE_DATA_DIR ${CMAKE_SOURCE_DIR}/data)
-
-# add_custom_command(TARGET openrhythm PRE_BUILD
-#                 COMMAND ${CMAKE_COMMAND} -E make_directory
-#                 ${BINARY_DATA_DIR})
-# add_custom_command(TARGET openrhythm PRE_BUILD
-#                 COMMAND ${CMAKE_COMMAND} -E copy_directory
-#                 ${SOURCE_DATA_DIR} $<TARGET_FILE_DIR:openrhythm>/data/)
-
+install_data(
+    sources : [
+        'data/',
+    ],
+    install_dir : 'share/openrhythm')
 
 # if(OSX_APP_BUNDLE)
 #     set_target_properties(openrhythm PROPERTIES MACOSX_BUNDLE TRUE)

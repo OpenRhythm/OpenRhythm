@@ -4,4 +4,4 @@
 gettext = import('i18n')
 gettext.gettext('openrhythm',
     languages : ['fr',],
-    )
+)

@@ -38,8 +38,6 @@ executable('openrhythm',
         syst_includes,
         core_includes,
         conf_includes,
-        game_includes,]
+        game_includes,],
+    install : true,
 )
-# add_global_arguments('-DSOME_TOKEN=value', language : 'cpp')
-
-#inc = include_directories('include')
