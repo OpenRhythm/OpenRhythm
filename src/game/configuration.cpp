@@ -11,7 +11,7 @@
 
 ORCore::Parameter<std::string>  global_language("system",
     _("Language"), _("The language"),
-    "", 0);
+    "language", "l");
 
 ORCore::Parameter<std::string>  path_library("",
     _(" "), _(" "), "", "");
@@ -24,7 +24,8 @@ ORCore::Parameter<std::pair<int,int>> window_resolution({640,480},
 ORCore::Parameter<int>          window_samples(4,
     _(" "), _(" "), "", "");
 ORCore::Parameter<bool>         window_fullscreen(false,
-    _(" "), _(" "), "", 0);
+    _(" "), _(" "),
+    "fullscreen", "f");
 ORCore::Parameter<std::string>  window_fps("fixed",
     _(" "), _(" "), "", "");
 ORCore::Parameter<int>          window_fps_max(60,
@@ -276,47 +277,58 @@ void readCommandLine(int argc, char** argv) {
             QUOTE(VERSION_MAJOR) "." QUOTE(VERSION_MINOR),
             true);  // Version and help
 
-        // Version short option
-        cmd.getArgList();
+        // Add args to command line
+        TCLAP::ValueArg<std::string> language(
+            global_language.getCliNameShort(),
+            global_language.getCliName(),
+            global_language.getDescription(),
+            false,
+            global_language.getValue(),
+            "string");
+        cmd.add(language);
 
-        // Define a value argument and add it to the command line.
-        // A value arg defines a flag and a type of value that it expects,
-        // such as "-n Bishop".
-        TCLAP::ValueArg<std::string> nameArg("n","name","Name to print",true,"homer","string");
-
-        // Add the argument nameArg to the CmdLine object. The CmdLine object
-        // uses this Arg to parse the command line.
-        cmd.add( nameArg );
-
-        // Define a switch and add it to the command line.
-        // A switch arg is a boolean argument and only defines a flag that
-        // indicates true or false.  In this example the SwitchArg adds itself
-        // to the CmdLine object as part of the constructor.  This eliminates
-        // the need to call the cmd.add() method.  All args have support in
-        // their constructors to add themselves directly to the CmdLine object.
-        // It doesn't matter which idiom you choose, they accomplish the same thing.
-        TCLAP::SwitchArg reverseSwitch("r","reverse","Print name backwards", cmd, false);
+        TCLAP::SwitchArg fullscreen(
+            window_fullscreen.getCliNameShort(),
+            window_fullscreen.getCliName(),
+            window_fullscreen.getDescription(),
+            false);
+        cmd.add(fullscreen);
 
         // Parse the argv array.
-        cmd.parse( argc, argv );
+        cmd.parse(argc, argv);
 
-        // Get the value parsed by each arg.
-        std::string name = nameArg.getValue();
-        bool reverseName = reverseSwitch.getValue();
-
-        // Do what you intend.
-        if ( reverseName )
-        {
-            std::reverse(name.begin(),name.end());
-            std::cout << "My name (spelled backwards) is: " << name << std::endl;
-        }
-        else
-            std::cout << "My name is: " << name << std::endl;
+        // Check if args are set
+        if (language.isSet())
+            global_language.setCliValue(language.getValue());
+        if (fullscreen.isSet())
+            window_fullscreen.setCliValue(fullscreen.getValue());
 
 
     } catch (TCLAP::ArgException &e) {
         std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
     }
+}
+
+void manageConfiguration() {
+    // Nothing to do : for now it's a stupid example
+    std::string language_str = global_language.getValue();
+
+    if (window_fullscreen.getValue()) {
+        std::reverse(language_str.begin(),language_str.end());
+        global_language.setCliValue(language_str);
+    }
+
+
+    if (window_fullscreen.getConfigValue()) {
+        std::reverse(language_str.begin(),language_str.end());
+        global_language.setInterfaceValue(language_str);
+    }
+
+
+    std::cout << "The language used is: "   << global_language.getValue()
+              << " and the config value is "<< global_language.getConfigValue()
+              << std::endl;
+
 }
 
 void readConfiguration(int argc, char** argv) {
@@ -325,4 +337,6 @@ void readConfiguration(int argc, char** argv) {
     readConfigurationFile("data/default_config.yaml");
     // readConfigurationFile(PACKAGE_DATA_DIR "/default_config.yaml" CONFIGURATION_FILE_NAME);
     readConfigurationFile(CONFIGURATION_FILE_NAME);
+
+    manageConfiguration();
 }

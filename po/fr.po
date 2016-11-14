@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: openrhythm\n"
 "Report-Msgid-Bugs-To: https://github.com/OpenRhythm/OpenRhythm/issues\n"
-"POT-Creation-Date: 2016-11-02 21:10+0100\n"
+"POT-Creation-Date: 2016-11-14 19:04+0100\n"
 "PO-Revision-Date: 2012-01-25 14:58+0100\n"
 "Last-Translator: Salamandar <felix@piedallu.me>\n"
 "Language-Team: français <felix@piedallu.me>\n"
@@ -223,15 +223,15 @@ msgstr ""
 msgid "Failed to load MIDI file."
 msgstr ""
 
-#: src/core/texture.cpp:49
+#: src/core/texture.cpp:50
 msgid "Failed to get image data"
 msgstr ""
 
-#: src/core/texture.cpp:108
+#: src/core/texture.cpp:109
 msgid "Texture bound"
 msgstr ""
 
-#: src/core/vfs.cpp:183
+#: src/core/vfs.cpp:179
 msgid "Failed to load: "
 msgstr ""
 
@@ -247,50 +247,50 @@ msgstr ""
 msgid "Game"
 msgstr ""
 
-#: src/game/configuration.cpp:12
+#: src/game/configuration.cpp:13
 msgid "Language"
 msgstr ""
 
-#: src/game/configuration.cpp:12
+#: src/game/configuration.cpp:13
 msgid "The language"
 msgstr ""
 
-#: src/game/configuration.cpp:16 src/game/configuration.cpp:18
-#: src/game/configuration.cpp:21 src/game/configuration.cpp:24
-#: src/game/configuration.cpp:26 src/game/configuration.cpp:28
-#: src/game/configuration.cpp:30 src/game/configuration.cpp:34
-#: src/game/configuration.cpp:36 src/game/configuration.cpp:38
-#: src/game/configuration.cpp:40 src/game/configuration.cpp:44
-#: src/game/configuration.cpp:46 src/game/configuration.cpp:48
-#: src/game/configuration.cpp:50
+#: src/game/configuration.cpp:17 src/game/configuration.cpp:19
+#: src/game/configuration.cpp:22 src/game/configuration.cpp:25
+#: src/game/configuration.cpp:27 src/game/configuration.cpp:30
+#: src/game/configuration.cpp:32 src/game/configuration.cpp:36
+#: src/game/configuration.cpp:38 src/game/configuration.cpp:40
+#: src/game/configuration.cpp:42 src/game/configuration.cpp:46
+#: src/game/configuration.cpp:48 src/game/configuration.cpp:50
+#: src/game/configuration.cpp:52
 msgid " "
 msgstr ""
 
-#: src/game/configuration.cpp:21
+#: src/game/configuration.cpp:22
 msgid "Window Resolution"
 msgstr ""
 
-#: src/game/configuration.cpp:64
+#: src/game/configuration.cpp:65
 msgid "Reading config file "
 msgstr ""
 
-#: src/game/configuration.cpp:68
+#: src/game/configuration.cpp:69
 msgid " does not exist !"
 msgstr ""
 
-#: src/game/configuration.cpp:89
+#: src/game/configuration.cpp:90
 msgid " is an invalid YAML sequence in "
 msgstr ""
 
-#: src/game/game.cpp:70
+#: src/game/game.cpp:65
 msgid "Error: GLAD failed to load."
 msgstr ""
 
-#: src/game/parser.cpp:142
+#: src/game/parser.cpp:138
 msgid "Tempo change recieved at time {}"
 msgstr ""
 
-#: src/game/parser.cpp:148
+#: src/game/parser.cpp:144
 msgid "Time signature change recieved at time {}"
 msgstr ""
 
