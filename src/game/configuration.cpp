@@ -9,51 +9,51 @@
 // valueDefault,
 // nameVisible, description, cliName, cliNameShort,
 
-Parameter<std::string>  global_language("system",
+ORCore::Parameter<std::string>  global_language("system",
     _("Language"), _("The language"),
     "", 0);
 
-Parameter<std::string>  path_library("",
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  path_last_song("",
-    _(" "), _(" "), "", 0);
+ORCore::Parameter<std::string>  path_library("",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<std::string>  path_last_song("",
+    _(" "), _(" "), "", "");
 
-Parameter<std::pair<int,int>> window_resolution({640,480},
+ORCore::Parameter<std::pair<int,int>> window_resolution({640,480},
     _("Window Resolution"), _(" "),
-    "", 0);
-Parameter<int>          window_samples(4,
+    "", "");
+ORCore::Parameter<int>          window_samples(4,
+    _(" "), _(" "), "", "");
+ORCore::Parameter<bool>         window_fullscreen(false,
     _(" "), _(" "), "", 0);
-Parameter<bool>         window_fullscreen(false,
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  window_fps("fixed",
-    _(" "), _(" "), "", 0);
-Parameter<int>          window_fps_max(60,
-    _(" "), _(" "), "", 0);
+ORCore::Parameter<std::string>  window_fps("fixed",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<int>          window_fps_max(60,
+    _(" "), _(" "), "", "");
 
 
-Parameter<int>  audio_bits(16,
-    _(" "), _(" "), "", 0);
-Parameter<int>  audio_framerate(44100,
-    _(" "), _(" "), "", 0);
-Parameter<int>  audio_latency_ms(10,
-    _(" "), _(" "), "", 0);
-Parameter<bool>  audio_stereo(true,
-    _(" "), _(" "), "", 0);
+ORCore::Parameter<int>  audio_bits(16,
+    _(" "), _(" "), "", "");
+ORCore::Parameter<int>  audio_framerate(44100,
+    _(" "), _(" "), "", "");
+ORCore::Parameter<int>  audio_latency_ms(10,
+    _(" "), _(" "), "", "");
+ORCore::Parameter<bool>  audio_stereo(true,
+    _(" "), _(" "), "", "");
 
 
-Parameter<std::string>  debug_song1("",
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  debug_song2("",
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  debug_midi1("",
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  debug_midi2("",
-    _(" "), _(" "), "", 0);
+ORCore::Parameter<std::string>  debug_song1("",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<std::string>  debug_song2("",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<std::string>  debug_midi1("",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<std::string>  debug_midi2("",
+    _(" "), _(" "), "", "");
 
 
 
 template<typename T>
-void setParam(Parameter<T> &parameter, YAML::Node node) {
+void setParam(ORCore::Parameter<T> &parameter, YAML::Node node) {
     if(node.IsScalar())
         parameter.setConfigValue(node.as<T>());
 }
@@ -271,13 +271,13 @@ void readCommandLine(int argc, char** argv) {
     // because exceptions will be thrown for problems.
     try {
         TCLAP::CmdLine cmd(
-            PROJECT_NAME,
+            "",     // Message
             ' ',    // Delimiter
-            TO_STRING(VERSION_MAJOR) "." TO_STRING(VERSION_MINOR),
+            QUOTE(VERSION_MAJOR) "." QUOTE(VERSION_MINOR),
             true);  // Version and help
 
         // Version short option
-        cmd.getArgList()
+        cmd.getArgList();
 
         // Define a value argument and add it to the command line.
         // A value arg defines a flag and a type of value that it expects,
