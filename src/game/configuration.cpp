@@ -1,59 +1,62 @@
 #include "config.hpp"
 #include "configuration.hpp"
+
 #include <iostream>
 #include <fstream>
+
+#include <tclap/CmdLine.h>
 
 // valueDefault,
 // nameVisible, description, cliName, cliNameShort,
 
-Parameter<std::string>  global_language("system",
+ORCore::Parameter<std::string>  global_language("system",
     _("Language"), _("The language"),
-    "", 0);
+    "language", "l");
 
-Parameter<std::string>  path_library("",
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  path_last_song("",
-    _(" "), _(" "), "", 0);
+ORCore::Parameter<std::string>  path_library("",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<std::string>  path_last_song("",
+    _(" "), _(" "), "", "");
 
-Parameter<std::pair<int,int>> window_resolution({640,480},
+ORCore::Parameter<std::pair<int,int>> window_resolution({640,480},
     _("Window Resolution"), _(" "),
-    "", 0);
-Parameter<int>          window_samples(4,
-    _(" "), _(" "), "", 0);
-Parameter<bool>         window_fullscreen(false,
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  window_fps("fixed",
-    _(" "), _(" "), "", 0);
-Parameter<int>          window_fps_max(60,
-    _(" "), _(" "), "", 0);
+    "", "");
+ORCore::Parameter<int>          window_samples(4,
+    _(" "), _(" "), "", "");
+ORCore::Parameter<bool>         window_fullscreen(false,
+    _(" "), _(" "),
+    "fullscreen", "f");
+ORCore::Parameter<std::string>  window_fps("fixed",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<int>          window_fps_max(60,
+    _(" "), _(" "), "", "");
 
 
-Parameter<int>  audio_bits(16,
-    _(" "), _(" "), "", 0);
-Parameter<int>  audio_framerate(44100,
-    _(" "), _(" "), "", 0);
-Parameter<int>  audio_latency_ms(10,
-    _(" "), _(" "), "", 0);
-Parameter<bool>  audio_stereo(true,
-    _(" "), _(" "), "", 0);
+ORCore::Parameter<int>  audio_bits(16,
+    _(" "), _(" "), "", "");
+ORCore::Parameter<int>  audio_framerate(44100,
+    _(" "), _(" "), "", "");
+ORCore::Parameter<int>  audio_latency_ms(10,
+    _(" "), _(" "), "", "");
+ORCore::Parameter<bool>  audio_stereo(true,
+    _(" "), _(" "), "", "");
 
 
-Parameter<std::string>  debug_song1("",
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  debug_song2("",
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  debug_midi1("",
-    _(" "), _(" "), "", 0);
-Parameter<std::string>  debug_midi2("",
-    _(" "), _(" "), "", 0);
+ORCore::Parameter<std::string>  debug_song1("",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<std::string>  debug_song2("",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<std::string>  debug_midi1("",
+    _(" "), _(" "), "", "");
+ORCore::Parameter<std::string>  debug_midi2("",
+    _(" "), _(" "), "", "");
 
 
 
 template<typename T>
-void setParam(Parameter<T> &parameter, YAML::Node node) {
-    if(node.IsScalar()) {
+void setParam(ORCore::Parameter<T> &parameter, YAML::Node node) {
+    if(node.IsScalar())
         parameter.setConfigValue(node.as<T>());
-    }
 }
 
 void readConfigurationFile(std::string path) {
@@ -88,7 +91,6 @@ void readConfigurationFile(std::string path) {
     }
 
     //…And so on.
-
 }
 
 void writeConfigurationFile() {
@@ -265,14 +267,76 @@ void writeConfigurationFile() {
 
 
 
-void readCommandLine() {
+void readCommandLine(int argc, char** argv) {
+    // Wrap everything in a try block.  Do this every time,
+    // because exceptions will be thrown for problems.
+    try {
+        TCLAP::CmdLine cmd(
+            "",     // Message
+            ' ',    // Delimiter
+            QUOTE(VERSION_MAJOR) "." QUOTE(VERSION_MINOR),
+            true);  // Version and help
+
+        // Add args to command line
+        TCLAP::ValueArg<std::string> language(
+            global_language.getCliNameShort(),
+            global_language.getCliName(),
+            global_language.getDescription(),
+            false,
+            global_language.getValue(),
+            "string");
+        cmd.add(language);
+
+        TCLAP::SwitchArg fullscreen(
+            window_fullscreen.getCliNameShort(),
+            window_fullscreen.getCliName(),
+            window_fullscreen.getDescription(),
+            false);
+        cmd.add(fullscreen);
+
+        // Parse the argv array.
+        cmd.parse(argc, argv);
+
+        // Check if args are set
+        if (language.isSet())
+            global_language.setCliValue(language.getValue());
+        if (fullscreen.isSet())
+            window_fullscreen.setCliValue(fullscreen.getValue());
+
+
+    } catch (TCLAP::ArgException &e) {
+        std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+    }
+}
+
+void manageConfiguration() {
+    // Nothing to do : for now it's a stupid example
+    std::string language_str = global_language.getValue();
+
+    if (window_fullscreen.getValue()) {
+        std::reverse(language_str.begin(),language_str.end());
+        global_language.setCliValue(language_str);
+    }
+
+
+    if (window_fullscreen.getConfigValue()) {
+        std::reverse(language_str.begin(),language_str.end());
+        global_language.setInterfaceValue(language_str);
+    }
+
+
+    std::cout << "The language used is: "   << global_language.getValue()
+              << " and the config value is "<< global_language.getConfigValue()
+              << std::endl;
 
 }
 
-void readConfiguration() {
-    readCommandLine();
+void readConfiguration(int argc, char** argv) {
+    readCommandLine(argc, argv);
 
     readConfigurationFile("data/default_config.yaml");
     // readConfigurationFile(PACKAGE_DATA_DIR "/default_config.yaml" CONFIGURATION_FILE_NAME);
     readConfigurationFile(CONFIGURATION_FILE_NAME);
+
+    manageConfiguration();
 }

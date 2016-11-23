@@ -6,14 +6,14 @@
 #include "configuration.hpp"
 
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
     //std::cout << get_config_directory() << std::endl;
-    readConfiguration();
+    readConfiguration(argc, argv);
     std::cout << path_library.getValue() << std::endl;;
 
 
 
 
-    writeConfigurationFile();
+    //writeConfigurationFile();
     return 0;
 }
