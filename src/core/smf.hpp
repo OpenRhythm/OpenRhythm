@@ -141,7 +141,6 @@ namespace ORCore
     {
         MetaEvent info;
         uint32_t qnLength; // Length of a quarter note in microseconds.
-        double ppqn;
     };
 
     struct TimeSignatureEvent

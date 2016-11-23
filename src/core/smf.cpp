@@ -122,8 +122,7 @@ namespace ORCore
             case meta_Tempo:
             {
                 uint32_t qnLength = read_type<uint32_t>(m_smfFile, 3);
-                double ppqn = qnLength/static_cast<double>(m_header.division);
-                m_currentTrack->tempo.push_back({event, qnLength, ppqn});
+                m_currentTrack->tempo.push_back({event, qnLength});
                 if (m_tempoTrack == nullptr || m_header.format != smfType1) {
                     m_tempoTrack = m_currentTrack;
                 }
