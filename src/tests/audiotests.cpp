@@ -82,8 +82,9 @@ int main(int argc, char *argv[]) {
         std::cout << _("opening ogg vorbis file failed: ") << err.what() << std::endl;
     }
 
-ltiple streams output
-    ORCore::VorbisInput *anotherOgg;
+
+
+    // Add another sound to test multiple streams output
     try {
         logger->debug("add audio file \"{}\"", OggAnotherFile);
 

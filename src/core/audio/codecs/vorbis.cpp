@@ -75,9 +75,10 @@ namespace ORCore {
                 m_framesInBuffer++;
             }
 
-            // End of file, stop asking for frames !
+            // End of file, stop asking for frames but fill the buffer with zeros!
             if (framesDecoded == 0) {
                 m_eof = true;
+                m_outputBuffer.resize(frameCount*getChannelCount(), 0);
                 break;
             }
         }
