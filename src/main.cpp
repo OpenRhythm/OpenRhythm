@@ -14,10 +14,14 @@
 // This also means the VFS needs to be setup here as well
 int main()
 {
+
+// TODO - Move this to into a function/class within a future i18n module.
+#if defined(TRANSLATION_ENABLED)
     // Setting the i18n environment
     setlocale (LC_ALL, "");
     bindtextdomain ("openrhythm", LOCALE_DIR);
     textdomain ("openrhythm");
+#endif
 
     // Example of i18n usage
     printf(_("Hello World\n"));

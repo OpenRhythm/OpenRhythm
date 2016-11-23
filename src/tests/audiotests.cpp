@@ -7,22 +7,24 @@
 #include "core/audio/streams/resample.hpp"
 #include "core/audio/output/soundio.hpp"
 
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
-
 #include "config.hpp"
 
 
 #define OggTestFile "TestOgg.ogg"
+// TODO - BAD DO NOT HARD CODE PATHS PLZ! This breaks windows and causes the test to crash
+//        because the file isnt found and the test doesnt handle not found files properly.
 #define OggAnotherFile "/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga"
 
 
 int main(int argc, char const *argv[]) {
 
+// TODO - Move this to into a function/class within a future i18n module.
+#if defined(TRANSLATION_ENABLED)
     /* Setting the i18n environment */
     setlocale (LC_ALL, "");
     bindtextdomain ("openrhythm", LOCALE_DIR);
     textdomain ("openrhythm");
+#endif
 
     /* Example of i18n usage */
     printf(_("Hello World\n"));

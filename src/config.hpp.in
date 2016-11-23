@@ -3,8 +3,13 @@
 
 // ************ Useful includes, definitions and macros
 // Translations
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
+#define TRANSLATE_ENABLED ${TRANSLATE_ENABLED}
+#if TRANSLATE_ENABLED
+#    include <libintl.h>
+#    define _(STRING) gettext(STRING)
+#else
+#    define _(STRING) STRING
+#endif
 
 // Prepocessor to string
 #define S(x) #x
@@ -41,7 +46,6 @@
     #define HOMEPATH_NAME   "${CMAKE_PROJECT_NAME}"
     #define APP_NAME        "${APPLE_APP_NAME}"
 #endif
-
 
 // Variables
 #define PACKAGE_BIN_DIR     "${CMAKE_INSTALL_PREFIX}/bin"

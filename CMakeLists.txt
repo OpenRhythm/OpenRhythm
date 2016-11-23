@@ -124,7 +124,7 @@ include_directories(SYSTEM
     ${GLM_INCLUDE_DIRS}
     ${OGG_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIRS}
-    ${SAMPLERATE_INCLUDE_DIRS}
+    ${SAMPLERATE_INCLUDE_DIR}
     ${SDL2_INCLUDE_DIR}
     ${SOUNDIO_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
@@ -136,6 +136,14 @@ if(INC_PATH)
     foreach(PATH ${_INC_PATH})
         include_directories(SYSTEM ${PATH})
     endforeach()
+endif()
+
+if(GETTEXT_FOUND)
+    set(TRANSLATE_ENABLED "true")
+    message("Translation enabled")
+else()
+    set(TRANSLATE_ENABLED "false")
+    message("Translation disabled")
 endif()
 
 
@@ -240,11 +248,13 @@ endif()
 ####################################################################
 #   Localization
 ####################################################################
-set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
-include(GettextTranslate)
-GettextTranslateTargets(ALL)
+if(GETTEXT_FOUND)
+    set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
+    include(GettextTranslate)
+    GettextTranslateTargets(ALL)
 
-add_subdirectory(po)
+    add_subdirectory(po)
+endif()
 
 ####################################################################
 #   Test binaries

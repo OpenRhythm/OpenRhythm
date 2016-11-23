@@ -1,8 +1,7 @@
 #include <iostream>
 #include <yaml-cpp/yaml.h>
-#include <libintl.h>
-#define _(STRING) gettext(STRING)
 
+#include "config.hpp"
 #include "configuration/parameter.hpp"
 #include "configuration.hpp"
 
