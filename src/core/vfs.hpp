@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <functional>
 
 // Utility functions for finding paths
 namespace ORCore
