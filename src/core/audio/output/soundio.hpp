@@ -35,14 +35,14 @@ namespace ORCore {
         // Closes the stream
         void close_stream();
         void destroy() {
-            soundio_destroy(soundio);
+            soundio_destroy(m_soundio);
         }
         void flush_events() {
-            soundio_flush_events(soundio);
+            soundio_flush_events(m_soundio);
         }
 
 
-        // To call at the start of the app. Initializes *device.
+        // To call at the start of the app. Initializes *m_device.
         // @return 0 if correctly initialized, 1 if there was an error.
         void connect_default_output_device();
         void disconnect_device();
@@ -50,8 +50,8 @@ namespace ORCore {
         SoundIoDevice* get_device();
         void wait_events();
 
-        void write_callback(SoundIoOutStream *outstream, int frameCountMin, int frameCountMax);
-        void underflow_callback(SoundIoOutStream *outstream);
+        void write_callback(SoundIoOutStream *outStream, int frameCountMin, int frameCountMax);
+        void underflow_callback(SoundIoOutStream *outStream);
 
     protected:
 
@@ -60,11 +60,11 @@ namespace ORCore {
         void initialize();
 
         // The unique libSoundIO instance
-        SoundIo             *soundio = nullptr;
+        SoundIo             *m_soundio = nullptr;
         // The unique output stream for libSoundIO
-        SoundIoOutStream    *outstream;
+        SoundIoOutStream    *m_outstream;
         // The unique device instance for libSoundIO
-        SoundIoDevice       *device = nullptr;
+        SoundIoDevice       *m_device = nullptr;
 
         // The buffer to be sent to the libsoundio backend
         std::vector<float> m_dataBuffer;
