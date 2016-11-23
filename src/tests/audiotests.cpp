@@ -7,26 +7,21 @@
 #include "core/audio/streams/resample.hpp"
 #include "core/audio/output/soundio.hpp"
 
+#include "configuration.hpp"
+
 #include "config.hpp"
 
-
-#define OggTestFile "TestOgg.ogg"
-// TODO - BAD DO NOT HARD CODE PATHS PLZ! This breaks windows and causes the test to crash
-//        because the file isnt found and the test doesnt handle not found files properly.
-#define OggAnotherFile "/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga"
-
-
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
 
 // TODO - Move this to into a function/class within a future i18n module.
 #if defined(TRANSLATION_ENABLED)
-    /* Setting the i18n environment */
+    // Setting the i18n environment
     setlocale (LC_ALL, "");
     bindtextdomain ("openrhythm", LOCALE_DIR);
     textdomain ("openrhythm");
 #endif
 
-    /* Example of i18n usage */
+    // Example of i18n usage
     printf(_("Hello World\n"));
 
     std::shared_ptr<spdlog::logger> logger;
@@ -51,55 +46,66 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
 
+    // Read configuration
+    readConfiguration(argc, argv);
+    std::string OggTestFile     = debug_song1.getValue();
+    std::string OggAnotherFile  = debug_song2.getValue();
+
+
+
+    // You may change that to change your config
     int outputSampleRate = 44100;
 
-    // We should use a smart pointer raw new/delete is considered bad style nowdays.
-    ORCore::VorbisInput *mysong;
-    try {
-        mysong = new ORCore::VorbisInput(OggTestFile);
-        mysong->open();
-    } catch (const std::runtime_error& err) {
-        std::cout << _("opening ogg vorbis file failed: ") << err.what() << std::endl;
-    }
-
-    int songSampleRate = mysong->getSampleRate();
-
-    auto *resamplerstream =
-        new ORCore::ResamplerStream(mysong, SRC_SINC_MEDIUM_QUALITY);
-    resamplerstream->setInputSampleRate(songSampleRate);
-    resamplerstream->setOutputSampleRate(outputSampleRate);
-
-
-    logger->info(_("SongSampleRate: {}"), songSampleRate);
-
-
-    // Add another sound to test multiple streams output
-    ORCore::VorbisInput *anotherOgg;
-    try {
-        anotherOgg = new ORCore::VorbisInput(OggAnotherFile);
-        anotherOgg->open();
-    } catch (const std::runtime_error& err) {
-        std::cout << _("opening ogg vorbis file failed: ") << err.what() << std::endl;
-    }
-
-    int anotherOggSampleRate = mysong->getSampleRate();
-
-    auto *anotherResamplerstream =
-        new ORCore::ResamplerStream(anotherOgg, SRC_SINC_MEDIUM_QUALITY);
-    anotherResamplerstream->setInputSampleRate(anotherOggSampleRate);
-    anotherResamplerstream->setOutputSampleRate(outputSampleRate);
-
-
-
+    // Initialize the audio output
     auto soundOutput = new ORCore::SoundIoOutput();
     soundOutput->connect_default_output_device();
     soundOutput->open_stream_with_sample_rate(outputSampleRate);
 
 
+    // First ogg file
+    try {
+        ORCore::VorbisInput *mysong = new ORCore::VorbisInput(OggTestFile);
+        mysong->open();
 
-    logger->debug(_("addstream resamplerstream"));
-    soundOutput->add_stream(resamplerstream);
-    soundOutput->add_stream(anotherResamplerstream);
+        int songSampleRate = mysong->getSampleRate();
+
+        auto *resamplerstream =
+            new ORCore::ResamplerStream(mysong, SRC_SINC_MEDIUM_QUALITY);
+        resamplerstream->setInputSampleRate(songSampleRate);
+        resamplerstream->setOutputSampleRate(outputSampleRate);
+
+        logger->info(_("SongSampleRate: {}"), songSampleRate);
+
+        logger->debug(_("addstream resamplerstream"));
+        soundOutput->add_stream(resamplerstream);
+    } catch (const std::runtime_error& err) {
+        std::cout << _("opening ogg vorbis file failed: ") << err.what() << std::endl;
+    }
+
+ltiple streams output
+    ORCore::VorbisInput *anotherOgg;
+    try {
+        logger->debug("add audio file \"{}\"", OggAnotherFile);
+
+
+        ORCore::VorbisInput *anotherOgg = new ORCore::VorbisInput(OggAnotherFile);
+        anotherOgg->open();
+
+        int anotherOggSampleRate = anotherOgg->getSampleRate();
+
+        auto *anotherResamplerstream =
+            new ORCore::ResamplerStream(anotherOgg, SRC_SINC_MEDIUM_QUALITY);
+        anotherResamplerstream->setInputSampleRate(anotherOggSampleRate);
+        anotherResamplerstream->setOutputSampleRate(outputSampleRate);
+
+        soundOutput->add_stream(anotherResamplerstream);
+    } catch (const std::runtime_error& err) {
+        std::cout << _("opening ogg vorbis file failed: ") << err.what() << std::endl;
+    }
+
+
+
+    // Wait a while then stop all that
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     soundOutput->destroy();
     soundOutput->disconnect_device();

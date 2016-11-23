@@ -1,7 +1,1 @@
 ${TRANSLATION_SOURCE}
-
-src/core/audio/output/chrono.hpp
-src/core/parseutils.hpp
-
-src/tests/audiotests.cpp
-src/tests/general_tests.cpp

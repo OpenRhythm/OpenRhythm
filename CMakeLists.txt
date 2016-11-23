@@ -161,7 +161,6 @@ configure_file (
 
 set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/chrono.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/stream.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.hpp
@@ -255,7 +254,7 @@ endif()
 if(GETTEXT_FOUND)
     set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/share/locale")
     include(GettextTranslate)
-    GettextTranslateTargets(ALL)
+    GettextTranslateTargets()
 
     add_subdirectory(po)
 endif()
@@ -264,6 +263,7 @@ endif()
 #   Test binaries
 ####################################################################
 add_executable(       audiotests $<TARGET_OBJECTS:ORCore-obj>
+                                 ${GAME_SOURCE}
                                  ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp)
 target_link_libraries(audiotests ${LIBRARIES})
 install(TARGETS       audiotests DESTINATION bin)

@@ -13,7 +13,7 @@
 
 // Prepocessor to string
 #define S(x) #x
-#define TO_STRING(x) S(x)
+#define QUOTE(x) S(x)
 
 
 // Version
