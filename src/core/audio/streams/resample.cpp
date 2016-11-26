@@ -1,5 +1,6 @@
 #include "config.hpp"
 #include "resample.hpp"
+#include <fmt/format.h>
 
 #include <stdexcept>
 
@@ -10,7 +11,7 @@ namespace ORCore {
         int error = 0;
         m_src_state = src_new(quality, this->getChannelCount(), &error);
         if (!m_src_state) {
-            throw std::runtime_error(std::string(_("Failed to init LibSampleRate: ")) + src_strerror(error));
+            throw std::runtime_error(fmt::format("Failed to init LibSampleRate: {}", src_strerror(error)));
         }
     }
 
@@ -48,8 +49,7 @@ namespace ORCore {
 
             int error = src_process(m_src_state, &m_src_data);
             if (error != 0) {
-                throw std::runtime_error(
-                    std::string(_("LibSampleRate error: ")) + src_strerror(error));
+                throw std::runtime_error(fmt::format("Failed to init LibSampleRate: {}", src_strerror(error)));
             }
 
             m_framesInBuffer +=            m_src_data.output_frames_gen;

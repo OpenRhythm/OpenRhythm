@@ -50,10 +50,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(ENV{SAMPLERATE_ROOT} "${PROJECT_SOURCE_DIR}/extern/samplerate")
     set(ENV{SDL2DIR}         "${PROJECT_SOURCE_DIR}/extern/sdl2")
     set(ENV{SOUNDIO_ROOT}    "${PROJECT_SOURCE_DIR}/extern/soundio")
-    # TODO add the TCLAP files
-    set(ENV{TCLAP_ROOT}      "${PROJECT_SOURCE_DIR}/extern/tclap")
+    set(ENV{TCLAP_ROOT}      "${PROJECT_SOURCE_DIR}/extern/tclap")    # TODO add the TCLAP files
     set(ENV{VORBIS_ROOT}     "${PROJECT_SOURCE_DIR}/extern/vorbis")
     set(ENV{YAMLCPP_ROOT}    "${PROJECT_SOURCE_DIR}/extern/yaml-cpp")
+    set(ENV{FMT_ROOT}    "${PROJECT_SOURCE_DIR}/extern/fmt")
     set(Gettext_BINARIES     "${PROJECT_SOURCE_DIR}/extern/gettext")
 
 
@@ -74,7 +74,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     endif()
 
 else()
-    message(STATUS "Platform not detected !")
+    message(STATUS "Platform not detected!")
     set(PLATFORM PL_DEFAULT)
     # Error and abort here ?
 endif()
@@ -96,6 +96,7 @@ find_package(SDL2       REQUIRED)
 find_package(SoundIO    REQUIRED)
 find_package(TCLAP      REQUIRED)
 find_package(YamlCpp    REQUIRED)
+find_package(fmt        REQUIRED)
 
 add_library(GLAD STATIC ${CMAKE_CURRENT_SOURCE_DIR}/extern/glad/src/glad.c)
 set_target_properties(GLAD PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
@@ -113,6 +114,7 @@ set(LIBRARIES
     ${VORBIS_LIBRARY}
     ${VORBISFILE_LIBRARY}
     ${YAMLCPP_LIBRARY}
+    ${FMT_LIBRARY}
 )
 
 
@@ -133,6 +135,7 @@ include_directories(SYSTEM
     ${TCLAP_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
     ${YAMLCPP_INCLUDE_DIR}
+    ${FMT_INCLUDE_DIR}
 )
 
 if(INC_PATH)
@@ -262,6 +265,7 @@ endif()
 ####################################################################
 #   Test binaries
 ####################################################################
+# TODO - Make the tests not require the game source because of recompilation.
 add_executable(       audiotests $<TARGET_OBJECTS:ORCore-obj>
                                  ${GAME_SOURCE}
                                  ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp)
