@@ -7,7 +7,7 @@
 
 find_path(TCLAP_INCLUDE_DIR tclap/Arg.h)
 find_path(TCLAP_INCLUDE_DIR tclap/Arg.h
-  HINTS $ENV{TCLAP_ROOT}/)
+  HINTS $ENV{TCLAP_ROOT}/include)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(TCLAP DEFAULT_MSG TCLAP_INCLUDE_DIR)
