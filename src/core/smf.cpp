@@ -134,10 +134,16 @@ namespace ORCore
                 tsEvent.numerator = ORCore::read_type<uint8_t>(m_smfFile); // 4 default
                 tsEvent.denominator = std::pow(2, ORCore::read_type<uint8_t>(m_smfFile)); // 4 default
 
-                // This should be used to scale each beat for compound time signatures.
+                // This is best described as a bad attempt at supporting meter and is basically useless.
+                // The midi spec examples are also extremely misleading
                 tsEvent.clocksPerBeat = ORCore::read_type<uint8_t>(m_smfFile); // Standard is 24
 
-                // The number of 1/32nd notes per quarter note not quite sure of its use yet.
+                // The number of 1/32nd notes per "MIDI quarter note"
+                // This should be used in order to change the note value which a "MIDI quarter note" is considered.
+                // For example changing it to be 0x0C(12) should change tempo to be
+                // defined in.
+                // Note "MIDI quarter note" is defined to always be 24 midi clocks therfor even if
+                // changed to dotted quarter it should still be 24 midi clocks
                 tsEvent.thirtySecondPQN = ORCore::read_type<uint8_t>(m_smfFile); // 8 default
 
                 m_logger->trace(_("Time signature  {}/{} CPC: {} TSPQN: {}"),
@@ -275,16 +281,16 @@ namespace ORCore
 
     void SmfReader::read_file()
     {
-        int fileEnd = static_cast<int>(m_smfFile.get_size());
+        uint32_t fileEnd = m_smfFile.get_size();
 
-        int fileStart = static_cast<int>(m_smfFile.get_pos());
-        int filePos = fileStart;
-        int fileRemaining = fileEnd;
+        uint32_t fileStart = m_smfFile.get_pos();
+        uint32_t filePos = fileStart;
+        uint32_t fileRemaining = fileEnd;
 
         SmfChunkInfo chunk;
 
         // set the intial chunk starting position at the beginning of the file.
-        int chunkStart = fileStart;
+        uint32_t chunkStart = fileStart;
 
         // The chunk end will be calculated after a chunk is loaded.
         uint32_t chunkEnd = 0;
