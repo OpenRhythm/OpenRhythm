@@ -1,14 +1,13 @@
+#include "config.hpp"
+
 #include <iostream>
 #include <vector>
 #include <memory>
 #include <iterator>
 #include <SDL.h>
-#define SPDLOG_NO_NAME
-#define SPDLOG_NO_THREAD_ID // Might be useful to enable later but atm meh
 #include <spdlog/spdlog.h>
 
 #include "game.hpp"
-#include "config.hpp"
 
 // Eventually we will want to load configuration files somewhere in here.
 // This also means the VFS needs to be setup here as well

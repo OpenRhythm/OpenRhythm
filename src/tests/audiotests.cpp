@@ -1,4 +1,4 @@
-#include <spdlog/spdlog.h>
+#include "config.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -7,9 +7,10 @@
 #include "core/audio/streams/resample.hpp"
 #include "core/audio/output/soundio.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include "configuration.hpp"
 
-#include "config.hpp"
 
 int main(int argc, char *argv[]) {
 

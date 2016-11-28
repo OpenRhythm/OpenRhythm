@@ -18,8 +18,13 @@
 
 // Version
 #define PROJECT_NAME    "${CMAKE_PROJECT_NAME}"
-#define VERSION_MAJOR   ${${CMAKE_PROJECT_NAME}_VERSION_MAJOR}
-#define VERSION_MINOR   ${${CMAKE_PROJECT_NAME}_VERSION_MINOR}
+#define VERSION_MAJOR   ${${CMAKE_PROJECT_NAME}_VERSION_MAJOR} // erm no, find another way to do this
+#define VERSION_MINOR   ${${CMAKE_PROJECT_NAME}_VERSION_MINOR} // erm no, find another way to do this
+
+// spdlog configuration
+#define SPDLOG_NO_NAME
+#define SPDLOG_NO_THREAD_ID // Might be useful to enable later but atm meh
+#define SPDLOG_FMT_EXTERNAL
 
 // Platforms
 #define PL_DEFAULT  ${PL_DEFAULT}

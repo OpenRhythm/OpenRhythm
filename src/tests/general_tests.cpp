@@ -1,7 +1,8 @@
+#include "config.hpp"
+
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 
-#include "config.hpp"
 #include "configuration/parameter.hpp"
 #include "configuration.hpp"
 
