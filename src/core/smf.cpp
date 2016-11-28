@@ -353,7 +353,9 @@ namespace ORCore
             }
             fileRemaining = (fileEnd-filePos);
             if (fileRemaining != 0 && fileRemaining <= 8) {
-                m_logger->warn(_("To few bytes remaining in midi for another track, this is likely a bug."));
+                m_logger->warn(_("Ignoring remaining bytes, to few left in midi for another track."));
+                // Skip the rest of the file.
+                break;
             }
         }
         if (trackChunkCount != m_header.trackNum) {
