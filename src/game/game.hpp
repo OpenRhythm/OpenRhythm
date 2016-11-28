@@ -11,6 +11,8 @@
 #include "texture.hpp"
 #include "parser.hpp"
 
+#include <spdlog/spdlog.h>
+
 
 class GameManager
 {
