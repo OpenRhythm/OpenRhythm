@@ -5,13 +5,13 @@ namespace ORCore
 {
     uint32_t SmfReader::read_var_len()
     {
-        uint8_t c = ORCore::read_type<uint8_t>(m_smfFile);
+        uint8_t c = read_type<uint8_t>(m_smfFile);
         uint32_t value = static_cast<uint32_t>(c & 0x7F);
 
         if (c & 0x80) {
 
             do {
-                c = ORCore::read_type<uint8_t>(m_smfFile);
+                c = read_type<uint8_t>(m_smfFile);
                 value = (value << 7) + (c & 0x7F);
 
             } while (c & 0x80);
@@ -30,28 +30,28 @@ namespace ORCore
         switch (midiEvent.message) {
             case NoteOff:      // note off           (2 more bytes)
             case NoteOn:       // note on            (2 more bytes)
-                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // note
-                midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile); // velocity
+                midiEvent.data1 = read_type<uint8_t>(m_smfFile); // note
+                midiEvent.data2 = read_type<uint8_t>(m_smfFile); // velocity
                 break;
             case Aftertouch:
-                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // note
-                midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile); // pressure
+                midiEvent.data1 = read_type<uint8_t>(m_smfFile); // note
+                midiEvent.data2 = read_type<uint8_t>(m_smfFile); // pressure
                 break;
             case ControlChange:
-                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // controller
-                midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile); // cont_value
+                midiEvent.data1 = read_type<uint8_t>(m_smfFile); // controller
+                midiEvent.data2 = read_type<uint8_t>(m_smfFile); // cont_value
                 break;
             case ProgramChange:
-                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // program
+                midiEvent.data1 = read_type<uint8_t>(m_smfFile); // program
                 midiEvent.data2 = 0; // no data
                 break;
             case ChannelPressure:
-                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // pressure
+                midiEvent.data1 = read_type<uint8_t>(m_smfFile); // pressure
                 midiEvent.data2 = 0; // no data
                 break;
             case PitchWheel:
-                midiEvent.data1 = ORCore::read_type<uint8_t>(m_smfFile); // pitch_low
-                midiEvent.data2 = ORCore::read_type<uint8_t>(m_smfFile); // pitch_high
+                midiEvent.data1 = read_type<uint8_t>(m_smfFile); // pitch_low
+                midiEvent.data2 = read_type<uint8_t>(m_smfFile); // pitch_high
                 break;
             default:
                 m_logger->warn(_("Bad Midi control message"));
@@ -62,14 +62,14 @@ namespace ORCore
 
     void SmfReader::read_meta_event(SmfEventInfo &eventInfo)
     {
-        MetaEvent event {eventInfo, ORCore::read_type<MidiMetaEvent>(m_smfFile), read_var_len()};
+        MetaEvent event {eventInfo, read_type<MidiMetaEvent>(m_smfFile), read_var_len()};
 
         // In the cases where we dont implement an event type log it, and its data.
         switch(event.type)
         {
             case meta_SequenceNumber:
             {
-                auto sequenceNumber = ORCore::read_type<uint16_t>(m_smfFile);
+                auto sequenceNumber = read_type<uint16_t>(m_smfFile);
                 m_logger->trace(_("Sequence Number {}"), sequenceNumber);
                 break;
             }
@@ -92,7 +92,7 @@ namespace ORCore
             {
                 auto textData = std::make_unique<char[]>(event.length+1);
                 textData[event.length] = '\0';
-                ORCore::read_type<char>(m_smfFile, textData.get(), event.length);
+                read_type<char>(m_smfFile, textData.get(), event.length);
                 m_currentTrack->textEvents.push_back({event, std::string(textData.get())});
                 break;
             }
@@ -101,12 +101,12 @@ namespace ORCore
                 auto textData = std::make_unique<char[]>(event.length+1);
                 textData[event.length] = '\0';
 
-                ORCore::read_type<char>(m_smfFile, textData.get(), event.length);
+                read_type<char>(m_smfFile, textData.get(), event.length);
                 m_currentTrack->name = std::string(textData.get());
                 break;
             }
             case meta_MIDIChannelPrefix: {
-                auto midiChannel = ORCore::read_type<uint8_t>(m_smfFile);
+                auto midiChannel = read_type<uint8_t>(m_smfFile);
                 m_logger->trace(_("Midi Channel {}"), midiChannel);
                 break;
             }
@@ -128,12 +128,12 @@ namespace ORCore
             case meta_TimeSignature:  // TODO - Implement this...
             {
                 TimeSignatureEvent tsEvent;
-                tsEvent.numerator = ORCore::read_type<uint8_t>(m_smfFile); // 4 default
-                tsEvent.denominator = std::pow(2, ORCore::read_type<uint8_t>(m_smfFile)); // 4 default
+                tsEvent.numerator = read_type<uint8_t>(m_smfFile); // 4 default
+                tsEvent.denominator = std::pow(2, read_type<uint8_t>(m_smfFile)); // 4 default
 
                 // This is best described as a bad attempt at supporting meter and is basically useless.
                 // The midi spec examples are also extremely misleading
-                tsEvent.clocksPerBeat = ORCore::read_type<uint8_t>(m_smfFile); // Standard is 24
+                tsEvent.clocksPerBeat = read_type<uint8_t>(m_smfFile); // Standard is 24
 
                 // The number of 1/32nd notes per "MIDI quarter note"
                 // This should be used in order to change the note value which a "MIDI quarter note" is considered.
@@ -141,7 +141,7 @@ namespace ORCore
                 // defined in.
                 // Note "MIDI quarter note" is defined to always be 24 midi clocks therfor even if
                 // changed to dotted quarter it should still be 24 midi clocks
-                tsEvent.thirtySecondPQN = ORCore::read_type<uint8_t>(m_smfFile); // 8 default
+                tsEvent.thirtySecondPQN = read_type<uint8_t>(m_smfFile); // 8 default
 
                 m_logger->trace(_("Time signature  {}/{} CPC: {} TSPQN: {}"),
                                     tsEvent.numerator,
@@ -169,7 +169,7 @@ namespace ORCore
                 std::vector<char> eventData;
                 for (int i=0;i<event.length;++i)
                 {
-                    eventData.emplace_back(ORCore::read_type<char>(m_smfFile));
+                    eventData.emplace_back(read_type<char>(m_smfFile));
                 }
                 m_currentTrack->miscMeta.push_back({event, eventData});
                 break;
@@ -216,19 +216,19 @@ namespace ORCore
                 currentRunningTimeMs += conv_abstime(eventInfo.deltaPulses);
                 eventInfo.absTime = currentRunningTimeMs;
             }
-            auto status = ORCore::peek_type<uint8_t>(m_smfFile);
+            auto status = peek_type<uint8_t>(m_smfFile);
 
             if (status == status_MetaEvent) {
                 prevStatus = 0; // reset running status
-                eventInfo.status = ORCore::read_type<uint8_t>(m_smfFile);
+                eventInfo.status = read_type<uint8_t>(m_smfFile);
                 read_meta_event(eventInfo);
             } else if (status == status_SysexEvent || status == status_SysexEvent2) {
                 prevStatus = 0;  // reset running status
-                eventInfo.status = ORCore::read_type<uint8_t>(m_smfFile);
+                eventInfo.status = read_type<uint8_t>(m_smfFile);
                 read_sysex_event(eventInfo);
             } else {
                 if ((status & 0xF0) >= 0x80) {
-                    eventInfo.status = ORCore::read_type<uint8_t>(m_smfFile);
+                    eventInfo.status = read_type<uint8_t>(m_smfFile);
                 } else {
                     eventInfo.status = prevStatus;
                 }
@@ -306,8 +306,8 @@ namespace ORCore
         while (filePos < fileEnd)
         {
 
-            ORCore::read_type<char>(m_smfFile, chunk.chunkType, 4);
-            chunk.length = ORCore::read_type<uint32_t>(m_smfFile);
+            read_type<char>(m_smfFile, chunk.chunkType, 4);
+            chunk.length = read_type<uint32_t>(m_smfFile);
             chunkEnd = chunkStart + (8 + chunk.length); // 8 is the length of the type + length fields
 
             m_logger->trace(_("chunk of type {} detected."), chunk.chunkType);
@@ -315,9 +315,9 @@ namespace ORCore
             if (chunkStart == fileStart && strcmp(chunk.chunkType, "MThd") == 0) {
                 // Load header chunk
                 m_header.info = chunk;
-                m_header.format = ORCore::read_type<uint16_t>(m_smfFile);
-                m_header.trackNum = ORCore::read_type<uint16_t>(m_smfFile);
-                m_header.division = ORCore::read_type<int16_t>(m_smfFile);
+                m_header.format = read_type<uint16_t>(m_smfFile);
+                m_header.trackNum = read_type<uint16_t>(m_smfFile);
+                m_header.division = read_type<int16_t>(m_smfFile);
 
                 // Make sure we reserve enough space for m_tracks just in-case.
                 m_tracks.reserve(sizeof(SmfTrack) * m_header.trackNum);
