@@ -2,16 +2,19 @@
 #include <iostream>
 #include <stdexcept>
 
+#include <spdlog/spdlog.h>
 #include <glad/glad.h>
 #include "vfs.hpp"
 #include "shader.hpp"
 
-
-
 namespace ORCore
 {
+
+    static std::shared_ptr<spdlog::logger> logger;
     Shader::Shader(ShaderInfo _info): info(_info)
     {
+
+        logger = spdlog::get("default");
         shader = glCreateShader(info.type);
         std::string data {read_file(info.path)};
         const char *c_str = data.c_str();
@@ -40,11 +43,13 @@ namespace ORCore
             logData[length] = '\0'; // Make sure it is null terminated.
 
             glGetShaderInfoLog(shader, length, nullptr, logData.get());
-            std::cout << logData.get() << std::endl;
+
+            logger->error(logData.get());
 
             throw std::runtime_error(_("Shader compilation failed."));
+
         } else {
-            std::cout << _("Shader compiled sucessfully.") << std::endl;
+            logger->info(_("Shader compiled sucessfully."));
         }
     }
 
@@ -52,6 +57,7 @@ namespace ORCore
     ShaderProgram::ShaderProgram(Shader* vertex, Shader* fragment)
     : m_vertex(*vertex), m_fragment(*fragment)
     {
+        logger = spdlog::get("default");
         m_program = glCreateProgram();
 
         glAttachShader(m_program, m_vertex.shader);
@@ -85,11 +91,11 @@ namespace ORCore
             logData[length] = '\0'; // Make sure it is null terminated.
 
             glGetProgramInfoLog(m_program, length, nullptr, logData.get());
-            std::cout << logData.get() << std::endl;
+            logger->error(logData.get());
 
             throw std::runtime_error(_("Shader linkage failed."));
         } else {
-            std::cout << _("Shader linked sucessfully.") << std::endl;
+            logger->info(_("Shader linked sucessfully."));
         }
     }
 
