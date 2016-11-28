@@ -112,11 +112,8 @@ namespace ORCore
             }
             case meta_EndOfTrack:
             {
-                // TODO - We might be able to use this for some purpose.
-                // Actually yeah, this will be needed for proper bpm marking.
-                // That way we can mark bpm until the end of a track
-                m_logger->trace(_("End of Track {}"), m_currentTrack->name);
-                m_currentTrack->miscMeta.push_back({event, std::vector<char>()});
+                m_logger->trace(_("End of Track {} at time {}"), m_currentTrack->name, event.info.absTime);
+                m_currentTrack->endTime = event.info.absTime;
                 break;
             }
             case meta_Tempo:
@@ -167,8 +164,14 @@ namespace ORCore
             case meta_SequencerSpecific:
             default:
             {
+                // store data for unused event for later save passthrough.
                 m_logger->info(_("Unused event type {}."), event.type);
-                m_smfFile.set_pos_rel(event.length);
+                std::vector<char> eventData;
+                for (int i=0;i<event.length;++i)
+                {
+                    eventData.emplace_back(ORCore::read_type<char>(m_smfFile));
+                }
+                m_currentTrack->miscMeta.push_back({event, eventData});
                 break;
             }
         }
@@ -180,7 +183,7 @@ namespace ORCore
         std::vector<char> sysex;
         sysex.resize(length);
         read_type<char>(m_smfFile, &sysex[0], length);
-        m_logger->info(_("sysex even at position {}"), m_smfFile.get_pos());
+        m_logger->info(_("sysex event at position {}"), m_smfFile.get_pos());
     }
 
     double SmfReader::conv_abstime(uint32_t deltaPulses)
@@ -192,7 +195,7 @@ namespace ORCore
     {
         uint32_t pulseTime = 0;
         uint8_t prevStatus = 0;
-        double currentRunningTimeSec = 0;
+        double currentRunningTimeMs = 0;
 
         while (m_smfFile.get_pos() < chunkEnd)
         {
@@ -210,8 +213,8 @@ namespace ORCore
             if (pulseTime == 0) {
                 eventInfo.absTime = 0.0;
             } else {
-                currentRunningTimeSec += conv_abstime(eventInfo.deltaPulses);
-                eventInfo.absTime = currentRunningTimeSec;
+                currentRunningTimeMs += conv_abstime(eventInfo.deltaPulses);
+                eventInfo.absTime = currentRunningTimeMs;
             }
             auto status = ORCore::peek_type<uint8_t>(m_smfFile);
 
@@ -276,7 +279,6 @@ namespace ORCore
                 m_currentTempoEvent = get_last_tempo_via_pulses(pulseTime);
             }
         }
-        m_currentTrack->seconds = static_cast<float>(currentRunningTimeSec);
     }
 
     void SmfReader::read_file()

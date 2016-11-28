@@ -72,14 +72,14 @@ namespace ORGame
     // Track Class
     /////////////////////////////////////
 
-    Track::Track(Track::Info info)
+    Track::Track(TrackInfo info)
     : m_info(info)
     {
         // std::cout << "test" << std::endl;
     }
 
 
-    Track::Info Track::info() {
+    TrackInfo Track::info() {
         return m_info;
     }
 
@@ -87,7 +87,7 @@ namespace ORGame
     {
         // TODO - Fix this it looks incorrect.
         if (!on) {
-            for(size_t i = m_notes.size(); i >= 0; i--) {
+            for(int i = m_notes.size(); i >= 0; i--) {
                 if (m_notes[i].type == type) {
                     m_notes[i].length = time - m_notes[i].time;
                     break;
@@ -95,7 +95,7 @@ namespace ORGame
             }
             return;
         }
-        m_notes.push_back(TrackNote({type, time}));
+        m_notes.push_back({type, time, 0.0});
     }
 
     std::vector<TrackNote*> Track::get_notes_in_frame( double start, double end )
@@ -122,7 +122,7 @@ namespace ORGame
     void Song::add( TrackType type, Difficulty difficulty )
     {
         if ( type < TrackType::Events ) {
-            m_trackInfo.push_back( {type, difficulty} );
+            m_tracksInfo.push_back( {type, difficulty} );
         }
     }
 
@@ -130,7 +130,7 @@ namespace ORGame
     {
         ORCore::SmfReader midi("notes.mid");
 
-        std::vector<ORCore::SmfTrack*> tracks = midi.get_tracks();
+        std::vector<ORCore::SmfTrack*> midiTracks = midi.get_tracks();
 
         for (auto &tempo : midi.get_tempo_track()->tempo)
         {
@@ -140,11 +140,36 @@ namespace ORGame
 
         for (auto &ts : midi.get_time_sig_track()->timeSigEvents)
         {
-            m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.clocksPerBeat/24.0, ts.info.info.absTime);
+            m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, ts.info.info.absTime);
             m_logger->trace(_("Time signature change recieved at time {}"), ts.info.info.absTime);
         }
 
         m_tempoTrack.mark_bars();
+
+        for (auto midiTrack : midiTracks)
+        {
+            TrackType type = get_track_type(midiTrack->name);
+
+            for (auto &track : m_tracks)
+            {
+                NoteType note;
+                for (auto &midiEvent : midiTrack->midiEvents)
+                {
+                    if (midiEvent.message == ORCore::NoteOn) {
+                        note = midi_to_note(type, midiEvent.data1, track.info().difficulty);
+                        track.add_note(note, midiEvent.info.absTime, true);
+                    } else if (midiEvent.message == ORCore::NoteOff) {
+                        note = midi_to_note(type, midiEvent.data1, track.info().difficulty);
+                        track.add_note(note, midiEvent.info.absTime, false);
+                    }
+
+                }
+            }
+
+        }
+
+
+
 
 
         // TODO - Finish converting to the new midi parser.
@@ -179,11 +204,11 @@ namespace ORGame
         //
         //     typeComp = get_track_type(eventBuf);
         //
-        //     for (int j = 0; j < m_trackInfo.size(); j++)
+        //     for (int j = 0; j < m_tracksInfo.size(); j++)
         //     {
-        //         if ( m_trackInfo[j].type == typeComp )
+        //         if ( m_tracksInfo[j].type == typeComp )
         //         {
-        //             m_tracks.push_back( Track(m_trackInfo[j]) );
+        //             m_tracks.push_back( Track(m_tracksInfo[j]) );
         //             nTrack = &m_tracks.back();
         //             break;
         //         }
@@ -247,19 +272,15 @@ namespace ORGame
 
     // generic functions, though they are mostly used within the Song class.
 
-    /*
-     *  TODO - This will only currently properly handle a single instrument of
-     *  classical guitar/drums gameplay. It needs to eventually be able to
-     *  handle stuff like vocals, pro instruments, etc.
-     */
-    MidiNoteDefinition get_midi_format(TrackType type, Difficulty difficulty, GameFormat gameFormat)
+     // TODO - Basically all of these functions would be much simpler just replacing them with maps.
+    MidiNoteDefinition get_midi_format(TrackType type, Difficulty difficulty)
     {
-        MidiNoteDefinition notes;
-        if (gameFormat == GameFormat::RBN2)
-        {
+        MidiNoteDefinition notes {0, 0, 0, 0, 0, 0};
+        if (type == TrackType::Guitar || type == TrackType::Bass) {
             switch(difficulty)
             {
-                case Difficulty::Expert: {
+                case Difficulty::Expert:
+                {
                     notes.green = 0x60;
                     notes.red = 0x61;
                     notes.yellow = 0x62;
@@ -269,7 +290,8 @@ namespace ORGame
                     break;
 
                 }
-                case Difficulty::Hard: {
+                case Difficulty::Hard:
+                {
                     notes.green = 0x54;
                     notes.red = 0x55;
                     notes.yellow = 0x56;
@@ -279,7 +301,8 @@ namespace ORGame
                     break;
 
                 }
-                case Difficulty::Medium: {
+                case Difficulty::Medium:
+                {
                     notes.green = 0x48;
                     notes.red = 0x49;
                     notes.yellow = 0x4a;
@@ -288,7 +311,8 @@ namespace ORGame
                     notes.power = 0x74; // should confirm this
                     break;
                 }
-                case Difficulty::Easy: {
+                case Difficulty::Easy:
+                {
                     notes.green = 0x3c;
                     notes.red = 0x3d;
                     notes.yellow = 0x3e;
@@ -304,7 +328,7 @@ namespace ORGame
 
     NoteType midi_to_note(TrackType type, int number, Difficulty difficulty)
     {
-        MidiNoteDefinition noteFormat = get_midi_format(type, difficulty, GameFormat::RBN2);
+        MidiNoteDefinition noteFormat = get_midi_format(type, difficulty);
 
         if (number == noteFormat.green) {
             return NoteType::Green;

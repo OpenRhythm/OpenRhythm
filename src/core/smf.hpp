@@ -109,6 +109,8 @@ namespace ORCore
         uint32_t length;
     };
 
+    // This is for storing currently unused meta events for
+    // passthrough once we have a midi writer.
     struct MetaStorageEvent
     {
         MetaEvent event;
@@ -153,9 +155,9 @@ namespace ORCore
     };
 
     struct SmfTrack
-    {
+    { 
         std::string name;
-        float seconds;
+        double endTime; // Track length in ms.
         std::vector<MidiEvent> midiEvents;
         std::vector<TextEvent> textEvents;
         std::vector<TempoEvent> tempo;
@@ -172,7 +174,6 @@ namespace ORCore
         SmfTrack* get_time_sig_track();
 
     private:
-        typedef std::unique_ptr<SmfTrack> t_SmfTrackPtr;
         std::vector<SmfTrack> m_tracks;
         SmfHeaderChunk m_header;
         FileBuffer m_smfFile;

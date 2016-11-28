@@ -5,10 +5,6 @@
 
 namespace ORGame
 {
-    enum class GameFormat
-    {
-        RBN2 // Rock Band Network 2
-    };
 
     enum class Difficulty
     {
@@ -77,7 +73,7 @@ namespace ORGame
     {
         int numerator;
         int denominator;
-        int compoundFactor;
+        int qnScaleFactor;
         double time;
     };
 
@@ -118,6 +114,12 @@ namespace ORGame
     };
 
 
+    struct TrackInfo
+    {
+        TrackType type;
+        Difficulty difficulty;
+    };
+
     class TempoTrack
     {
     public:
@@ -136,21 +138,16 @@ namespace ORGame
     class Track
     {
     public:
-        struct Info
-        {
-            TrackType type;
-            Difficulty difficulty;
-        };
 
-        Track(Info info);
+        Track(TrackInfo info);
 
-        Info info();
+        TrackInfo info();
 
         void add_note(NoteType type, double time, bool on);
         std::vector<TrackNote*> get_notes_in_frame(double start, double end);
 
     private:
-        Info m_info;
+        TrackInfo m_info;
         std::vector<TrackNote> m_notes;
     };
 
@@ -167,7 +164,7 @@ namespace ORGame
         double length();
 
     private:
-        std::vector<Track::Info> m_trackInfo;
+        std::vector<TrackInfo> m_tracksInfo;
         std::vector<Track> m_tracks;
         TempoTrack m_tempoTrack;
         std::string m_path;
@@ -177,7 +174,7 @@ namespace ORGame
     };
 
     // Functions are mainly used within the Song class
-    MidiNoteDefinition get_midi_format(TrackType type, Difficulty difficulty, GameFormat gameFormat);
+    MidiNoteDefinition get_midi_format(TrackType type, Difficulty difficulty);
     NoteType midi_to_note(TrackType type, int number, Difficulty difficulty);
     TrackType get_track_type(std::string trackName);
     std::string track_name_to_type(TrackType type);
