@@ -55,11 +55,9 @@ namespace ORGame
         //std::cout << "Song: loaded track for " << ORCore::TrackNameForType( track->info().type ) << std::endl;
 
         m_tempoTrack = m_song.get_tempo_track();
-        std::vector<TrackInfo> *tracks = m_song.get_track_info();
 
-        //std::vector<ORCore::TrackNote*> v = track->get_notes_in_frame(0, 10000);
-
-        //std::cout << "Song: " << v.size() << " notes in first 10 seconds, first note is " << NoteNameForType(v[0]->type()) << std::endl;
+        m_song.load_tracks();
+        m_playerTrack = &(*m_song.get_tracks())[0];
 
         if(!gladLoadGL())
         {
@@ -187,6 +185,11 @@ namespace ORGame
 
     void GameManager::update()
     {
+        m_meshes.clear();
+        m_songTime = m_clock.get_current_time();
+        prep_render_bars();
+        prep_render_notes();
+
         for (auto &mesh : m_meshes) {
             mesh.update();
         }
@@ -194,30 +197,42 @@ namespace ORGame
 
     void GameManager::prep_render_bars()
     {
-        m_songTime = m_clock.get_current_time();
         m_barsForRender = m_tempoTrack->get_events(m_songTime, m_songTime+2500.0, ORGame::EventType::Bar);
         for (size_t i = 0; i < m_barsForRender.size(); i++) {
             float z = ((m_barsForRender[i].bar->time - m_songTime) / 1000.0) * 225.0;
-            if (i >= m_meshes.size()) {
-                m_meshes.emplace_back(m_program.get(), m_texture.get());
-            }
-            m_meshes[i].scale(512.0f, 4.0f);
-            m_meshes[i].translate((m_width/2.0f)-256, 100 + z); // center the line on the screen
+
+            ORCore::Mesh2D mesh(m_program.get(), m_texture.get());
+            mesh.scale(512.0f, 4.0f);
+            mesh.translate((m_width/2.0f)-256, 100 + z); // center the line on the screen
+
+            m_meshes.push_back(mesh);
         }
-        // while (m_barsForRender.size() < m_meshes.size()) {
-        //     m_meshes.pop_back();
-        // }
     }
+
+    void GameManager::prep_render_notes()
+    {
+        m_notesForRender = m_playerTrack->get_notes_in_frame(m_songTime, m_songTime+2500.0);
+        for (size_t i = 0; i < m_notesForRender.size(); i++) {
+            float z = ((m_notesForRender[i]->time - m_songTime) / 1000.0) * 225.0;
+
+            ORCore::Mesh2D mesh(m_program.get(), m_texture.get());
+            mesh.scale(30.0f, 4.0f);
+            mesh.translate(static_cast<int>(m_notesForRender[i]->type)*40, 100 + z);
+
+            m_meshes.push_back(mesh);
+        }
+    }
+
 
     void GameManager::render()
     {
-        prep_render_bars();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_program->use();
         for (auto &mesh : m_meshes) {
             mesh.render();
         }
+
 
     }
 }

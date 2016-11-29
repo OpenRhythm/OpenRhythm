@@ -3,6 +3,8 @@
 #include <vector>
 #include <spdlog/spdlog.h>
 
+#include "smf.hpp"
+
 namespace ORGame
 {
 
@@ -158,13 +160,16 @@ namespace ORGame
         Song(std::string songpath);
         void add(TrackType type, Difficulty difficulty);
         bool load();
-        Track *get_track(TrackType type, Difficulty difficulty);
+        void load_track(TrackInfo& trackInfo);
+        void load_tracks();
+        std::vector<Track> *get_tracks();
         std::vector<TrackInfo> *get_track_info();
         TempoTrack *get_tempo_track();
 
         double length();
 
     private:
+        ORCore::SmfReader m_midi;
         std::vector<TrackInfo> m_tracksInfo;
         std::vector<Track> m_tracks;
         TempoTrack m_tempoTrack;

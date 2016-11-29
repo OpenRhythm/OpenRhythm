@@ -25,6 +25,7 @@ namespace ORGame
         void handle_song();
         void update();
         void prep_render_bars();
+        void prep_render_notes();
         void render();
         void resize(int width, int height);
     private:
@@ -38,11 +39,13 @@ namespace ORGame
         int m_mouseX = 0;
         int m_mouseY = 0;
 
-        std::vector<ORGame::TempoTrackEvent> m_barsForRender;
-        ORGame::TempoTrack *m_tempoTrack;
+        std::vector<TempoTrackEvent> m_barsForRender;
+        std::vector<TrackNote*> m_notesForRender;
+        TempoTrack *m_tempoTrack;
+        Track *m_playerTrack;
         double m_songTime;
 
-        ORGame::Song m_song;
+        Song m_song;
         ORCore::FpsTimer m_clock;
 
         ORCore::Window m_window;

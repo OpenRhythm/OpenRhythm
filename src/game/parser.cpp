@@ -2,7 +2,6 @@
 #include "parser.hpp"
 
 #include "vfs.hpp"
-#include "smf.hpp"
 
 namespace ORGame
 {
@@ -90,24 +89,26 @@ namespace ORGame
     void Track::add_note(NoteType type, double time, bool on)
     {
         // TODO - Fix this it looks incorrect.
-        if (!on) {
-            for(int i = m_notes.size(); i >= 0; i--) {
-                if (m_notes[i].type == type) {
-                    m_notes[i].length = time - m_notes[i].time;
-                    break;
-                }
-            }
-            return;
+        // if (!on) {
+        //     for(int i = m_notes.size(); i >= 0; i--) {
+        //         if (m_notes[i].type == type) {
+        //             m_notes[i].length = time - m_notes[i].time;
+        //             break;
+        //         }
+        //     }
+        //     return;
+        // }
+        if (on) {
+            m_notes.push_back({type, time, 0.0});
         }
-        m_notes.push_back({type, time, 0.0});
     }
 
-    std::vector<TrackNote*> Track::get_notes_in_frame( double start, double end )
-    {
+    std::vector<TrackNote*> Track::get_notes_in_frame(double start, double end)
+    {   
         std::vector<TrackNote*> notes;
         for ( auto &note : m_notes) {
             if (note.time >= start && note.time <= end) {
-                notes.push_back( &note );
+                notes.emplace_back( &note );
             }
         }
         return notes;
@@ -118,7 +119,9 @@ namespace ORGame
     // Song Class methods
     /////////////////////////////////////
 
-    Song::Song( std::string songpath ) : m_path(songpath)
+    Song::Song(std::string songpath)
+    : m_path(songpath),
+    m_midi("notes.mid")
     {
         logger = spdlog::get("default");
     }
@@ -132,17 +135,14 @@ namespace ORGame
 
     bool Song::load()
     {
-        ORCore::SmfReader midi("notes.mid");
 
-        std::vector<ORCore::SmfTrack*> midiTracks = midi.get_tracks();
-
-        for (auto &tempo : midi.get_tempo_track()->tempo)
+        for (auto &tempo : m_midi.get_tempo_track()->tempo)
         {
             m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.info.info.absTime);
             logger->trace(_("Tempo change recieved at time {}"), tempo.info.info.absTime);
         }
 
-        for (auto &ts : midi.get_time_sig_track()->timeSigEvents)
+        for (auto &ts : m_midi.get_time_sig_track()->timeSigEvents)
         {
             m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, ts.info.info.absTime);
             logger->trace(_("Time signature change recieved at time {}"), ts.info.info.absTime);
@@ -150,37 +150,70 @@ namespace ORGame
 
         m_tempoTrack.mark_bars();
 
+        std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
+        
         for (auto midiTrack : midiTracks)
         {
             TrackType type = get_track_type(midiTrack->name);
+            if (type == TrackType::Guitar)
+            {
+                // Add all difficulties for this track
+                add(type, Difficulty::Easy);
+                add(type, Difficulty::Medium);
+                add(type, Difficulty::Hard);
+                add(type, Difficulty::Expert);
+            }
+        }
 
-            for (auto &track : m_tracks)
+        return false;
+    }
+
+    void Song::load_track(TrackInfo& trackInfo)
+    {
+        Track track(trackInfo);
+
+        std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
+        
+        for (auto midiTrack : midiTracks)
+        {
+            TrackType type = get_track_type(midiTrack->name);
+            if (get_track_type(midiTrack->name) == trackInfo.type)
             {
                 NoteType note;
                 for (auto &midiEvent : midiTrack->midiEvents)
                 {
                     if (midiEvent.message == ORCore::NoteOn) {
                         note = midi_to_note(type, midiEvent.data1, track.info().difficulty);
-                        track.add_note(note, midiEvent.info.absTime, true);
+                        logger->trace("midi note {}", midiEvent.data1);
+                        if (note != NoteType::NONE) {
+                            track.add_note(note, midiEvent.info.absTime, true);
+                        }
                     } else if (midiEvent.message == ORCore::NoteOff) {
                         note = midi_to_note(type, midiEvent.data1, track.info().difficulty);
-                        track.add_note(note, midiEvent.info.absTime, false);
+                        if (note != NoteType::NONE) {
+                            track.add_note(note, midiEvent.info.absTime, false);
+                        }
                     }
                 }
             }
         }
-        return false;
+        m_tracks.push_back(track);
+
     }
 
-    Track *Song::get_track(TrackType type, Difficulty difficulty)
+    // Load all tracks
+    void Song::load_tracks()
     {
-        for ( auto &track : m_tracks) {
-            if ( track.info().type == type && track.info().difficulty == difficulty ) {
-                return &track;
-            }
+        for (auto &trackInfo : m_tracksInfo)
+        {
+            load_track(trackInfo);
         }
+        logger->debug(_("{} Tracks processed"), m_tracks.size());
+    }
 
-        return nullptr;
+    std::vector<Track> *Song::get_tracks()
+    {
+        return &m_tracks;
     }
 
     std::vector<TrackInfo> *Song::get_track_info()
