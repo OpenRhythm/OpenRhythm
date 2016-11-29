@@ -10,12 +10,13 @@
 namespace ORCore
 {
 
+// Get time in milliseconds.
 #if defined(PLATFORM_WINDOWS)
     double Timer::get_time()
     {
         LARGE_INTEGER startingTime;
         QueryPerformanceCounter(&startingTime);
-        return startingTime.QuadPart / static_cast<double>(m_frequency.QuadPart);
+        return (startingTime.QuadPart * 1000.0) / m_frequency.QuadPart;
     }
 
 #elif defined(PLATFORM_LINUX)
@@ -23,7 +24,7 @@ namespace ORCore
     {
         timespec mt;
         clock_gettime(CLOCK_MONOTONIC, &mt);
-        return mt.tv_sec + (mt.tv_nsec * 0.000000001);
+        return (mt.tv_sec * 1000.0) + (mt.tv_nsec * 0.000001);
     }
 
 #elif defined(PLATFORM_OSX)
@@ -31,13 +32,13 @@ namespace ORCore
     {
         mach_timespec_t mts;
         clock_get_time(m_cclock, &mts);
-        return mts.tv_sec + (mts.tv_nsec * 0.000000001);
+        return (mts.tv_sec * 1000.0) + (mts.tv_nsec * 0.000001);
     }
 
 #else
     double Timer::get_time()
     {
-        return 1.0;
+        return 1000.0;
     }
 
 #endif
@@ -85,7 +86,7 @@ namespace ORCore
 
     double FpsTimer::get_fps()
     {
-        double fps = m_tickCount / (m_currentTime - m_fpsPreviousTime);
+        double fps = (m_tickCount*1000.0) / (m_currentTime - m_fpsPreviousTime);
         m_tickCount = 0;
         m_fpsPreviousTime = m_currentTime;
         return fps;

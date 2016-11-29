@@ -121,7 +121,7 @@ void GameManager::start()
         render();
 
         m_window->flip();
-        if (m_fpsTime >= 2.0) {
+        if (m_fpsTime >= 2000.0) {
             std::cout.precision (5);
             std::cout << "FPS: " << m_clock.get_fps() << std::endl;
             std::cout << "Song Time: " << m_songTime << std::endl;
@@ -193,7 +193,7 @@ void GameManager::update()
 
 void GameManager::prep_render_bars()
 {
-    m_songTime = m_clock.get_current_time();
+    m_songTime = m_clock.get_current_time()/1000.0;
     m_barsForRender = m_tempoTrack->get_events(m_songTime, m_songTime+2.5, ORGame::EventType::Bar);
     for (size_t i = 0; i < m_barsForRender.size(); i++) {
         float z = (m_barsForRender[i].bar->time - m_songTime) * 225.0;
