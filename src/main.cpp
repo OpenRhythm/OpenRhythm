@@ -49,7 +49,7 @@ int main(int argc, char** argv)
     }
 
     try {
-        GameManager game;
+        ORGame::GameManager game;
         game.start();
     } catch (std::runtime_error &err) {
         logger->critical(_("Runtime Error:\n{}"), err.what());

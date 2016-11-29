@@ -166,92 +166,9 @@ namespace ORGame
                         note = midi_to_note(type, midiEvent.data1, track.info().difficulty);
                         track.add_note(note, midiEvent.info.absTime, false);
                     }
-
                 }
             }
-
         }
-
-
-
-
-
-        // TODO - Finish converting to the new midi parser.
-        // smf_track_t *sTrack;
-        // smf_event_t *sEvent;
-        // char *buf;
-        // std::string eventBuf;
-        // TrackType typeComp;
-        // NoteType eTypeComp;
-        // int checkedTracks = 1; //skip first track
-        //
-        // if ((sTrack = smf_get_track_by_number(smf, 1)) == NULL)
-        //     return false;
-        //
-        // while((sEvent = smf_track_get_next_event(sTrack)) != NULL)
-        // {
-        //     if (!smf_event_is_metadata(sEvent) || smf_event_is_eot(sEvent))
-        //         continue;
-        //
-        //     float bpm = 60000000.0 / (double)((sEvent->midi_buffer[3] << 16) + (sEvent->midi_buffer[4] << 8) + sEvent->midi_buffer[5]);
-        //
-        //     m_tempoTrack.addEvent(bpm, sEvent->time_seconds*1000);
-        // }
-        //
-        // while ((sTrack = smf_get_track_by_number(smf, checkedTracks+1)) != NULL)
-        // {
-        //     Track *nTrack = NULL;
-        //
-        //     sEvent = smf_track_get_next_event(sTrack);
-        //     eventBuf = (buf = smf_event_decode(sEvent));
-        //     free(buf);
-        //
-        //     typeComp = get_track_type(eventBuf);
-        //
-        //     for (int j = 0; j < m_tracksInfo.size(); j++)
-        //     {
-        //         if ( m_tracksInfo[j].type == typeComp )
-        //         {
-        //             m_tracks.push_back( Track(m_tracksInfo[j]) );
-        //             nTrack = &m_tracks.back();
-        //             break;
-        //         }
-        //     }
-        //
-        //     checkedTracks++;
-        //
-        //     if ( !nTrack )
-        //         continue;
-        //
-        //     while ((sEvent = smf_track_get_next_event(sTrack)) != NULL)
-        //     {
-        //         if ( typeComp == TrackType::Events ) {
-        //             char *tagBuf = smf_event_decode(sEvent);
-        //             std::string eventTag(tagBuf);
-        //             free(tagBuf);
-        //
-        //             if ( !eventTag.compare(6, 5, "[end]") )
-        //                 m_length = sEvent->time_seconds * 1000;
-        //         } else {
-        //             //std::cout << smf_event_decode(sEvent) << std::endl;
-        //             if (smf_event_is_metadata(sEvent) || smf_event_is_textual(sEvent))
-        //                 continue;
-        //
-        //             int status = (sEvent->midi_buffer[0] & 0xF0);
-        //
-        //             if (status != 0x90 && status != 0x80) // On of Off midi notes only
-        //                 continue;
-        //
-        //             eTypeComp = midi_to_note(nTrack->info().type, sEvent->midi_buffer[1], nTrack->info().difficulty);
-        //
-        //             if ( eTypeComp != NoteType::NONE )
-        //                 nTrack->add_note(eTypeComp, sEvent->time_seconds * 1000,  (status == 0x90) ? true : false);
-        //
-        //         }
-        //     }
-        // }
-        //
-        // smf_delete( smf );
         return false;
     }
 
@@ -266,11 +183,18 @@ namespace ORGame
         return nullptr;
     }
 
-    TempoTrack *Song::get_tempo_track() {
+    std::vector<TrackInfo> *Song::get_track_info()
+    {
+        return &m_tracksInfo; 
+    }
+
+    TempoTrack *Song::get_tempo_track()
+    {
         return &m_tempoTrack;
     };
 
-    double Song::length() {
+    double Song::length()
+    {
         return m_length;
     };
 

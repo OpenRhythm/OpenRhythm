@@ -159,6 +159,7 @@ namespace ORGame
         void add(TrackType type, Difficulty difficulty);
         bool load();
         Track *get_track(TrackType type, Difficulty difficulty);
+        std::vector<TrackInfo> *get_track_info();
         TempoTrack *get_tempo_track();
 
         double length();
