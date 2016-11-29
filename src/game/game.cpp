@@ -193,10 +193,10 @@ void GameManager::update()
 
 void GameManager::prep_render_bars()
 {
-    m_songTime = m_clock.get_current_time()/1000.0;
-    m_barsForRender = m_tempoTrack->get_events(m_songTime, m_songTime+2.5, ORGame::EventType::Bar);
+    m_songTime = m_clock.get_current_time();
+    m_barsForRender = m_tempoTrack->get_events(m_songTime, m_songTime+2500.0, ORGame::EventType::Bar);
     for (size_t i = 0; i < m_barsForRender.size(); i++) {
-        float z = (m_barsForRender[i].bar->time - m_songTime) * 225.0;
+        float z = ((m_barsForRender[i].bar->time - m_songTime) / 1000.0) * 225.0;
         if (i >= m_meshes.size()) {
             m_meshes.emplace_back(m_program.get(), m_texture.get());
         }

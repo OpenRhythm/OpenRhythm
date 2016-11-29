@@ -7,6 +7,9 @@
 namespace ORGame
 {
 
+
+    static std::shared_ptr<spdlog::logger> logger;
+
     /////////////////////////////////////
     // TempoTrack Class methods
     /////////////////////////////////////
@@ -33,9 +36,9 @@ namespace ORGame
                 previousTempo = &tempo;
                 continue;
             }
-            incr = (previousTempo->qnLength / 1000000.0) / beatSubdivision;
-            beatSegments = ((tempo.time - previousTempo->time) / incr) + 1;
-            for (int i=0; i<((int)beatSegments); i++) {
+            incr = previousTempo->qnLength / (beatSubdivision * 1000.0);
+            beatSegments = static_cast<int>(((tempo.time - previousTempo->time) / incr) + 1);
+            for (int i=0; i < beatSegments; i++) {
                 m_bars.push_back({BarType::beat, previousTempo->time + (incr*i)});
             }
             previousTempo = &tempo;
@@ -75,6 +78,7 @@ namespace ORGame
     Track::Track(TrackInfo info)
     : m_info(info)
     {
+        logger = spdlog::get("default");
         // std::cout << "test" << std::endl;
     }
 
@@ -116,7 +120,7 @@ namespace ORGame
 
     Song::Song( std::string songpath ) : m_path(songpath)
     {
-        m_logger = spdlog::get("default");
+        logger = spdlog::get("default");
     }
 
     void Song::add( TrackType type, Difficulty difficulty )
@@ -135,13 +139,13 @@ namespace ORGame
         for (auto &tempo : midi.get_tempo_track()->tempo)
         {
             m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.info.info.absTime);
-            m_logger->trace(_("Tempo change recieved at time {}"), tempo.info.info.absTime);
+            logger->trace(_("Tempo change recieved at time {}"), tempo.info.info.absTime);
         }
 
         for (auto &ts : midi.get_time_sig_track()->timeSigEvents)
         {
             m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, ts.info.info.absTime);
-            m_logger->trace(_("Time signature change recieved at time {}"), ts.info.info.absTime);
+            logger->trace(_("Time signature change recieved at time {}"), ts.info.info.absTime);
         }
 
         m_tempoTrack.mark_bars();

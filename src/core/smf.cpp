@@ -186,9 +186,10 @@ namespace ORCore
         m_logger->info(_("sysex event at position {}"), m_smfFile.get_pos());
     }
 
+    // Convert from deltaPulses to milliseconds.
     double SmfReader::conv_abstime(uint32_t deltaPulses)
     {
-        return deltaPulses * (m_currentTempoEvent->qnLength / (m_header.division * 1000000.0));
+        return deltaPulses * (m_currentTempoEvent->qnLength / (m_header.division * 1000.0));
     }
 
     void SmfReader::read_events(uint32_t chunkEnd)

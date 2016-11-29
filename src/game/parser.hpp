@@ -169,7 +169,6 @@ namespace ORGame
         TempoTrack m_tempoTrack;
         std::string m_path;
         double m_length;
-        std::shared_ptr<spdlog::logger> m_logger;
 
     };
 
