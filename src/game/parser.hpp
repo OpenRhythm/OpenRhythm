@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <map>
 #include <spdlog/spdlog.h>
 
 #include "smf.hpp"
@@ -153,7 +154,6 @@ namespace ORGame
         std::vector<TrackNote> m_notes;
     };
 
-
     class Song
     {
     public:
@@ -179,8 +179,7 @@ namespace ORGame
     };
 
     // Functions are mainly used within the Song class
-    MidiNoteDefinition get_midi_format(TrackType type, Difficulty difficulty);
-    NoteType midi_to_note(TrackType type, int number, Difficulty difficulty);
-    TrackType get_track_type(std::string trackName);
-    std::string track_name_to_type(TrackType type);
+    const std::string diff_type_to_name(Difficulty diff);
+    const TrackType get_track_type(std::string trackName);
+    const std::string track_name_to_type(TrackType type);
 } // namespace ORGame

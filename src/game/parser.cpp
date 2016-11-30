@@ -1,4 +1,6 @@
 #include "config.hpp"
+#include <stdexcept>
+
 #include "parser.hpp"
 
 #include "vfs.hpp"
@@ -114,6 +116,94 @@ namespace ORGame
         return notes;
     }
 
+    using MidiNoteMap = std::map<int, NoteType>;
+    const std::map<Difficulty, MidiNoteMap> midiDiffMap {
+        {Difficulty::Expert, {
+                {0x60, NoteType::Green},
+                {0x61, NoteType::Red},
+                {0x62, NoteType::Yellow},
+                {0x63, NoteType::Blue},
+                {0x64, NoteType::Orange}
+            }
+        },
+        {Difficulty::Hard, {
+                {0x54, NoteType::Green},
+                {0x55, NoteType::Red},
+                {0x56, NoteType::Yellow},
+                {0x57, NoteType::Blue},
+                {0x58, NoteType::Orange}
+            }
+        },
+        {Difficulty::Medium, {
+                {0x48, NoteType::Green},
+                {0x49, NoteType::Red},
+                {0x4a, NoteType::Yellow},
+                {0x4b, NoteType::Blue},
+                {0x4c, NoteType::Orange}
+            }
+        },
+        {Difficulty::Easy, {
+                {0x3c, NoteType::Green},
+                {0x3d, NoteType::Red},
+                {0x3e, NoteType::Yellow},
+                {0x3f, NoteType::Blue},
+                {0x40, NoteType::Orange}
+            }
+        }
+    };
+
+    const std::map<Difficulty, std::string> diffNameMap {
+        {Difficulty::Expert, "Expert"},
+        {Difficulty::Hard, "Hard"},
+        {Difficulty::Medium, "Medium"},
+        {Difficulty::Easy, "Easy"}
+    };
+
+    const std::map<TrackType, std::string> trackNameMap {
+        {TrackType::Guitar, "Guitar"},
+        {TrackType::Bass, "Bass"},
+        {TrackType::Drums, "Drums"},
+        {TrackType::Vocals, "Vocals"},
+        {TrackType::Events, "Events"},
+        {TrackType::NONE, "None"}
+    };
+
+    const std::map<std::string, TrackType> midiTrackTypeMap {
+        {"PART GUITAR", TrackType::Guitar},
+        {"PART BASS", TrackType::Bass},
+        {"PART DRUMS", TrackType::Drums},
+        {"PART VOCALS", TrackType::Vocals},
+        {"EVENTS", TrackType::Events},
+        {"", TrackType::NONE}
+    };
+
+    // Convenence functions for accessing the maps.
+    const std::string diff_type_to_name(Difficulty diff)
+    {
+        try {
+            return diffNameMap.at(diff);
+        } catch (std::out_of_range &err) {
+            return "";
+        }
+    }
+
+    const std::string track_type_to_name(TrackType type)
+    {
+        try {
+            return trackNameMap.at(type);
+        } catch (std::out_of_range &err) {
+            return "";
+        }
+    }
+
+    const TrackType get_track_type(std::string trackName)
+    {
+        try {
+            return midiTrackTypeMap.at(trackName);
+        } catch (std::out_of_range &err) {
+            return TrackType::NONE;
+        }
+    }
 
     /////////////////////////////////////
     // Song Class methods
@@ -165,6 +255,8 @@ namespace ORGame
             }
         }
 
+        logger->debug(_("Song loaded"));
+
         return false;
     }
 
@@ -172,33 +264,43 @@ namespace ORGame
     {
         Track track(trackInfo);
 
+        logger->debug(_("Loading Track"));
+
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
+
+        const MidiNoteMap &noteMap = midiDiffMap.at(trackInfo.difficulty);
+
         
         for (auto midiTrack : midiTracks)
         {
             TrackType type = get_track_type(midiTrack->name);
-            if (get_track_type(midiTrack->name) == trackInfo.type)
+            if (type == trackInfo.type)
             {
-                NoteType note;
                 for (auto &midiEvent : midiTrack->midiEvents)
                 {
-                    if (midiEvent.message == ORCore::NoteOn) {
-                        note = midi_to_note(type, midiEvent.data1, track.info().difficulty);
-                        logger->trace("midi note {}", midiEvent.data1);
-                        if (note != NoteType::NONE) {
-                            track.add_note(note, midiEvent.info.absTime, true);
+                    try
+                    {
+                        if (midiEvent.message == ORCore::NoteOn) {
+                            NoteType note = noteMap.at(midiEvent.data1);
+                            //logger->trace("midi note {}", midiEvent.data1);
+                            if (note != NoteType::NONE) {
+                                track.add_note(note, midiEvent.info.absTime, true);
+                            }
+                        } else if (midiEvent.message == ORCore::NoteOff) {
+                            NoteType note = noteMap.at(midiEvent.data1);
+                            if (note != NoteType::NONE) {
+                                track.add_note(note, midiEvent.info.absTime, false);
+                            }
                         }
-                    } else if (midiEvent.message == ORCore::NoteOff) {
-                        note = midi_to_note(type, midiEvent.data1, track.info().difficulty);
-                        if (note != NoteType::NONE) {
-                            track.add_note(note, midiEvent.info.absTime, false);
-                        }
+                    } catch (std::out_of_range &err)
+                    {
+                        //logger->trace("Unused midi note {}", midiEvent.data1);
+                        continue;
                     }
                 }
             }
         }
         m_tracks.push_back(track);
-
     }
 
     // Load all tracks
@@ -230,112 +332,5 @@ namespace ORGame
     {
         return m_length;
     };
-
-    // generic functions, though they are mostly used within the Song class.
-
-     // TODO - Basically all of these functions would be much simpler just replacing them with maps.
-    MidiNoteDefinition get_midi_format(TrackType type, Difficulty difficulty)
-    {
-        MidiNoteDefinition notes {0, 0, 0, 0, 0, 0};
-        if (type == TrackType::Guitar || type == TrackType::Bass) {
-            switch(difficulty)
-            {
-                case Difficulty::Expert:
-                {
-                    notes.green = 0x60;
-                    notes.red = 0x61;
-                    notes.yellow = 0x62;
-                    notes.blue = 0x63;
-                    notes.orange = 0x64;
-                    notes.power = 0x74; // should confirm this
-                    break;
-
-                }
-                case Difficulty::Hard:
-                {
-                    notes.green = 0x54;
-                    notes.red = 0x55;
-                    notes.yellow = 0x56;
-                    notes.blue = 0x57;
-                    notes.orange = 0x58;
-                    notes.power = 0x74; // should confirm this
-                    break;
-
-                }
-                case Difficulty::Medium:
-                {
-                    notes.green = 0x48;
-                    notes.red = 0x49;
-                    notes.yellow = 0x4a;
-                    notes.blue = 0x4b;
-                    notes.orange = 0x4c;
-                    notes.power = 0x74; // should confirm this
-                    break;
-                }
-                case Difficulty::Easy:
-                {
-                    notes.green = 0x3c;
-                    notes.red = 0x3d;
-                    notes.yellow = 0x3e;
-                    notes.blue = 0x3f;
-                    notes.orange = 0x40;
-                    notes.power = 0x74; // should confirm this
-                    break;
-                }
-            }
-        }
-        return notes;
-    };
-
-    NoteType midi_to_note(TrackType type, int number, Difficulty difficulty)
-    {
-        MidiNoteDefinition noteFormat = get_midi_format(type, difficulty);
-
-        if (number == noteFormat.green) {
-            return NoteType::Green;
-        } else if (number == noteFormat.red) {
-            return NoteType::Red;
-        }  else if (number == noteFormat.yellow) {
-            return NoteType::Yellow;
-        }  else if (number == noteFormat.blue) {
-            return NoteType::Blue;
-        }  else if (number == noteFormat.orange) {
-            return NoteType::Orange;
-        }  else if (number == noteFormat.orange) {
-            return NoteType::Orange;
-        }
-        return NoteType::NONE;
-    }
-
-    TrackType get_track_type(std::string trackName)
-    {
-        if ( !trackName.compare("EVENTS") ) {
-            return TrackType::Events;
-        } else if ( !trackName.compare("PART BASS") ) {
-            return TrackType::Bass;
-        } else if ( !trackName.compare("PART DRUMS" ) ) {
-            return TrackType::Drums;
-        } else if ( !trackName.compare("PART VOCALS") ) {
-            return TrackType::Vocals;
-        } else if ( !trackName.compare("PART GUITAR") ) {
-            return TrackType::Guitar;
-        } else {
-            return TrackType::NONE;
-        }
-    }
-
-    std::string track_name_to_type(TrackType type)
-    {
-        switch ( type )
-        {
-            case TrackType::Guitar: return "Guitar";
-            case TrackType::Bass: return "Bass";
-            case TrackType::Drums: return "Drums";
-            case TrackType::Vocals: return "Vocals";
-            case TrackType::Events: return "Events";
-            case TrackType::NONE:
-            default: return "None/Unknown";
-        }
-    }
 
 } // namespace ORGame
