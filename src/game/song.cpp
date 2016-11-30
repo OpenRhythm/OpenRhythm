@@ -247,10 +247,10 @@ namespace ORGame
             if (type == TrackType::Guitar)
             {
                 // Add all difficulties for this track
-                add(type, Difficulty::Easy);
-                add(type, Difficulty::Medium);
-                add(type, Difficulty::Hard);
                 add(type, Difficulty::Expert);
+                add(type, Difficulty::Hard);
+                add(type, Difficulty::Medium);
+                add(type, Difficulty::Easy);
             }
         }
 
@@ -263,7 +263,7 @@ namespace ORGame
     {
         Track track(trackInfo);
 
-        logger->debug(_("Loading Track {}"), track_type_to_name(trackInfo.type));
+        logger->debug(_("Loading Track {} {}"), track_type_to_name(trackInfo.type), diff_type_to_name(trackInfo.difficulty));
 
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
 

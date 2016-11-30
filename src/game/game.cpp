@@ -45,8 +45,6 @@ namespace ORGame
         //VFS.Mount( ORCore::GetHomePath().c_str(), "" );
 
         //ORCore::mount( "./data", "data" );
-
-        m_song.add(ORGame::TrackType::Guitar, ORGame::Difficulty::Expert);
         m_song.load();
 
         //std::cout << "Song: " << (m_song.length() / 1000) / 60 << " minutes long" << std::endl;
