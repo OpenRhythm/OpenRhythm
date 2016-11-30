@@ -1,7 +1,7 @@
 #include "config.hpp"
 #include <stdexcept>
 
-#include "parser.hpp"
+#include "song.hpp"
 
 #include "vfs.hpp"
 
@@ -80,7 +80,6 @@ namespace ORGame
     : m_info(info)
     {
         logger = spdlog::get("default");
-        // std::cout << "test" << std::endl;
     }
 
 
@@ -264,7 +263,7 @@ namespace ORGame
     {
         Track track(trackInfo);
 
-        logger->debug(_("Loading Track"));
+        logger->debug(_("Loading Track {}"), track_type_to_name(trackInfo.type));
 
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
 
@@ -282,7 +281,6 @@ namespace ORGame
                     {
                         if (midiEvent.message == ORCore::NoteOn) {
                             NoteType note = noteMap.at(midiEvent.data1);
-                            //logger->trace("midi note {}", midiEvent.data1);
                             if (note != NoteType::NONE) {
                                 track.add_note(note, midiEvent.info.absTime, true);
                             }
@@ -294,7 +292,6 @@ namespace ORGame
                         }
                     } catch (std::out_of_range &err)
                     {
-                        //logger->trace("Unused midi note {}", midiEvent.data1);
                         continue;
                     }
                 }
