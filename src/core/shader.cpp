@@ -9,8 +9,9 @@
 
 namespace ORCore
 {
-
     static std::shared_ptr<spdlog::logger> logger;
+    static int _programCount = 0;
+
     Shader::Shader(ShaderInfo _info): info(_info)
     {
 
@@ -58,6 +59,8 @@ namespace ORCore
     : m_vertex(*vertex), m_fragment(*fragment)
     {
         logger = spdlog::get("default");
+        _programCount++;
+        m_programID = _programCount;
         m_program = glCreateProgram();
 
         glAttachShader(m_program, m_vertex.shader);
@@ -69,6 +72,11 @@ namespace ORCore
     ShaderProgram::~ShaderProgram()
     {
         glDeleteProgram(m_program);
+    }
+
+
+    int ShaderProgram::get_id() {
+        return m_programID;
     }
 
     void ShaderProgram::check_error()

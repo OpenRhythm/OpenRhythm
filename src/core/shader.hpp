@@ -27,6 +27,8 @@ namespace ORCore
         ShaderProgram(Shader* vertex, Shader* fragment);
         ~ShaderProgram();
 
+        int get_id();
+        
         void check_error();
 
         void use();
@@ -58,6 +60,7 @@ namespace ORCore
         Shader m_vertex;
         Shader m_fragment;
         unsigned int m_program;
+        int m_programID;
 
     };
 } // namespace ORCore

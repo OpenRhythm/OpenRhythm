@@ -24,6 +24,7 @@ namespace ORCore
     public:
         Texture(std::string path, ShaderProgram *program);
         void bind();
+        int get_id();
         //~Texture();
 
     private:

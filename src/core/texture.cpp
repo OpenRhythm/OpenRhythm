@@ -110,4 +110,9 @@ namespace ORCore
 
         }
     }
+
+    int Texture::get_id() {
+        return m_texUnitID;
+    }
+    
 } // namespace ORCore
