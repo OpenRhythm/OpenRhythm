@@ -14,7 +14,6 @@ find_library(SOUNDIO_LIBRARY NAMES soundio)
 find_library(SOUNDIO_LIBRARY NAMES soundio
     HINTS $ENV{SOUNDIO_ROOT}/lib)
 
-
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SOUNDIO DEFAULT_MSG SOUNDIO_LIBRARY SOUNDIO_INCLUDE_DIR)
 
