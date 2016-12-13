@@ -44,7 +44,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     message(STATUS "Building for Windows.")
     set(PLATFORM PL_WINDOWS)
 
-    set(ENV{FREETYPE_DIR}    "${PROJECT_SOURCE_DIR}/extern/freetype")
     set(ENV{GLM_ROOT_DIR}    "${PROJECT_SOURCE_DIR}/extern/glm")
     set(ENV{OGG_ROOT}        "${PROJECT_SOURCE_DIR}/extern/ogg")
     set(ENV{SAMPLERATE_ROOT} "${PROJECT_SOURCE_DIR}/extern/samplerate")
@@ -86,7 +85,6 @@ endif()
 # The *_ROOT variables specify the location of a local clone
 # to be used if a system-wide library is not found
 
-find_package(Freetype   REQUIRED)
 find_package(Gettext    )
 find_package(GLM        REQUIRED)
 find_package(OggVorbis  REQUIRED)
@@ -105,7 +103,6 @@ set_target_properties(GLAD PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
 set(LIBRARIES
       GLAD
     ${CMAKE_DL_LIBS}
-    ${FREETYPE_LIBRARIES}
     ${OGG_LIBRARY}
     ${OPENGL_LIBRARIES}
     ${SAMPLERATE_LIBRARY}
