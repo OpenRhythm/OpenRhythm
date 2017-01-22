@@ -227,9 +227,10 @@ source_group("src\\game"  FILES ${GAME_SOURCE}  ${GAME_HEADERS})
 
 add_library(ORCore-obj OBJECT ${CORE_SOURCE})
 
-add_executable(       openrhythm $<TARGET_OBJECTS:ORCore-obj>
-                                 ${GAME_SOURCE}
-                                 ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
+add_executable(openrhythm $<TARGET_OBJECTS:ORCore-obj>
+                          ${GAME_SOURCE}
+                          ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
+
 target_link_libraries(openrhythm ${LIBRARIES})
 install(TARGETS       openrhythm DESTINATION bin)
 

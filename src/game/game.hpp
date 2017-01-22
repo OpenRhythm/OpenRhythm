@@ -54,8 +54,9 @@ namespace ORGame
         ORCore::EventPumpSDL2 m_eventPump;
         std::unique_ptr<ORCore::ShaderProgram> m_program;
 
-        std::vector<ORCore::Mesh2D> m_meshes;
+        
         std::unique_ptr<ORCore::Texture> m_texture;
+        std::unique_ptr<ORCore::Render2D> m_renderer;
         ORCore::Listener m_lis;
 
         std::shared_ptr<spdlog::logger> m_logger;

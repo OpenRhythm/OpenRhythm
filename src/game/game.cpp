@@ -88,8 +88,7 @@ namespace ORGame
         m_orthoID = m_program->uniform_attribute("ortho");
 
         m_texture = std::make_unique<ORCore::Texture>("data/icon.png", m_program.get());
-
-        std::cout << (m_width / 37) * (m_height / 37) << std::endl;
+        m_renderer = std::make_unique<ORCore::Render2D>(m_program.get(), m_texture.get());
 
         m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
 
@@ -108,7 +107,7 @@ namespace ORGame
 
     void GameManager::start()
     {
-
+        GLenum error;
         while (m_running)
         {
             m_fpsTime += m_clock.tick();
@@ -116,6 +115,15 @@ namespace ORGame
 
             update();
             render();
+
+            do
+            {
+                error = glGetError();
+                if (error != GL_NO_ERROR)
+                {
+                    std::cout << error << std::endl;
+                }
+            } while(error != GL_NO_ERROR);
 
             m_window.flip();
             if (m_fpsTime >= 2000.0) {
@@ -135,10 +143,6 @@ namespace ORGame
         glViewport(0, 0, m_width, m_height);
         m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
         m_program->set_uniform(m_orthoID, m_ortho);
-
-        for (auto &mesh : m_meshes) {
-            mesh.translate((m_width/2.0f)-256, (m_height/2.0f) - 4); // center the line on the screen
-        }
     }
 
     bool GameManager::event_handler(const ORCore::Event &event)
@@ -150,7 +154,7 @@ namespace ORGame
             }
             case ORCore::MouseMove: {
                 auto ev = ORCore::event_cast<ORCore::MouseMoveEvent>(event);
-                std::cout << "mouse x: " << ev.x << " mouse y" << ev.y << std::endl;
+                //std::cout << "mouse x: " << ev.x << " mouse y" << ev.y << std::endl;
                 m_mouseX = ev.x;
                 m_mouseY = ev.y;
                 break;
@@ -183,14 +187,12 @@ namespace ORGame
 
     void GameManager::update()
     {
-        m_meshes.clear();
+        m_renderer->update();
         m_songTime = m_clock.get_current_time();
         prep_render_bars();
         prep_render_notes();
 
-        for (auto &mesh : m_meshes) {
-            mesh.update();
-        }
+        m_renderer->mesh_commit();
     }
 
     void GameManager::prep_render_bars()
@@ -199,11 +201,14 @@ namespace ORGame
         for (size_t i = 0; i < m_barsForRender.size(); i++) {
             float z = ((m_barsForRender[i].bar->time - m_songTime) / 1000.0) * 225.0;
 
-            ORCore::Mesh2D mesh(m_program.get(), m_texture.get());
-            mesh.scale(512.0f, 4.0f);
-            mesh.translate((m_width/2.0f)-256, 100 + z); // center the line on the screen
+            ORCore::Mesh2D mesh = {
+                glm::vec3{512.0f, 4.0f, 0.0f},                  // Scale
+                glm::vec3{(m_width/2.0f)-256, 100 + z, 0.0f},   // Position - center the line on the screen
+                2,                                              // Values per vert
+                ORCore::create_rect_mesh(),                     // Create the rect mesh.
+            };
 
-            m_meshes.push_back(mesh);
+            m_renderer->add_mesh(mesh);
         }
     }
 
@@ -213,11 +218,14 @@ namespace ORGame
         for (size_t i = 0; i < m_notesForRender.size(); i++) {
             float z = ((m_notesForRender[i]->time - m_songTime) / 1000.0) * 225.0;
 
-            ORCore::Mesh2D mesh(m_program.get(), m_texture.get());
-            mesh.scale(30.0f, 4.0f);
-            mesh.translate(static_cast<int>(m_notesForRender[i]->type)*40, 100 + z);
+            ORCore::Mesh2D mesh = {
+                glm::vec3{30.0f, 4.0f, 0.0f},                                               // Scale
+                glm::vec3{static_cast<int>(m_notesForRender[i]->type)*40, 100 + z, 0.0f},   // Position - center the line on the screen
+                2,                                                                          // Values per vert
+                ORCore::create_rect_mesh(),                                                 // Create the rect mesh.
+            };
 
-            m_meshes.push_back(mesh);
+            m_renderer->add_mesh(mesh);
         }
     }
 
@@ -227,9 +235,7 @@ namespace ORGame
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_program->use();
-        for (auto &mesh : m_meshes) {
-            mesh.render();
-        }
+        m_renderer->render();
 
 
     }

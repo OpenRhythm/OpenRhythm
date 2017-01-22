@@ -3,83 +3,101 @@
 
 namespace ORCore
 {
-    Mesh2D::Mesh2D(ShaderProgram *program, Texture *texture)
+    std::vector<GLfloat> create_rect_mesh()
+    {
+        return {
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f
+        };
+    }
+
+    Render2D::Render2D(ShaderProgram *program, Texture *texture)
     : m_program(program), m_texture(texture)
     {
-        m_vertData[0] = 0.0f;
-        m_vertData[1] = 1.0f;
-        m_vertData[2] = 1.0f;
-        m_vertData[3] = 1.0f;
-        m_vertData[4] = 0.0f;
-        m_vertData[5] = 0.0f;
-        m_vertData[6] = 1.0f;
-        m_vertData[7] = 0.0f;
         init_gl();
-        m_xScale = 0.0f;
-        m_yScale = 0.0f;
-        m_xPos = 0.0f;
-        m_yPos = 0.0f;
     }
 
-    Mesh2D::~Mesh2D()
+    void Render2D::init_gl()
     {
-
-        glDeleteBuffers(1, &m_vbo);
-
+        m_vertLoc = m_program->vertex_attribute("position");
+        m_uvLoc = m_program->vertex_attribute("vertexUV");
+        m_matIndAttr = m_program->vertex_attribute("matrixIndex");
+        m_modelAttr = m_program->uniform_attribute("models");
+        glGenBuffers(1, &m_vbo);
+        glGenBuffers(1, &m_mativbo);
     }
 
-    void Mesh2D::update()
+    void Render2D::add_mesh(const Mesh2D& mesh)
     {
-        // yes this is going to be inefficient... ill fix it later.
-        m_modelMatrix = glm::scale(glm::translate(glm::mat4(1.0f), m_vecTrans), m_vecScale);
+        int meshVertexCount = mesh.vertices.size() / mesh.vertexSize;
+        // if we have hit the max batch size ignore the mesh, later on we will support multiple batches.
+        if ((m_matrices.size() + meshVertexCount) <= 64)
+        {
+            // Add one index per vertex
+            for (int i = 0; i < meshVertexCount;i++)
+            {
+                m_meshMatrixIndex.push_back(m_matrices.size());
+            }
+            m_matrices.push_back(glm::scale(glm::translate(glm::mat4(1.0f), mesh.translate), mesh.scale));
+            m_vertices.insert(m_vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
+        }
     }
 
-    void Mesh2D::render()
+    // update buffer objects
+    void Render2D::mesh_commit()
     {
-        m_program->set_uniform(m_modelAttr, m_modelMatrix);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(GLfloat), &m_vertices[0], GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_mativbo);
+        glBufferData(GL_ARRAY_BUFFER, m_meshMatrixIndex.size()*sizeof(unsigned int), &m_meshMatrixIndex[0], GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    void Render2D::update()
+    {
+        m_vertices.clear();
+        m_matrices.clear();
+        m_meshMatrixIndex.clear();
+    }
+
+    void Render2D::render()
+    {
+
         m_texture->bind();
+
+        glUniformMatrix4fv(m_modelAttr, m_matrices.size(), GL_FALSE,  glm::value_ptr(m_matrices[0]));
+
         glEnableVertexAttribArray(m_vertLoc);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
 
         glEnableVertexAttribArray(m_uvLoc);
-        glBindBuffer(GL_ARRAY_BUFFER, m_uvbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
 
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glEnableVertexAttribArray(m_matIndAttr);
+        glBindBuffer(GL_ARRAY_BUFFER, m_mativbo );
+        glVertexAttribIPointer( m_matIndAttr, 1, GL_UNSIGNED_INT, 0, nullptr );
+
+        glDrawArrays(GL_TRIANGLES, 0, m_vertices.size()/2);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(m_uvLoc);
         glDisableVertexAttribArray(m_vertLoc);
+        glDisableVertexAttribArray(m_matIndAttr);
 
     }
 
-    void Mesh2D::init_gl()
+    Render2D::~Render2D()
     {
-        m_vertLoc = m_program->vertex_attribute("position");
-        m_uvLoc = m_program->vertex_attribute("vertexUV");
-        m_modelAttr = m_program->uniform_attribute("model");
-
-        glGenBuffers(1, &m_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertData), m_vertData, GL_STATIC_DRAW);
-
-        glGenBuffers(1, &m_uvbo);
-        glBindBuffer(GL_ARRAY_BUFFER, m_uvbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertData), m_vertData, GL_STATIC_DRAW);
+        glDeleteBuffers(1, &m_vbo);
+        glDeleteBuffers(1, &m_mativbo);
     }
 
-    void Mesh2D::scale(float x, float y)
-    {
-        m_xScale = x;
-        m_yScale = y;
-        m_vecScale = glm::vec3(m_xScale, m_yScale, 0.0f);
-    }
-
-    void Mesh2D::translate(float x, float y)
-    {
-        m_xPos = x;
-        m_yPos = y;
-        m_vecTrans = glm::vec3(m_xPos, m_yPos, 0.0f);
-    }
 } // namespace ORCore
