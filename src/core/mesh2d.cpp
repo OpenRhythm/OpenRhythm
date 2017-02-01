@@ -3,17 +3,19 @@
 
 namespace ORCore
 {
-    std::vector<GLfloat> create_rect_mesh()
+    std::vector<Vertex2D> create_rect_mesh()
     {
         return {
-            0.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f,
-            1.0f, 0.0f
+            // Vertex2     UV            Color (not yet used)
+            {{0.0f, 0.0f}, {0.0f, 0.0f}, {0.5, 0.5, 1.0, 1.0}},
+            {{0.0f, 1.0f}, {0.0f, 1.0f}, {0.5, 0.5, 1.0, 1.0}},
+            {{1.0f, 0.0f}, {1.0f, 0.0f}, {0.5, 0.5, 1.0, 1.0}},
+            {{0.0f, 1.0f}, {0.0f, 1.0f}, {0.5, 0.5, 1.0, 1.0}},
+            {{1.0f, 1.0f}, {1.0f, 1.0f}, {0.5, 0.5, 1.0, 1.0}},
+            {{1.0f, 0.0f}, {1.0f, 0.0f}, {0.5, 0.5, 1.0, 1.0}}
         };
     }
+
 
     Render2D::Render2D(ShaderProgram *program, Texture *texture)
     : m_program(program), m_texture(texture)
@@ -35,7 +37,7 @@ namespace ORCore
 
     void Render2D::add_mesh(const Mesh2D& mesh)
     {
-        int meshVertexCount = mesh.vertices.size() / mesh.vertexSize;
+        int meshVertexCount = mesh.vertices.size();
         // if we have hit the max batch size ignore the mesh, later on we will support multiple batches.
         if ((m_matrices.size() + meshVertexCount) <= 64)
         {
@@ -53,8 +55,7 @@ namespace ORCore
     void Render2D::mesh_commit()
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(GLfloat), &m_vertices[0], GL_DYNAMIC_DRAW);
-
+        glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(Vertex2D), &m_vertices[0], GL_DYNAMIC_DRAW);
     }
 
     void Render2D::update()
@@ -75,13 +76,13 @@ namespace ORCore
 
         glEnableVertexAttribArray(m_vertLoc);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
+        glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, vertex)));
 
         glEnableVertexAttribArray(m_uvLoc);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
+        glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, uv)));
 
-        glDrawArrays(GL_TRIANGLES, 0, m_vertices.size()/2);
+        glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(m_uvLoc);
