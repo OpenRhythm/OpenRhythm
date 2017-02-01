@@ -18,6 +18,9 @@ namespace ORCore
     Render2D::Render2D(ShaderProgram *program, Texture *texture)
     : m_program(program), m_texture(texture)
     {
+        m_vertices.reserve(32*6); // 32 object each object has 3 verts of 2 values
+        m_matrices.reserve(32);
+        m_meshMatrixIndex.reserve(32*2); // 32 objects each object has 2 triangles
         init_gl();
     }
 
@@ -25,10 +28,9 @@ namespace ORCore
     {
         m_vertLoc = m_program->vertex_attribute("position");
         m_uvLoc = m_program->vertex_attribute("vertexUV");
-        m_matIndAttr = m_program->vertex_attribute("matrixIndex");
         m_modelAttr = m_program->uniform_attribute("models");
+        m_modelIndicesAttr = m_program->uniform_attribute("modelIndices");
         glGenBuffers(1, &m_vbo);
-        glGenBuffers(1, &m_mativbo);
     }
 
     void Render2D::add_mesh(const Mesh2D& mesh)
@@ -38,7 +40,7 @@ namespace ORCore
         if ((m_matrices.size() + meshVertexCount) <= 64)
         {
             // Add one index per vertex
-            for (int i = 0; i < meshVertexCount;i++)
+            for (int i = 0; i < meshVertexCount/3;i++)
             {
                 m_meshMatrixIndex.push_back(m_matrices.size());
             }
@@ -53,10 +55,6 @@ namespace ORCore
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(GLfloat), &m_vertices[0], GL_DYNAMIC_DRAW);
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_mativbo);
-        glBufferData(GL_ARRAY_BUFFER, m_meshMatrixIndex.size()*sizeof(unsigned int), &m_meshMatrixIndex[0], GL_DYNAMIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     void Render2D::update()
@@ -73,6 +71,8 @@ namespace ORCore
 
         glUniformMatrix4fv(m_modelAttr, m_matrices.size(), GL_FALSE,  glm::value_ptr(m_matrices[0]));
 
+        glUniform1uiv(m_modelIndicesAttr, m_meshMatrixIndex.size(), &m_meshMatrixIndex[0]);
+
         glEnableVertexAttribArray(m_vertLoc);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
@@ -81,23 +81,17 @@ namespace ORCore
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr );
 
-        glEnableVertexAttribArray(m_matIndAttr);
-        glBindBuffer(GL_ARRAY_BUFFER, m_mativbo );
-        glVertexAttribIPointer( m_matIndAttr, 1, GL_UNSIGNED_INT, 0, nullptr );
-
         glDrawArrays(GL_TRIANGLES, 0, m_vertices.size()/2);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(m_uvLoc);
         glDisableVertexAttribArray(m_vertLoc);
-        glDisableVertexAttribArray(m_matIndAttr);
 
     }
 
     Render2D::~Render2D()
     {
         glDeleteBuffers(1, &m_vbo);
-        glDeleteBuffers(1, &m_mativbo);
     }
 
 } // namespace ORCore

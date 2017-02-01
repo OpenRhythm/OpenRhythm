@@ -38,11 +38,9 @@ namespace ORCore
         GLuint m_vertLoc;
         GLuint m_modelAttr;
         GLuint m_uvLoc;
-        GLuint m_matIndAttr;
+        GLuint m_modelIndicesAttr;
 
         GLuint m_vbo;
-        GLuint m_uvbo;
-        GLuint m_mativbo;
 
         std::vector<unsigned int> m_meshMatrixIndex;
 
