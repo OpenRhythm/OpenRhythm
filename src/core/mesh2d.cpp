@@ -6,13 +6,13 @@ namespace ORCore
     std::vector<Vertex2D> create_rect_mesh()
     {
         return {
-            // Vertex2     UV            Color (not yet used)
-            {{0.0f, 0.0f}, {0.0f, 0.0f}, {0.5, 0.5, 1.0, 1.0}},
-            {{0.0f, 1.0f}, {0.0f, 1.0f}, {0.5, 0.5, 1.0, 1.0}},
-            {{1.0f, 0.0f}, {1.0f, 0.0f}, {0.5, 0.5, 1.0, 1.0}},
-            {{0.0f, 1.0f}, {0.0f, 1.0f}, {0.5, 0.5, 1.0, 1.0}},
-            {{1.0f, 1.0f}, {1.0f, 1.0f}, {0.5, 0.5, 1.0, 1.0}},
-            {{1.0f, 0.0f}, {1.0f, 0.0f}, {0.5, 0.5, 1.0, 1.0}}
+            // Vertex2     UV            Color
+            {{0.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}
         };
     }
 
@@ -28,8 +28,10 @@ namespace ORCore
 
     void Render2D::init_gl()
     {
+        glEnable(GL_BLEND);
         m_vertLoc = m_program->vertex_attribute("position");
         m_uvLoc = m_program->vertex_attribute("vertexUV");
+        m_colorLoc = m_program->vertex_attribute("color");
         m_modelAttr = m_program->uniform_attribute("models");
         m_modelIndicesAttr = m_program->uniform_attribute("modelIndices");
         glGenBuffers(1, &m_vbo);
@@ -82,9 +84,14 @@ namespace ORCore
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, uv)));
 
+        glEnableVertexAttribArray(m_colorLoc);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glVertexAttribPointer( m_colorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, color)));
+
         glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDisableVertexAttribArray(m_colorLoc);
         glDisableVertexAttribArray(m_uvLoc);
         glDisableVertexAttribArray(m_vertLoc);
 

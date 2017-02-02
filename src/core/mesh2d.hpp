@@ -46,6 +46,7 @@ namespace ORCore
         GLuint m_vertLoc;
         GLuint m_modelAttr;
         GLuint m_uvLoc;
+        GLuint m_colorLoc;
         GLuint m_modelIndicesAttr;
 
         GLuint m_vbo;
