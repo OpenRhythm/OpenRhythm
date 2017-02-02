@@ -35,6 +35,17 @@ namespace ORCore
         m_modelAttr = m_program->uniform_attribute("models");
         m_modelIndicesAttr = m_program->uniform_attribute("modelIndices");
         glGenBuffers(1, &m_vbo);
+
+        m_texture->bind();
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glEnableVertexAttribArray(m_vertLoc);
+        glEnableVertexAttribArray(m_uvLoc);
+        glEnableVertexAttribArray(m_colorLoc);
+
+        glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, vertex)));
+        glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, uv)));
+        glVertexAttribPointer( m_colorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, color)));
     }
 
     void Render2D::add_mesh(const Mesh2D& mesh)
@@ -62,43 +73,27 @@ namespace ORCore
 
     void Render2D::update()
     {
-        m_vertices.clear();
-        m_matrices.clear();
-        m_meshMatrixIndex.clear();
+        // m_vertices.clear();
+        // m_matrices.clear();
+        // m_meshMatrixIndex.clear();
     }
 
     void Render2D::render()
     {
-
-        m_texture->bind();
-
         glUniformMatrix4fv(m_modelAttr, m_matrices.size(), GL_FALSE,  glm::value_ptr(m_matrices[0]));
-
         glUniform1uiv(m_modelIndicesAttr, m_meshMatrixIndex.size(), &m_meshMatrixIndex[0]);
 
-        glEnableVertexAttribArray(m_vertLoc);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, vertex)));
-
-        glEnableVertexAttribArray(m_uvLoc);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, uv)));
-
-        glEnableVertexAttribArray(m_colorLoc);
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glVertexAttribPointer( m_colorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, color)));
-
         glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDisableVertexAttribArray(m_colorLoc);
-        glDisableVertexAttribArray(m_uvLoc);
-        glDisableVertexAttribArray(m_vertLoc);
 
     }
 
     Render2D::~Render2D()
     {
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDisableVertexAttribArray(m_colorLoc);
+        glDisableVertexAttribArray(m_uvLoc);
+        glDisableVertexAttribArray(m_vertLoc);
+
         glDeleteBuffers(1, &m_vbo);
     }
 

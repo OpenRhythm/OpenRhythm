@@ -39,8 +39,6 @@ namespace ORGame
         int m_mouseX = 0;
         int m_mouseY = 0;
 
-        std::vector<TempoTrackEvent> m_barsForRender;
-        std::vector<TrackNote*> m_notesForRender;
         TempoTrack *m_tempoTrack;
         Track *m_playerTrack;
         double m_songTime;

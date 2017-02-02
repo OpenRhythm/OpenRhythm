@@ -90,7 +90,11 @@ namespace ORGame
         m_texture = std::make_unique<ORCore::Texture>("data/icon.png", m_program.get());
         m_renderer = std::make_unique<ORCore::Render2D>(m_program.get(), m_texture.get());
 
-        m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
+        resize(m_width, m_height);
+
+        prep_render_bars();
+        prep_render_notes();
+        m_renderer->mesh_commit();
 
         m_program->set_uniform(m_orthoID, m_ortho);
 
@@ -103,6 +107,43 @@ namespace ORGame
         glDeleteVertexArrays(1, &m_vao);
         m_window.make_current(nullptr);
 
+    }
+
+    void GameManager::prep_render_bars()
+    {
+
+        std::vector<TempoTrackEvent> bars = m_tempoTrack->get_events(0.0, m_song.length(), ORGame::EventType::Bar);
+        std::cout << "Bar Count: " << bars.size() << "Song Length: " << m_song.length() << std::endl;
+        for (size_t i = 0; i < bars.size(); i++) {
+            float z = bars[i].bar->time / 2.0f;
+
+            ORCore::Mesh2D mesh = {
+                glm::vec3{512.0f, 4.0f, 0.0f},                  // Scale
+                glm::vec3{(m_width/2.0f)-256, 100 + z, 0.0f},   // Position - center the line on the screen
+                2,                                              // Values per vert
+                ORCore::create_rect_mesh(),                     // Create the rect mesh.
+            };
+
+            m_renderer->add_mesh(mesh);
+        }
+    }
+
+    void GameManager::prep_render_notes()
+    {
+        std::vector<TrackNote*> notes = m_playerTrack->get_notes_in_frame(0.0, m_song.length());
+        std::cout << "Note Count: " << notes.size() << std::endl;
+        for (size_t i = 0; i < notes.size(); i++) {
+            float z = notes[i]->time / 2.0f;
+
+            ORCore::Mesh2D mesh = {
+                glm::vec3{30.0f, 4.0f, 0.0f},                                               // Scale
+                glm::vec3{static_cast<int>(notes[i]->type)*40, 100 + z, 0.0f},   // Position - center the line on the screen
+                2,                                                                          // Values per vert
+                ORCore::create_rect_mesh(),                                                 // Create the rect mesh.
+            };
+
+            m_renderer->add_mesh(mesh);
+        }
     }
 
     void GameManager::start()
@@ -142,7 +183,6 @@ namespace ORGame
         m_height = height;
         glViewport(0, 0, m_width, m_height);
         m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
-        m_program->set_uniform(m_orthoID, m_ortho);
     }
 
     bool GameManager::event_handler(const ORCore::Event &event)
@@ -189,46 +229,9 @@ namespace ORGame
     {
         m_renderer->update();
         m_songTime = m_clock.get_current_time();
-        prep_render_bars();
-        prep_render_notes();
-
-        m_renderer->mesh_commit();
+        m_program->set_uniform(m_orthoID,
+            glm::translate(m_ortho, glm::vec3(0.0f, (-m_songTime)/2.0f, 0.0f))); // translate projection with song
     }
-
-    void GameManager::prep_render_bars()
-    {
-        m_barsForRender = m_tempoTrack->get_events(m_songTime, m_songTime+2500.0, ORGame::EventType::Bar);
-        for (size_t i = 0; i < m_barsForRender.size(); i++) {
-            float z = ((m_barsForRender[i].bar->time - m_songTime) / 1000.0) * 225.0;
-
-            ORCore::Mesh2D mesh = {
-                glm::vec3{512.0f, 4.0f, 0.0f},                  // Scale
-                glm::vec3{(m_width/2.0f)-256, 100 + z, 0.0f},   // Position - center the line on the screen
-                2,                                              // Values per vert
-                ORCore::create_rect_mesh(),                     // Create the rect mesh.
-            };
-
-            m_renderer->add_mesh(mesh);
-        }
-    }
-
-    void GameManager::prep_render_notes()
-    {
-        m_notesForRender = m_playerTrack->get_notes_in_frame(m_songTime, m_songTime+2500.0);
-        for (size_t i = 0; i < m_notesForRender.size(); i++) {
-            float z = ((m_notesForRender[i]->time - m_songTime) / 1000.0) * 225.0;
-
-            ORCore::Mesh2D mesh = {
-                glm::vec3{30.0f, 4.0f, 0.0f},                                               // Scale
-                glm::vec3{static_cast<int>(m_notesForRender[i]->type)*40, 100 + z, 0.0f},   // Position - center the line on the screen
-                2,                                                                          // Values per vert
-                ORCore::create_rect_mesh(),                                                 // Create the rect mesh.
-            };
-
-            m_renderer->add_mesh(mesh);
-        }
-    }
-
 
     void GameManager::render()
     {

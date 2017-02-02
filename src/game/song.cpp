@@ -295,6 +295,8 @@ namespace ORGame
                         continue;
                     }
                 }
+                m_length = midiTrack->endTime;
+                break;
             }
         }
         m_tracks.push_back(track);
