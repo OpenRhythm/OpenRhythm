@@ -87,7 +87,8 @@ namespace ORGame
         m_program->use();
         m_orthoID = m_program->uniform_attribute("ortho");
 
-        m_texture = std::make_unique<ORCore::Texture>("data/icon.png", m_program.get());
+        m_texture = std::make_unique<ORCore::Texture>(GL_TEXTURE_2D);
+        m_texture->update_image_data(ORCore::loadSTB("data/icon.png"));
         m_renderer = std::make_unique<ORCore::Render2D>(m_program.get(), m_texture.get());
 
         resize(m_width, m_height);
@@ -113,7 +114,7 @@ namespace ORGame
     {
 
         std::vector<TempoTrackEvent> bars = m_tempoTrack->get_events(0.0, m_song.length(), ORGame::EventType::Bar);
-        std::cout << "Bar Count: " << bars.size() << "Song Length: " << m_song.length() << std::endl;
+        std::cout << "Bar Count: " << bars.size() << " Song Length: " << m_song.length() << std::endl;
         for (size_t i = 0; i < bars.size(); i++) {
             float z = bars[i].bar->time / 2.0f;
 

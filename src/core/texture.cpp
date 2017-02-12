@@ -23,9 +23,8 @@
 
 namespace ORCore
 {
-    static int _texCount = 0;
-    static GLuint _currentBoundtexture = 0;
-
+    // TODO - This doesn't really fit here anymore, should find a better place for it.
+    //        Could call it asset loaders or something smf could be moved there as well.
     Image loadSTB(std::string filename)
     {
         std::string mem_buf = ORCore::read_file( filename, FileMode::Binary );
@@ -47,7 +46,9 @@ namespace ORCore
         img_buf = stbi_load_from_memory( &conv_mem[0], mem_buf.size(), &imgData.width, &imgData.height, &comp, 0 );
 
         if ( img_buf == nullptr )
+        {
             std::cout << _("Failed to get image data") << std::endl;
+        }
 
 
         imgData.length = imgData.width * imgData.height * 4;
@@ -78,42 +79,118 @@ namespace ORCore
     }
 
 
-    Texture::Texture(std::string path, ShaderProgram *program)
-    : m_program(program), m_path(path)
+    std::vector<GLenum> TextureBase::sm_freedBindingPoints;
+    GLuint TextureBase::sm_bindpointTail = 0;
+    int TextureBase::sm_textureCount = 0;
+
+    TextureBase::TextureBase(GLenum targetType)
+    :m_texTargetType(targetType)
     {
-        _texCount++;
-        m_texUnitID = _texCount;
-
-        m_image = ORCore::loadSTB(m_path);
-
-        m_texSampID = m_program->uniform_attribute("textureSampler");
-
-        GLuint texid;
-        glGenTextures(1, &texid);
-        m_texID = texid;
-        glBindTexture(GL_TEXTURE_2D, m_texID);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_image.width, m_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(m_image.pixelData.get())[0]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        m_texBindingPoint = 0;
+        sm_textureCount++;
+        m_texID = sm_textureCount;
+        m_texIsBound = false;
     }
 
-    void Texture::bind()
+    TextureBase::~TextureBase()
     {
-        if (_currentBoundtexture != (GLuint)m_texUnitID) {
-            _currentBoundtexture = m_texUnitID;
+        unbind();
+    }
 
-            glActiveTexture(GL_TEXTURE0+m_texUnitID);
-            glBindTexture(GL_TEXTURE_2D, m_texID);
-            m_program->set_uniform(m_texSampID, m_texUnitID);
+    void TextureBase::bind(GLuint location)
+    {
+        if (m_texIsBound == false)
+        {
+            m_texBindingPoint = aquire_bindpoint();
+            m_texIsBound = true;
+
+            glActiveTexture(GL_TEXTURE0+m_texBindingPoint);
+            glBindTexture(m_texTargetType, m_oglTexID);
             std::cout << _("Texture bound") << std::endl;
+        }
 
+        glUniform1i(location, m_texBindingPoint);
+    }
+
+    void TextureBase::unbind()
+    {
+        if (m_texIsBound == true)
+        {
+
+            glActiveTexture(GL_TEXTURE0+m_texBindingPoint);
+            glBindTexture(m_texTargetType, 0);
+            release_bindpoint(m_texBindingPoint);
+            m_texBindingPoint = 0;
+            m_texIsBound = false;
+            glActiveTexture(GL_TEXTURE0);
+            std::cout << _("Texture unbound") << std::endl;
         }
     }
 
-    int Texture::get_id() {
-        return m_texUnitID;
+    int TextureBase::get_id() {
+        return m_texID;
     }
-    
+
+    GLenum TextureBase::aquire_bindpoint()
+    {
+        GLenum rtnPoint;
+        if (sm_freedBindingPoints.size() > 0)
+        {
+            rtnPoint = sm_freedBindingPoints.back();
+            sm_freedBindingPoints.pop_back();
+        } else {
+            // TODO - sm_bindpointTail shouldn't be longer than GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS.
+            sm_bindpointTail++;
+            rtnPoint = sm_bindpointTail;
+
+        }
+        return rtnPoint;
+    }
+
+    void TextureBase::release_bindpoint(GLenum bindpoint)
+    {
+        sm_freedBindingPoints.push_back(bindpoint);
+    }
+
+    Texture::Texture(GLenum targetType)
+    :TextureBase(targetType)
+    {
+        init_gl();
+    }
+
+
+    void Texture::init_gl()
+    {
+        glGenTextures(1, &m_oglTexID);
+        glBindTexture(m_texTargetType, m_oglTexID);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexParameteri(m_texTargetType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(m_texTargetType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glBindTexture(m_texTargetType, 0);
+    }
+
+    void Texture::update_image_data(Image& img)
+    {
+        glBindTexture(m_texTargetType, m_oglTexID);
+        glTexImage2D(m_texTargetType, 0, GL_RGBA, img.width, img.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(img.pixelData.get())[0]);
+        glGenerateMipmap(m_texTargetType);
+    }
+
+    BufferTexture::BufferTexture(GLenum bufferType)
+    :m_bufferType(bufferType), TextureBase(GL_TEXTURE_BUFFER)
+    {
+        init_gl();
+    }
+
+    void BufferTexture::init_gl()
+    {
+        glGenTextures(1, &m_oglTexID);
+    }
+
+    void BufferTexture::assign_buffer(GLuint buffer)
+    {
+        glBindTexture(m_texTargetType, m_oglTexID);
+        glTexBuffer(m_texTargetType, m_bufferType, buffer);
+    }
+
 } // namespace ORCore

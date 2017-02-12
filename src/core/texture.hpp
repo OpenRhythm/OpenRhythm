@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <vector>
 #include <glad/glad.h>
 
 #include "shader.hpp"
@@ -19,21 +20,48 @@ namespace ORCore
 
     Image loadSTB(std::string filename);
 
-    class Texture
+    class TextureBase
     {
     public:
-        Texture(std::string path, ShaderProgram *program);
-        void bind();
-        int get_id();
-        //~Texture();
+        TextureBase(GLenum targetType);
+        virtual ~TextureBase();
+        void bind(GLuint location);
+        void unbind();
+        int get_id(); // Internal texture ID
+    protected:
+        GLenum aquire_bindpoint();
+        void release_bindpoint(GLenum bindpoint);
 
-    private:
-        Image m_image;
-        ShaderProgram *m_program;
-        std::string m_path;
-        int m_texSampID;
-        int m_texUnitID;
-        GLuint m_texID;
+        static std::vector<GLenum> sm_freedBindingPoints;
+        static GLuint sm_bindpointTail;
+        static int sm_textureCount;
 
+        int m_texID;
+        GLenum m_texBindingPoint;
+        bool m_texIsBound;
+        GLuint m_oglTexID;
+        GLenum m_texTargetType;
     };
+
+    class Texture : public TextureBase
+    {
+    public:
+        Texture(GLenum targetType);
+        void init_gl();
+        void update_image_data(Image& img);
+    private:
+
+        GLenum m_texFormat;
+    };
+
+    class BufferTexture : public TextureBase
+    {
+    public:
+        BufferTexture(GLenum bufferType);
+        void init_gl();
+        void assign_buffer(GLuint buffer);
+    private:
+        GLenum m_bufferType;
+    };
+
 } // namespace ORCore

@@ -34,10 +34,12 @@ namespace ORCore
         m_colorLoc = m_program->vertex_attribute("color");
         m_modelAttr = m_program->uniform_attribute("models");
         m_modelIndicesAttr = m_program->uniform_attribute("modelIndices");
+        m_texSampID = m_program->uniform_attribute("textureSampler");
+        
         glGenBuffers(1, &m_vbo);
 
-        m_texture->bind();
-
+        m_texture->bind(m_texSampID);
+        
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glEnableVertexAttribArray(m_vertLoc);
         glEnableVertexAttribArray(m_uvLoc);
@@ -80,6 +82,7 @@ namespace ORCore
 
     void Render2D::render()
     {
+
         glUniformMatrix4fv(m_modelAttr, m_matrices.size(), GL_FALSE,  glm::value_ptr(m_matrices[0]));
         glUniform1uiv(m_modelIndicesAttr, m_meshMatrixIndex.size(), &m_meshMatrixIndex[0]);
 
