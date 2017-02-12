@@ -88,7 +88,8 @@ namespace ORGame
         m_orthoID = m_program->uniform_attribute("ortho");
 
         m_texture = std::make_unique<ORCore::Texture>(GL_TEXTURE_2D);
-        m_texture->update_image_data(ORCore::loadSTB("data/icon.png"));
+        ORCore::Image img = ORCore::loadSTB("data/icon.png");
+        m_texture->update_image_data(img);
         m_renderer = std::make_unique<ORCore::Render2D>(m_program.get(), m_texture.get());
 
         resize(m_width, m_height);
