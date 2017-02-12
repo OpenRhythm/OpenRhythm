@@ -8,13 +8,20 @@ out vec2 UV;
 out vec4 fragColor;
 
 uniform mat4 ortho;
-uniform mat4 models[64]; // batch size of 64
-uniform uint modelIndices[128]; // Currently we will have 2x triangles vs models
+
+uniform samplerBuffer matrixBuffer;
+uniform usamplerBuffer matrixIndices;
+
+mat4 read_matrix(int offset)
+{
+    return mat4(texelFetch(matrixBuffer, offset), texelFetch(matrixBuffer, offset + 1), texelFetch(matrixBuffer, offset + 2), texelFetch(matrixBuffer, offset + 3));
+}
 
 void main(void)
 {
 	int faceID = int(gl_VertexID/3);
-	gl_Position = ortho * models[modelIndices[faceID]] * vec4(position, 0.0, 1.0);
+	int matrixOffset = int(texelFetch(matrixIndices, faceID).r) * 4;
+	gl_Position = ortho * read_matrix(matrixOffset) * vec4(position, 0.0, 1.0);
 	UV = vertexUV;
 	fragColor = color;
 }

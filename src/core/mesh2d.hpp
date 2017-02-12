@@ -43,14 +43,18 @@ namespace ORCore
     private:
         ShaderProgram *m_program;
         Texture *m_texture;
+        BufferTexture m_matTexBuffer;
+        BufferTexture m_matTexIndexBuffer;
         GLuint m_vertLoc;
-        GLuint m_modelAttr;
         GLuint m_uvLoc;
         GLuint m_colorLoc;
-        GLuint m_modelIndicesAttr;
         GLuint m_texSampID;
+        GLuint m_matBufTexID;
+        GLuint m_matIndexBufTexID;
 
         GLuint m_vbo;
+        GLuint m_matBufferObject;
+        GLuint m_matIndexBufferObject;
 
         std::vector<unsigned int> m_meshMatrixIndex;
 
