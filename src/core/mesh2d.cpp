@@ -3,16 +3,16 @@
 
 namespace ORCore
 {
-    std::vector<Vertex2D> create_rect_mesh()
+    std::vector<Vertex2D> create_rect_mesh(glm::vec4 color)
     {
         return {
             // Vertex2     UV            Color
-            {{0.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
-            {{0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
-            {{1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
-            {{0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
-            {{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}},
-            {{1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}
+            {{0.0f, 0.0f}, {0.0f, 0.0f}, color},
+            {{0.0f, 1.0f}, {0.0f, 1.0f}, color},
+            {{1.0f, 0.0f}, {1.0f, 0.0f}, color},
+            {{0.0f, 1.0f}, {0.0f, 1.0f}, color},
+            {{1.0f, 1.0f}, {1.0f, 1.0f}, color},
+            {{1.0f, 0.0f}, {1.0f, 0.0f}, color}
         };
     }
 

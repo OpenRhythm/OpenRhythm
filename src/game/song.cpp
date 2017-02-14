@@ -1,5 +1,6 @@
 #include "config.hpp"
 #include <stdexcept>
+#include <algorithm>
 
 #include "song.hpp"
 
@@ -37,8 +38,8 @@ namespace ORGame
                 previousTempo = &tempo;
                 continue;
             }
-            incr = previousTempo->qnLength / (beatSubdivision * 1000.0);
-            beatSegments = static_cast<int>(((tempo.time - previousTempo->time) / incr) + 1);
+            incr = previousTempo->qnLength / (beatSubdivision*1000.0);
+            beatSegments = static_cast<int>((tempo.time - previousTempo->time) / incr)+1;
             for (int i=0; i < beatSegments; i++) {
                 m_bars.push_back({BarType::beat, previousTempo->time + (incr*i)});
             }
@@ -89,18 +90,24 @@ namespace ORGame
 
     void Track::add_note(NoteType type, double time, bool on)
     {
-        // TODO - Fix this it looks incorrect.
-        // if (!on) {
-        //     for(int i = m_notes.size(); i >= 0; i--) {
-        //         if (m_notes[i].type == type) {
-        //             m_notes[i].length = time - m_notes[i].time;
-        //             break;
-        //         }
-        //     }
-        //     return;
-        // }
+        static std::vector<std::pair<NoteType, int>> activeNotes;
+
         if (on) {
+            int index = m_notes.size();
+            activeNotes.emplace_back(type, index);
             m_notes.push_back({type, time, 0.0});
+        } else {
+            auto findFunc = [&](const auto& element)
+            {
+                return element.first == type;
+            };
+            auto item = std::find_if( activeNotes.begin(), activeNotes.end(), findFunc);
+            if (item != activeNotes.end())
+            {
+                auto &note = m_notes[item->second];
+                note.length = time - note.time;
+                activeNotes.erase(item);
+            }
         }
     }
 

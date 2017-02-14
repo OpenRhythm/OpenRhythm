@@ -27,7 +27,7 @@ namespace ORCore
         std::vector<Vertex2D> vertices;
     };
 
-    std::vector<Vertex2D> create_rect_mesh();
+    std::vector<Vertex2D> create_rect_mesh(glm::vec4 color);
 
     class Render2D
     {

@@ -88,7 +88,7 @@ namespace ORGame
         m_orthoID = m_program->uniform_attribute("ortho");
 
         m_texture = std::make_unique<ORCore::Texture>(GL_TEXTURE_2D);
-        ORCore::Image img = ORCore::loadSTB("data/icon.png");
+        ORCore::Image img = ORCore::loadSTB("data/blank.png");
         m_texture->update_image_data(img);
         m_renderer = std::make_unique<ORCore::Render2D>(m_program.get(), m_texture.get());
 
@@ -117,13 +117,13 @@ namespace ORGame
         std::vector<TempoTrackEvent> bars = m_tempoTrack->get_events(0.0, m_song.length(), ORGame::EventType::Bar);
         std::cout << "Bar Count: " << bars.size() << " Song Length: " << m_song.length() << std::endl;
         for (size_t i = 0; i < bars.size(); i++) {
-            float z = bars[i].bar->time / 2.0f;
+            float z = bars[i].bar->time / 3.0f;
 
             ORCore::Mesh2D mesh = {
                 glm::vec3{512.0f, 4.0f, 0.0f},                  // Scale
-                glm::vec3{(m_width/2.0f)-256, 100 + z, 0.0f},   // Position - center the line on the screen
+                glm::vec3{(m_width/2.0f)-256, z, 0.0f},   // Position - center the line on the screen
                 2,                                              // Values per vert
-                ORCore::create_rect_mesh(),                     // Create the rect mesh.
+                ORCore::create_rect_mesh(glm::vec4{1.0,1.0,1.0,1.0}),                     // Create the rect mesh.
             };
 
             m_renderer->add_mesh(mesh);
@@ -135,16 +135,42 @@ namespace ORGame
         std::vector<TrackNote*> notes = m_playerTrack->get_notes_in_frame(0.0, m_song.length());
         std::cout << "Note Count: " << notes.size() << std::endl;
         for (size_t i = 0; i < notes.size(); i++) {
-            float z = notes[i]->time / 2.0f;
+            float z = notes[i]->time / 3.0f;
+            glm::vec4 color;
+            if( notes[i]->type == NoteType::Green) {
+                color = glm::vec4{0.0,1.0,0.0,1.0};
+            } else if( notes[i]->type == NoteType::Red) {
+                color = glm::vec4{1.0,0.0,0.0,1.0};
+            } else if( notes[i]->type == NoteType::Yellow) {
+                color = glm::vec4{1.0,1.0,0.0,1.0};
+            } else if( notes[i]->type == NoteType::Blue) {
+                color = glm::vec4{0.0,0.0,1.0,1.0};
+            } else if( notes[i]->type == NoteType::Orange) {
+                color = glm::vec4{1.0,0.5,0.0,1.0};
+            }
+            //std::cout << "Length: " << notes[i]->length/3.0f << std::endl;
 
             ORCore::Mesh2D mesh = {
-                glm::vec3{30.0f, 4.0f, 0.0f},                                               // Scale
-                glm::vec3{static_cast<int>(notes[i]->type)*40, 100 + z, 0.0f},   // Position - center the line on the screen
+                glm::vec3{30.0f, 4.0, 0.0f},                                               // Scale
+                glm::vec3{static_cast<int>(notes[i]->type)*40, z, 0.0f},   // Position - center the line on the screen
                 2,                                                                          // Values per vert
-                ORCore::create_rect_mesh(),                                                 // Create the rect mesh.
+                ORCore::create_rect_mesh(color),                                                 // Create the rect mesh.
             };
 
             m_renderer->add_mesh(mesh);
+
+            float noteLength = notes[i]->length/3.0f;
+            if (noteLength > 4.0f)
+            {
+                ORCore::Mesh2D mesh = {
+                    glm::vec3{10.0f, noteLength, 0.0f},                                               // Scale
+                    glm::vec3{10+(static_cast<int>(notes[i]->type)*40), z, 0.0f},   // Position - center the line on the screen
+                    2,                                                                          // Values per vert
+                    ORCore::create_rect_mesh(color),                                                 // Create the rect mesh.
+                };
+
+                m_renderer->add_mesh(mesh);
+            }
         }
     }
 
@@ -232,7 +258,7 @@ namespace ORGame
         m_renderer->update();
         m_songTime = m_clock.get_current_time();
         m_program->set_uniform(m_orthoID,
-            glm::translate(m_ortho, glm::vec3(0.0f, (-m_songTime)/2.0f, 0.0f))); // translate projection with song
+            glm::translate(m_ortho, glm::vec3(0.0f, (-m_songTime)/3.0f, 0.0f))); // translate projection with song
     }
 
     void GameManager::render()
