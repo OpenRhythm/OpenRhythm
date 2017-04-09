@@ -61,6 +61,14 @@ namespace ORCore
 
     }
 
+
+    void Render2D::mesh_clear()
+    {
+        m_meshMatrixIndex.clear();
+        m_matrices.clear();
+        m_vertices.clear();
+    }
+
     void Render2D::add_mesh(const Mesh2D& mesh)
     {
         int meshVertexCount = mesh.vertices.size();

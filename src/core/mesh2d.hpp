@@ -35,6 +35,7 @@ namespace ORCore
         Render2D(ShaderProgram *program, Texture *texture);
         void init_gl();
         void update();
+        void mesh_clear();
         void add_mesh(const Mesh2D& mesh);
         void mesh_commit();
         void render();
