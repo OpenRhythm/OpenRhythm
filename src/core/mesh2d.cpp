@@ -100,13 +100,6 @@ namespace ORCore
 
     }
 
-    void Render2D::update()
-    {
-        // m_vertices.clear();
-        // m_matrices.clear();
-        // m_meshMatrixIndex.clear();
-    }
-
     void Render2D::render()
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);

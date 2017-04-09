@@ -255,7 +255,6 @@ namespace ORGame
 
     void GameManager::update()
     {
-        m_renderer->update();
         m_songTime = m_clock.get_current_time();
         m_program->set_uniform(m_orthoID,
             glm::translate(m_ortho, glm::vec3(0.0f, (-m_songTime)/3.0f, 0.0f))); // translate projection with song
