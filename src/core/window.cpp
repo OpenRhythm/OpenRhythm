@@ -1,5 +1,11 @@
 #include "window.hpp"
 
+
+#if defined(PLATFORM_OSX)
+#    include <OpenGL/OpenGL.h>
+#    include <OpenGL/CGLTypes.h>
+#    include <OpenGL/CGLMacro.h>
+#endif
 namespace ORCore
 {
 
@@ -59,4 +65,24 @@ namespace ORCore
     {
         SDL_GL_SwapWindow(m_sdlWindow);
     }
+
+#if defined(PLATFORM_OSX)
+    bool Window::disable_sync()
+    {
+        GLint sync = 0;
+        CGLContextObj ctx = CGLGetCurrentContext();
+        if (ctx != nullptr) {
+            CGLError err = CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
+        } else {
+            return false;
+        }
+        return true;
+    }
+#else
+    bool Window::disable_sync()
+    {
+        return false;
+    }
+#endif
+
 } // namespace ORCore

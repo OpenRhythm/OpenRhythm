@@ -29,6 +29,7 @@ namespace ORCore
 
         void make_current(Context* context);
         void flip();
+        bool disable_sync();
 
     private:
         std::string m_title;

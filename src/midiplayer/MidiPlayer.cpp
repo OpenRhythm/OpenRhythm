@@ -24,6 +24,8 @@ namespace MidiPlayer
         m_logger = spdlog::get("default");
 
         m_window.make_current(&m_context);
+        
+        m_window.disable_sync();
 
         
         m_song.load();

@@ -25,6 +25,8 @@ namespace ORGame
 
         m_window.make_current(&m_context);
 
+        m_window.disable_sync();
+
         //VFS.AddLoader(new ttvfs::DiskLoader);
 
         //
