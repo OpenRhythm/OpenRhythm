@@ -276,6 +276,14 @@ add_executable(       general_tests $<TARGET_OBJECTS:ORCore-obj>
 target_link_libraries(general_tests ${LIBRARIES})
 install(TARGETS       general_tests DESTINATION bin)
 
+add_executable(miditest
+    $<TARGET_OBJECTS:ORCore-obj>
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/midiplayer/midimain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/midiplayer/MidiPlayer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/midiplayer/midi_song.cpp)
+
+target_link_libraries(miditest ${LIBRARIES})
+
 
 ####################################################################
 #   Documentation
