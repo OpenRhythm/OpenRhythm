@@ -1,6 +1,6 @@
 #version 330
 
-in vec2 position;
+in vec3 position;
 in vec2 vertexUV;
 in vec4 color;
 
@@ -21,7 +21,7 @@ void main(void)
 {
 	int faceID = int(gl_VertexID/3);
 	int matrixOffset = int(texelFetch(matrixIndices, faceID).r) * 4;
-	gl_Position = ortho * read_matrix(matrixOffset) * vec4(position, 0.0, 1.0);
+	gl_Position = ortho * read_matrix(matrixOffset) * vec4(position, 1.0);
 	UV = vertexUV;
 	fragColor = color;
 }

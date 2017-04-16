@@ -90,7 +90,7 @@ namespace ORGame
         m_texture = std::make_unique<ORCore::Texture>(GL_TEXTURE_2D);
         ORCore::Image img = ORCore::loadSTB("data/blank.png");
         m_texture->update_image_data(img);
-        m_renderer = std::make_unique<ORCore::Render2D>(m_program.get(), m_texture.get());
+        m_renderer = std::make_unique<ORCore::Render>(m_program.get(), m_texture.get());
 
         resize(m_width, m_height);
 
@@ -119,7 +119,7 @@ namespace ORGame
         for (size_t i = 0; i < bars.size(); i++) {
             float z = bars[i].bar->time / 3.0f;
 
-            ORCore::Mesh2D mesh = {
+            ORCore::Mesh mesh = {
                 glm::vec3{512.0f, 4.0f, 0.0f},                  // Scale
                 glm::vec3{(m_width/2.0f)-256, z, 0.0f},   // Position - center the line on the screen
                 2,                                              // Values per vert
@@ -150,7 +150,7 @@ namespace ORGame
             }
             //std::cout << "Length: " << notes[i]->length/3.0f << std::endl;
 
-            ORCore::Mesh2D mesh = {
+            ORCore::Mesh mesh = {
                 glm::vec3{30.0f, 4.0, 0.0f},                                               // Scale
                 glm::vec3{static_cast<int>(notes[i]->type)*40, z, 0.0f},   // Position - center the line on the screen
                 2,                                                                          // Values per vert
@@ -162,7 +162,7 @@ namespace ORGame
             float noteLength = notes[i]->length/3.0f;
             if (noteLength > 4.0f)
             {
-                ORCore::Mesh2D mesh = {
+                ORCore::Mesh mesh = {
                     glm::vec3{10.0f, noteLength, 0.0f},                                               // Scale
                     glm::vec3{10+(static_cast<int>(notes[i]->type)*40), z, 0.0f},   // Position - center the line on the screen
                     2,                                                                          // Values per vert

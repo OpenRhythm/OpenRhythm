@@ -3,21 +3,21 @@
 
 namespace ORCore
 {
-    std::vector<Vertex2D> create_rect_mesh(glm::vec4 color)
+    std::vector<Vertex> create_rect_mesh(glm::vec4 color)
     {
         return {
             // Vertex2     UV            Color
-            {{0.0f, 0.0f}, {0.0f, 0.0f}, color},
-            {{0.0f, 1.0f}, {0.0f, 1.0f}, color},
-            {{1.0f, 0.0f}, {1.0f, 0.0f}, color},
-            {{0.0f, 1.0f}, {0.0f, 1.0f}, color},
-            {{1.0f, 1.0f}, {1.0f, 1.0f}, color},
-            {{1.0f, 0.0f}, {1.0f, 0.0f}, color}
+            {{0.0f, 0.0f, 0.5f}, {0.0f, 0.0f}, color},
+            {{0.0f, 1.0f, 0.5f}, {0.0f, 1.0f}, color},
+            {{1.0f, 0.0f, 0.5f}, {1.0f, 0.0f}, color},
+            {{0.0f, 1.0f, 0.5f}, {0.0f, 1.0f}, color},
+            {{1.0f, 1.0f, 0.5f}, {1.0f, 1.0f}, color},
+            {{1.0f, 0.0f, 0.5f}, {1.0f, 0.0f}, color}
         };
     }
 
 
-    Render2D::Render2D(ShaderProgram *program, Texture *texture)
+    Render::Render(ShaderProgram *program, Texture *texture)
     : m_program(program), m_texture(texture), m_matTexBuffer(GL_RGBA32F), m_matTexIndexBuffer(GL_R32UI)
     {
         m_vertices.reserve(32*6); // 32 object each object has 3 verts of 2 values
@@ -26,7 +26,7 @@ namespace ORCore
         init_gl();
     }
 
-    void Render2D::init_gl()
+    void Render::init_gl()
     {
         glEnable(GL_BLEND);
         m_vertLoc = m_program->vertex_attribute("position");
@@ -44,9 +44,9 @@ namespace ORCore
         glEnableVertexAttribArray(m_uvLoc);
         glEnableVertexAttribArray(m_colorLoc);
 
-        glVertexAttribPointer( m_vertLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, vertex)));
-        glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, uv)));
-        glVertexAttribPointer( m_colorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void *>(offsetof(Vertex2D, color)));
+        glVertexAttribPointer( m_vertLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, vertex)));
+        glVertexAttribPointer( m_uvLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, uv)));
+        glVertexAttribPointer( m_colorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, color)));
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -62,14 +62,14 @@ namespace ORCore
     }
 
 
-    void Render2D::mesh_clear()
+    void Render::mesh_clear()
     {
         m_meshMatrixIndex.clear();
         m_matrices.clear();
         m_vertices.clear();
     }
 
-    void Render2D::add_mesh(const Mesh2D& mesh)
+    void Render::add_mesh(const Mesh& mesh)
     {
         int meshVertexCount = mesh.vertices.size();
 
@@ -83,10 +83,10 @@ namespace ORCore
 }
 
     // update buffer objects
-    void Render2D::mesh_commit()
+    void Render::mesh_commit()
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(Vertex2D), &m_vertices[0], GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(Vertex), &m_vertices[0], GL_DYNAMIC_DRAW);
 
         glBindBuffer(GL_TEXTURE_BUFFER, m_matBufferObject);
         glBufferData(GL_TEXTURE_BUFFER, m_matrices.size()*sizeof(glm::mat4), &m_matrices[0], GL_DYNAMIC_DRAW);
@@ -100,7 +100,7 @@ namespace ORCore
 
     }
 
-    void Render2D::render()
+    void Render::render()
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         // Bind textures
@@ -112,7 +112,7 @@ namespace ORCore
 
     }
 
-    Render2D::~Render2D()
+    Render::~Render()
     {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDisableVertexAttribArray(m_colorLoc);

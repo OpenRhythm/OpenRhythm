@@ -11,34 +11,34 @@
 namespace ORCore
 {
 
-    struct Vertex2D
+    struct Vertex
     {
         // Use vec here in-case we want to easily transform verts cpu-side.
-        glm::vec2 vertex;
+        glm::vec3 vertex;
         glm::vec2 uv;
         glm::vec4 color;
     };
 
-    struct Mesh2D
+    struct Mesh
     {
         glm::vec3 scale;
         glm::vec3 translate;
         int vertexSize;
-        std::vector<Vertex2D> vertices;
+        std::vector<Vertex> vertices;
     };
 
-    std::vector<Vertex2D> create_rect_mesh(glm::vec4 color);
+    std::vector<Vertex> create_rect_mesh(glm::vec4 color);
 
-    class Render2D
+    class Render
     {
     public:
-        Render2D(ShaderProgram *program, Texture *texture);
+        Render(ShaderProgram *program, Texture *texture);
         void init_gl();
         void mesh_clear();
-        void add_mesh(const Mesh2D& mesh);
+        void add_mesh(const Mesh& mesh);
         void mesh_commit();
         void render();
-        ~Render2D();
+        ~Render();
 
     private:
         ShaderProgram *m_program;
@@ -58,7 +58,7 @@ namespace ORCore
 
         std::vector<unsigned int> m_meshMatrixIndex;
 
-        std::vector<Vertex2D> m_vertices;
+        std::vector<Vertex> m_vertices;
         std::vector<glm::mat4> m_matrices;
     };
 } // namespace ORCore
