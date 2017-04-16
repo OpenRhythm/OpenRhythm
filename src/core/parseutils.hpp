@@ -45,6 +45,11 @@ namespace ORCore
         uint32_t get_size() {
             return size;
         }
+
+        void release()
+        {
+            data.reset();
+        }
     };
 
     // Custom FileBuffer based reading.

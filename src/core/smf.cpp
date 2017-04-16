@@ -198,6 +198,10 @@ namespace ORCore
         uint8_t prevStatus = 0;
         double currentRunningTimeMs = 0;
 
+        // find a ballpark size estimate for the track 
+        uint32_t sizeGuess = (chunkEnd - m_smfFile.get_pos()) / 3;
+        m_currentTrack->midiEvents.reserve(sizeGuess);
+
         while (m_smfFile.get_pos() < chunkEnd)
         {
             SmfEventInfo eventInfo;
@@ -377,8 +381,18 @@ namespace ORCore
             throw std::runtime_error(_("Failed to load MIDI file."));
         }
 
+        m_logger->info(_("Parsing midi."));
+
         read_file();
+        m_smfFile.release();
     }
+
+
+        void SmfReader::release()
+        {
+            m_tracks.clear();
+        }
+
 
     TempoEvent* SmfReader::get_last_tempo_via_pulses(uint32_t pulseTime)
     {

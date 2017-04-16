@@ -172,6 +172,7 @@ namespace ORCore
         std::vector<SmfTrack*> get_tracks();
         SmfTrack* get_tempo_track();
         SmfTrack* get_time_sig_track();
+        void release();
 
     private:
         std::vector<SmfTrack> m_tracks;
