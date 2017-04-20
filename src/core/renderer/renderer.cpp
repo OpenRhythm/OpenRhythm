@@ -86,7 +86,7 @@ namespace ORCore
         BatchInfo batchInfo = {false, program, texture};
         int id = m_batchesInfo.size();
         m_batchesInfo.push_back(batchInfo);
-        m_batches.push_back(std::make_unique<Batch>(m_programs[program].get(), m_textures[texture].get()));
+        m_batches.push_back(std::make_unique<Batch>(m_programs[program].get(), m_textures[texture].get(), 512));
         return id;
     }
 
@@ -104,6 +104,7 @@ namespace ORCore
         while (m_batches[batchId]->add_mesh(obj.mesh, obj.modelMatrix) != true)
         {
             m_batches[batchId]->commit(); // commit that batch as it is full.
+            m_batchesInfo[batchId].committed = true;
             batchId = find_batch(objIn.texture, objIn.program); // find or create the next batch
         }
 

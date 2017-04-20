@@ -3,8 +3,8 @@
 
 namespace ORCore
 {
-    Batch::Batch(ShaderProgram *program, Texture *texture)//, int batchSize)
-    : m_program(program), m_texture(texture), m_batchSize(0), m_matTexBuffer(GL_RGBA32F), m_matTexIndexBuffer(GL_R32UI)
+    Batch::Batch(ShaderProgram *program, Texture *texture, int batchSize)
+    : m_program(program), m_texture(texture), m_batchSize(batchSize), m_matTexBuffer(GL_RGBA32F), m_matTexIndexBuffer(GL_R32UI)
     {
         m_vertices.reserve(32*6); // 32 object each object has 3 verts of 2 values
         m_matrices.reserve(32);
@@ -65,18 +65,24 @@ namespace ORCore
     {
         // Optimize this using glMapBuffer? constrain batch with m_batchSize return false if mesh doesnt fit.
         int meshVertexCount = mesh.vertices.size();
-
-        // Add one index per vertex
-        for (int i = 0; i < meshVertexCount/3; i++) // 3 is for 3 vertices in a triangle
+        if (((m_vertices.size()/3) + (meshVertexCount/3)) <= m_batchSize)
         {
-            m_meshMatrixIndex.push_back(m_matrices.size());
+            // Add one index per vertex
+            for (int i = 0; i < meshVertexCount/3; i++) // 3 is for 3 vertices in a triangle
+            {
+                m_meshMatrixIndex.push_back(m_matrices.size());
+            }
+
+            // Condensing the translation will be moved to the object side of things to make rebuilding geometry less cpu intensive.
+            m_matrices.push_back(transform);
+            m_vertices.insert(std::end(m_vertices), std::begin(mesh.vertices), std::end(mesh.vertices));
+
+            return true;
+        } else {
+            return false;
         }
 
-        // Condensing the translation will be moved to the object side of things to make rebuilding geometry less cpu intensive.
-        m_matrices.push_back(transform);
-        m_vertices.insert(std::end(m_vertices), std::begin(mesh.vertices), std::end(mesh.vertices));
 
-        return true;
 }
 
     // update buffer objects

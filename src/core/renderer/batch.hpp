@@ -14,7 +14,7 @@ namespace ORCore
     class Batch
     {
     public:
-        Batch(ShaderProgram *program, Texture *texture); //, int batchSize);
+        Batch(ShaderProgram *program, Texture *texture, int batchSize);
         void init_gl();
         void clear();
         bool add_mesh(const Mesh& mesh, glm::mat4& transform);
