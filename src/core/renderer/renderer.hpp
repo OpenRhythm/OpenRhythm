@@ -22,10 +22,10 @@ namespace ORCore
 		int texture;
         int id; // id of this object in the renderer.
         RenderObject();
-        void set_scale(glm::vec3& scale);
-        void set_translation(glm::vec3& translation);
+        void set_scale(glm::vec3&& scale);
+        void set_translation(glm::vec3&& translation);
         void set_primitive_type(Primitive primitive);
-        void set_geometry(std::vector<Vertex>& geometry);
+        void set_geometry(std::vector<Vertex>&& geometry);
         void set_texture(int _texture);
         void set_program(int _program);
 	};
@@ -43,9 +43,9 @@ namespace ORCore
     public:
         Renderer();
         int add_object(const RenderObject& objIn);
-        int add_texture(Image& img);
-        int add_program(Shader& vertex, Shader& fragment);
-        void set_camera_transform(std::string name, glm::mat4& transform);
+        int add_texture(Image&& img);
+        int add_program(Shader&& vertex, Shader&& fragment);
+        void set_camera_transform(std::string name, glm::mat4&& transform);
         // add global attribute/uniforms for shaders ?
         void commit();
         void render();

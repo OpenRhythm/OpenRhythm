@@ -96,12 +96,7 @@ find_package(TCLAP      REQUIRED)
 find_package(YamlCpp    REQUIRED)
 find_package(fmt        REQUIRED)
 
-add_library(GLAD STATIC ${CMAKE_CURRENT_SOURCE_DIR}/extern/glad/src/glad.c)
-set_target_properties(GLAD PROPERTIES ARCHIVE_OUTPUT_DIRECTORY
-    "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}")
-
 set(LIBRARIES
-      GLAD
     ${CMAKE_DL_LIBS}
     ${OGG_LIBRARY}
     ${OPENGL_LIBRARIES}
@@ -195,6 +190,7 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/extern/glad/src/glad.c
 )
 
 set(GAME_HEADERS
@@ -265,26 +261,30 @@ endif()
 ####################################################################
 #   Test binaries
 ####################################################################
-# TODO - Make the tests not require the game source because of recompilation.
-add_executable(       audiotests $<TARGET_OBJECTS:ORCore-obj>
-                                 ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp
-                                 ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp)
+
+add_executable(audiotests
+    $<TARGET_OBJECTS:ORCore-obj>
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp)
+
 target_link_libraries(audiotests ${LIBRARIES})
-install(TARGETS       audiotests DESTINATION bin)
+install(TARGETS audiotests DESTINATION bin)
 
-add_executable(       general_tests $<TARGET_OBJECTS:ORCore-obj>
-                                    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp
-                                    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/general_tests.cpp)
+add_executable(general_tests
+    $<TARGET_OBJECTS:ORCore-obj>
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/general_tests.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp)
+
 target_link_libraries(general_tests ${LIBRARIES})
-install(TARGETS       general_tests DESTINATION bin)
+install(TARGETS general_tests DESTINATION bin)
 
-add_executable(miditest
+add_executable(midiplayer
     $<TARGET_OBJECTS:ORCore-obj>
     ${CMAKE_CURRENT_SOURCE_DIR}/src/midiplayer/midimain.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/midiplayer/MidiPlayer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/midiplayer/midi_song.cpp)
 
-target_link_libraries(miditest ${LIBRARIES})
+target_link_libraries(midiplayer ${LIBRARIES})
 
 
 ####################################################################

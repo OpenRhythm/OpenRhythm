@@ -22,12 +22,12 @@ namespace ORCore
     {
     }
 
-    void RenderObject::set_scale(glm::vec3& scale)
+    void RenderObject::set_scale(glm::vec3&& scale)
     {
         mesh.scale = scale;
     }
 
-    void RenderObject::set_translation(glm::vec3& translation)
+    void RenderObject::set_translation(glm::vec3&& translation)
     {
         mesh.translate = translation;
     }
@@ -48,7 +48,7 @@ namespace ORCore
         }
     }
 
-    void RenderObject::set_geometry(std::vector<Vertex>& geometry)
+    void RenderObject::set_geometry(std::vector<Vertex>&& geometry)
     {
         mesh.vertices = geometry;
     }
@@ -110,7 +110,7 @@ namespace ORCore
         return obj.id;
     }
 
-    int Renderer::add_texture(Image& img)
+    int Renderer::add_texture(Image&& img)
     {
         int id = m_textures.size();
         m_textures.push_back(std::make_unique<Texture>(GL_TEXTURE_2D));
@@ -119,7 +119,7 @@ namespace ORCore
         return id;
     }
 
-    int Renderer::add_program(Shader& vertex, Shader& fragment)
+    int Renderer::add_program(Shader&& vertex, Shader&& fragment)
     {
         int id = m_programs.size();
         m_programs.push_back(std::make_unique<ShaderProgram>(vertex, fragment));
@@ -128,7 +128,7 @@ namespace ORCore
         return id;
     }
 
-    void Renderer::set_camera_transform(std::string name, glm::mat4& transform)
+    void Renderer::set_camera_transform(std::string name, glm::mat4&& transform)
     {
         try {
             m_cameraUniforms.at(name) = transform;
