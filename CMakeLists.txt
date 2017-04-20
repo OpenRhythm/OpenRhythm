@@ -165,15 +165,16 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/stream.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/configuration/parameter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/batch.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/renderer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/shader.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/texture.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/parseutils.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.hpp
@@ -182,14 +183,15 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/batch.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/shader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mesh2d.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
@@ -216,7 +218,7 @@ set(ALL_SOURCE
 include_directories(
     ${PROJECT_SOURCE_DIR}/src/core/audio
     ${PROJECT_SOURCE_DIR}/src/core
-    ${PROJECT_SOURCE_DIR}/src/engine
+    ${PROJECT_SOURCE_DIR}/src/core/renderer
     ${PROJECT_SOURCE_DIR}/src/game
     ${PROJECT_SOURCE_DIR}/src
 )
@@ -265,13 +267,13 @@ endif()
 ####################################################################
 # TODO - Make the tests not require the game source because of recompilation.
 add_executable(       audiotests $<TARGET_OBJECTS:ORCore-obj>
-                                 ${GAME_SOURCE}
+                                 ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp
                                  ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp)
 target_link_libraries(audiotests ${LIBRARIES})
 install(TARGETS       audiotests DESTINATION bin)
 
 add_executable(       general_tests $<TARGET_OBJECTS:ORCore-obj>
-                                    ${GAME_SOURCE}
+                                    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp
                                     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/general_tests.cpp)
 target_link_libraries(general_tests ${LIBRARIES})
 install(TARGETS       general_tests DESTINATION bin)

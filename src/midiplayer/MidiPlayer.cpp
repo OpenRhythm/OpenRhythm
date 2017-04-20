@@ -44,30 +44,13 @@ namespace MidiPlayer
 
         m_ss = std::cout.precision();
 
-        glGenVertexArrays(1, &m_vao);
-        glBindVertexArray(m_vao);
-
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
-        ORCore::Shader vertShader(vertInfo);
-        ORCore::Shader fragShader(fragInfo);
-
-        m_program = std::make_unique<ORCore::ShaderProgram>(&vertShader, &fragShader);
-
-        m_program->check_error();
-        m_program->use();
-        m_orthoID = m_program->uniform_attribute("ortho");
-
-        m_texture = std::make_unique<ORCore::Texture>(GL_TEXTURE_2D);
-        ORCore::Image img = ORCore::loadSTB("data/blank.png");
-        m_texture->update_image_data(img);
-        m_renderer = std::make_unique<ORCore::Render>(m_program.get(), m_texture.get());
+        m_texture = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
+        m_program = m_renderer.add_texture(ORCore::loadSTB("data/blank.png"));
 
         resize(m_width, m_height);
-
-        m_program->set_uniform(m_orthoID, m_ortho);
-
 
         m_logger->info(_("Preping notes for render"));
         //m_renderer->mesh_clear();
@@ -75,7 +58,7 @@ namespace MidiPlayer
         m_logger->info(_("Notes prep'd"));
 
         m_logger->info(_("Committing geometry."));
-        m_renderer->mesh_commit();
+        m_renderer.commit();
         m_logger->info(_("Starting rendering."));
 
         glClearColor(0.5, 0.5, 0.5, 1.0);
@@ -85,8 +68,6 @@ namespace MidiPlayer
 
     MidiDisplayManager::~MidiDisplayManager()
     {
-
-        glDeleteVertexArrays(1, &m_vao);
         m_window.make_current(nullptr);
 
     }
@@ -95,6 +76,9 @@ namespace MidiPlayer
     void MidiDisplayManager::prep_render_notes(double time, double length)
     {
         int trackColorIndex = 0;
+        ORCore::RenderObject obj;
+        obj.set_texture(m_texture);
+        obj.set_program(m_program);
         for (auto track: *m_song.get_tracks())
         {
             glm::vec4 color = m_colorArray[trackColorIndex];
@@ -109,14 +93,13 @@ namespace MidiPlayer
                 //std::cout << "Length: " << note.length << std::endl;
 
                 float noteLength = note.length*m_boardSpeed;
-                ORCore::Mesh mesh = {
-                    glm::vec3{0.005f, noteLength, 0.0f},                                               // Scale
-                    glm::vec3{(static_cast<int>(note.noteValue)/(m_maxNotes*1.0)), -(z*m_boardSpeed), 0.0f},   // Position - center the line on the screen
-                    2,                                                                          // Values per vert
-                    ORCore::create_rect_mesh(color),                                                 // Create the rect mesh.
-                };
 
-                m_renderer->add_mesh(mesh);
+                obj.set_scale(glm::vec3{0.005f, noteLength, 0.0f});
+                obj.set_translation(glm::vec3{(static_cast<int>(note.noteValue)/(m_maxNotes*1.0)), -(z*m_boardSpeed), 0.0f}); // center the line on the screen
+                obj.set_primitive_type(ORCore::Primitive::triangle);
+                obj.set_geometry(ORCore::create_rect_mesh(color));
+
+                m_renderer.add_object(obj);
             } 
         }
 
@@ -186,8 +169,7 @@ namespace MidiPlayer
     {
         m_songTime = m_clock.get_current_time();
 
-        m_program->set_uniform(m_orthoID,
-            glm::translate(m_ortho, glm::vec3(0.0f, m_songTime*m_boardSpeed, 0.0f))); // translate projection with song
+        m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, m_songTime*m_boardSpeed, 0.0f))); // translate projection with song
 
         // m_renderer->mesh_clear();
         // prep_render_notes(m_songTime-1000, 1000.0);
@@ -197,10 +179,6 @@ namespace MidiPlayer
     void MidiDisplayManager::render()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        m_program->use();
-        m_renderer->render();
-
-
+        m_renderer.render();
     }
 }

@@ -17,6 +17,7 @@ namespace ORCore
         unsigned int shader;
         ShaderInfo info;
         Shader(ShaderInfo);
+        void init_gl();
         ~Shader();
         void check_error();
     };
@@ -24,7 +25,7 @@ namespace ORCore
     class ShaderProgram
     {
     public:
-        ShaderProgram(Shader* vertex, Shader* fragment);
+        ShaderProgram(Shader& vertex, Shader& fragment);
         ~ShaderProgram();
 
         int get_id();

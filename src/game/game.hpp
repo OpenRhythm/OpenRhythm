@@ -6,9 +6,9 @@
 #include "context.hpp"
 #include "events.hpp"
 #include "timing.hpp"
-#include "shader.hpp"
-#include "mesh2d.hpp"
-#include "texture.hpp"
+#include "renderer/shader.hpp"
+#include "renderer/renderer.hpp"
+#include "renderer/texture.hpp"
 #include "song.hpp"
 
 #include <spdlog/spdlog.h>
@@ -50,17 +50,14 @@ namespace ORGame
         ORCore::Context m_context;
         ORCore::EventManager m_eventManager;
         ORCore::EventPumpSDL2 m_eventPump;
-        std::unique_ptr<ORCore::ShaderProgram> m_program;
-
-        std::unique_ptr<ORCore::Texture> m_texture;
-        std::unique_ptr<ORCore::Render> m_renderer;
+        ORCore::Renderer m_renderer;
         ORCore::Listener m_lis;
+        int m_texture;
+        int m_program;
 
         std::shared_ptr<spdlog::logger> m_logger;
 
-        GLuint m_vao;
         std::streamsize m_ss;
         glm::mat4 m_ortho;
-        int m_orthoID;
     };
 }

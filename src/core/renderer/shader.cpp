@@ -16,15 +16,19 @@ namespace ORCore
     {
 
         logger = spdlog::get("default");
+        init_gl();
+    }
+
+    void Shader::init_gl()
+    {
         shader = glCreateShader(info.type);
         std::string data {read_file(info.path)};
         const char *c_str = data.c_str();
 
         glShaderSource(shader, 1, &c_str, nullptr);
         glCompileShader(shader);
-
-
     }
+
     Shader::~Shader()
     {
         glDeleteShader(shader);
@@ -55,8 +59,8 @@ namespace ORCore
     }
 
 
-    ShaderProgram::ShaderProgram(Shader* vertex, Shader* fragment)
-    : m_vertex(*vertex), m_fragment(*fragment)
+    ShaderProgram::ShaderProgram(Shader& vertex, Shader& fragment)
+    : m_vertex(vertex), m_fragment(fragment)
     {
         logger = spdlog::get("default");
         _programCount++;

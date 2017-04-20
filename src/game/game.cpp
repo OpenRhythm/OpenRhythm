@@ -74,43 +74,24 @@ namespace ORGame
 
         m_ss = std::cout.precision();
 
-        glGenVertexArrays(1, &m_vao);
-        glBindVertexArray(m_vao);
-
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
-        ORCore::Shader vertShader(vertInfo);
-        ORCore::Shader fragShader(fragInfo);
-
-        m_program = std::make_unique<ORCore::ShaderProgram>(&vertShader, &fragShader);
-
-        m_program->check_error();
-        m_program->use();
-        m_orthoID = m_program->uniform_attribute("ortho");
-
-        m_texture = std::make_unique<ORCore::Texture>(GL_TEXTURE_2D);
-        ORCore::Image img = ORCore::loadSTB("data/blank.png");
-        m_texture->update_image_data(img);
-        m_renderer = std::make_unique<ORCore::Render>(m_program.get(), m_texture.get());
+        m_texture = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
+        m_program = m_renderer.add_texture(ORCore::loadSTB("data/blank.png"));
 
         resize(m_width, m_height);
 
         prep_render_bars();
         prep_render_notes();
-        m_renderer->mesh_commit();
-
-        m_program->set_uniform(m_orthoID, m_ortho);
+        m_renderer.commit();
 
         glClearColor(0.5, 0.5, 0.5, 1.0);
     }
 
     GameManager::~GameManager()
     {
-
-        glDeleteVertexArrays(1, &m_vao);
         m_window.make_current(nullptr);
-
     }
 
     void GameManager::prep_render_bars()
@@ -118,17 +99,21 @@ namespace ORGame
 
         std::vector<TempoTrackEvent> bars = m_tempoTrack->get_events(0.0, m_song.length(), ORGame::EventType::Bar);
         std::cout << "Bar Count: " << bars.size() << " Song Length: " << m_song.length() << std::endl;
+
+        // reuse the same container when creating bars as add_obj wont modify the original.
+        ORCore::RenderObject obj;
+        obj.set_texture(m_texture);
+        obj.set_program(m_program);
+
         for (size_t i = 0; i < bars.size(); i++) {
             float z = bars[i].bar->time / 3.0f;
 
-            ORCore::Mesh mesh = {
-                glm::vec3{512.0f, 4.0f, 0.0f},                  // Scale
-                glm::vec3{(m_width/2.0f)-256, z, 0.0f},   // Position - center the line on the screen
-                2,                                              // Values per vert
-                ORCore::create_rect_mesh(glm::vec4{1.0,1.0,1.0,1.0}),                     // Create the rect mesh.
-            };
+            obj.set_scale(glm::vec3{512.0f, 4.0f, 0.0f});
+            obj.set_translation(glm::vec3{(m_width/2.0f)-256, z, 0.0f}); // center the line on the screen
+            obj.set_primitive_type(ORCore::Primitive::triangle);
+            obj.set_geometry(ORCore::create_rect_mesh(glm::vec4{1.0,1.0,1.0,1.0}));
 
-            m_renderer->add_mesh(mesh);
+            m_renderer.add_object(obj);
         }
     }
 
@@ -136,6 +121,12 @@ namespace ORGame
     {
         std::vector<TrackNote*> notes = m_playerTrack->get_notes_in_frame(0.0, m_song.length());
         std::cout << "Note Count: " << notes.size() << std::endl;
+
+        // reuse the same container when creating notes as add_obj wont modify the original.
+        ORCore::RenderObject obj;
+        obj.set_texture(m_texture);
+        obj.set_program(m_program);
+
         for (size_t i = 0; i < notes.size(); i++) {
             float z = notes[i]->time / 3.0f;
             glm::vec4 color;
@@ -152,26 +143,22 @@ namespace ORGame
             }
             //std::cout << "Length: " << notes[i]->length/3.0f << std::endl;
 
-            ORCore::Mesh mesh = {
-                glm::vec3{30.0f, 4.0, 0.0f},                                               // Scale
-                glm::vec3{static_cast<int>(notes[i]->type)*40, z, 0.0f},   // Position - center the line on the screen
-                2,                                                                          // Values per vert
-                ORCore::create_rect_mesh(color),                                                 // Create the rect mesh.
-            };
+            obj.set_scale(glm::vec3{30.0f, 4.0, 0.0f});
+            obj.set_translation(glm::vec3{static_cast<int>(notes[i]->type)*40, z, 0.0f}); // center the line on the screen
+            obj.set_primitive_type(ORCore::Primitive::triangle);
+            obj.set_geometry(ORCore::create_rect_mesh(color));
 
-            m_renderer->add_mesh(mesh);
+            m_renderer.add_object(obj);
 
             float noteLength = notes[i]->length/3.0f;
             if (noteLength > 4.0f)
             {
-                ORCore::Mesh mesh = {
-                    glm::vec3{10.0f, noteLength, 0.0f},                                               // Scale
-                    glm::vec3{10+(static_cast<int>(notes[i]->type)*40), z, 0.0f},   // Position - center the line on the screen
-                    2,                                                                          // Values per vert
-                    ORCore::create_rect_mesh(color),                                                 // Create the rect mesh.
-                };
+                obj.set_scale(glm::vec3{10.0f, noteLength, 0.0f});
+                obj.set_translation(glm::vec3{10+(static_cast<int>(notes[i]->type)*40), z, 0.0f}); // center the line on the screen
+                obj.set_primitive_type(ORCore::Primitive::triangle);
+                obj.set_geometry(ORCore::create_rect_mesh(color));
 
-                m_renderer->add_mesh(mesh);
+                m_renderer.add_object(obj);
             }
         }
     }
@@ -258,17 +245,13 @@ namespace ORGame
     void GameManager::update()
     {
         m_songTime = m_clock.get_current_time();
-        m_program->set_uniform(m_orthoID,
-            glm::translate(m_ortho, glm::vec3(0.0f, (-m_songTime)/3.0f, 0.0f))); // translate projection with song
+
+        m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, (-m_songTime)/3.0f, 0.0f))); // translate projection with song
     }
 
     void GameManager::render()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        m_program->use();
-        m_renderer->render();
-
-
+        m_renderer.render();
     }
 }

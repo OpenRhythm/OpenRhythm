@@ -6,9 +6,9 @@
 #include "context.hpp"
 #include "events.hpp"
 #include "timing.hpp"
-#include "shader.hpp"
-#include "mesh2d.hpp"
-#include "texture.hpp"
+#include "renderer/shader.hpp"
+#include "renderer/renderer.hpp"
+#include "renderer/texture.hpp"
 #include "midi_song.hpp"
 
 #include <spdlog/spdlog.h>
@@ -50,18 +50,17 @@ namespace MidiPlayer
         ORCore::Context m_context;
         ORCore::EventManager m_eventManager;
         ORCore::EventPumpSDL2 m_eventPump;
-        std::unique_ptr<ORCore::ShaderProgram> m_program;
+        ORCore::Renderer m_renderer;
         
-        std::unique_ptr<ORCore::Texture> m_texture;
-        std::unique_ptr<ORCore::Render> m_renderer;
+        int m_texture;
+        int m_program;
+
         ORCore::Listener m_lis;
 
         std::shared_ptr<spdlog::logger> m_logger;
 
-        GLuint m_vao;
         std::streamsize m_ss;
         glm::mat4 m_ortho;
-        int m_orthoID;
 
         std::vector<glm::vec4> m_colorArray = {glm::vec4{1.0, 0.0, 0.0, 1.0},
                                 glm::vec4{0.0, 0.0, 1.0, 1.0},

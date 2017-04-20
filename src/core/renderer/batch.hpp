@@ -7,42 +7,25 @@
 
 #include "shader.hpp"
 #include "texture.hpp"
+#include "mesh.hpp"
 
 namespace ORCore
 {
-
-    struct Vertex
-    {
-        // Use vec here in-case we want to easily transform verts cpu-side.
-        glm::vec3 vertex;
-        glm::vec2 uv;
-        glm::vec4 color;
-    };
-
-    struct Mesh
-    {
-        glm::vec3 scale;
-        glm::vec3 translate;
-        int vertexSize;
-        std::vector<Vertex> vertices;
-    };
-
-    std::vector<Vertex> create_rect_mesh(glm::vec4 color);
-
-    class Render
+    class Batch
     {
     public:
-        Render(ShaderProgram *program, Texture *texture);
+        Batch(ShaderProgram *program, Texture *texture); //, int batchSize);
         void init_gl();
-        void mesh_clear();
-        void add_mesh(const Mesh& mesh);
-        void mesh_commit();
+        void clear();
+        bool add_mesh(const Mesh& mesh, glm::mat4& transform);
+        void commit();
         void render();
-        ~Render();
+        ~Batch();
 
     private:
         ShaderProgram *m_program;
         Texture *m_texture;
+        int m_batchSize;
         BufferTexture m_matTexBuffer;
         BufferTexture m_matTexIndexBuffer;
         GLuint m_vertLoc;
@@ -52,6 +35,7 @@ namespace ORCore
         GLuint m_matBufTexID;
         GLuint m_matIndexBufTexID;
 
+        GLuint m_vao;
         GLuint m_vbo;
         GLuint m_matBufferObject;
         GLuint m_matIndexBufferObject;
