@@ -77,8 +77,9 @@ namespace ORGame
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
-        m_texture = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
-        m_program = m_renderer.add_texture(ORCore::loadSTB("data/blank.png"));
+        m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
+        m_texture = m_renderer.add_texture(ORCore::loadSTB("data/blank.png"));
+        m_texture2 = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
 
         resize(m_width, m_height);
 
@@ -102,7 +103,7 @@ namespace ORGame
 
         // reuse the same container when creating bars as add_obj wont modify the original.
         ORCore::RenderObject obj;
-        obj.set_texture(m_texture);
+        obj.set_texture(m_texture2);
         obj.set_program(m_program);
 
         for (size_t i = 0; i < bars.size(); i++) {

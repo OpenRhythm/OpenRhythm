@@ -53,6 +53,7 @@ namespace ORGame
         ORCore::Renderer m_renderer;
         ORCore::Listener m_lis;
         int m_texture;
+        int m_texture2;
         int m_program;
 
         std::shared_ptr<spdlog::logger> m_logger;

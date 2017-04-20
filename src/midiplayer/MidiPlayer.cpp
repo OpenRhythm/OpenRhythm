@@ -47,8 +47,8 @@ namespace MidiPlayer
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
-        m_texture = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
-        m_program = m_renderer.add_texture(ORCore::loadSTB("data/blank.png"));
+        m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
+        m_texture = m_renderer.add_texture(ORCore::loadSTB("data/blank.png"));
 
         resize(m_width, m_height);
 
