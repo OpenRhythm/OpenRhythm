@@ -6,9 +6,9 @@ namespace ORCore
     Batch::Batch(ShaderProgram *program, Texture *texture, int batchSize)
     : m_program(program), m_texture(texture), m_batchSize(batchSize), m_matTexBuffer(GL_RGBA32F), m_matTexIndexBuffer(GL_R32UI)
     {
-        m_vertices.reserve(32*6); // 32 object each object has 3 verts of 2 values
-        m_matrices.reserve(32);
-        m_meshMatrixIndex.reserve(32*2); // 32 objects each object has 2 triangles
+        m_vertices.reserve(batchSize*6); // 32 object each object has 3 verts of 2 values
+        m_matrices.reserve(batchSize);
+        m_meshMatrixIndex.reserve(batchSize*2); // 32 objects each object has 2 triangles
         init_gl();
     }
 
@@ -107,15 +107,18 @@ namespace ORCore
 
     void Batch::render()
     {
+        if (m_matrices.size() > 0) {
 
-        glBindVertexArray(m_vao);
+            glBindVertexArray(m_vao);
 
-        // Bind textures
-        m_texture->bind(m_texSampID);
-        m_matTexBuffer.bind(m_matBufTexID);
-        m_matTexIndexBuffer.bind(m_matIndexBufTexID);
+            // Bind textures
+            m_texture->bind(m_texSampID);
+            m_matTexBuffer.bind(m_matBufTexID);
+            m_matTexIndexBuffer.bind(m_matIndexBufTexID);
 
-        glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+            glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+
+        }
 
     }
 

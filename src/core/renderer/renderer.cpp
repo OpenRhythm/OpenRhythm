@@ -1,3 +1,4 @@
+#include "config.hpp"
 #include "renderer.hpp"
 #include <iostream>
 
@@ -86,7 +87,7 @@ namespace ORCore
         BatchInfo batchInfo = {false, program, texture};
         int id = m_batchesInfo.size();
         m_batchesInfo.push_back(batchInfo);
-        m_batches.push_back(std::make_unique<Batch>(m_programs[program].get(), m_textures[texture].get(), 512));
+        m_batches.push_back(std::make_unique<Batch>(m_programs[program].get(), m_textures[texture].get(), 524288));
         return id;
     }
 
@@ -165,6 +166,14 @@ namespace ORCore
                 program->set_uniform(program->uniform_attribute(cam.first), cam.second);
             }
             m_batches[i]->render();
+        }
+    }
+
+    void Renderer::clear()
+    {
+        for (int i = 0; i < m_batchesInfo.size(); i++)
+        {
+            m_batches[i]->clear();
         }
     }
 

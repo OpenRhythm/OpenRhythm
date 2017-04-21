@@ -49,6 +49,7 @@ namespace ORCore
         // add global attribute/uniforms for shaders ?
         void commit();
         void render();
+        void clear();
         ~Renderer();
 
     private:
