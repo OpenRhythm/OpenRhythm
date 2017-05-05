@@ -12,8 +12,8 @@ namespace ORGame
     m_height(600),
     m_fullscreen(false),
     m_title("OpenRhythm"),
+    m_context(3, 2, 8),
     m_window(m_width, m_height, m_fullscreen, m_title),
-    m_context(3, 2, 0),
     m_eventManager(),
     m_eventPump(&m_eventManager),
     m_song("/data/songs/testsong")
@@ -175,14 +175,8 @@ namespace ORGame
             update();
             render();
 
-            do
-            {
-                error = glGetError();
-                if (error != GL_NO_ERROR)
-                {
-                    std::cout << error << std::endl;
-                }
-            } while(error != GL_NO_ERROR);
+
+            m_renderer.check_error();
 
             m_window.flip();
             if (m_fpsTime >= 2000.0) {

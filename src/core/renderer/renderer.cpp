@@ -81,24 +81,67 @@ namespace ORCore
             }
         }
 
-        std::cout << "No batches found creating new batch: " << std::endl;
+        // std::cout << "No batches found creating new batch: " << std::endl;
 
         // If the above couldnt find a batch create one.
         BatchInfo batchInfo = {false, program, texture};
         int id = m_batchesInfo.size();
         m_batchesInfo.push_back(batchInfo);
-        m_batches.push_back(std::make_unique<Batch>(m_programs[program].get(), m_textures[texture].get(), 524288));
+        m_batches.push_back(std::make_unique<Batch>(m_programs[program].get(), m_textures[texture].get(), 65536));
         return id;
+    }
+
+    bool Renderer::check_error()
+    {
+        bool errorFound = false;
+        GLenum error;
+        do
+        {
+            error = glGetError();
+            switch(error)
+            {
+                case GL_INVALID_ENUM:
+                    m_logger->error("GL_INVALID_ENUM");
+                    errorFound = true;
+                    break;
+                case GL_INVALID_VALUE:
+                    m_logger->error("GL_INVALID_VALUE");
+                    errorFound = true;
+                    break;
+                case GL_INVALID_OPERATION:
+                    m_logger->error("GL_INVALID_OPERATION");
+                    errorFound = true;
+                    break;
+                case GL_INVALID_FRAMEBUFFER_OPERATION:
+                    m_logger->error("GL_INVALID_FRAMEBUFFER_OPERATION");
+                    errorFound = true;
+                    break;
+                case GL_OUT_OF_MEMORY:
+                    m_logger->error("GL_OUT_OF_MEMORY");
+                    errorFound = true;
+                    break;
+                case GL_NO_ERROR:
+                    break;
+                default:
+                    m_logger->error("Other GL error: {}", error);
+                    errorFound = true;
+                    break;
+            }
+        } while(error != GL_NO_ERROR);
+
+        return errorFound;
     }
 
     int Renderer::add_object(const RenderObject& objIn)
     {
         int batchId = find_batch(objIn.texture, objIn.program);
 
+
+        int objID = m_objects.size();
         m_objects.push_back(objIn);
         auto &obj = m_objects.back();
 
-        obj.id=m_objects.size();
+        obj.id=objID;
         obj.modelMatrix = glm::scale(glm::translate(glm::mat4(1.0f), obj.mesh.translate), obj.mesh.scale);
 
         // try until it gets added to a batch.
@@ -108,6 +151,8 @@ namespace ORCore
             m_batchesInfo[batchId].committed = true;
             batchId = find_batch(objIn.texture, objIn.program); // find or create the next batch
         }
+
+        check_error();
 
         return obj.id;
     }
@@ -148,6 +193,7 @@ namespace ORCore
             {
                 m_batches[i]->commit();
             }
+            check_error();
         }
     }
 

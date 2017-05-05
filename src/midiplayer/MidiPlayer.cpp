@@ -12,8 +12,8 @@ namespace MidiPlayer
     m_height(600),
     m_fullscreen(false),
     m_title("MidiPlayer"),
-    m_window(m_width, m_height, m_fullscreen, m_title),
     m_context(3, 2, 0),
+    m_window(m_width, m_height, m_fullscreen, m_title),
     m_eventManager(),
     m_eventPump(&m_eventManager),
     m_boardSpeed(0.001),
@@ -94,6 +94,7 @@ namespace MidiPlayer
 
                 float noteLength = note.length*m_boardSpeed;
 
+                ORCore::RenderObject obj;
                 obj.set_scale(glm::vec3{0.005f, noteLength, 0.0f});
                 obj.set_translation(glm::vec3{(static_cast<int>(note.noteValue)/(m_maxNotes*1.0)), -(z*m_boardSpeed), 0.0f}); // center the line on the screen
                 obj.set_primitive_type(ORCore::Primitive::triangle);

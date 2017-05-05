@@ -5,6 +5,8 @@ namespace ORCore
     Context::Context(int major, int minor, int msaa)
     : m_major(major), m_minor(minor), m_msaa(msaa)
     {
+        init_video();
+        
         m_profile = SDL_GL_CONTEXT_PROFILE_CORE;
 
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -14,7 +16,7 @@ namespace ORCore
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, m_profile);
 
-        if (m_msaa < 0) {
+        if (m_msaa > 0) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_msaa);
         }
