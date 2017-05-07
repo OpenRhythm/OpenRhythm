@@ -288,6 +288,7 @@ namespace ORGame
                     {
                         if (midiEvent.message == ORCore::NoteOn) {
                             NoteType note = noteMap.at(midiEvent.data1);
+                            // TODO - read note velocity and treat vel 0 as note off.
                             if (note != NoteType::NONE) {
                                 track.add_note(note, midiEvent.info.absTime, true);
                             }

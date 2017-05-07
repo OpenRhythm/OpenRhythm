@@ -66,12 +66,13 @@ namespace ORCore
 
     };
 
-    // This is functionally works similar to boost::any but customized to the event system.
+    // This is functionally works similar to boost::any/std::any but customized to the event system.
     // Basically the idea is to use polymorphism and templates to store any type of data
     // in the same object. We use this idea to deliver many different types of event structs
     // within a single object.
     // Also since this has a lot of template stuff in it, I decided to put the entire implementation
     // in the header.
+    // Once we move to C++17 this will likely go away in favor of std::any
     struct Event
     {
         EventType type;

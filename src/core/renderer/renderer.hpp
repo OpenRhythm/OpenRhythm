@@ -42,6 +42,7 @@ namespace ORCore
     {
     public:
         Renderer();
+        bool check_error();
         int add_object(const RenderObject& objIn);
         int add_texture(Image&& img);
         int add_program(Shader&& vertex, Shader&& fragment);

@@ -33,7 +33,7 @@ namespace ORCore
                 midiEvent.data1 = read_type<uint8_t>(m_smfFile); // note
                 midiEvent.data2 = read_type<uint8_t>(m_smfFile); // velocity
                 break;
-            case Aftertouch:
+            case KeyPressure:
                 midiEvent.data1 = read_type<uint8_t>(m_smfFile); // note
                 midiEvent.data2 = read_type<uint8_t>(m_smfFile); // pressure
                 break;
@@ -49,7 +49,7 @@ namespace ORCore
                 midiEvent.data1 = read_type<uint8_t>(m_smfFile); // pressure
                 midiEvent.data2 = 0; // no data
                 break;
-            case PitchWheel:
+            case PitchBend:
                 midiEvent.data1 = read_type<uint8_t>(m_smfFile); // pitch_low
                 midiEvent.data2 = read_type<uint8_t>(m_smfFile); // pitch_high
                 break;
@@ -76,7 +76,7 @@ namespace ORCore
             case meta_Text:
             case meta_Copyright:
             case meta_InstrumentName:
-            case meta_Lyrics:
+            case meta_Lyrics: // TODO - Implement ruby parser for lyrics
             case meta_Marker:
             case meta_CuePoint:
             // RP-019 - SMF Device Name and Program Name Meta Events
@@ -106,6 +106,7 @@ namespace ORCore
                 break;
             }
             case meta_MIDIChannelPrefix: {
+                // TODO - Add channel 
                 auto midiChannel = read_type<uint8_t>(m_smfFile);
                 m_logger->trace(_("Midi Channel {}"), midiChannel);
                 break;
@@ -125,7 +126,7 @@ namespace ORCore
                 }
                 break;
             }
-            case meta_TimeSignature:  // TODO - Implement this...
+            case meta_TimeSignature:
             {
                 TimeSignatureEvent tsEvent;
                 tsEvent.numerator = read_type<uint8_t>(m_smfFile); // 4 default
@@ -141,6 +142,13 @@ namespace ORCore
                 // defined in.
                 // Note "MIDI quarter note" is defined to always be 24 midi clocks therfor even if
                 // changed to dotted quarter it should still be 24 midi clocks
+                //
+                // Later thoughts, this could also mean to change globally what a quarter note means which basically
+                // would make it totally unrelated to ts... But i still stand by my original interpritation as I have
+                // found a reference that contains the same interpritation as above:
+                //
+                // Beyond MIDI: The Handbook of Musical Codes page 54 
+
                 tsEvent.thirtySecondPQN = read_type<uint8_t>(m_smfFile); // 8 default
 
                 m_logger->trace(_("Time signature  {}/{} CPC: {} TSPQN: {}"),
@@ -165,7 +173,7 @@ namespace ORCore
             default:
             {
                 // store data for unused event for later save passthrough.
-                m_logger->info(_("Unused event type {}."), event.type);
+                m_logger->debug(_("Unused event type {}."), event.type);
                 std::vector<char> eventData;
                 for (int i=0;i<event.length;++i)
                 {
@@ -232,6 +240,7 @@ namespace ORCore
                 eventInfo.status = read_type<uint8_t>(m_smfFile);
                 read_sysex_event(eventInfo);
             } else {
+                // Check if we should use the running status.
                 if ((status & 0xF0) >= 0x80) {
                     eventInfo.status = read_type<uint8_t>(m_smfFile);
                 } else {

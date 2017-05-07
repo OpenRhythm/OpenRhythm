@@ -46,8 +46,8 @@ namespace MidiPlayer
         ORCore::FpsTimer m_clock;
         Song m_song;
 
-        ORCore::Window m_window;
         ORCore::Context m_context;
+        ORCore::Window m_window;
         ORCore::EventManager m_eventManager;
         ORCore::EventPumpSDL2 m_eventPump;
         ORCore::Renderer m_renderer;

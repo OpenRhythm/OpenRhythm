@@ -53,13 +53,13 @@ namespace ORCore
 
     enum MidiChannelMessage: uint8_t
     {
-        NoteOn          = 0x90,
         NoteOff         = 0x80,
-        Aftertouch      = 0xA0,
+        NoteOn          = 0x90,
+        KeyPressure     = 0xA0,
         ControlChange   = 0xB0,
         ProgramChange   = 0xC0,
         ChannelPressure = 0xD0,
-        PitchWheel      = 0xE0,
+        PitchBend       = 0xE0,
     };
 
     enum SmfType

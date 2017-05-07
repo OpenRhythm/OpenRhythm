@@ -11,14 +11,20 @@ namespace ORCore
 
     void init_video()
     {
-        SDL_Init(0);
-        SDL_InitSubSystem(SDL_INIT_VIDEO);
+        static bool vidInitd = false;
+        if (vidInitd == false)
+        {
+            SDL_Init(0);
+            SDL_InitSubSystem(SDL_INIT_VIDEO);
+        }
     }
 
     Window::Window(int width, int height, bool fullscreen, std::string title)
     : m_title(title), m_fullscreen(fullscreen), m_width(width), m_height(height)
     {
-    // TODO - Implement fullscreen mode
+        init_video();
+        
+        // TODO - Implement fullscreen mode
         m_x = SDL_WINDOWPOS_CENTERED;
         m_y = SDL_WINDOWPOS_CENTERED;
 
