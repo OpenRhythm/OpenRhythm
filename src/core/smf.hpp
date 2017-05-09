@@ -97,9 +97,6 @@ namespace ORCore
 
         // Time in pulses from start to now
         uint32_t pulseTime;
-
-        // Time in milliseconds from midi start to now
-        double absTime; ;
     };
 
     struct MetaEvent
@@ -142,7 +139,15 @@ namespace ORCore
     struct TempoEvent
     {
         MetaEvent info;
-        uint32_t qnLength; // Length of a quarter note in microseconds.
+
+        // Length of a quarter note in microseconds.
+        uint32_t qnLength;
+
+        // Time in seconds from midi start to now
+        double absTime;
+
+        // Time per header division.
+        double timePerTick;
     };
 
     struct TimeSignatureEvent
@@ -157,7 +162,7 @@ namespace ORCore
     struct SmfTrack
     { 
         std::string name;
-        double endTime; // Track length in ms.
+        double endTime; // Track length
         std::vector<MidiEvent> midiEvents;
         std::vector<TextEvent> textEvents;
         std::vector<TempoEvent> tempo;
@@ -172,6 +177,7 @@ namespace ORCore
         std::vector<SmfTrack*> get_tracks();
         SmfTrack* get_tempo_track();
         SmfTrack* get_time_sig_track();
+        double pulsetime_to_abstime(uint32_t pulseTime);
         void release();
 
     private:
@@ -186,7 +192,7 @@ namespace ORCore
         void read_midi_event(SmfEventInfo &event);
         void read_meta_event(SmfEventInfo &event);
         void read_sysex_event(SmfEventInfo &event);
-        double conv_abstime(uint32_t deltaPulses);
+        double delta_tick_to_delta_time(TempoEvent* tempo, uint32_t deltaPulses);
         TempoEvent* get_last_tempo_via_pulses(uint32_t pulseTime);
         void read_events(uint32_t chunkEnd);
         void read_file();

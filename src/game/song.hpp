@@ -130,6 +130,7 @@ namespace ORGame
         void add_time_sig_event(int numerator, int denominator, int compoundFactor, double time);
         void mark_bars();
         std::vector<TempoTrackEvent> get_events(double start, double end, EventType type);
+        std::vector<TempoTrackEvent> get_events(EventType type);
 
     private:
     	std::vector<TempoEvent> m_tempo;
@@ -148,6 +149,7 @@ namespace ORGame
 
         void add_note(NoteType type, double time, bool on);
         std::vector<TrackNote*> get_notes_in_frame(double start, double end);
+        std::vector<TrackNote*> get_notes();
 
     private:
         TrackInfo m_info;

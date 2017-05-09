@@ -8,13 +8,95 @@ namespace ORCore
     std::vector<Vertex> create_rect_mesh(glm::vec4 color)
     {
         return {
-            // Vertex2     UV            Color
-            {{0.0f, 0.0f, 0.5f}, {0.0f, 0.0f}, color},
-            {{0.0f, 1.0f, 0.5f}, {0.0f, 1.0f}, color},
-            {{1.0f, 0.0f, 0.5f}, {1.0f, 0.0f}, color},
-            {{0.0f, 1.0f, 0.5f}, {0.0f, 1.0f}, color},
-            {{1.0f, 1.0f, 0.5f}, {1.0f, 1.0f}, color},
-            {{1.0f, 0.0f, 0.5f}, {1.0f, 0.0f}, color}
+            // Vertex2           UV            Color
+            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, color},
+            {{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, color},
+            {{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, color},
+
+            {{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, color},
+            {{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, color},
+            {{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, color}
+        };
+    }
+
+    std::vector<Vertex> create_rect_z_mesh(glm::vec4 color)
+    {
+        return {
+            // Vertex2           UV            Color
+            {{0.0f, 0.0, 0.0f}, {0.0f, 0.0f}, color},
+            {{0.0f, 0.0, 1.0f}, {0.0f, 1.0f}, color},
+            {{1.0f, 0.0, 0.0f}, {1.0f, 0.0f}, color},
+
+            {{0.0f, 0.0, 1.0f}, {0.0f, 1.0f}, color},
+            {{1.0f, 0.0, 1.0f}, {1.0f, 1.0f}, color},
+            {{1.0f, 0.0, 0.0f}, {1.0f, 0.0f}, color}
+        };
+    }
+
+    std::vector<Vertex> create_rect_z_center_mesh(glm::vec4 color)
+    {
+        return {
+            // Vertex2           UV            Color
+            {{0.0f, 0.0, -1.0f}, {0.0f, 0.0f}, color},
+            {{0.0f, 0.0, 1.0f}, {0.0f, 1.0f}, color},
+            {{1.0f, 0.0, -1.0f}, {1.0f, 0.0f}, color},
+
+            {{0.0f, 0.0, 1.0f}, {0.0f, 1.0f}, color},
+            {{1.0f, 0.0, 1.0f}, {1.0f, 1.0f}, color},
+            {{1.0f, 0.0, -1.0f}, {1.0f, 0.0f}, color}
+        };
+    }
+
+    std::vector<Vertex> create_cube_mesh(glm::vec4 color)
+    {
+        return {
+            {{0.0f,0.0f,-0.5f}, {0.0f, 0.0f}, color},
+            {{0.0f,0.0f,0.5f}, {0.0f, 1.0f}, color},
+            {{0.0f, 1.0f,0.5f}, {1.0f, 0.0f}, color},
+
+            {{1.0f, 1.0f,-0.5f}, {0.0f, 1.0f}, color},
+            {{0.0f,0.0f,-0.5f}, {1.0f, 1.0f}, color},
+            {{0.0f, 1.0f,-0.5f}, {1.0f, 0.0f}, color},
+
+            {{1.0f,0.0f,0.5f}, {0.0f, 0.0f}, color},
+            {{0.0f,0.0f,-0.5f}, {0.0f, 1.0f}, color},
+            {{1.0f,0.0f,-0.5f}, {1.0f, 0.0f}, color},
+
+            {{1.0f, 1.0f,-0.5f}, {0.0f, 1.0f}, color},
+            {{1.0f,0.0f,-0.5f}, {1.0f, 1.0f}, color},
+            {{0.0f,0.0f,-0.5f}, {1.0f, 0.0f}, color},
+
+            {{0.0f,0.0f,-0.5f}, {0.0f, 0.0f}, color},
+            {{0.0f, 1.0f,0.5f}, {0.0f, 1.0f}, color},
+            {{0.0f, 1.0f,-0.5f}, {1.0f, 0.0f}, color},
+
+            {{1.0f,0.0f,0.5f}, {0.0f, 1.0f}, color},
+            {{0.0f,0.0f,0.5f}, {1.0f, 1.0f}, color},
+            {{0.0f,0.0f,-0.5f}, {1.0f, 0.0f}, color},
+
+            {{0.0f, 1.0f,0.5f}, {0.0f, 0.0f}, color},
+            {{0.0f,0.0f,0.5f}, {0.0f, 1.0f}, color},
+            {{1.0f,0.0f,0.5f}, {1.0f, 0.0f}, color},
+
+            {{1.0f, 1.0f,0.5f}, {0.0f, 1.0f}, color},
+            {{1.0f,0.0f,-0.5f}, {1.0f, 1.0f}, color},
+            {{1.0f, 1.0f,-0.5f}, {1.0f, 0.0f}, color},
+
+            {{1.0f,0.0f,-0.5f}, {0.0f, 0.0f}, color},
+            {{1.0f, 1.0f,0.5f}, {0.0f, 1.0f}, color},
+            {{1.0f,0.0f,0.5f}, {1.0f, 0.0f}, color},
+
+            {{1.0f, 1.0f,0.5f}, {0.0f, 1.0f}, color},
+            {{1.0f, 1.0f,-0.5f}, {1.0f, 1.0f}, color},
+            {{0.0f, 1.0f,-0.5f}, {1.0f, 0.0f}, color},
+
+            {{1.0f, 1.0f,0.5f}, {0.0f, 0.0f}, color},
+            {{0.0f, 1.0f,-0.5f}, {0.0f, 1.0f}, color},
+            {{0.0f, 1.0f,0.5f}, {1.0f, 0.0f}, color},
+
+            {{1.0f, 1.0f,0.5f}, {0.0f, 1.0f}, color},
+            {{0.0f, 1.0f,0.5f}, {1.0f, 1.0f}, color},
+            {{1.0f,0.0f,0.5f}, {1.0f, 0.0f}, color}
         };
     }
 
@@ -195,6 +277,15 @@ namespace ORCore
             }
             check_error();
         }
+        // m_logger->info("Batches: {}", m_batchesInfo.size());
+
+        // GLint size;
+        // glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &size);
+        // m_logger->info("Max buffer texture size: {}", size);
+        // glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &size);
+        // m_logger->info("Max texture units: {}", size);
+        // glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &size);
+        // m_logger->info("Max combined texture units: {}", size);
     }
 
     void Renderer::render()

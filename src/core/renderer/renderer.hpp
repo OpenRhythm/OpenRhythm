@@ -13,6 +13,9 @@ namespace ORCore
 {
 
     std::vector<Vertex> create_rect_mesh(glm::vec4 color);
+    std::vector<Vertex> create_rect_z_mesh(glm::vec4 color);
+    std::vector<Vertex> create_rect_z_center_mesh(glm::vec4 color);
+    std::vector<Vertex> create_cube_mesh(glm::vec4 color);
 
 	struct RenderObject
 	{

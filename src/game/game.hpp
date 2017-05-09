@@ -60,5 +60,6 @@ namespace ORGame
 
         std::streamsize m_ss;
         glm::mat4 m_ortho;
+        glm::mat4 m_perspective;
     };
 }

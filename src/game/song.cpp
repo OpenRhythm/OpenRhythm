@@ -38,7 +38,7 @@ namespace ORGame
                 previousTempo = &tempo;
                 continue;
             }
-            incr = previousTempo->qnLength / (beatSubdivision*1000.0);
+            incr = previousTempo->qnLength / (beatSubdivision*1'000'000.0);
             beatSegments = static_cast<int>((tempo.time - previousTempo->time) / incr)+1;
             for (int i=0; i < beatSegments; i++) {
                 m_bars.push_back({BarType::beat, previousTempo->time + (incr*i)});
@@ -72,6 +72,24 @@ namespace ORGame
         return events;
     }
 
+    std::vector<TempoTrackEvent> TempoTrack::get_events(EventType type)
+    {
+        std::vector<TempoTrackEvent> events;
+        if (type == EventType::Tempo) {
+            for (auto &tempo : m_tempo) {
+                events.emplace_back(&tempo);
+            }
+        } else if (type == EventType::TimeSignature){
+            for (auto &ts : m_ts) {
+                events.emplace_back(&ts);
+            }
+        } else if (type == EventType::Bar){
+            for (auto &bar : m_bars) {
+                events.emplace_back(&bar);
+            }
+        }
+        return events;
+    }
 
     /////////////////////////////////////
     // Track Class
@@ -118,6 +136,15 @@ namespace ORGame
             if (note.time >= start && note.time <= end) {
                 notes.emplace_back( &note );
             }
+        }
+        return notes;
+    }
+
+    std::vector<TrackNote*> Track::get_notes()
+    {   
+        std::vector<TrackNote*> notes;
+        for ( auto &note : m_notes) {
+            notes.emplace_back( &note );
         }
         return notes;
     }
@@ -234,15 +261,15 @@ namespace ORGame
 
         for (auto &tempo : m_midi.get_tempo_track()->tempo)
         {
-            m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.info.info.absTime);
-            logger->trace(_("Tempo change recieved at time {}"), tempo.info.info.absTime);
+            m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.absTime);
+            logger->trace(_("Tempo change recieved at time {}"), tempo.absTime);
         }
 
-        for (auto &ts : m_midi.get_time_sig_track()->timeSigEvents)
-        {
-            m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, ts.info.info.absTime);
-            logger->trace(_("Time signature change recieved at time {}"), ts.info.info.absTime);
-        }
+        // for (auto &ts : m_midi.get_time_sig_track()->timeSigEvents)
+        // {
+        //     m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, ts.info.info.absTime);
+        //     logger->trace(_("Time signature change recieved at time {}"), ts.info.info.absTime);
+        // }
 
         m_tempoTrack.mark_bars();
 
@@ -286,16 +313,17 @@ namespace ORGame
                 {
                     try
                     {
+                        
                         if (midiEvent.message == ORCore::NoteOn) {
                             NoteType note = noteMap.at(midiEvent.data1);
                             // TODO - read note velocity and treat vel 0 as note off.
                             if (note != NoteType::NONE) {
-                                track.add_note(note, midiEvent.info.absTime, true);
+                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
                             }
                         } else if (midiEvent.message == ORCore::NoteOff) {
                             NoteType note = noteMap.at(midiEvent.data1);
                             if (note != NoteType::NONE) {
-                                track.add_note(note, midiEvent.info.absTime, false);
+                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
                             }
                         }
                     } catch (std::out_of_range &err)

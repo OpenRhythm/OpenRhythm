@@ -1,8 +1,56 @@
 #include "config.hpp"
 #include "smf.hpp"
+#include <iostream>
 
 namespace ORCore
 {
+
+    SmfReader::SmfReader(std::string filename)
+    :m_tempoTrack(nullptr), m_timeSigTrack(nullptr), m_logger(spdlog::get("default"))
+    {
+        m_logger->info(_("Loading MIDI"));
+
+        try {
+            m_smfFile.load(filename);
+        } catch (std::runtime_error &err) {
+            throw std::runtime_error(_("Failed to load MIDI file."));
+        }
+
+        m_logger->info(_("Parsing midi."));
+
+        read_file();
+        m_smfFile.release();
+    }
+
+    std::vector<SmfTrack*> SmfReader::get_tracks()
+    {
+        std::vector<SmfTrack*> tracks;
+
+        for (auto &track : m_tracks) {
+            tracks.push_back(&track);
+        }
+        return tracks;
+    }
+    SmfTrack* SmfReader::get_tempo_track()
+    {
+        if (m_header.format == smfType2) {
+            return nullptr;
+        }
+        return m_timeSigTrack;
+    }
+    SmfTrack* SmfReader::get_time_sig_track()
+    {
+        if (m_header.format == smfType2) {
+            return nullptr;
+        }
+        return m_timeSigTrack;
+    }
+    
+    void SmfReader::release()
+    {
+        m_tracks.clear();
+    }
+
     uint32_t SmfReader::read_var_len()
     {
         uint8_t c = read_type<uint8_t>(m_smfFile);
@@ -113,14 +161,31 @@ namespace ORCore
             }
             case meta_EndOfTrack:
             {
-                m_logger->trace(_("End of Track {} at time {}"), m_currentTrack->name, event.info.absTime);
-                m_currentTrack->endTime = event.info.absTime;
+                m_logger->trace(_("End of Track {} at time"), m_currentTrack->name);
+                m_currentTrack->endTime = event.info.pulseTime;
                 break;
             }
             case meta_Tempo:
             {
+                double absTime;
+
+                // We calculate the absTime of each tempo event from the previous which will act as a base to calculate other events time.
+                // This is good because it reduces the number of doubles we store reducing memory usage somewhat, and it also reduces
+                // the rounding error overall allowing more accurate timestamps. Thanks FireFox of the RGC discord for this idea from his
+                // .chart/midi parser that is used for his moonscraper project.
+                if (m_currentTrack->tempo.size() == 0)
+                {
+                    absTime = 0.0;
+                } else {
+                    auto lastTempo = m_currentTrack->tempo.back();
+                    absTime = lastTempo.absTime + delta_tick_to_delta_time(&lastTempo, eventInfo.pulseTime - lastTempo.info.info.pulseTime );
+                }
+
                 uint32_t qnLength = read_type<uint32_t>(m_smfFile, 3);
-                m_currentTrack->tempo.push_back({event, qnLength});
+
+                double timePerTick = (qnLength / (m_header.division * 1'000'000.0));
+
+                m_currentTrack->tempo.push_back({event, qnLength, absTime, timePerTick});
                 if (m_tempoTrack == nullptr || m_header.format != smfType1) {
                     m_tempoTrack = m_currentTrack;
                 }
@@ -194,17 +259,49 @@ namespace ORCore
         m_logger->info(_("sysex event at position {}"), m_smfFile.get_pos());
     }
 
-    // Convert from deltaPulses to milliseconds.
-    double SmfReader::conv_abstime(uint32_t deltaPulses)
+    // Convert from deltaPulses to deltaTime.
+    double SmfReader::delta_tick_to_delta_time(TempoEvent* tempo, uint32_t deltaPulses)
     {
-        return deltaPulses * (m_currentTempoEvent->qnLength / (m_header.division * 1000.0));
+        return deltaPulses * tempo->timePerTick;
+    }
+
+    // Converts a absolute time in pulses to an absolute time in seconds
+    double SmfReader::pulsetime_to_abstime(uint32_t pulseTime)
+    {
+        // The basic idea here is to start from the most recent tempo event before this time.
+        // Then calculate and add the time since that tempo to the tempo time.
+        // To speed this up further we could store the result of the time per tick calculation in the tempo event and only use it here.
+        TempoEvent* tempo = get_last_tempo_via_pulses(pulseTime);
+        return tempo->absTime + ((pulseTime - tempo->info.info.pulseTime) * tempo->timePerTick);
+    }
+
+    TempoEvent* SmfReader::get_last_tempo_via_pulses(uint32_t pulseTime)
+    {
+        static unsigned int value = 0;
+        static uint32_t lastPulseTime = 0;
+
+        std::vector<TempoEvent> &tempos = m_tempoTrack->tempo;
+
+        // Ignore the cached last tempo value if the new pulse time is older.
+        if (lastPulseTime > pulseTime) {
+            value = 0;
+        }
+
+        for (unsigned int i = value; i < tempos.size(); i++) {
+            if (tempos[i].info.info.pulseTime > pulseTime) {
+                value = i-1;
+                lastPulseTime = pulseTime;
+                return &tempos[value];
+            }
+        }
+        // return last value if nothing else is found
+        return &tempos.back();  
     }
 
     void SmfReader::read_events(uint32_t chunkEnd)
     {
         uint32_t pulseTime = 0;
         uint8_t prevStatus = 0;
-        double currentRunningTimeMs = 0;
 
         // find a ballpark size estimate for the track 
         uint32_t sizeGuess = (chunkEnd - m_smfFile.get_pos()) / 3;
@@ -222,13 +319,6 @@ namespace ORCore
             pulseTime += eventInfo.deltaPulses;
 
             eventInfo.pulseTime = pulseTime;
-
-            if (pulseTime == 0) {
-                eventInfo.absTime = 0.0;
-            } else {
-                currentRunningTimeMs += conv_abstime(eventInfo.deltaPulses);
-                eventInfo.absTime = currentRunningTimeMs;
-            }
             auto status = peek_type<uint8_t>(m_smfFile);
 
             if (status == status_MetaEvent) {
@@ -257,7 +347,7 @@ namespace ORCore
                 // We construct a new tempo event that will have a default
                 // equivelent to 120 BPM the same thing will need to be done
                 // for the time signature meta event.
-                MetaEvent tempoEvent {{status_MetaEvent,0,0,0.0}, meta_Tempo, 3};
+                MetaEvent tempoEvent {{status_MetaEvent,0,0}, meta_Tempo, 3};
 
                 if (m_tempoTrack == nullptr) {
                     if (m_header.format != smfType1) {
@@ -267,7 +357,7 @@ namespace ORCore
                     }
                 }
 
-                m_tempoTrack->tempo.push_back({tempoEvent, 500000}); // last value is ppqn
+                m_tempoTrack->tempo.push_back({tempoEvent, 500'000, 0.0}); // ppqn, absTime
             }
             if (pulseTime != 0 && (m_tempoTrack == nullptr || m_timeSigTrack->timeSigEvents.size() == 0)) {
 
@@ -288,9 +378,6 @@ namespace ORCore
                 }
 
                 m_timeSigTrack->timeSigEvents.push_back(tsEvent);
-            }
-            if (pulseTime != 0 || (m_tempoTrack != nullptr && m_tempoTrack->tempo.size() != 0)) {
-                m_currentTempoEvent = get_last_tempo_via_pulses(pulseTime);
             }
         }
     }
@@ -377,76 +464,5 @@ namespace ORCore
         }
         m_logger->info(_("End of MIDI reached."));
 
-    }
-
-    SmfReader::SmfReader(std::string filename)
-    :m_tempoTrack(nullptr), m_timeSigTrack(nullptr), m_logger(spdlog::get("default"))
-    {
-        m_logger->info(_("Loading MIDI"));
-
-        try {
-            m_smfFile.load(filename);
-        } catch (std::runtime_error &err) {
-            throw std::runtime_error(_("Failed to load MIDI file."));
-        }
-
-        m_logger->info(_("Parsing midi."));
-
-        read_file();
-        m_smfFile.release();
-    }
-
-
-        void SmfReader::release()
-        {
-            m_tracks.clear();
-        }
-
-
-    TempoEvent* SmfReader::get_last_tempo_via_pulses(uint32_t pulseTime)
-    {
-        static unsigned int value = 0;
-        static uint32_t lastPulseTime = 0;
-
-        std::vector<TempoEvent> &tempos = m_tempoTrack->tempo;
-
-        // Ignore the cached last tempo value if the new pulse time is older.
-        if (lastPulseTime > pulseTime) {
-            value = 0;
-        }
-
-        for (unsigned int i = value; i < tempos.size(); i++) {
-            if (tempos[i].info.info.pulseTime >= pulseTime) {
-                value = i;
-                lastPulseTime = pulseTime;
-                return &tempos[i];
-            }
-        }
-        // return last value if nothing else is found
-        return &tempos.back();
-    }
-
-    std::vector<SmfTrack*> SmfReader::get_tracks()
-    {
-        std::vector<SmfTrack*> tracks;
-
-        for (auto &track : m_tracks) {
-            tracks.push_back(&track);
-        }
-        return tracks;
-    }
-    SmfTrack* SmfReader::get_tempo_track()
-    {
-        if (m_header.format == smfType2) {
-            return nullptr;
-        }
-        return m_timeSigTrack;
-    }
-    SmfTrack* SmfReader::get_time_sig_track()
-    {
-        if (m_header.format == smfType2) {
-            return nullptr;
-        }
-        return m_timeSigTrack;
     }
 } // namespace ORCore

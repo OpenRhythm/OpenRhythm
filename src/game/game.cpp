@@ -87,6 +87,14 @@ namespace ORGame
         prep_render_notes();
         m_renderer.commit();
 
+        GLint  iMultiSample = 0;
+        GLint  iNumSamples = 0;
+        glGetIntegerv(GL_SAMPLE_BUFFERS, &iMultiSample);
+        glGetIntegerv(GL_SAMPLES, &iNumSamples);
+
+        m_logger->info("GL_SAMPLE_BUFFERS: {}, GL_SAMPLES: {} ", iMultiSample, iNumSamples);
+
+
         glClearColor(0.5, 0.5, 0.5, 1.0);
     }
 
@@ -98,7 +106,7 @@ namespace ORGame
     void GameManager::prep_render_bars()
     {
 
-        std::vector<TempoTrackEvent> bars = m_tempoTrack->get_events(0.0, m_song.length(), ORGame::EventType::Bar);
+        std::vector<TempoTrackEvent> bars = m_tempoTrack->get_events(ORGame::EventType::Bar);
         std::cout << "Bar Count: " << bars.size() << " Song Length: " << m_song.length() << std::endl;
 
         // reuse the same container when creating bars as add_obj wont modify the original.
@@ -107,12 +115,19 @@ namespace ORGame
         obj.set_program(m_program);
 
         for (size_t i = 0; i < bars.size(); i++) {
-            float z = bars[i].bar->time / 3.0f;
+            float z = (bars[i].bar->time / 0.5f);
 
-            obj.set_scale(glm::vec3{512.0f, 4.0f, 0.0f});
-            obj.set_translation(glm::vec3{(m_width/2.0f)-256, z, 0.0f}); // center the line on the screen
+            obj.set_scale(glm::vec3{1.0f, 1.0f, 0.007});
+            obj.set_translation(glm::vec3{0.0, 0.0f, -z}); // center the line on the screen
             obj.set_primitive_type(ORCore::Primitive::triangle);
-            obj.set_geometry(ORCore::create_rect_mesh(glm::vec4{1.0,1.0,1.0,1.0}));
+            obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0,1.0,1.0,1.0}));
+
+            m_renderer.add_object(obj);
+
+            obj.set_scale(glm::vec3{1.0f, 1.0f, 0.003});
+            obj.set_translation(glm::vec3{0.0, 0.0f, -z}); // center the line on the screen
+            obj.set_primitive_type(ORCore::Primitive::triangle);
+            obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{0.5,0.5,1.0,1.0}));
 
             m_renderer.add_object(obj);
         }
@@ -120,7 +135,7 @@ namespace ORGame
 
     void GameManager::prep_render_notes()
     {
-        std::vector<TrackNote*> notes = m_playerTrack->get_notes_in_frame(0.0, m_song.length());
+        std::vector<TrackNote*> notes = m_playerTrack->get_notes();
         std::cout << "Note Count: " << notes.size() << std::endl;
 
         // reuse the same container when creating notes as add_obj wont modify the original.
@@ -128,8 +143,11 @@ namespace ORGame
         obj.set_texture(m_texture);
         obj.set_program(m_program);
 
+        float noteWidth = 1.0f/5.0f;
+        float tailWidth = noteWidth/3.0f;
+
         for (size_t i = 0; i < notes.size(); i++) {
-            float z = notes[i]->time / 3.0f;
+            float z = notes[i]->time / 0.5f;
             glm::vec4 color;
             if( notes[i]->type == NoteType::Green) {
                 color = glm::vec4{0.0,1.0,0.0,1.0};
@@ -142,25 +160,30 @@ namespace ORGame
             } else if( notes[i]->type == NoteType::Orange) {
                 color = glm::vec4{1.0,0.5,0.0,1.0};
             }
-            //std::cout << "Length: " << notes[i]->length/3.0f << std::endl;
+            //std::cout << "Length: " << notes[i]->length/30.0f << std::endl;
 
-            obj.set_scale(glm::vec3{30.0f, 4.0, 0.0f});
-            obj.set_translation(glm::vec3{static_cast<int>(notes[i]->type)*40, z, 0.0f}); // center the line on the screen
+            float noteLength = notes[i]->length/0.5f;
+
+            obj.set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
+            obj.set_translation(glm::vec3{(static_cast<int>(notes[i]->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
             obj.set_primitive_type(ORCore::Primitive::triangle);
-            obj.set_geometry(ORCore::create_rect_mesh(color));
+            obj.set_geometry(ORCore::create_rect_z_mesh(color));
 
             m_renderer.add_object(obj);
 
-            float noteLength = notes[i]->length/3.0f;
-            if (noteLength > 4.0f)
-            {
-                obj.set_scale(glm::vec3{10.0f, noteLength, 0.0f});
-                obj.set_translation(glm::vec3{10+(static_cast<int>(notes[i]->type)*40), z, 0.0f}); // center the line on the screen
-                obj.set_primitive_type(ORCore::Primitive::triangle);
-                obj.set_geometry(ORCore::create_rect_mesh(color));
+            obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/2.0f});
+            obj.set_translation(glm::vec3{(static_cast<int>(notes[i]->type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
+            obj.set_primitive_type(ORCore::Primitive::triangle);
+            obj.set_geometry(ORCore::create_cube_mesh(color));
 
-                m_renderer.add_object(obj);
-            }
+            m_renderer.add_object(obj);
+
+            obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/8.0f});
+            obj.set_translation(glm::vec3{(static_cast<int>(notes[i]->type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
+            obj.set_primitive_type(ORCore::Primitive::triangle);
+            obj.set_geometry(ORCore::create_cube_mesh(color/2.0f));
+
+            m_renderer.add_object(obj);
         }
     }
 
@@ -194,7 +217,8 @@ namespace ORGame
         m_width = width;
         m_height = height;
         glViewport(0, 0, m_width, m_height);
-        m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 1.0f);
+        m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 2.0f);
+        m_perspective = glm::perspective(glm::radians(70.0f), m_width/static_cast<float>(m_height), 0.001f, 2.0f);
     }
 
     bool GameManager::event_handler(const ORCore::Event &event)
@@ -239,9 +263,11 @@ namespace ORGame
 
     void GameManager::update()
     {
-        m_songTime = m_clock.get_current_time();
+        m_songTime = m_clock.get_current_time()/1000.0;
 
-        m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, (-m_songTime)/3.0f, 0.0f))); // translate projection with song
+        // m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, 1.0f, (-m_songTime)/3.0f))); // translate projection with song
+        m_renderer.set_camera_transform("ortho", glm::translate(glm::rotate(m_perspective, glm::radians(45.0f), glm::vec3(1.0f,0.0f,0.0f)), glm::vec3(-0.5f, -1.0f, (m_songTime/0.5f)-1.0))); // translate projection with song
+        //
     }
 
     void GameManager::render()
