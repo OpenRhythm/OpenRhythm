@@ -123,13 +123,6 @@ namespace ORGame
             obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0,1.0,1.0,1.0}));
 
             m_renderer.add_object(obj);
-
-            obj.set_scale(glm::vec3{1.0f, 1.0f, 0.003});
-            obj.set_translation(glm::vec3{0.0, 0.0f, -z}); // center the line on the screen
-            obj.set_primitive_type(ORCore::Primitive::triangle);
-            obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{0.5,0.5,1.0,1.0}));
-
-            m_renderer.add_object(obj);
         }
     }
 
@@ -174,13 +167,6 @@ namespace ORGame
             obj.set_translation(glm::vec3{(static_cast<int>(notes[i]->type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
             obj.set_primitive_type(ORCore::Primitive::triangle);
             obj.set_geometry(ORCore::create_cube_mesh(color));
-
-            m_renderer.add_object(obj);
-
-            obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/8.0f});
-            obj.set_translation(glm::vec3{(static_cast<int>(notes[i]->type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
-            obj.set_primitive_type(ORCore::Primitive::triangle);
-            obj.set_geometry(ORCore::create_cube_mesh(color/2.0f));
 
             m_renderer.add_object(obj);
         }

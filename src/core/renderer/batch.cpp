@@ -17,6 +17,7 @@ namespace ORCore
     void Batch::init_gl()
     {
         glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         m_vertLoc = m_program->vertex_attribute("position");
         m_uvLoc = m_program->vertex_attribute("vertexUV");
         m_colorLoc = m_program->vertex_attribute("color");
