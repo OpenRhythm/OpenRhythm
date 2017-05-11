@@ -21,9 +21,10 @@ namespace ORCore
 	{
 		Mesh mesh;
 		glm::mat4 modelMatrix;
-		int program;
-		int texture;
+        RenderState state;
         int id; // id of this object in the renderer.
+        int batchID;
+
         RenderObject();
         void set_scale(glm::vec3&& scale);
         void set_translation(glm::vec3&& translation);
@@ -31,20 +32,16 @@ namespace ORCore
         void set_geometry(std::vector<Vertex>&& geometry);
         void set_texture(int _texture);
         void set_program(int _program);
+        void update();
 	};
-
-    struct BatchInfo
-    {
-        bool committed;
-        int program;
-        int texture;
-    };
 
 	// Builds and renders batches from objects.
     class Renderer
     {
     public:
         Renderer();
+        void init_gl();
+        int create_batch(RenderState state, int batchSize);
         bool check_error();
         int add_object(const RenderObject& objIn);
         int add_texture(Image&& img);
@@ -57,13 +54,13 @@ namespace ORCore
         ~Renderer();
 
     private:
-        int find_batch(int texture, int program);
+        int find_batch(RenderState state);
         std::vector<RenderObject> m_objects;
         std::vector<std::unique_ptr<Batch>> m_batches;
-        std::vector<BatchInfo> m_batchesInfo;
         std::unordered_map<std::string, glm::mat4> m_cameraUniforms;
         std::vector<std::unique_ptr<Texture>> m_textures;
         std::vector<std::unique_ptr<ShaderProgram>> m_programs;
         std::shared_ptr<spdlog::logger> m_logger;
+        int m_defaultTextureID;
     };
 }

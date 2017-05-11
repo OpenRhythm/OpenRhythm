@@ -73,13 +73,13 @@ namespace ORGame
         m_fpsTime = 0.0;
 
         m_ss = std::cout.precision();
+        m_renderer.init_gl();
 
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
         m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
-        m_texture = m_renderer.add_texture(ORCore::loadSTB("data/blank.png"));
-        m_texture2 = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
+        m_texture = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
 
         resize(m_width, m_height);
 
@@ -111,7 +111,7 @@ namespace ORGame
 
         // reuse the same container when creating bars as add_obj wont modify the original.
         ORCore::RenderObject obj;
-        obj.set_texture(m_texture2);
+        obj.set_texture(m_texture);
         obj.set_program(m_program);
 
         for (size_t i = 0; i < bars.size(); i++) {
@@ -140,7 +140,6 @@ namespace ORGame
 
         // reuse the same container when creating notes as add_obj wont modify the original.
         ORCore::RenderObject obj;
-        obj.set_texture(m_texture);
         obj.set_program(m_program);
 
         float noteWidth = 1.0f/5.0f;
@@ -189,7 +188,6 @@ namespace ORGame
 
     void GameManager::start()
     {
-        GLenum error;
         while (m_running)
         {
             m_fpsTime += m_clock.tick();

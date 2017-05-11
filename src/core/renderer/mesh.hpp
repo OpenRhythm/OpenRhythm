@@ -11,11 +11,26 @@ namespace ORCore
         glm::vec4 color;
     };
     
+    enum class States
+    {
+        program,
+        texture,
+        point_size,
+        blend_mode,
+        primitive
+    };
+
     enum class Primitive
     {
         point,
         line,
         triangle
+    };
+
+    struct RenderState
+    {
+        int program;
+        int texture;
     };
 
     struct Mesh

@@ -1,10 +1,12 @@
 #include "batch.hpp"
 #include <iostream>
+#include <algorithm>
 
 namespace ORCore
 {
-    Batch::Batch(ShaderProgram *program, Texture *texture, int batchSize)
-    : m_program(program), m_texture(texture), m_batchSize(batchSize), m_matTexBuffer(GL_RGBA32F), m_matTexIndexBuffer(GL_R32UI)
+    Batch::Batch(ShaderProgram *program, Texture *texture, int batchSize, int id)
+    : m_program(program), m_texture(texture), m_batchSize(batchSize), m_id(id), m_committed(false),
+    m_matTexBuffer(GL_RGBA32F), m_matTexIndexBuffer(GL_R32UI)
     {
         m_vertices.reserve(batchSize*6); // 32 object each object has 3 verts of 2 values
         m_matrices.reserve(batchSize);
@@ -56,6 +58,7 @@ namespace ORCore
 
     void Batch::clear()
     {
+        m_committed = false;
         m_meshMatrixIndex.clear();
         m_matrices.clear();
         m_vertices.clear();
@@ -81,13 +84,19 @@ namespace ORCore
         } else {
             return false;
         }
+    }
 
 
-}
+    void Batch::set_state(RenderState state)
+    {
+        m_state = state;
+    }
 
     // update buffer objects
     void Batch::commit()
     {
+        m_committed = true;
+
         // When switching to glMapBuffer
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
         glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(Vertex), &m_vertices[0], GL_STATIC_DRAW);

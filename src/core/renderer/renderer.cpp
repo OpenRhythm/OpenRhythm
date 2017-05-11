@@ -102,6 +102,7 @@ namespace ORCore
 
 
     RenderObject::RenderObject()
+    :state{-1, -1}, id(-1), batchID(-1)
     {
     }
 
@@ -136,14 +137,19 @@ namespace ORCore
         mesh.vertices = geometry;
     }
 
-    void RenderObject::set_texture(int _texture)
+    void RenderObject::set_texture(int texture)
     {
-        texture = _texture;
+        state.texture = texture;
     }
 
-    void RenderObject::set_program(int _program)
+    void RenderObject::set_program(int program)
     {
-        program = _program;
+        state.program = program;
+    }
+
+    void RenderObject::update()
+    {
+        modelMatrix = glm::scale(glm::translate(glm::mat4(1.0f), mesh.translate), mesh.scale);
     }
 
 
@@ -152,25 +158,41 @@ namespace ORCore
     {
     }
 
-    int Renderer::find_batch(int texture, int program)
+    void Renderer::init_gl()
+    {
+        // Eventually one thing init_gl should be able to be used to handle context resets 
+        // Add the blank texture by default as it will be the default texture.
+        m_defaultTextureID = add_texture(ORCore::loadSTB("data/blank.png"));
+    }
+
+    int Renderer::create_batch(RenderState state, int batchSize)
+    {
+        int id = m_batches.size();
+        m_batches.push_back(
+            std::make_unique<Batch>(
+                m_programs[state.program].get(),
+                m_textures[state.texture].get(),
+                batchSize, id));
+        auto &batch = m_batches.back();
+        batch->set_state(state);
+        return id;
+    }
+
+    int Renderer::find_batch(RenderState state)
     {
         // Find existing batch that isnt full or already submitted.
-        for (int i = 0; i < m_batchesInfo.size(); i++)
+        for (auto &batch : m_batches)
         {
-            if (m_batchesInfo[i].committed == false && m_batchesInfo[i].texture == texture && m_batchesInfo[i].program == program)
+
+            auto& bState = batch->get_state();
+            if (!batch->is_committed() && bState.texture == state.texture && bState.program == state.program)
             {
-                return i;
+                return batch->get_id();
             }
         }
 
-        // std::cout << "No batches found creating new batch: " << std::endl;
-
-        // If the above couldnt find a batch create one.
-        BatchInfo batchInfo = {false, program, texture};
-        int id = m_batchesInfo.size();
-        m_batchesInfo.push_back(batchInfo);
-        m_batches.push_back(std::make_unique<Batch>(m_programs[program].get(), m_textures[texture].get(), 65536));
-        return id;
+        // If the above couldnt find a batch create one.c
+        return create_batch(state, 65536);
     }
 
     bool Renderer::check_error()
@@ -183,29 +205,29 @@ namespace ORCore
             switch(error)
             {
                 case GL_INVALID_ENUM:
-                    m_logger->error("GL_INVALID_ENUM");
+                    m_logger->error("OpenGL Error: GL_INVALID_ENUM");
                     errorFound = true;
                     break;
                 case GL_INVALID_VALUE:
-                    m_logger->error("GL_INVALID_VALUE");
+                    m_logger->error("OpenGL Error: GL_INVALID_VALUE");
                     errorFound = true;
                     break;
                 case GL_INVALID_OPERATION:
-                    m_logger->error("GL_INVALID_OPERATION");
+                    m_logger->error("OpenGL Error: GL_INVALID_OPERATION");
                     errorFound = true;
                     break;
                 case GL_INVALID_FRAMEBUFFER_OPERATION:
-                    m_logger->error("GL_INVALID_FRAMEBUFFER_OPERATION");
+                    m_logger->error("OpenGL Error: GL_INVALID_FRAMEBUFFER_OPERATION");
                     errorFound = true;
                     break;
                 case GL_OUT_OF_MEMORY:
-                    m_logger->error("GL_OUT_OF_MEMORY");
+                    m_logger->error("OpenGL Error: GL_OUT_OF_MEMORY");
                     errorFound = true;
                     break;
                 case GL_NO_ERROR:
                     break;
                 default:
-                    m_logger->error("Other GL error: {}", error);
+                    m_logger->error("Unknown OpenGL Error: {}", error);
                     errorFound = true;
                     break;
             }
@@ -216,22 +238,31 @@ namespace ORCore
 
     int Renderer::add_object(const RenderObject& objIn)
     {
-        int batchId = find_batch(objIn.texture, objIn.program);
 
 
         int objID = m_objects.size();
         m_objects.push_back(objIn);
         auto &obj = m_objects.back();
 
-        obj.id=objID;
         obj.modelMatrix = glm::scale(glm::translate(glm::mat4(1.0f), obj.mesh.translate), obj.mesh.scale);
+
+        if (obj.state.texture == -1)
+        {
+            obj.state.texture = m_defaultTextureID;
+        }
+
+        int batchId = find_batch(obj.state);
+
+        obj.id=objID;
+        obj.batchID = batchId;
+        obj.update();   
 
         // try until it gets added to a batch.
         while (m_batches[batchId]->add_mesh(obj.mesh, obj.modelMatrix) != true)
         {
             m_batches[batchId]->commit(); // commit that batch as it is full.
-            m_batchesInfo[batchId].committed = true;
-            batchId = find_batch(objIn.texture, objIn.program); // find or create the next batch
+            batchId = find_batch(obj.state); // find or create the next batch
+            obj.batchID = batchId;
         }
 
         check_error();
@@ -269,15 +300,14 @@ namespace ORCore
     // commit all remaining batches.
     void Renderer::commit()
     {
-        for (int i = 0; i < m_batchesInfo.size(); i++)
+        for (auto &batch : m_batches)
         {
-            if (m_batchesInfo[i].committed == false)
+            if (!batch->is_committed())
             {
-                m_batches[i]->commit();
+                batch->commit();
             }
-            check_error();
         }
-        // m_logger->info("Batches: {}", m_batchesInfo.size());
+        // m_logger->info("Batches: {}", m_batches.size());
 
         // GLint size;
         // glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &size);
@@ -291,26 +321,23 @@ namespace ORCore
     void Renderer::render()
     {
         // TODO - Do sorting of batches to minimize state changes.
-        int currentProgram = -1;
-        for (int i = 0; i < m_batchesInfo.size(); i++)
+        for (auto &batch : m_batches)
         {
-            currentProgram = m_batchesInfo[i].program;
-            auto &program = m_programs[currentProgram];
-
+            ShaderProgram* program = batch->get_program();
             program->use();
             for (auto &cam : m_cameraUniforms)
             {
                 program->set_uniform(program->uniform_attribute(cam.first), cam.second);
             }
-            m_batches[i]->render();
+            batch->render();
         }
     }
 
     void Renderer::clear()
     {
-        for (int i = 0; i < m_batchesInfo.size(); i++)
+        for (auto &batch : m_batches)
         {
-            m_batches[i]->clear();
+            batch->clear();
         }
     }
 
