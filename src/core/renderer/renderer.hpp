@@ -44,6 +44,8 @@ namespace ORCore
         int create_batch(RenderState state, int batchSize);
         bool check_error();
         int add_object(const RenderObject& objIn);
+        RenderObject* get_object(int objID);
+        void update_object(int objID);
         int add_texture(Image&& img);
         int add_program(Shader&& vertex, Shader&& fragment);
         void set_camera_transform(std::string name, glm::mat4&& transform);

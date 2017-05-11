@@ -65,7 +65,7 @@ namespace ORCore
         m_vertices.clear();
     }
 
-    bool Batch::add_mesh(const Mesh& mesh, glm::mat4& transform)
+    bool Batch::add_mesh(Mesh& mesh, const glm::mat4& transform)
     {
         // Optimize this using glMapBuffer? constrain batch with m_batchSize return false if mesh doesnt fit.
         int meshVertexCount = mesh.vertices.size();
@@ -77,6 +77,9 @@ namespace ORCore
                 m_meshMatrixIndex.push_back(m_matrices.size());
             }
 
+            mesh.transformOffset = m_matrices.size();
+            mesh.verticesOffset = m_vertices.size();
+
             // Condensing the translation will be moved to the object side of things to make rebuilding geometry less cpu intensive.
             m_matrices.push_back(transform);
             m_vertices.insert(std::end(m_vertices), std::begin(mesh.vertices), std::end(mesh.vertices));
@@ -87,6 +90,14 @@ namespace ORCore
         }
     }
 
+    void Batch::update_mesh(const Mesh& mesh, const glm::mat4& transform)
+    {
+        // TODO - Make this smarter about what it updates if performance becomes an issue.
+        // Could glBufferSubdata just the parts needed?
+        m_committed = false;
+        m_matrices[mesh.transformOffset] = transform;
+        std::copy(std::begin(mesh.vertices), std::end(mesh.vertices), std::begin(m_vertices)+mesh.verticesOffset);
+    }
 
     void Batch::set_state(RenderState state)
     {

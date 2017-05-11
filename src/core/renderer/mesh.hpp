@@ -38,6 +38,8 @@ namespace ORCore
         glm::vec3 scale;
         glm::vec3 translate;
         Primitive primitive;
+        int transformOffset;
+        int verticesOffset;
         int vertexSize; // Number of vertices used for the primitive type of this mesh. points = 1, lines = 2, triangles = 3
         std::vector<Vertex> vertices;
     };

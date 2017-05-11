@@ -270,6 +270,22 @@ namespace ORCore
         return obj.id;
     }
 
+    // In order to update an object you must get the object from the renderer using this command
+    // Modify the object through the returned pointer, then call update_object() below.
+    // If you modify geometry it MUST have the same size as the original geometry used.
+    // Otherwise you risk overwriting other geometry or having orphaned geometry.
+    RenderObject* Renderer::get_object(int objID)
+    {
+        return &m_objects[objID];
+    }
+
+    void Renderer::update_object(int objID)
+    {
+        RenderObject& obj = m_objects[objID];
+        obj.update();
+        m_batches[obj.batchID]->update_mesh(obj.mesh, obj.modelMatrix);
+    }
+
     int Renderer::add_texture(Image&& img)
     {
         int id = m_textures.size();
