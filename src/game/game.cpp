@@ -80,6 +80,7 @@ namespace ORGame
 
         m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
         m_texture = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
+        m_tailTexture = m_renderer.add_texture(ORCore::loadSTB("data/tail.png"));
 
         resize(m_width, m_height);
 
@@ -160,8 +161,10 @@ namespace ORGame
             obj.set_translation(glm::vec3{(static_cast<int>(notes[i]->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
             obj.set_primitive_type(ORCore::Primitive::triangle);
             obj.set_geometry(ORCore::create_rect_z_mesh(color));
+            obj.set_texture(m_tailTexture);
 
             m_renderer.add_object(obj);
+            obj.set_texture(-1); // -1 gets set to the default texture.
 
             obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/2.0f});
             obj.set_translation(glm::vec3{(static_cast<int>(notes[i]->type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
