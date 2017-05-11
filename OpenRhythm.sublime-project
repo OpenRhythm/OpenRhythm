@@ -1,0 +1,23 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "Win64 Release Build",
+			"shell_cmd": "win-release-build.bat",
+			"shell": true,
+			"working_dir": "$project_path"
+		},
+		{
+			"name": "Unix Release Build",
+			"shell_cmd": "release-build.sh",
+			"shell": true,
+			"working_dir": "$project_path"
+		}
+	]
+}

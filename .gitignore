@@ -58,6 +58,9 @@ general_tests
 # Ninja
 *.ninja*
 
+# Ignore sublime workspace
+*.sublime-workspace
+
 
 # Files for testing/outputs
 *.log
