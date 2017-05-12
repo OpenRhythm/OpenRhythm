@@ -87,7 +87,12 @@ namespace ORCore
 #else
     bool Window::disable_sync()
     {
-        return false;
+        if (SDL_GL_SetSwapInterval(0) == 0)
+        {
+            return true;
+        } else {
+            return false;
+        }
     }
 #endif
 
