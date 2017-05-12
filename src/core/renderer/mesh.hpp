@@ -5,10 +5,10 @@ namespace ORCore
 {
     struct Vertex
     {
-        // Use vec here in-case we want to easily transform verts cpu-side.
         glm::vec3 vertex;
         glm::vec2 uv;
         glm::vec4 color;
+        unsigned int matIndex;
     };
     
     enum class States

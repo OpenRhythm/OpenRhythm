@@ -51,20 +51,18 @@ namespace ORCore
         int m_id;
         bool m_committed;
         BufferTexture m_matTexBuffer;
-        BufferTexture m_matTexIndexBuffer;
         GLuint m_vertLoc;
         GLuint m_uvLoc;
         GLuint m_colorLoc;
+        GLuint m_matIndexLoc;
         GLuint m_texSampID;
         GLuint m_matBufTexID;
-        GLuint m_matIndexBufTexID;
 
         GLuint m_vao;
         GLuint m_vbo;
         GLuint m_matBufferObject;
-        GLuint m_matIndexBufferObject;
 
-        std::vector<unsigned int> m_meshMatrixIndex;
+        std::vector<int> m_meshMatrixIndex;
         RenderState m_state;
 
 
