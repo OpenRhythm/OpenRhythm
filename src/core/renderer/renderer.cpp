@@ -244,7 +244,9 @@ namespace ORCore
         m_objects.push_back(objIn);
         auto &obj = m_objects.back();
 
+        obj.id=objID;
         obj.modelMatrix = glm::scale(glm::translate(glm::mat4(1.0f), obj.mesh.translate), obj.mesh.scale);
+        obj.update();
 
         if (obj.state.texture == -1)
         {
@@ -253,17 +255,14 @@ namespace ORCore
 
         int batchId = find_batch(obj.state);
 
-        obj.id=objID;
-        obj.batchID = batchId;
-        obj.update();   
-
         // try until it gets added to a batch.
         while (m_batches[batchId]->add_mesh(obj.mesh, obj.modelMatrix) != true)
         {
             m_batches[batchId]->commit(); // commit that batch as it is full.
             batchId = find_batch(obj.state); // find or create the next batch
-            obj.batchID = batchId;
         }
+
+        obj.batchID = batchId;
 
         check_error();
 

@@ -81,11 +81,22 @@ namespace ORGame
         m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
         m_texture = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
         m_tailTexture = m_renderer.add_texture(ORCore::loadSTB("data/tail.png"));
+        m_fretsTexture = m_renderer.add_texture(ORCore::loadSTB("data/frets.png"));
 
         resize(m_width, m_height);
 
         prep_render_bars();
         prep_render_notes();
+
+        ORCore::RenderObject obj;
+        obj.set_texture(m_fretsTexture);
+        obj.set_program(m_program);
+        obj.set_scale(glm::vec3{1.0f, 1.0f, 0.1f});
+        obj.set_translation(glm::vec3{0.0f, 0.0f, -1.0f}); // center the line on the screen
+        obj.set_primitive_type(ORCore::Primitive::triangle);
+        obj.set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0,1.0,1.0,1.0}));
+        m_fretObj = m_renderer.add_object(obj);
+
         m_renderer.commit();
 
         GLint  iMultiSample = 0;
@@ -94,7 +105,6 @@ namespace ORGame
         glGetIntegerv(GL_SAMPLES, &iNumSamples);
 
         m_logger->info("GL_SAMPLE_BUFFERS: {}, GL_SAMPLES: {} ", iMultiSample, iNumSamples);
-
 
         glClearColor(0.5, 0.5, 0.5, 1.0);
     }
@@ -206,6 +216,7 @@ namespace ORGame
         glViewport(0, 0, m_width, m_height);
         m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 2.0f);
         m_perspective = glm::perspective(glm::radians(70.0f), m_width/static_cast<float>(m_height), 0.001f, 2.0f);
+        m_rotPerspective = glm::rotate(m_perspective, glm::radians(45.0f), glm::vec3(1.0f,0.0f,0.0f));
     }
 
     bool GameManager::event_handler(const ORCore::Event &event)
@@ -252,8 +263,16 @@ namespace ORGame
     {
         m_songTime = m_clock.get_current_time()/1000.0;
 
+        auto frets = m_renderer.get_object(m_fretObj);
+
+        frets->set_translation(glm::vec3(0.0f, 0.0f, -(m_songTime/0.5f)));
+
+        m_renderer.update_object(m_fretObj);
+
         // m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, 1.0f, (-m_songTime)/3.0f))); // translate projection with song
-        m_renderer.set_camera_transform("ortho", glm::translate(glm::rotate(m_perspective, glm::radians(45.0f), glm::vec3(1.0f,0.0f,0.0f)), glm::vec3(-0.5f, -1.0f, (m_songTime/0.5f)-1.0))); // translate projection with song
+        m_renderer.set_camera_transform("ortho", glm::translate(m_rotPerspective, glm::vec3(-0.5f, -1.0f, (m_songTime/0.5f)-0.5))); // translate projection with song
+
+        m_renderer.commit();
         //
     }
 

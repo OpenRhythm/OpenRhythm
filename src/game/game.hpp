@@ -54,12 +54,15 @@ namespace ORGame
         ORCore::Listener m_lis;
         int m_texture;
         int m_tailTexture;
+        int m_fretsTexture;
         int m_program;
+        int m_fretObj;
 
         std::shared_ptr<spdlog::logger> m_logger;
 
         std::streamsize m_ss;
         glm::mat4 m_ortho;
         glm::mat4 m_perspective;
+        glm::mat4 m_rotPerspective;
     };
 }
