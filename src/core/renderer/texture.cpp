@@ -106,7 +106,7 @@ namespace ORCore
 
             glActiveTexture(GL_TEXTURE0+m_texBindingPoint);
             glBindTexture(m_texTargetType, m_oglTexID);
-            std::cout << _("Texture bound") << std::endl;
+            // std::cout << _("Texture bound") << std::endl;
         }
 
         glUniform1i(location, m_texBindingPoint);
@@ -123,7 +123,7 @@ namespace ORCore
             m_texBindingPoint = 0;
             m_texIsBound = false;
             glActiveTexture(GL_TEXTURE0);
-            std::cout << _("Texture unbound") << std::endl;
+            // std::cout << _("Texture unbound") << std::endl;
         }
     }
 
