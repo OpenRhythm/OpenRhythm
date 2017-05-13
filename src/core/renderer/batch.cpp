@@ -108,7 +108,7 @@ namespace ORCore
     {
         m_committed = true;
 
-        std::cout << m_vertices.size() << std::endl;
+        //std::cout << m_vertices.size() << std::endl;
 
         // When switching to glMapBuffer
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
