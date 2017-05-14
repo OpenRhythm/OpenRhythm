@@ -7,6 +7,8 @@
 #include "vfs.hpp"
 namespace ORGame
 {
+    const float neck_speed_divisor = 0.5;
+
     GameManager::GameManager()
     :m_width(800),
     m_height(600),
@@ -88,16 +90,16 @@ namespace ORGame
 
         ORCore::RenderObject obj;
         obj.set_program(m_program);
-        obj.set_texture(m_soloNeckTexture);
         obj.set_primitive_type(ORCore::Primitive::triangle);
+        obj.set_texture(m_soloNeckTexture);
 
         auto *solos = m_playerTrack->get_solos();
         std::cout << "Solos: " << solos->size() << std::endl;
         for (auto &solo : *solos)
         {
 
-            float z = solo.time / 0.5f;
-            float length = solo.length/0.5f;
+            float z = solo.time / neck_speed_divisor;
+            float length = solo.length / neck_speed_divisor;
 
             std::cout << "SOLO: " << z << " " << length << std::endl;
 
@@ -150,7 +152,7 @@ namespace ORGame
         obj.set_program(m_program);
 
         for (size_t i = 0; i < bars.size(); i++) {
-            float z = (bars[i].bar->time / 0.5f);
+            float z = (bars[i].bar->time / neck_speed_divisor);
 
             obj.set_scale(glm::vec3{1.0f, 1.0f, 0.007});
             obj.set_translation(glm::vec3{0.0, 0.0f, -z}); // center the line on the screen
@@ -175,7 +177,7 @@ namespace ORGame
 
         for (auto &note : notes)
         {
-            float z = note->time / 0.5f;
+            float z = note->time / neck_speed_divisor;
             glm::vec4 color;
             if( note->type == NoteType::Green) {
                 color = glm::vec4{0.0f,1.0f,0.0f,1.0f};
@@ -189,7 +191,7 @@ namespace ORGame
                 color = glm::vec4{1.0f,0.5f,0.0f,1.0f};
             }
 
-            float noteLength = note->length/0.5f;
+            float noteLength = note->length/neck_speed_divisor;
 
             obj.set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
             obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
@@ -324,14 +326,14 @@ namespace ORGame
 
         auto frets = m_renderer.get_object(m_fretObj);
 
-        frets->set_translation(glm::vec3(0.0f, 0.0f, -(m_songTime/0.5f)));
+        frets->set_translation(glm::vec3(0.0f, 0.0f, -(m_songTime/neck_speed_divisor)));
 
         m_renderer.update_object(m_fretObj);
 
         m_renderer.commit();
 
         // m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, 1.0f, (-m_songTime)/3.0f))); // translate projection with song
-        m_renderer.set_camera_transform("ortho", glm::translate(m_rotPerspective, glm::vec3(-0.5f, -1.0f, (m_songTime/0.5f)-0.5))); // translate projection with song
+        m_renderer.set_camera_transform("ortho", glm::translate(m_rotPerspective, glm::vec3(-0.5f, -1.0f, (m_songTime/neck_speed_divisor)-0.5))); // translate projection with song
 
     }
 
