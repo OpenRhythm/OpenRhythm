@@ -293,20 +293,20 @@ namespace ORGame
                 auto *tailObj = m_renderer.get_object(note->objTailID);
                 auto *noteObj = m_renderer.get_object(note->objNoteID);
 
-                // glm::vec4 color;
-                // if( note->type == NoteType::Green) {
-                //     color = glm::vec4{0.2,1.0,0.2,1.0};
-                // } else if( note->type == NoteType::Red) {
-                //     color = glm::vec4{1.2,0.2,0.2,1.0};
-                // } else if( note->type == NoteType::Yellow) {
-                //     color = glm::vec4{1.2,1.0,0.2,1.0};
-                // } else if( note->type == NoteType::Blue) {
-                //     color = glm::vec4{0.2,0.2,1.0,1.0};
-                // } else if( note->type == NoteType::Orange) {
-                //     color = glm::vec4{1.0,0.5,0.2,1.0};
-                // }
+                glm::vec4 color;
+                if( note->type == NoteType::Green) {
+                    color = glm::vec4{0.25f,3.0f,0.25f,1.0f};
+                } else if( note->type == NoteType::Red) {
+                    color = glm::vec4{4.0f,0.25f,0.25f,1.0f};
+                } else if( note->type == NoteType::Yellow) {
+                    color = glm::vec4{3.0f,3.0f,0.5f,1.0f};
+                } else if( note->type == NoteType::Blue) {
+                    color = glm::vec4{0.25f,1.5f,4.5f,1.0f};
+                } else if( note->type == NoteType::Orange) {
+                    color = glm::vec4{3.0f,1.5f,0.5f,1.0f};
+                }
 
-                tailObj->set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+                tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
                 // noteObj->set_geometry(ORCore::create_cube_mesh(color));
                 //tailObj->set_scale(glm::vec3(1.0f,1.0f,1.0f));
                 //noteObj->set_scale(glm::vec3(1.0f,1.0f,1.0f));
