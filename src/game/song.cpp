@@ -290,6 +290,8 @@ namespace ORGame
         m_tempoTrack.mark_bars();
 
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
+
+        bool foundUsable = false;
         
         for (auto midiTrack : midiTracks)
         {
@@ -301,7 +303,12 @@ namespace ORGame
                 add(type, Difficulty::Hard);
                 add(type, Difficulty::Medium);
                 add(type, Difficulty::Easy);
+                foundUsable = true;
             }
+        }
+        if (!foundUsable)
+        {
+            throw std::runtime_error("Invalid song format.");
         }
 
         logger->debug(_("Song loaded"));
