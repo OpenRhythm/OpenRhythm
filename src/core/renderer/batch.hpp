@@ -18,7 +18,7 @@ namespace ORCore
         void init_gl();
         void clear();
         bool add_mesh(Mesh& mesh, const glm::mat4& transform);
-        void update_mesh(const Mesh& mesh, const glm::mat4& transform);
+        void update_mesh(Mesh& mesh, const glm::mat4& transform);
         void set_state(RenderState state);
         void commit();
         void render();

@@ -89,12 +89,16 @@ namespace ORCore
         }
     }
 
-    void Batch::update_mesh(const Mesh& mesh, const glm::mat4& transform)
+    void Batch::update_mesh(Mesh& mesh, const glm::mat4& transform)
     {
         // TODO - Make this smarter about what it updates if performance becomes an issue.
         // Could glBufferSubdata just the parts needed?
         m_committed = false;
         m_matrices[mesh.transformOffset] = transform;
+        for (auto &vertex : mesh.vertices)
+        {
+            vertex.matIndex = mesh.transformOffset;
+        }
         std::copy(std::begin(mesh.vertices), std::end(mesh.vertices), std::begin(m_vertices)+mesh.verticesOffset);
     }
 
