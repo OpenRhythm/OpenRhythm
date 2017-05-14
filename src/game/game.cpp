@@ -94,14 +94,11 @@ namespace ORGame
         obj.set_texture(m_soloNeckTexture);
 
         auto *solos = m_playerTrack->get_solos();
-        std::cout << "Solos: " << solos->size() << std::endl;
         for (auto &solo : *solos)
         {
 
             float z = solo.time / neck_speed_divisor;
             float length = solo.length / neck_speed_divisor;
-
-            std::cout << "SOLO: " << z << " " << length << std::endl;
 
             obj.set_scale(glm::vec3{1.125f, 1.0f, -length});
             obj.set_translation(glm::vec3{-0.0625f, 0.0f, -z});
@@ -119,9 +116,6 @@ namespace ORGame
         obj.set_primitive_type(ORCore::Primitive::triangle);
         obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
         m_fretObj = m_renderer.add_object(obj);
-
-
-
 
         m_renderer.commit();
 
@@ -296,7 +290,6 @@ namespace ORGame
         {
             if (!note->played && note->time <= m_songTime)
             {
-                std::cout << "Note HIT!" << std::endl;
                 auto *tailObj = m_renderer.get_object(note->objTailID);
                 auto *noteObj = m_renderer.get_object(note->objNoteID);
 

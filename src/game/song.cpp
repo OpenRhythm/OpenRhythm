@@ -133,11 +133,9 @@ namespace ORGame
     {
         if (on) {
             m_solos.push_back({time, 0.0});
-            std::cout << "Solo Start: " << time << std::endl;
         } else {
             auto &solo = m_solos.back();
             solo.length = time - solo.time;
-            std::cout << "Solo End: " << time << std::endl;
         }
     }
 
