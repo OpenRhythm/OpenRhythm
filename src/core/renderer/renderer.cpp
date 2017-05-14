@@ -245,7 +245,6 @@ namespace ORCore
         auto &obj = m_objects.back();
 
         obj.id=objID;
-        obj.modelMatrix = glm::scale(glm::translate(glm::mat4(1.0f), obj.mesh.translate), obj.mesh.scale);
         obj.update();
 
         if (obj.state.texture == -1)

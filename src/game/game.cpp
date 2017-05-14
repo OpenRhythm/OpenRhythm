@@ -82,20 +82,44 @@ namespace ORGame
         m_texture = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
         m_tailTexture = m_renderer.add_texture(ORCore::loadSTB("data/tail.png"));
         m_fretsTexture = m_renderer.add_texture(ORCore::loadSTB("data/frets.png"));
+        m_soloNeckTexture = m_renderer.add_texture(ORCore::loadSTB("data/soloNeck.png"));
 
         resize(m_width, m_height);
 
+        ORCore::RenderObject obj;
+        obj.set_program(m_program);
+        obj.set_texture(m_soloNeckTexture);
+        obj.set_primitive_type(ORCore::Primitive::triangle);
+
+        auto *solos = m_playerTrack->get_solos();
+        std::cout << "Solos: " << solos->size() << std::endl;
+        for (auto &solo : *solos)
+        {
+
+            float z = solo.time / 0.5f;
+            float length = solo.length/0.5f;
+
+            std::cout << "SOLO: " << z << " " << length << std::endl;
+
+            obj.set_scale(glm::vec3{1.125f, 1.0f, -length});
+            obj.set_translation(glm::vec3{-0.0625f, 0.0f, -z});
+            obj.set_geometry(ORCore::create_rect_z_mesh(glm::vec4{0.0f,1.0f,1.0f,1.0f}));
+            m_renderer.add_object(obj);
+        }
+
         prep_render_bars();
+
         prep_render_notes();
 
-        ORCore::RenderObject obj;
         obj.set_texture(m_fretsTexture);
-        obj.set_program(m_program);
-        obj.set_scale(glm::vec3{1.0f, 1.0f, 0.1f});
+        obj.set_scale(glm::vec3{1.0f, 1.0f, 0.05f});
         obj.set_translation(glm::vec3{0.0f, 0.0f, -1.0f}); // center the line on the screen
         obj.set_primitive_type(ORCore::Primitive::triangle);
-        obj.set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0,1.0,1.0,1.0}));
+        obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
         m_fretObj = m_renderer.add_object(obj);
+
+
+
 
         m_renderer.commit();
 
@@ -131,7 +155,7 @@ namespace ORGame
             obj.set_scale(glm::vec3{1.0f, 1.0f, 0.007});
             obj.set_translation(glm::vec3{0.0, 0.0f, -z}); // center the line on the screen
             obj.set_primitive_type(ORCore::Primitive::triangle);
-            obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0,1.0,1.0,1.0}));
+            obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
 
             m_renderer.add_object(obj);
         }
@@ -149,39 +173,40 @@ namespace ORGame
         float noteWidth = 1.0f/5.0f;
         float tailWidth = noteWidth/3.0f;
 
-        for (size_t i = 0; i < notes.size(); i++) {
-            float z = notes[i]->time / 0.5f;
+        for (auto &note : notes)
+        {
+            float z = note->time / 0.5f;
             glm::vec4 color;
-            if( notes[i]->type == NoteType::Green) {
-                color = glm::vec4{0.0,1.0,0.0,1.0};
-            } else if( notes[i]->type == NoteType::Red) {
-                color = glm::vec4{1.0,0.0,0.0,1.0};
-            } else if( notes[i]->type == NoteType::Yellow) {
-                color = glm::vec4{1.0,1.0,0.0,1.0};
-            } else if( notes[i]->type == NoteType::Blue) {
-                color = glm::vec4{0.0,0.0,1.0,1.0};
-            } else if( notes[i]->type == NoteType::Orange) {
-                color = glm::vec4{1.0,0.5,0.0,1.0};
+            if( note->type == NoteType::Green) {
+                color = glm::vec4{0.0f,1.0f,0.0f,1.0f};
+            } else if( note->type == NoteType::Red) {
+                color = glm::vec4{1.0f,0.0f,0.0f,1.0f};
+            } else if( note->type == NoteType::Yellow) {
+                color = glm::vec4{1.0f,1.0f,0.0f,1.0f};
+            } else if( note->type == NoteType::Blue) {
+                color = glm::vec4{0.0f,0.0f,1.0f,1.0f};
+            } else if( note->type == NoteType::Orange) {
+                color = glm::vec4{1.0f,0.5f,0.0f,1.0f};
             }
-            //std::cout << "Length: " << notes[i]->length/30.0f << std::endl;
 
-            float noteLength = notes[i]->length/0.5f;
+            float noteLength = note->length/0.5f;
 
             obj.set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
-            obj.set_translation(glm::vec3{(static_cast<int>(notes[i]->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
+            obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
             obj.set_primitive_type(ORCore::Primitive::triangle);
             obj.set_geometry(ORCore::create_rect_z_mesh(color));
             obj.set_texture(m_tailTexture);
 
-            m_renderer.add_object(obj);
+            note->objTailID = m_renderer.add_object(obj);
             obj.set_texture(-1); // -1 gets set to the default texture.
 
             obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/2.0f});
-            obj.set_translation(glm::vec3{(static_cast<int>(notes[i]->type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
+            obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
             obj.set_primitive_type(ORCore::Primitive::triangle);
             obj.set_geometry(ORCore::create_cube_mesh(color));
 
-            m_renderer.add_object(obj);
+            note->objNoteID = m_renderer.add_object(obj);
+
         }
     }
 
@@ -261,7 +286,41 @@ namespace ORGame
 
     void GameManager::update()
     {
+        // TODO - move songtime to song class, and create a new timer type which can be started and stopped/paused/rewound etc\.
         m_songTime = m_clock.get_current_time()/1000.0;
+
+        auto notesInWindow = m_playerTrack->get_notes_in_frame(m_songTime-0.020, m_songTime+0.100);
+        for (auto *note : notesInWindow)
+        {
+            if (!note->played && note->time <= m_songTime)
+            {
+                std::cout << "Note HIT!" << std::endl;
+                auto *tailObj = m_renderer.get_object(note->objTailID);
+                auto *noteObj = m_renderer.get_object(note->objNoteID);
+
+                // glm::vec4 color;
+                // if( note->type == NoteType::Green) {
+                //     color = glm::vec4{0.2,1.0,0.2,1.0};
+                // } else if( note->type == NoteType::Red) {
+                //     color = glm::vec4{1.2,0.2,0.2,1.0};
+                // } else if( note->type == NoteType::Yellow) {
+                //     color = glm::vec4{1.2,1.0,0.2,1.0};
+                // } else if( note->type == NoteType::Blue) {
+                //     color = glm::vec4{0.2,0.2,1.0,1.0};
+                // } else if( note->type == NoteType::Orange) {
+                //     color = glm::vec4{1.0,0.5,0.2,1.0};
+                // }
+
+                tailObj->set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+                // noteObj->set_geometry(ORCore::create_cube_mesh(color));
+                //tailObj->set_scale(glm::vec3(1.0f,1.0f,1.0f));
+                //noteObj->set_scale(glm::vec3(1.0f,1.0f,1.0f));
+
+                m_renderer.update_object(note->objTailID);
+                m_renderer.update_object(note->objNoteID);
+                note->played = true;
+            }
+        }
 
         auto frets = m_renderer.get_object(m_fretObj);
 
@@ -269,11 +328,11 @@ namespace ORGame
 
         m_renderer.update_object(m_fretObj);
 
+        m_renderer.commit();
+
         // m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, 1.0f, (-m_songTime)/3.0f))); // translate projection with song
         m_renderer.set_camera_transform("ortho", glm::translate(m_rotPerspective, glm::vec3(-0.5f, -1.0f, (m_songTime/0.5f)-0.5))); // translate projection with song
 
-        m_renderer.commit();
-        //
     }
 
     void GameManager::render()

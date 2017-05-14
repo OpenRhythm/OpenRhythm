@@ -64,6 +64,9 @@ namespace ORGame
         NoteType type;
         double time;
         double length;
+        int objNoteID;
+        int objTailID;
+        bool played;
     };
 
     struct TempoEvent
@@ -116,6 +119,12 @@ namespace ORGame
 
     };
 
+    struct SoloEvent
+    {
+        double time;
+        double length;
+    };
+
 
     struct TrackInfo
     {
@@ -148,12 +157,15 @@ namespace ORGame
         TrackInfo info();
 
         void add_note(NoteType type, double time, bool on);
+        void Track::set_solo(double time, bool on);
+        std::vector<SoloEvent> *get_solos();
         std::vector<TrackNote*> get_notes_in_frame(double start, double end);
         std::vector<TrackNote*> get_notes();
 
     private:
         TrackInfo m_info;
         std::vector<TrackNote> m_notes;
+        std::vector<SoloEvent> m_solos;
     };
 
     class Song

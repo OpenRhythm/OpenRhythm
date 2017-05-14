@@ -1,7 +1,7 @@
 #include "config.hpp"
 #include <stdexcept>
 #include <algorithm>
-
+#include <iostream>
 #include "song.hpp"
 
 #include "vfs.hpp"
@@ -129,6 +129,23 @@ namespace ORGame
         }
     }
 
+    void Track::set_solo(double time, bool on)
+    {
+        if (on) {
+            m_solos.push_back({time, 0.0});
+            std::cout << "Solo Start: " << time << std::endl;
+        } else {
+            auto &solo = m_solos.back();
+            solo.length = time - solo.time;
+            std::cout << "Solo End: " << time << std::endl;
+        }
+    }
+
+    std::vector<SoloEvent> *Track::get_solos()
+    {
+        return &m_solos;
+    }
+
     std::vector<TrackNote*> Track::get_notes_in_frame(double start, double end)
     {   
         std::vector<TrackNote*> notes;
@@ -150,6 +167,7 @@ namespace ORGame
     }
 
     using MidiNoteMap = std::map<int, NoteType>;
+    const int solo_marker = 0x67;
     const std::map<Difficulty, MidiNoteMap> midiDiffMap {
         {Difficulty::Expert, {
                 {0x60, NoteType::Green},
@@ -303,6 +321,8 @@ namespace ORGame
 
         const MidiNoteMap &noteMap = midiDiffMap.at(trackInfo.difficulty);
 
+        NoteType note;
+
         
         for (auto midiTrack : midiTracks)
         {
@@ -311,25 +331,36 @@ namespace ORGame
             {
                 for (auto &midiEvent : midiTrack->midiEvents)
                 {
-                    try
-                    {
-                        
-                        if (midiEvent.message == ORCore::NoteOn) {
-                            NoteType note = noteMap.at(midiEvent.data1);
+
+                    if (midiEvent.message == ORCore::NoteOn) {
+                        if (midiEvent.data1 == solo_marker) {
+                            track.set_solo(m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                        } else {
+                            try {
+                                note = noteMap.at(midiEvent.data1);
+                            } catch (std::out_of_range &err) {
+                                continue;
+                            }
                             // TODO - read note velocity and treat vel 0 as note off.
                             if (note != NoteType::NONE) {
                                 track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
                             }
-                        } else if (midiEvent.message == ORCore::NoteOff) {
-                            NoteType note = noteMap.at(midiEvent.data1);
+                        }
+                    } else if (midiEvent.message == ORCore::NoteOff) {
+                        if (midiEvent.data1 == solo_marker) {
+                            track.set_solo(m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                        } else {
+                            try {
+                                note = noteMap.at(midiEvent.data1);
+                            } catch (std::out_of_range &err) {
+                                continue;
+                            }
                             if (note != NoteType::NONE) {
                                 track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
                             }
                         }
-                    } catch (std::out_of_range &err)
-                    {
-                        continue;
                     }
+
                 }
                 m_length = midiTrack->endTime;
                 break;

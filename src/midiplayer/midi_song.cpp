@@ -151,9 +151,9 @@ namespace MidiPlayer
             for (auto &midiEvent : midiTrack->midiEvents) {
                 try {
                     if (midiEvent.message == ORCore::NoteOn) {
-                        track.add_note(midiEvent.data1, midiEvent.info.absTime, true);
+                        track.add_note(midiEvent.data1, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
                     } else if (midiEvent.message == ORCore::NoteOff) {
-                        track.add_note(midiEvent.data1, midiEvent.info.absTime, false);
+                        track.add_note(midiEvent.data1, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
                     }
                 } catch (std::out_of_range &err) {
                     continue;

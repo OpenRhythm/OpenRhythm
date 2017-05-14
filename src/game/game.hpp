@@ -55,6 +55,7 @@ namespace ORGame
         int m_texture;
         int m_tailTexture;
         int m_fretsTexture;
+        int m_soloNeckTexture;
         int m_program;
         int m_fretObj;
 
