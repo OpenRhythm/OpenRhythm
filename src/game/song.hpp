@@ -157,7 +157,7 @@ namespace ORGame
         TrackInfo info();
 
         void add_note(NoteType type, double time, bool on);
-        void Track::set_solo(double time, bool on);
+        void set_solo(double time, bool on);
         std::vector<SoloEvent> *get_solos();
         std::vector<TrackNote*> get_notes_in_frame(double start, double end);
         std::vector<TrackNote*> get_notes();
