@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <ios>
+#include <map>
 
 #include "window.hpp"
 #include "context.hpp"
@@ -15,6 +16,24 @@
 
 namespace ORGame
 {
+
+
+    const std::map<NoteType, glm::vec4> noteColorMap = {
+        {NoteType::Green, {0.0f,1.0f,0.0f,1.0f}},
+        {NoteType::Red, {1.0f,0.0f,0.0f,1.0f}},
+        {NoteType::Yellow, {1.0f,1.0f,0.0f,1.0f}},
+        {NoteType::Blue, {0.0f,0.0f,1.0f,1.0f}},
+        {NoteType::Orange, {1.0f,0.5f,0.0f,1.0f}},
+    };
+    
+    const std::map<NoteType, glm::vec4> noteColorMapActive = {
+        {NoteType::Green, {0.25f,3.0f,0.25f,1.0f}},
+        {NoteType::Red, {4.0f,0.25f,0.25f,1.0f}},
+        {NoteType::Yellow, {3.0f,3.0f,0.5f,1.0f}},
+        {NoteType::Blue, {0.25f,1.5f,4.5f,1.0f}},
+        {NoteType::Orange, {3.0f,1.5f,0.5f,1.0f}},
+    };
+
     class GameManager
     {
     public:

@@ -47,22 +47,22 @@ namespace ORGame
         }
     }
 
-    std::vector<TempoTrackEvent> TempoTrack::get_events(double start, double end, EventType type)
+    std::vector<TempoTrackEvent> TempoTrack::get_events(double start, double end, TempoEventType type)
     {
         std::vector<TempoTrackEvent> events;
-        if (type == EventType::Tempo) {
+        if (type == TempoEventType::Tempo) {
             for (auto &tempo : m_tempo) {
                 if (tempo.time >= start && tempo.time <= end) {
                     events.emplace_back(&tempo);
                 }
             }
-        } else if (type == EventType::TimeSignature){
+        } else if (type == TempoEventType::TimeSignature){
             for (auto &ts : m_ts) {
                 if (ts.time >= start && ts.time <= end) {
                     events.emplace_back(&ts);
                 }
             }
-        } else if (type == EventType::Bar){
+        } else if (type == TempoEventType::Bar){
             for (auto &bar : m_bars) {
                 if (bar.time >= start && bar.time <= end) {
                     events.emplace_back(&bar);
@@ -72,18 +72,18 @@ namespace ORGame
         return events;
     }
 
-    std::vector<TempoTrackEvent> TempoTrack::get_events(EventType type)
+    std::vector<TempoTrackEvent> TempoTrack::get_events(TempoEventType type)
     {
         std::vector<TempoTrackEvent> events;
-        if (type == EventType::Tempo) {
+        if (type == TempoEventType::Tempo) {
             for (auto &tempo : m_tempo) {
                 events.emplace_back(&tempo);
             }
-        } else if (type == EventType::TimeSignature){
+        } else if (type == TempoEventType::TimeSignature){
             for (auto &ts : m_ts) {
                 events.emplace_back(&ts);
             }
-        } else if (type == EventType::Bar){
+        } else if (type == TempoEventType::Bar){
             for (auto &bar : m_bars) {
                 events.emplace_back(&bar);
             }
@@ -129,20 +129,22 @@ namespace ORGame
         }
     }
 
-    void Track::set_solo(double time, bool on)
+    void Track::set_event(EventType type, double time, bool on)
     {
         if (on) {
-            m_solos.push_back({time, 0.0});
+            m_events.push_back({type, time, 0.0});
         } else {
-            auto &solo = m_solos.back();
+            auto &solo = m_events.back();
             solo.length = time - solo.time;
         }
     }
 
-    std::vector<SoloEvent> *Track::get_solos()
+    std::vector<Event> *Track::get_events()
     {
-        return &m_solos;
+        return &m_events;
     }
+
+    // void set_
 
     std::vector<TrackNote*> Track::get_notes_in_frame(double start, double end)
     {   
@@ -166,6 +168,7 @@ namespace ORGame
 
     using MidiNoteMap = std::map<int, NoteType>;
     const int solo_marker = 0x67;
+    const int drive_marker = 0x74;
     const std::map<Difficulty, MidiNoteMap> midiDiffMap {
         {Difficulty::Expert, {
                 {0x60, NoteType::Green},
@@ -328,18 +331,20 @@ namespace ORGame
 
         NoteType note;
 
-        
         for (auto midiTrack : midiTracks)
         {
             TrackType type = get_track_type(midiTrack->name);
             if (type == trackInfo.type)
             {
+
                 for (auto &midiEvent : midiTrack->midiEvents)
                 {
-
+                    // TODO - Clean this up this WILL get very messy eventually.
                     if (midiEvent.message == ORCore::NoteOn) {
                         if (midiEvent.data1 == solo_marker) {
-                            track.set_solo(m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                            track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                        } else if (midiEvent.data1 == drive_marker) {
+                            track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
                         } else {
                             try {
                                 note = noteMap.at(midiEvent.data1);
@@ -353,7 +358,9 @@ namespace ORGame
                         }
                     } else if (midiEvent.message == ORCore::NoteOff) {
                         if (midiEvent.data1 == solo_marker) {
-                            track.set_solo(m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                            track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                        } else if (midiEvent.data1 == drive_marker) {
+                            track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
                         } else {
                             try {
                                 note = noteMap.at(midiEvent.data1);

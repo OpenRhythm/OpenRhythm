@@ -87,22 +87,30 @@ namespace ORGame
         m_soloNeckTexture = m_renderer.add_texture(ORCore::loadSTB("data/soloNeck.png"));
 
         resize(m_width, m_height);
+        // glEnable(GL_DEPTH_TEST);
 
         ORCore::RenderObject obj;
         obj.set_program(m_program);
         obj.set_primitive_type(ORCore::Primitive::triangle);
         obj.set_texture(m_soloNeckTexture);
 
-        auto *solos = m_playerTrack->get_solos();
-        for (auto &solo : *solos)
+        auto *events = m_playerTrack->get_events();
+        for (auto &event : *events)
         {
 
-            float z = solo.time / neck_speed_divisor;
-            float length = solo.length / neck_speed_divisor;
+            float z = event.time / neck_speed_divisor;
+            float length = event.length / neck_speed_divisor;
+            glm::vec4 color;
+            if (event.type == EventType::solo) {
+                color = glm::vec4{0.0f,1.0f,1.0f,1.0f};
+            } else if (event.type == EventType::drive)
+            {
+                color = glm::vec4{1.5f,1.5f,1.5f,1.0f};
+            }
 
             obj.set_scale(glm::vec3{1.125f, 1.0f, -length});
             obj.set_translation(glm::vec3{-0.0625f, 0.0f, -z});
-            obj.set_geometry(ORCore::create_rect_z_mesh(glm::vec4{0.0f,1.0f,1.0f,1.0f}));
+            obj.set_geometry(ORCore::create_rect_z_mesh(color));
             m_renderer.add_object(obj);
         }
 
@@ -137,7 +145,7 @@ namespace ORGame
     void GameManager::prep_render_bars()
     {
 
-        std::vector<TempoTrackEvent> bars = m_tempoTrack->get_events(ORGame::EventType::Bar);
+        std::vector<TempoTrackEvent> bars = m_tempoTrack->get_events(ORGame::TempoEventType::Bar);
         std::cout << "Bar Count: " << bars.size() << " Song Length: " << m_song.length() << std::endl;
 
         // reuse the same container when creating bars as add_obj wont modify the original.
@@ -173,16 +181,10 @@ namespace ORGame
         {
             float z = note->time / neck_speed_divisor;
             glm::vec4 color;
-            if( note->type == NoteType::Green) {
-                color = glm::vec4{0.0f,1.0f,0.0f,1.0f};
-            } else if( note->type == NoteType::Red) {
-                color = glm::vec4{1.0f,0.0f,0.0f,1.0f};
-            } else if( note->type == NoteType::Yellow) {
-                color = glm::vec4{1.0f,1.0f,0.0f,1.0f};
-            } else if( note->type == NoteType::Blue) {
-                color = glm::vec4{0.0f,0.0f,1.0f,1.0f};
-            } else if( note->type == NoteType::Orange) {
-                color = glm::vec4{1.0f,0.5f,0.0f,1.0f};
+            try {
+                color = noteColorMap.at(note->type);
+            } catch (std::out_of_range &err) {
+                color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
             }
 
             float noteLength = note->length/neck_speed_divisor;
@@ -294,16 +296,10 @@ namespace ORGame
                 auto *noteObj = m_renderer.get_object(note->objNoteID);
 
                 glm::vec4 color;
-                if( note->type == NoteType::Green) {
-                    color = glm::vec4{0.25f,3.0f,0.25f,1.0f};
-                } else if( note->type == NoteType::Red) {
-                    color = glm::vec4{4.0f,0.25f,0.25f,1.0f};
-                } else if( note->type == NoteType::Yellow) {
-                    color = glm::vec4{3.0f,3.0f,0.5f,1.0f};
-                } else if( note->type == NoteType::Blue) {
-                    color = glm::vec4{0.25f,1.5f,4.5f,1.0f};
-                } else if( note->type == NoteType::Orange) {
-                    color = glm::vec4{3.0f,1.5f,0.5f,1.0f};
+                try {
+                    color = noteColorMapActive.at(note->type);
+                } catch (std::out_of_range &err) {
+                    color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
                 }
 
                 tailObj->set_geometry(ORCore::create_rect_z_mesh(color));

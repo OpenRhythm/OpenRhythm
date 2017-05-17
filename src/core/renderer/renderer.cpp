@@ -5,7 +5,7 @@
 namespace ORCore
 {
 
-    std::vector<Vertex> create_rect_mesh(glm::vec4 color)
+    std::vector<Vertex> create_rect_mesh(const glm::vec4& color)
     {
         return {
             // Vertex2           UV            Color
@@ -19,7 +19,7 @@ namespace ORCore
         };
     }
 
-    std::vector<Vertex> create_rect_z_mesh(glm::vec4 color)
+    std::vector<Vertex> create_rect_z_mesh(const glm::vec4& color)
     {
         return {
             // Vertex2           UV            Color
@@ -33,7 +33,7 @@ namespace ORCore
         };
     }
 
-    std::vector<Vertex> create_rect_z_center_mesh(glm::vec4 color)
+    std::vector<Vertex> create_rect_z_center_mesh(const glm::vec4& color)
     {
         return {
             // Vertex2           UV            Color
@@ -47,7 +47,7 @@ namespace ORCore
         };
     }
 
-    std::vector<Vertex> create_cube_mesh(glm::vec4 color)
+    std::vector<Vertex> create_cube_mesh(const glm::vec4& color)
     {
         return {
             {{0.0f,0.0f,-0.5f}, {0.0f, 0.0f}, color},
@@ -134,7 +134,12 @@ namespace ORCore
 
     void RenderObject::set_geometry(std::vector<Vertex>&& geometry)
     {
-        mesh.vertices = geometry;
+        if (batchID == -1 || geometry.size() == mesh.vertices.size())
+        {
+            mesh.vertices = geometry;
+        } else {
+            throw std::length_error("Geometry size does not match original.");
+        }
     }
 
     void RenderObject::set_texture(int texture)

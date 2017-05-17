@@ -39,14 +39,12 @@ namespace ORGame
         Orange,
     };
 
-    enum class EventType
+    enum class TempoEventType
     {
         Note,
         Tempo,
         TimeSignature,
         Bar,
-        Lyric,
-        Other,
     };
 
     struct MidiNoteDefinition
@@ -119,8 +117,18 @@ namespace ORGame
 
     };
 
-    struct SoloEvent
+    enum class EventType
     {
+        solo,
+        drive,
+        freestyle,
+    };
+
+    // Events are for things that have a position/length with no special data accociated with them
+    // So drive/solo/freestyle are some examples.
+    struct Event
+    {
+        EventType type;
         double time;
         double length;
     };
@@ -138,8 +146,8 @@ namespace ORGame
         void add_tempo_event(int ppqn, double time);
         void add_time_sig_event(int numerator, int denominator, int compoundFactor, double time);
         void mark_bars();
-        std::vector<TempoTrackEvent> get_events(double start, double end, EventType type);
-        std::vector<TempoTrackEvent> get_events(EventType type);
+        std::vector<TempoTrackEvent> get_events(double start, double end, TempoEventType type);
+        std::vector<TempoTrackEvent> get_events(TempoEventType type);
 
     private:
     	std::vector<TempoEvent> m_tempo;
@@ -157,15 +165,16 @@ namespace ORGame
         TrackInfo info();
 
         void add_note(NoteType type, double time, bool on);
-        void set_solo(double time, bool on);
-        std::vector<SoloEvent> *get_solos();
         std::vector<TrackNote*> get_notes_in_frame(double start, double end);
         std::vector<TrackNote*> get_notes();
+
+        void set_event(EventType type, double time, bool on);
+        std::vector<Event> *get_events();
 
     private:
         TrackInfo m_info;
         std::vector<TrackNote> m_notes;
-        std::vector<SoloEvent> m_solos;
+        std::vector<Event> m_events;
     };
 
     class Song
