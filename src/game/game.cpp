@@ -95,23 +95,38 @@ namespace ORGame
         obj.set_texture(m_soloNeckTexture);
 
         auto *events = m_playerTrack->get_events();
+
+        // Solos
+        glm::vec4 solo_color = glm::vec4{0.0f,1.0f,1.0f,0.75f};
         for (auto &event : *events)
         {
 
-            float z = event.time / neck_speed_divisor;
-            float length = event.length / neck_speed_divisor;
-            glm::vec4 color;
             if (event.type == EventType::solo) {
-                color = glm::vec4{0.0f,1.0f,1.0f,1.0f};
-            } else if (event.type == EventType::drive)
-            {
-                color = glm::vec4{1.5f,1.5f,1.5f,1.0f};
-            }
+                float z = event.time / neck_speed_divisor;
+                float length = event.length / neck_speed_divisor;
 
-            obj.set_scale(glm::vec3{1.125f, 1.0f, -length});
-            obj.set_translation(glm::vec3{-0.0625f, 0.0f, -z});
-            obj.set_geometry(ORCore::create_rect_z_mesh(color));
-            m_renderer.add_object(obj);
+                obj.set_scale(glm::vec3{1.125f, 1.0f, -length});
+                obj.set_translation(glm::vec3{-0.0625f, 0.0f, -z});
+                obj.set_geometry(ORCore::create_rect_z_mesh(solo_color));
+                m_renderer.add_object(obj);
+            }
+        }
+
+        // drive
+        glm::vec4 drive_color = glm::vec4{1.5f,1.5f,1.5f,0.75f};
+
+        for (auto &event : *events)
+        {
+            if (event.type == EventType::drive)
+            {
+                float z = event.time / neck_speed_divisor;
+                float length = event.length / neck_speed_divisor;
+
+                obj.set_scale(glm::vec3{1.125f, 1.0f, -length});
+                obj.set_translation(glm::vec3{-0.0625f, 0.0f, -z});
+                obj.set_geometry(ORCore::create_rect_z_mesh(drive_color));
+                m_renderer.add_object(obj);
+            }
         }
 
         prep_render_bars();

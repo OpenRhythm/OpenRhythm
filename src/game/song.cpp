@@ -131,11 +131,25 @@ namespace ORGame
 
     void Track::set_event(EventType type, double time, bool on)
     {
+        static std::vector<std::pair<EventType, int>> activeEvents;
+
         if (on) {
+            int index = m_events.size();
+            activeEvents.emplace_back(type, index);
             m_events.push_back({type, time, 0.0});
         } else {
-            auto &solo = m_events.back();
-            solo.length = time - solo.time;
+            auto findFunc = [&](const auto& element)
+            {
+                return element.first == type;
+            };
+            auto item = std::find_if( activeEvents.begin(), activeEvents.end(), findFunc);
+            if (item != activeEvents.end())
+            {
+                auto &event = m_events[item->second];
+                event.length = time - event.time;
+                activeEvents.erase(item);
+            }
+
         }
     }
 
