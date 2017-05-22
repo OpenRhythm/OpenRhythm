@@ -342,18 +342,33 @@ namespace ORGame
                     // TODO - Clean this up this WILL get very messy eventually.
                     if (midiEvent.message == ORCore::NoteOn) {
                         if (midiEvent.data1 == solo_marker) {
-                            track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                            if (midiEvent.data2 != 0)
+                            {
+                                track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                            } else {
+                                track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+
+                            }
                         } else if (midiEvent.data1 == drive_marker) {
-                            track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                            if (midiEvent.data2 != 0)
+                            {
+                                track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                            } else {
+                                track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                            }
                         } else {
                             try {
                                 note = noteMap.at(midiEvent.data1);
                             } catch (std::out_of_range &err) {
                                 continue;
                             }
-                            // TODO - read note velocity and treat vel 0 as note off.
                             if (note != NoteType::NONE) {
-                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                                if (midiEvent.data2 != 0)
+                                {
+                                    track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                                } else {
+                                    track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                                }
                             }
                         }
                     } else if (midiEvent.message == ORCore::NoteOff) {
