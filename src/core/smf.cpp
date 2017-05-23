@@ -6,7 +6,7 @@ namespace ORCore
 {
 
     SmfReader::SmfReader(std::string filename)
-    :m_tempoTrack(nullptr), m_timeSigTrack(nullptr), m_logger(spdlog::get("default"))
+    :m_logger(spdlog::get("default"))
     {
         m_logger->info(_("Loading MIDI"));
 
@@ -31,19 +31,9 @@ namespace ORCore
         }
         return tracks;
     }
-    SmfTrack* SmfReader::get_tempo_track()
+    TempoTrack* SmfReader::get_tempo_track()
     {
-        if (m_header.format == smfType2) {
-            return nullptr;
-        }
-        return m_timeSigTrack;
-    }
-    SmfTrack* SmfReader::get_time_sig_track()
-    {
-        if (m_header.format == smfType2) {
-            return nullptr;
-        }
-        return m_timeSigTrack;
+        return &m_tempoTrack;
     }
     
     void SmfReader::release()
@@ -173,11 +163,11 @@ namespace ORCore
                 // This is good because it reduces the number of doubles we store reducing memory usage somewhat, and it also reduces
                 // the rounding error overall allowing more accurate timestamps. Thanks FireFox of the RGC discord for this idea from his
                 // .chart/midi parser that is used for his moonscraper project.
-                if (m_currentTrack->tempo.size() == 0)
+                if (m_tempoTrack.tempo.size() == 0)
                 {
                     absTime = 0.0;
                 } else {
-                    auto lastTempo = m_currentTrack->tempo.back();
+                    auto lastTempo = m_tempoTrack.tempo.back();
                     absTime = lastTempo.absTime + delta_tick_to_delta_time(&lastTempo, eventInfo.pulseTime - lastTempo.info.info.pulseTime );
                 }
 
@@ -185,15 +175,19 @@ namespace ORCore
 
                 double timePerTick = (qnLength / (m_header.division * 1'000'000.0));
 
-                m_currentTrack->tempo.push_back({event, qnLength, absTime, timePerTick});
-                if (m_tempoTrack == nullptr || m_header.format != smfType1) {
-                    m_tempoTrack = m_currentTrack;
-                }
+                m_tempoTrack.tempoOrdering.push_back({
+                    TtOrderType::Tempo,
+                    static_cast<int>(m_tempoTrack.tempo.size())
+                });
+
+                m_tempoTrack.tempo.push_back({event, qnLength, absTime, timePerTick});
+
                 break;
             }
             case meta_TimeSignature:
             {
                 TimeSignatureEvent tsEvent;
+                tsEvent.info = event;
                 tsEvent.numerator = read_type<uint8_t>(m_smfFile); // 4 default
                 tsEvent.denominator = std::pow(2, read_type<uint8_t>(m_smfFile)); // 4 default
 
@@ -216,16 +210,18 @@ namespace ORCore
 
                 tsEvent.thirtySecondPQN = read_type<uint8_t>(m_smfFile); // 8 default
 
-                m_logger->trace(_("Time signature  {}/{} CPC: {} TSPQN: {}"),
+                m_logger->info(_("Time signature  {}/{} CPC: {} TSPQN: {}"),
                                     tsEvent.numerator,
                                     tsEvent.denominator,
                                     tsEvent.clocksPerBeat,
                                     tsEvent.thirtySecondPQN);
 
-                m_currentTrack->timeSigEvents.push_back(tsEvent);
-                if (m_timeSigTrack == nullptr || m_header.format != smfType1) {
-                    m_timeSigTrack = m_currentTrack;
-                }
+                m_tempoTrack.tempoOrdering.push_back({
+                        TtOrderType::TimeSignature,
+                        static_cast<int>(m_tempoTrack.timeSignature.size())
+                    });
+
+                m_tempoTrack.timeSignature.push_back(tsEvent);
 
                 break;
             }
@@ -268,6 +264,10 @@ namespace ORCore
     // Converts a absolute time in pulses to an absolute time in seconds
     double SmfReader::pulsetime_to_abstime(uint32_t pulseTime)
     {
+        if (pulseTime == 0)
+        {
+            return 0.0;
+        }
         // The basic idea here is to start from the most recent tempo event before this time.
         // Then calculate and add the time since that tempo to the tempo time.
         // To speed this up further we could store the result of the time per tick calculation in the tempo event and only use it here.
@@ -275,12 +275,51 @@ namespace ORCore
         return tempo->absTime + ((pulseTime - tempo->info.info.pulseTime) * tempo->timePerTick);
     }
 
+    void SmfReader::set_default_tempo_ts()
+    {
+        if (m_tempoTrack.timeSignature.size() == 0)
+        {
+            m_logger->info(_("Setting default time signature of 4/4."));
+
+            MetaEvent tsEvent {{meta_TimeSignature,0,0}, meta_Tempo, 3};
+
+            m_tempoTrack.tempoOrdering.push_back({
+                TtOrderType::TimeSignature,
+                static_cast<int>(m_tempoTrack.timeSignature.size())
+            });
+
+            m_tempoTrack.timeSignature.push_back({tsEvent, 4, 4, 24, 8});
+        }
+
+        if (m_tempoTrack.tempo.size() == 0)
+        {
+            m_logger->info(_("Setting default tempo of 120 BPM."));
+
+            // We construct a new tempo event that will have a default
+            // equivelent to 120 BPM the same thing will need to be done
+            // for the time signature meta event.
+            MetaEvent tempoEvent {{status_MetaEvent,0,0}, meta_Tempo, 3};
+
+            m_tempoTrack.tempoOrdering.push_back({
+                TtOrderType::Tempo,
+                static_cast<int>(m_tempoTrack.tempo.size())
+            });
+
+            m_tempoTrack.tempo.push_back({tempoEvent, 500'000, 0.0}); // ppqn, absTime
+        }
+    }
+
     TempoEvent* SmfReader::get_last_tempo_via_pulses(uint32_t pulseTime)
     {
         static unsigned int value = 0;
         static uint32_t lastPulseTime = 0;
 
-        std::vector<TempoEvent> &tempos = m_tempoTrack->tempo;
+        std::vector<TempoEvent> &tempos = m_tempoTrack.tempo;
+
+        if (pulseTime > 0)
+        {
+            set_default_tempo_ts();
+        }
 
         // Ignore the cached last tempo value if the new pulse time is older.
         if (lastPulseTime > pulseTime) {
@@ -339,46 +378,6 @@ namespace ORCore
                 read_midi_event(eventInfo);
                 prevStatus = eventInfo.status;
             }
-
-            if (pulseTime != 0 && (m_tempoTrack == nullptr || m_tempoTrack->tempo.size() == 0)) {
-
-                m_logger->info(_("No tempo change at deltatime 0 setting default of 120 BPM."));
-
-                // We construct a new tempo event that will have a default
-                // equivelent to 120 BPM the same thing will need to be done
-                // for the time signature meta event.
-                MetaEvent tempoEvent {{status_MetaEvent,0,0}, meta_Tempo, 3};
-
-                if (m_tempoTrack == nullptr) {
-                    if (m_header.format != smfType1) {
-                        m_tempoTrack = m_currentTrack;
-                    } else {
-                        m_tempoTrack = &m_tracks.front();
-                    }
-                }
-
-                m_tempoTrack->tempo.push_back({tempoEvent, 500'000, 0.0}); // ppqn, absTime
-            }
-            if (pulseTime != 0 && (m_tempoTrack == nullptr || m_timeSigTrack->timeSigEvents.size() == 0)) {
-
-                m_logger->info(_("No time signature change at deltatime 0 setting default of 4/4."));
-
-                TimeSignatureEvent tsEvent;
-                tsEvent.numerator = 4;
-                tsEvent.denominator = 4;
-                tsEvent.clocksPerBeat = 24;
-                tsEvent.thirtySecondPQN = 8;
-
-                if (m_timeSigTrack == nullptr) {
-                    if (m_header.format != smfType1) {
-                        m_timeSigTrack = m_currentTrack;
-                    } else {
-                        m_timeSigTrack = &m_tracks.front();
-                    }
-                }
-
-                m_timeSigTrack->timeSigEvents.push_back(tsEvent);
-            }
         }
     }
 
@@ -413,7 +412,8 @@ namespace ORCore
 
             m_logger->trace(_("chunk of type {} detected."), chunk.chunkType);
             // MThd chunk is only in the beginning of the file.
-            if (chunkStart == fileStart && strcmp(chunk.chunkType, "MThd") == 0) {
+            if (chunkStart == fileStart && strcmp(chunk.chunkType, "MThd") == 0)
+            {
                 // Load header chunk
                 m_header.info = chunk;
                 m_header.format = read_type<uint16_t>(m_smfFile);
@@ -423,22 +423,30 @@ namespace ORCore
                 // Make sure we reserve enough space for m_tracks just in-case.
                 m_tracks.reserve(sizeof(SmfTrack) * m_header.trackNum);
 
-                if (m_header.format == smfType0 && m_header.trackNum != 1) {
+                if (m_header.format == smfType0 && m_header.trackNum != 1)
+                {
                     throw std::runtime_error(_("Not a valid type 0 midi."));
                 }
-
-                // TODO - For completionist reasons eventually add support for this.
-                if ((m_header.division & 0x8000) != 0) {
-                    throw std::runtime_error(_("SMPTE time division not supported"));
+                else if (m_header.format == smfType2)
+                {
+                    throw std::runtime_error(_("Type 2 midi not supported."));
                 }
 
-            } else if (strcmp(chunk.chunkType, "MTrk") == 0) {
+                if ((m_header.division & 0x8000) != 0)
+                {
+                    throw std::runtime_error(_("SMPTE time division not supported"));
+                }
+            }
+            else if (strcmp(chunk.chunkType, "MTrk") == 0)
+            {
                 trackChunkCount += 1;
                 m_tracks.emplace_back();
                 m_currentTrack = &m_tracks.back();
                 read_events(chunkEnd);
 
-            } else {
+            }
+            else
+            {
                 m_logger->warn(_("Non-standard chunk of type {} detected, skipping."), chunk.chunkType);
             }
 
@@ -447,19 +455,23 @@ namespace ORCore
 
             // Make sure that we are in the correct location in the chunk
             // If not seek to the correct location and output an error in the log.
-            if (static_cast<int>(m_smfFile.get_pos()) != filePos) {
+            if (static_cast<int>(m_smfFile.get_pos()) != filePos)
+            {
                 m_logger->warn(_("Offset for chunk '{}' incorrect, seeking to correct location."), chunk.chunkType);
                 m_logger->warn(_("Offset difference. expected: '{}' actual: '{}'"), m_smfFile.get_pos(), filePos);
                 m_smfFile.set_pos(filePos);
             }
             fileRemaining = (fileEnd-filePos);
-            if (fileRemaining != 0 && fileRemaining <= 8) {
+            if (fileRemaining != 0 && fileRemaining <= 8)
+            {
                 m_logger->warn(_("Ignoring remaining bytes, to few left in midi for another track."));
                 // Skip the rest of the file.
                 break;
             }
         }
-        if (trackChunkCount != m_header.trackNum) {
+
+        if (trackChunkCount != m_header.trackNum)
+        {
             m_logger->warn(_("Track chunk count does not match header."));
         }
         m_logger->info(_("End of MIDI reached."));

@@ -18,75 +18,125 @@ namespace ORGame
 
     void TempoTrack::add_tempo_event(int qnLength, double time)
     {
-        m_tempo.push_back({qnLength, time});
+        // If this is the first change in tempo/timesignature create an event with the other half of state
+        // if (m_tempo.size() == 0)
+        // {
+            m_tempo.push_back({0, 0, 0, qnLength, time});
+        // }
+        // else
+        // {
+        //     // If the previous event is located at the same time as the current one overwrite the data to reflect the current state.
+        //     auto &eventLast = m_tempo.back();
+        //     if (eventLast.time == time)
+        //     {
+        //         eventLast.qnLength = qnLength;
+        //     }
+        //     else
+        //     {
+        //         // Otherwise we copy the previous change and update the data to reflect the new state.
+        //         TempoEvent tempoEvent = eventLast;
+        //         tempoEvent.qnLength = qnLength;
+        //         m_tempo.push_back(tempoEvent);
+        //     }
+        // }
     }
 
     void TempoTrack::add_time_sig_event(int numerator, int denominator, int compoundFactor, double time)
     {
-        m_ts.push_back({numerator, denominator, compoundFactor, time});
+        // If this is the first change in tempo/timesignature create an event with the other half of state
+        // if (m_tempo.size() == 0)
+        // {
+        //     m_tempo.push_back({numerator, denominator, compoundFactor, 0, time});
+        // }
+        // else
+        // {
+        //     // If the previous event is located at the same time as the current one overwrite the data to reflect the current state.
+        //     auto &eventLast = m_tempo.back();
+        //     if (eventLast.time == time)
+        //     {
+        //         eventLast.numerator = numerator;
+        //         eventLast.denominator = denominator;
+        //         eventLast.qnScaleFactor = compoundFactor;
+        //     }
+        //     else
+        //     {
+        //         // Otherwise we copy the previous change and update the data to reflect the new state.
+        //         TempoEvent tempoEvent = eventLast;
+        //         tempoEvent.numerator = numerator;
+        //         tempoEvent.denominator = denominator;
+        //         tempoEvent.qnScaleFactor = compoundFactor;
+
+        //         m_tempo.push_back(tempoEvent);
+        //     }
+        // }
     }
 
-    void TempoTrack::mark_bars()
+    std::vector<TempoEvent*> TempoTrack::get_events(double start, double end)
     {
-        TempoEvent *previousTempo = nullptr;
-        double lastTempo = 0;
-        double beatSubdivision = 2.0; // How many times to subdivide the beat
-        double beatSegments = 0.0;
-        double incr = 0.0;
+        std::vector<TempoEvent*> events;
         for (auto &tempo : m_tempo) {
-            if (previousTempo == nullptr) {
-                previousTempo = &tempo;
-                continue;
-            }
-            incr = previousTempo->qnLength / (beatSubdivision*1'000'000.0);
-            beatSegments = static_cast<int>((tempo.time - previousTempo->time) / incr)+1;
-            for (int i=0; i < beatSegments; i++) {
-                m_bars.push_back({BarType::beat, previousTempo->time + (incr*i)});
-            }
-            previousTempo = &tempo;
-        }
-    }
-
-    std::vector<TempoTrackEvent> TempoTrack::get_events(double start, double end, TempoEventType type)
-    {
-        std::vector<TempoTrackEvent> events;
-        if (type == TempoEventType::Tempo) {
-            for (auto &tempo : m_tempo) {
-                if (tempo.time >= start && tempo.time <= end) {
-                    events.emplace_back(&tempo);
-                }
-            }
-        } else if (type == TempoEventType::TimeSignature){
-            for (auto &ts : m_ts) {
-                if (ts.time >= start && ts.time <= end) {
-                    events.emplace_back(&ts);
-                }
-            }
-        } else if (type == TempoEventType::Bar){
-            for (auto &bar : m_bars) {
-                if (bar.time >= start && bar.time <= end) {
-                    events.emplace_back(&bar);
-                }
+            if (tempo.time >= start && tempo.time <= end) {
+                events.push_back(&tempo);
             }
         }
         return events;
     }
 
-    std::vector<TempoTrackEvent> TempoTrack::get_events(TempoEventType type)
+    std::vector<TempoEvent*> TempoTrack::get_events()
     {
-        std::vector<TempoTrackEvent> events;
-        if (type == TempoEventType::Tempo) {
-            for (auto &tempo : m_tempo) {
-                events.emplace_back(&tempo);
+        std::vector<TempoEvent*> events;
+        for (auto &tempo : m_tempo) {
+            events.push_back(&tempo);
+        }
+        return events;
+    }
+
+    void TempoTrack::mark_bars()
+    {
+        TempoEvent *previousTempo = nullptr;
+        TempoEvent *currentTempo = nullptr;
+        double lastTempo = 0;
+        double beatSubdivision = 2.0; // How many times to subdivide the beat
+        double beatSegments = 0.0;
+        double beatTsFactor = 1.0;
+        double incr = 0.0;
+        for (auto &tempo : m_tempo)
+        {
+
+            if (previousTempo == nullptr)
+            {
+                previousTempo = &tempo;
+                continue;
             }
-        } else if (type == TempoEventType::TimeSignature){
-            for (auto &ts : m_ts) {
-                events.emplace_back(&ts);
+
+            incr = (previousTempo->qnLength / (beatSubdivision*1'000'000.0));
+            beatSegments = static_cast<int>((tempo.time - previousTempo->time) / incr)+1;
+
+            for (int i=0; i < beatSegments; i++)
+            {
+                m_bars.push_back({BarType::beat, previousTempo->time + (incr*i)});
             }
-        } else if (type == TempoEventType::Bar){
-            for (auto &bar : m_bars) {
-                events.emplace_back(&bar);
+
+            previousTempo = &tempo;
+        }
+    }
+
+    std::vector<BarEvent*> TempoTrack::get_bars(double start, double end)
+    {
+        std::vector<BarEvent*> events;
+        for (auto &bar : m_bars) {
+            if (bar.time >= start && bar.time <= end) {
+                events.push_back(&bar);
             }
+        }
+        return events;
+    }
+
+    std::vector<BarEvent*> TempoTrack::get_bars()
+    {
+        std::vector<BarEvent*> events;
+        for (auto &bar : m_bars) {
+            events.push_back(&bar);
         }
         return events;
     }
@@ -291,18 +341,24 @@ namespace ORGame
 
     bool Song::load()
     {
+        const ORCore::TempoTrack &tempoTrack = *m_midi.get_tempo_track();
 
-        for (auto &tempo : m_midi.get_tempo_track()->tempo)
+        for (auto &eventOrder : tempoTrack.tempoOrdering)
         {
-            m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.absTime);
-            logger->trace(_("Tempo change recieved at time {}"), tempo.absTime);
-        }
 
-        // for (auto &ts : m_midi.get_time_sig_track()->timeSigEvents)
-        // {
-        //     m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, ts.info.info.absTime);
-        //     logger->trace(_("Time signature change recieved at time {}"), ts.info.info.absTime);
-        // }
+            if (eventOrder.type == ORCore::TtOrderType::TimeSignature)
+            {
+                auto &ts = tempoTrack.timeSignature[eventOrder.index];
+                m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, m_midi.pulsetime_to_abstime(ts.info.info.pulseTime));
+                logger->trace(_("Time signature change recieved at time {} {}/{}"), m_midi.pulsetime_to_abstime(ts.info.info.pulseTime), ts.numerator, ts.denominator);
+            }
+            else if (eventOrder.type == ORCore::TtOrderType::Tempo)
+            {
+                auto &tempo = tempoTrack.tempo[eventOrder.index];
+                m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.absTime);
+                logger->trace(_("Tempo change recieved at time {} {}"), tempo.absTime, tempo.qnLength);
+            } 
+        }
 
         m_tempoTrack.mark_bars();
 

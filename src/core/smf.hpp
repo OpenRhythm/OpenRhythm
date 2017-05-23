@@ -159,15 +159,33 @@ namespace ORCore
         int thirtySecondPQN;
     };
 
+    enum class TtOrderType
+    {
+        TimeSignature,
+        Tempo
+    };
+
+    struct TteventIndex
+    {
+        TtOrderType type;
+        int index;
+
+    };
+
     struct SmfTrack
     { 
         std::string name;
         double endTime; // Track length
         std::vector<MidiEvent> midiEvents;
         std::vector<TextEvent> textEvents;
-        std::vector<TempoEvent> tempo;
         std::vector<MetaStorageEvent> miscMeta;
-        std::vector<TimeSignatureEvent> timeSigEvents;
+    };
+
+    struct TempoTrack
+    {
+        std::vector<TempoEvent> tempo;
+        std::vector<TimeSignatureEvent> timeSignature;
+        std::vector<TteventIndex> tempoOrdering;
     };
 
     class SmfReader
@@ -175,24 +193,24 @@ namespace ORCore
     public:
         SmfReader(std::string smfData);
         std::vector<SmfTrack*> get_tracks();
-        SmfTrack* get_tempo_track();
-        SmfTrack* get_time_sig_track();
+        TempoTrack* get_tempo_track();
         double pulsetime_to_abstime(uint32_t pulseTime);
         void release();
 
     private:
-        std::vector<SmfTrack> m_tracks;
-        SmfHeaderChunk m_header;
         FileBuffer m_smfFile;
+        SmfHeaderChunk m_header;
+        TempoTrack m_tempoTrack;
+        std::vector<SmfTrack> m_tracks;
+
         SmfTrack *m_currentTrack;
-        SmfTrack *m_tempoTrack;
-        SmfTrack *m_timeSigTrack;
-        TempoEvent* m_currentTempoEvent;
+
         uint32_t read_var_len();
         void read_midi_event(SmfEventInfo &event);
         void read_meta_event(SmfEventInfo &event);
         void read_sysex_event(SmfEventInfo &event);
         double delta_tick_to_delta_time(TempoEvent* tempo, uint32_t deltaPulses);
+        void set_default_tempo_ts();
         TempoEvent* get_last_tempo_via_pulses(uint32_t pulseTime);
         void read_events(uint32_t chunkEnd);
         void read_file();

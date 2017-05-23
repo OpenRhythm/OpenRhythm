@@ -160,7 +160,7 @@ namespace ORGame
     void GameManager::prep_render_bars()
     {
 
-        std::vector<TempoTrackEvent> bars = m_tempoTrack->get_events(ORGame::TempoEventType::Bar);
+        std::vector<BarEvent*> bars = m_tempoTrack->get_bars();
         std::cout << "Bar Count: " << bars.size() << " Song Length: " << m_song.length() << std::endl;
 
         // reuse the same container when creating bars as add_obj wont modify the original.
@@ -169,7 +169,7 @@ namespace ORGame
         obj.set_program(m_program);
 
         for (size_t i = 0; i < bars.size(); i++) {
-            float z = (bars[i].bar->time / neck_speed_divisor);
+            float z = (bars[i]->time / neck_speed_divisor);
 
             obj.set_scale(glm::vec3{1.0f, 1.0f, 0.007});
             obj.set_translation(glm::vec3{0.0, 0.0f, -z}); // center the line on the screen

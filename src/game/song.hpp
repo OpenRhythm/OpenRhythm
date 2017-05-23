@@ -69,15 +69,10 @@ namespace ORGame
 
     struct TempoEvent
     {
-        int qnLength;
-        double time;
-    };
-
-    struct TimeSigEvent
-    {
         int numerator;
         int denominator;
         int qnScaleFactor;
+        int qnLength;
         double time;
     };
 
@@ -91,30 +86,8 @@ namespace ORGame
     struct BarEvent
     {
         BarType type;
+        // int count;
         double time;
-    };
-
-    union TempoTrackEvent
-    {
-        TempoEvent *tempo;
-        TimeSigEvent *ts;
-        BarEvent *bar;
-
-        TempoTrackEvent(TempoEvent *tmpo):
-        tempo(tmpo)
-        {
-        }
-
-        TempoTrackEvent(TimeSigEvent *tsEvent):
-        ts(tsEvent)
-        {
-        }
-
-        TempoTrackEvent(BarEvent *brEvent):
-        bar(brEvent)
-        {
-        }
-
     };
 
     enum class EventType
@@ -145,13 +118,16 @@ namespace ORGame
     public:
         void add_tempo_event(int ppqn, double time);
         void add_time_sig_event(int numerator, int denominator, int compoundFactor, double time);
+
+        std::vector<TempoEvent*> get_events(double start, double end);
+        std::vector<TempoEvent*> get_events();
+
         void mark_bars();
-        std::vector<TempoTrackEvent> get_events(double start, double end, TempoEventType type);
-        std::vector<TempoTrackEvent> get_events(TempoEventType type);
+        std::vector<BarEvent*> get_bars(double start, double end);
+        std::vector<BarEvent*> get_bars();
 
     private:
     	std::vector<TempoEvent> m_tempo;
-        std::vector<TimeSigEvent> m_ts;
         std::vector<BarEvent> m_bars;
     };
 
