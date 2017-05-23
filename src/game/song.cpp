@@ -19,56 +19,59 @@ namespace ORGame
     void TempoTrack::add_tempo_event(int qnLength, double time)
     {
         // If this is the first change in tempo/timesignature create an event with the other half of state
-        // if (m_tempo.size() == 0)
-        // {
+        if (m_tempo.size() == 0)
+        {
             m_tempo.push_back({0, 0, 0, qnLength, time});
-        // }
-        // else
-        // {
-        //     // If the previous event is located at the same time as the current one overwrite the data to reflect the current state.
-        //     auto &eventLast = m_tempo.back();
-        //     if (eventLast.time == time)
-        //     {
-        //         eventLast.qnLength = qnLength;
-        //     }
-        //     else
-        //     {
-        //         // Otherwise we copy the previous change and update the data to reflect the new state.
-        //         TempoEvent tempoEvent = eventLast;
-        //         tempoEvent.qnLength = qnLength;
-        //         m_tempo.push_back(tempoEvent);
-        //     }
-        // }
+        }
+        else
+        {
+            // If the previous event is located at the same time as the current one overwrite the data to reflect the current state.
+            auto &eventLast = m_tempo.back();
+            if (eventLast.time == time)
+            {
+                eventLast.qnLength = qnLength;
+            }
+            else
+            {
+                // Otherwise we copy the previous change and update the data to reflect the new state.
+                TempoEvent tempoEvent = eventLast;
+                tempoEvent.time = time;
+                tempoEvent.qnLength = qnLength;
+                m_tempo.push_back(tempoEvent);
+
+            }
+        }
     }
 
     void TempoTrack::add_time_sig_event(int numerator, int denominator, int compoundFactor, double time)
     {
         // If this is the first change in tempo/timesignature create an event with the other half of state
-        // if (m_tempo.size() == 0)
-        // {
-        //     m_tempo.push_back({numerator, denominator, compoundFactor, 0, time});
-        // }
-        // else
-        // {
-        //     // If the previous event is located at the same time as the current one overwrite the data to reflect the current state.
-        //     auto &eventLast = m_tempo.back();
-        //     if (eventLast.time == time)
-        //     {
-        //         eventLast.numerator = numerator;
-        //         eventLast.denominator = denominator;
-        //         eventLast.qnScaleFactor = compoundFactor;
-        //     }
-        //     else
-        //     {
-        //         // Otherwise we copy the previous change and update the data to reflect the new state.
-        //         TempoEvent tempoEvent = eventLast;
-        //         tempoEvent.numerator = numerator;
-        //         tempoEvent.denominator = denominator;
-        //         tempoEvent.qnScaleFactor = compoundFactor;
+        if (m_tempo.size() == 0)
+        {
+            m_tempo.push_back({numerator, denominator, compoundFactor, 0, time});
+        }
+        else
+        {
+            // If the previous event is located at the same time as the current one overwrite the data to reflect the current state.
+            auto &eventLast = m_tempo.back();
+            if (eventLast.time == time)
+            {
+                eventLast.numerator = numerator;
+                eventLast.denominator = denominator;
+                eventLast.qnScaleFactor = compoundFactor;
+            }
+            else
+            {
+                // Otherwise we copy the previous change and update the data to reflect the new state.
+                TempoEvent tempoEvent = eventLast;
+                tempoEvent.time = time;
+                tempoEvent.numerator = numerator;
+                tempoEvent.denominator = denominator;
+                tempoEvent.qnScaleFactor = compoundFactor;
 
-        //         m_tempo.push_back(tempoEvent);
-        //     }
-        // }
+                m_tempo.push_back(tempoEvent);
+            }
+        }
     }
 
     std::vector<TempoEvent*> TempoTrack::get_events(double start, double end)
