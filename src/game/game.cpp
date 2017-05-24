@@ -7,7 +7,7 @@
 #include "vfs.hpp"
 namespace ORGame
 {
-    const float neck_speed_divisor = 0.5;
+    const float neck_speed_divisor = 1.0;
 
     GameManager::GameManager()
     :m_width(800),
@@ -171,7 +171,15 @@ namespace ORGame
         for (size_t i = 0; i < bars.size(); i++) {
             float z = (bars[i]->time / neck_speed_divisor);
 
-            obj.set_scale(glm::vec3{1.0f, 1.0f, 0.007});
+            if (bars[i]->type == BarType::measure)
+            {
+                obj.set_scale(glm::vec3{1.0f, 1.0f, 0.021});
+
+            } else 
+            {
+                obj.set_scale(glm::vec3{1.0f, 1.0f, 0.007});
+            }
+
             obj.set_translation(glm::vec3{0.0, 0.0f, -z}); // center the line on the screen
             obj.set_primitive_type(ORCore::Primitive::triangle);
             obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));

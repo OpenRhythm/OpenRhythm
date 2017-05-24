@@ -97,11 +97,12 @@ namespace ORGame
     void TempoTrack::mark_bars()
     {
         TempoEvent *currentTempo = nullptr;
-        double beatSubdivision = 2.0; // How many times to subdivide the beat
+        double beatSubdivision = 1.0; // How many times to subdivide the beat
         double measureCount = 0.0;
         double beatTsFactor = 1.0;
         double incr = 0.0;
-        double beatTime = 0.0;
+        int interMeasureBeatCount = 0;
+        bool timeSigChanged = true;
         for (auto &nextTempo : m_tempo)
         {
 
@@ -111,6 +112,7 @@ namespace ORGame
                 std::cout << "Tempo change info" << currentTempo->numerator << " " << currentTempo->denominator << " " << currentTempo->qnLength << std::endl;
                 continue;
             }
+
             beatTsFactor = 4.0/currentTempo->denominator;
 
             incr = (currentTempo->qnLength / (beatSubdivision*1'000'000.0)) * beatTsFactor;
@@ -119,7 +121,7 @@ namespace ORGame
 
             double measures = ( beats / currentTempo->numerator);
 
-            std::cout << "Measures in change: " << measures << std::endl;
+            std::cout << "Measures in change: " << measures << " beats " << beats << std::endl;
 
             if (measures < 1)
             {
@@ -130,9 +132,24 @@ namespace ORGame
 
             for (int i=0; i < static_cast<int>(beats)+1; i++)
             {
-                m_bars.push_back({BarType::beat, currentTempo->time + (incr*i)});
-                std::cout << beatTime << " " << currentTempo->time + (incr*i) << std::endl;
-                beatTime += incr;
+                if (interMeasureBeatCount == 0)
+                {
+                    m_bars.push_back({BarType::measure, currentTempo->time + (incr*i)});
+                } else {
+                    m_bars.push_back({BarType::beat, currentTempo->time + (incr*i)});
+                }
+
+                interMeasureBeatCount++;
+                if (interMeasureBeatCount >= currentTempo->numerator)
+                {
+                    interMeasureBeatCount = 0;
+                }
+
+            }
+
+            if (currentTempo->numerator != nextTempo.numerator || currentTempo->denominator != nextTempo.denominator)
+            {
+                interMeasureBeatCount = 0;
             }
 
             currentTempo = &nextTempo;
