@@ -96,31 +96,46 @@ namespace ORGame
 
     void TempoTrack::mark_bars()
     {
-        TempoEvent *previousTempo = nullptr;
         TempoEvent *currentTempo = nullptr;
-        double lastTempo = 0;
         double beatSubdivision = 2.0; // How many times to subdivide the beat
-        double beatSegments = 0.0;
+        double measureCount = 0.0;
         double beatTsFactor = 1.0;
         double incr = 0.0;
-        for (auto &tempo : m_tempo)
+        double beatTime = 0.0;
+        for (auto &nextTempo : m_tempo)
         {
 
-            if (previousTempo == nullptr)
+            if (currentTempo == nullptr)
             {
-                previousTempo = &tempo;
+                currentTempo = &nextTempo;
+                std::cout << "Tempo change info" << currentTempo->numerator << " " << currentTempo->denominator << " " << currentTempo->qnLength << std::endl;
                 continue;
             }
+            beatTsFactor = 4.0/currentTempo->denominator;
 
-            incr = (previousTempo->qnLength / (beatSubdivision*1'000'000.0));
-            beatSegments = static_cast<int>((tempo.time - previousTempo->time) / incr)+1;
+            incr = (currentTempo->qnLength / (beatSubdivision*1'000'000.0)) * beatTsFactor;
 
-            for (int i=0; i < beatSegments; i++)
+            double beats = ((nextTempo.time - currentTempo->time) / incr);
+
+            double measures = ( beats / currentTempo->numerator);
+
+            std::cout << "Measures in change: " << measures << std::endl;
+
+            if (measures < 1)
             {
-                m_bars.push_back({BarType::beat, previousTempo->time + (incr*i)});
+                std::cout << "Tempo change info" << currentTempo->numerator << " " << currentTempo->denominator << " " << currentTempo->qnLength << std::endl;
             }
 
-            previousTempo = &tempo;
+            measureCount = static_cast<int>(((nextTempo.time - currentTempo->time) / incr) / currentTempo->numerator);
+
+            for (int i=0; i < static_cast<int>(beats)+1; i++)
+            {
+                m_bars.push_back({BarType::beat, currentTempo->time + (incr*i)});
+                std::cout << beatTime << " " << currentTempo->time + (incr*i) << std::endl;
+                beatTime += incr;
+            }
+
+            currentTempo = &nextTempo;
         }
     }
 
