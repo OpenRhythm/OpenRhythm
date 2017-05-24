@@ -128,6 +128,15 @@ namespace ORGame
                 std::cout << "Tempo change info" << currentTempo->numerator << " " << currentTempo->denominator << " " << currentTempo->qnLength << std::endl;
             }
 
+            // One thing that needs to happen here, if we have tempo changes that are less than a beat we need to accumulate the time between them
+            // and create the next beat at that point. Beat lines should be always generated from the previous beat's position. However to generate
+            // long stretches of beat lines we should generate those based on multiplication to reduce rounding errors.
+            // To make that work we cannot base the multiplication based on the current tempo position, but instead tempoMarkingPeriodBegin.
+            // tempoMarkingPeriodBegin will be the position of the last committed beat line.
+            // a beat line will only be committed to tempoMarkingPeriodBegin when we have reached the last whole markable beat in a time period.
+            // The remaining time between this final beat, and the next tempo change will be rolled over into the next beat period.
+            // We need to forget thinking in terms of "beats" and instead think in terms of time. We cannot lose time.
+
             measureCount = static_cast<int>(((nextTempo.time - currentTempo->time) / incr) / currentTempo->numerator);
 
             for (int i=0; i < static_cast<int>(beats)+1; i++)
@@ -149,6 +158,7 @@ namespace ORGame
 
             if (currentTempo->numerator != nextTempo.numerator || currentTempo->denominator != nextTempo.denominator)
             {
+                std::cout << "TS CHANGED MARKING" << std::endl;
                 interMeasureBeatCount = 0;
             }
 
