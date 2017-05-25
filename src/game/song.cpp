@@ -97,7 +97,7 @@ namespace ORGame
 
     static double round_dbl(double d)
     {
-        return std::round(d * 100000000.0) / 100000000.0;
+        return std::round(d * 1000000000.0) / 1000000000.0;
     }
 
     void TempoTrack::mark_bars()
