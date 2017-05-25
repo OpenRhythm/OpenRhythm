@@ -129,8 +129,6 @@ namespace ORGame
 
             double beats = round_dbl(tempoTimePeriod / incr);
 
-            double realBeat = ((nextTempo.time - currentTempo->time) / incr );
-
             // We cant mark beats for tempo changes that are smaller than a beat.
             // count what portion of the beat it consumed and account for it.
             if (beats < 1.0)
