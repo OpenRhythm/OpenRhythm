@@ -112,7 +112,6 @@ namespace ORGame
             if (currentTempo == nullptr)
             {
                 currentTempo = &nextTempo;
-                std::cout << "Tempo change info" << currentTempo->numerator << " " << currentTempo->denominator << " " << currentTempo->qnLength << std::endl;
                 continue;
             }
 
@@ -165,7 +164,6 @@ namespace ORGame
 
             if (currentTempo->numerator != nextTempo.numerator || currentTempo->denominator != nextTempo.denominator)
             {
-                std::cout << "TS CHANGED MARKING" << std::endl;
                 interMeasureBeatCount = 0;
             }
 
