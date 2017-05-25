@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 #include "song.hpp"
 
 #include "vfs.hpp"
@@ -94,15 +95,17 @@ namespace ORGame
         return events;
     }
 
+    static double round_dbl(double d)
+    {
+        return std::round(d * 100000000.0) / 100000000.0;
+    }
+
     void TempoTrack::mark_bars()
     {
         TempoEvent *currentTempo = nullptr;
         double beatSubdivision = 1.0; // How many times to subdivide the beat
-        double measureCount = 0.0;
-        double beatTsFactor = 1.0;
-        double incr = 0.0;
         int interMeasureBeatCount = 0;
-        bool timeSigChanged = true;
+        double subBeatAccum = 0.0;
         for (auto &nextTempo : m_tempo)
         {
 
@@ -113,39 +116,45 @@ namespace ORGame
                 continue;
             }
 
-            beatTsFactor = 4.0/currentTempo->denominator;
+            double beatTsFactor = 4.0/currentTempo->denominator;
+            double incr = (currentTempo->qnLength / (beatSubdivision*1'000'000.0)) * beatTsFactor;
 
-            incr = (currentTempo->qnLength / (beatSubdivision*1'000'000.0)) * beatTsFactor;
+            // The idea here is when we have anything smaller than a beat at the end of a beat marking period
+            // we take the remainder and offset the next tempo change by that amount of its beat.
+            double timeCorrection = incr * subBeatAccum;
 
-            double beats = ((nextTempo.time - currentTempo->time) / incr);
+            double tempoPeriodBegin = currentTempo->time - timeCorrection;
 
-            double measures = ( beats / currentTempo->numerator);
+            double tempoTimePeriod = nextTempo.time - tempoPeriodBegin;
 
-            std::cout << "Measures in change: " << measures << " beats " << beats << std::endl;
+            double beats = round_dbl(tempoTimePeriod / incr);
 
-            if (measures < 1)
+            double realBeat = ((nextTempo.time - currentTempo->time) / incr );
+
+            // We cant mark beats for tempo changes that are smaller than a beat.
+            // count what portion of the beat it consumed and account for it.
+            if (beats < 1.0)
             {
-                std::cout << "Tempo change info" << currentTempo->numerator << " " << currentTempo->denominator << " " << currentTempo->qnLength << std::endl;
+                subBeatAccum += round_dbl(beats);
+                currentTempo = &nextTempo;
+                continue;
             }
 
-            // One thing that needs to happen here, if we have tempo changes that are less than a beat we need to accumulate the time between them
-            // and create the next beat at that point. Beat lines should be always generated from the previous beat's position. However to generate
-            // long stretches of beat lines we should generate those based on multiplication to reduce rounding errors.
-            // To make that work we cannot base the multiplication based on the current tempo position, but instead tempoMarkingPeriodBegin.
-            // tempoMarkingPeriodBegin will be the position of the last committed beat line.
-            // a beat line will only be committed to tempoMarkingPeriodBegin when we have reached the last whole markable beat in a time period.
-            // The remaining time between this final beat, and the next tempo change will be rolled over into the next beat period.
-            // We need to forget thinking in terms of "beats" and instead think in terms of time. We cannot lose time.
+            subBeatAccum = 0.0;
 
-            measureCount = static_cast<int>(((nextTempo.time - currentTempo->time) / incr) / currentTempo->numerator);
+            int beatsToMark = static_cast<int>(beats);
 
-            for (int i=0; i < static_cast<int>(beats)+1; i++)
+            // add any left over beat to the sub-beat accumulator
+            subBeatAccum += round_dbl(beats-beatsToMark);
+
+
+            for (int i=0; i < beatsToMark; i++)
             {
                 if (interMeasureBeatCount == 0)
                 {
-                    m_bars.push_back({BarType::measure, currentTempo->time + (incr*i)});
+                    m_bars.push_back({BarType::measure, tempoPeriodBegin + (incr*i)});
                 } else {
-                    m_bars.push_back({BarType::beat, currentTempo->time + (incr*i)});
+                    m_bars.push_back({BarType::beat, tempoPeriodBegin + (incr*i)});
                 }
 
                 interMeasureBeatCount++;
