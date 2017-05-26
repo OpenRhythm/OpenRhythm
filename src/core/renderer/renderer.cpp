@@ -307,6 +307,11 @@ namespace ORCore
         return id;
     }
 
+    ShaderProgram* Renderer::get_program(int id)
+    {
+        return m_programs[id].get();
+    }
+
     void Renderer::set_camera_transform(std::string name, glm::mat4&& transform)
     {
         try {

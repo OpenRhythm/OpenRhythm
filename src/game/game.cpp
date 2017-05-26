@@ -7,7 +7,8 @@
 #include "vfs.hpp"
 namespace ORGame
 {
-    const float neck_speed_divisor = 1.0;
+    const float neck_speed_divisor = 0.125;
+    const float neck_board_length = 2.0f;
 
     GameManager::GameManager()
     :m_width(800),
@@ -79,19 +80,33 @@ namespace ORGame
 
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
+        ORCore::ShaderInfo neckVertInfo {GL_VERTEX_SHADER, "./data/shaders/neck.vs"};
 
         m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
+        m_neckProgram = m_renderer.add_program(ORCore::Shader(neckVertInfo), ORCore::Shader(fragInfo));
+
         m_texture = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
         m_tailTexture = m_renderer.add_texture(ORCore::loadSTB("data/tail.png"));
         m_fretsTexture = m_renderer.add_texture(ORCore::loadSTB("data/frets.png"));
         m_soloNeckTexture = m_renderer.add_texture(ORCore::loadSTB("data/soloNeck.png"));
+        m_neckTexture = m_renderer.add_texture(ORCore::loadSTB("data/neck.png"));
 
         resize(m_width, m_height);
         // glEnable(GL_DEPTH_TEST);
 
         ORCore::RenderObject obj;
-        obj.set_program(m_program);
+        obj.set_program(m_neckProgram);
+
         obj.set_primitive_type(ORCore::Primitive::triangle);
+        obj.set_texture(m_neckTexture);
+
+        obj.set_scale(glm::vec3{1.0f, 1.0f, -neck_board_length});
+        obj.set_translation(glm::vec3{0.0f, 0.0f, 0.0f});
+        obj.set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+        m_neckObj = m_renderer.add_object(obj);
+
+
+        obj.set_program(m_program);
         obj.set_texture(m_soloNeckTexture);
 
         auto *events = m_playerTrack->get_events();
@@ -336,16 +351,31 @@ namespace ORGame
             }
         }
 
+        float boardPos = (m_songTime/neck_speed_divisor);
+
+        // Static aways in view objects to be transformed with the camera
         auto frets = m_renderer.get_object(m_fretObj);
-
-        frets->set_translation(glm::vec3(0.0f, 0.0f, -(m_songTime/neck_speed_divisor)));
-
+        frets->set_translation(glm::vec3(0.0f, 0.0f, -boardPos));
         m_renderer.update_object(m_fretObj);
+
+        auto neck = m_renderer.get_object(m_neckObj);
+        neck->set_translation(glm::vec3(0.0f, 0.0f, -boardPos + 0.35f));
+        m_renderer.update_object(m_neckObj);
 
         m_renderer.commit();
 
+        auto neckProgram = m_renderer.get_program(m_neckProgram);
+
+        neckProgram->use();
+
+        int necID = neckProgram->uniform_attribute("neckPos");
+        
+        neckProgram->set_uniform(necID, boardPos/neck_board_length);
+
+        neckProgram->disuse();
+
         // m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, 1.0f, (-m_songTime)/3.0f))); // translate projection with song
-        m_renderer.set_camera_transform("ortho", glm::translate(m_rotPerspective, glm::vec3(-0.5f, -1.0f, (m_songTime/neck_speed_divisor)-0.5))); // translate projection with song
+        m_renderer.set_camera_transform("ortho", glm::translate(m_rotPerspective, glm::vec3(-0.5f, -1.0f, boardPos-0.5))); // translate projection with song
 
     }
 

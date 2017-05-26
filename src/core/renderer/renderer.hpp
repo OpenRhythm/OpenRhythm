@@ -48,6 +48,7 @@ namespace ORCore
         void update_object(int objID);
         int add_texture(Image&& img);
         int add_program(Shader&& vertex, Shader&& fragment);
+        ShaderProgram* get_program(int id);
         void set_camera_transform(std::string name, glm::mat4&& transform);
         // add global attribute/uniforms for shaders ?
         void commit();

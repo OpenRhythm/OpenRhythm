@@ -74,9 +74,12 @@ namespace ORGame
         int m_texture;
         int m_tailTexture;
         int m_fretsTexture;
+        int m_neckTexture;
         int m_soloNeckTexture;
         int m_program;
+        int m_neckProgram;
         int m_fretObj;
+        int m_neckObj;
 
         std::shared_ptr<spdlog::logger> m_logger;
 
