@@ -103,7 +103,7 @@ namespace ORGame
     void TempoTrack::mark_bars()
     {
         TempoEvent *currentTempo = nullptr;
-        double beatSubdivision = 1.0; // How many times to subdivide the beat
+        int beatSubdivision = 1; // How many times to subdivide the beat
         int interMeasureBeatCount = 0;
         double subBeatAccum = 0.0;
         for (auto &nextTempo : m_tempo)
@@ -113,6 +113,19 @@ namespace ORGame
             {
                 currentTempo = &nextTempo;
                 continue;
+            }
+
+            if (currentTempo->denominator == 2)
+            {
+                beatSubdivision = 2;
+            }
+            else if (currentTempo->denominator == 4)
+            {
+                beatSubdivision = 2;
+            }
+            else
+            {
+                beatSubdivision = 1;
             }
 
             double beatTsFactor = 4.0/currentTempo->denominator;
@@ -150,12 +163,18 @@ namespace ORGame
                 if (interMeasureBeatCount == 0)
                 {
                     m_bars.push_back({BarType::measure, tempoPeriodBegin + (incr*i)});
-                } else {
+                }
+                if (interMeasureBeatCount % beatSubdivision == 1)
+                {
+                    m_bars.push_back({BarType::upbeat, tempoPeriodBegin + (incr*i)});
+                }
+                else
+                {
                     m_bars.push_back({BarType::beat, tempoPeriodBegin + (incr*i)});
                 }
 
                 interMeasureBeatCount++;
-                if (interMeasureBeatCount >= currentTempo->numerator)
+                if (interMeasureBeatCount >= (currentTempo->numerator * beatSubdivision))
                 {
                     interMeasureBeatCount = 0;
                 }
