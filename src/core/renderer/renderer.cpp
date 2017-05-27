@@ -142,12 +142,12 @@ namespace ORCore
         }
     }
 
-    void RenderObject::set_texture(int texture)
+    void RenderObject::set_texture(TextureID texture)
     {
         state.texture = texture;
     }
 
-    void RenderObject::set_program(int program)
+    void RenderObject::set_program(ProgramID program)
     {
         state.program = program;
     }
@@ -170,9 +170,9 @@ namespace ORCore
         m_defaultTextureID = add_texture(ORCore::loadSTB("data/blank.png"));
     }
 
-    int Renderer::create_batch(RenderState state, int batchSize)
+    BatchID Renderer::create_batch(RenderState state, int batchSize)
     {
-        int id = m_batches.size();
+        BatchID id = m_batches.size();
         m_batches.push_back(
             std::make_unique<Batch>(
                 m_programs[state.program].get(),
@@ -183,7 +183,7 @@ namespace ORCore
         return id;
     }
 
-    int Renderer::find_batch(RenderState state)
+    BatchID Renderer::find_batch(RenderState state)
     {
         // Find existing batch that isnt full or already submitted.
         for (auto &batch : m_batches)
@@ -244,8 +244,7 @@ namespace ORCore
     int Renderer::add_object(const RenderObject& objIn)
     {
 
-
-        int objID = m_objects.size();
+        ObjectID objID = m_objects.size();
         m_objects.push_back(objIn);
         auto &obj = m_objects.back();
 
@@ -257,7 +256,7 @@ namespace ORCore
             obj.state.texture = m_defaultTextureID;
         }
 
-        int batchId = find_batch(obj.state);
+        BatchID batchId = find_batch(obj.state);
 
         // try until it gets added to a batch.
         while (m_batches[batchId]->add_mesh(obj.mesh, obj.modelMatrix) != true)
@@ -277,12 +276,12 @@ namespace ORCore
     // Modify the object through the returned pointer, then call update_object() below.
     // If you modify geometry it MUST have the same size as the original geometry used.
     // Otherwise you risk overwriting other geometry or having orphaned geometry.
-    RenderObject* Renderer::get_object(int objID)
+    RenderObject* Renderer::get_object(ObjectID objID)
     {
         return &m_objects[objID];
     }
 
-    void Renderer::update_object(int objID)
+    void Renderer::update_object(ObjectID objID)
     {
         RenderObject& obj = m_objects[objID];
         obj.update();
@@ -300,7 +299,7 @@ namespace ORCore
 
     int Renderer::add_program(Shader&& vertex, Shader&& fragment)
     {
-        int id = m_programs.size();
+        ProgramID id = m_programs.size();
         m_programs.push_back(std::make_unique<ShaderProgram>(vertex, fragment));
         auto &program = m_programs.back();
         program->check_error();

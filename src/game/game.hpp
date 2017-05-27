@@ -71,15 +71,18 @@ namespace ORGame
         ORCore::EventPumpSDL2 m_eventPump;
         ORCore::Renderer m_renderer;
         ORCore::Listener m_lis;
-        int m_texture;
-        int m_tailTexture;
-        int m_fretsTexture;
-        int m_neckTexture;
-        int m_soloNeckTexture;
-        int m_program;
-        int m_neckProgram;
-        int m_fretObj;
-        int m_neckObj;
+
+        ORCore::TextureID m_texture;
+        ORCore::TextureID m_tailTexture;
+        ORCore::TextureID m_fretsTexture;
+        ORCore::TextureID m_neckTexture;
+        ORCore::TextureID m_soloNeckTexture;
+
+        ORCore::ProgramID m_program;
+        ORCore::ProgramID m_neckProgram;
+        
+        ORCore::ObjectID m_fretObj;
+        ORCore::ObjectID m_neckObj;
 
         std::shared_ptr<spdlog::logger> m_logger;
 

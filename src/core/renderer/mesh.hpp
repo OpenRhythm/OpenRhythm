@@ -3,6 +3,12 @@
 
 namespace ORCore
 {
+
+    using TextureID = int;
+    using ProgramID = int;
+    using ObjectID = int;
+    using BatchID = int;
+
     struct Vertex
     {
         glm::vec3 vertex;
@@ -29,8 +35,8 @@ namespace ORCore
 
     struct RenderState
     {
-        int program;
-        int texture;
+        ProgramID program;
+        TextureID texture;
     };
 
     struct Mesh
@@ -43,5 +49,6 @@ namespace ORCore
         int vertexSize; // Number of vertices used for the primitive type of this mesh. points = 1, lines = 2, triangles = 3
         std::vector<Vertex> vertices;
     };
+
 
 }

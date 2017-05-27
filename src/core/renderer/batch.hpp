@@ -14,7 +14,7 @@ namespace ORCore
     class Batch
     {
     public:
-        Batch(ShaderProgram *program, Texture *texture, int batchSize, int id);
+        Batch(ShaderProgram *program, Texture *texture, int batchSize, BatchID id);
         void init_gl();
         void clear();
         bool add_mesh(Mesh& mesh, const glm::mat4& transform);
@@ -34,7 +34,7 @@ namespace ORCore
             return m_committed;
         }
 
-        int get_id()
+        BatchID get_id()
         {
             return m_id;
         }
@@ -48,7 +48,7 @@ namespace ORCore
         ShaderProgram *m_program;
         Texture *m_texture;
         int m_batchSize;
-        int m_id;
+        BatchID m_id;
         bool m_committed;
         BufferTexture m_matTexBuffer;
         GLuint m_vertLoc;

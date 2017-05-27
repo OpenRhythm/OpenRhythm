@@ -22,8 +22,8 @@ namespace ORCore
 		Mesh mesh;
 		glm::mat4 modelMatrix;
         RenderState state;
-        int id; // id of this object in the renderer.
-        int batchID;
+        ObjectID id; // id of this object in the renderer.
+        BatchID batchID;
 
         RenderObject();
         void set_scale(glm::vec3&& scale);
@@ -40,15 +40,20 @@ namespace ORCore
     {
     public:
         Renderer();
+        
+        // Disable copy since wth would you want to copy the renderer...
+        Renderer(const Renderer&) = delete;
+        void operator=(const Renderer&) = delete;
+
         void init_gl();
-        int create_batch(RenderState state, int batchSize);
+        BatchID create_batch(RenderState state, int batchSize);
         bool check_error();
-        int add_object(const RenderObject& objIn);
-        RenderObject* get_object(int objID);
-        void update_object(int objID);
-        int add_texture(Image&& img);
-        int add_program(Shader&& vertex, Shader&& fragment);
-        ShaderProgram* get_program(int id);
+        ObjectID add_object(const RenderObject& objIn);
+        RenderObject* get_object(ObjectID objID);
+        void update_object(ObjectID objID);
+        TextureID add_texture(Image&& img);
+        ProgramID add_program(Shader&& vertex, Shader&& fragment);
+        ShaderProgram* get_program(ProgramID id);
         void set_camera_transform(std::string name, glm::mat4&& transform);
         // add global attribute/uniforms for shaders ?
         void commit();
@@ -57,7 +62,7 @@ namespace ORCore
         ~Renderer();
 
     private:
-        int find_batch(RenderState state);
+        BatchID find_batch(RenderState state);
         std::vector<RenderObject> m_objects;
         std::vector<std::unique_ptr<Batch>> m_batches;
         std::unordered_map<std::string, glm::mat4> m_cameraUniforms;
