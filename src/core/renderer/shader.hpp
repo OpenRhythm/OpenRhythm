@@ -14,6 +14,7 @@ namespace ORCore
 
     struct Shader
     {
+        // TODO - Implement move and disable copy for shader...
         unsigned int shader;
         ShaderInfo info;
         Shader(ShaderInfo);
@@ -25,6 +26,7 @@ namespace ORCore
     class ShaderProgram
     {
     public:
+        // TODO - Implement move and disable copy for Program...
         ShaderProgram(Shader& vertex, Shader& fragment);
         ~ShaderProgram();
 

@@ -93,6 +93,9 @@ namespace ORCore
     {
         // TODO - Make this smarter about what it updates if performance becomes an issue.
         // Could glBufferSubdata just the parts needed?
+        // Only downside to using glBufferSubdata, it makes it harder to batch together multiple updates of the same buffer.
+        // As it is currently we can update 1 object or every object witout much extra api overhead. Updating 1 object
+        // is likely slower with the current method than if we switched to glBufferSubdata
         m_committed = false;
         m_matrices[mesh.transformOffset] = transform;
         for (auto &vertex : mesh.vertices)
