@@ -59,7 +59,6 @@ namespace ORCore
         void commit();
         void render();
         void clear();
-        ~Renderer();
 
     private:
         BatchID find_batch(RenderState state);

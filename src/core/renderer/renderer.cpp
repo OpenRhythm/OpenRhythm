@@ -364,10 +364,4 @@ namespace ORCore
         }
     }
 
-    Renderer::~Renderer()
-    {
-
-    }
-
-
 }
