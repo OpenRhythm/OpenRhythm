@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "vfs.hpp"
+#include "filesystem.hpp"
 namespace MidiPlayer
 {
     MidiDisplayManager::MidiDisplayManager()

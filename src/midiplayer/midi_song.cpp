@@ -5,7 +5,7 @@
 
 #include "midi_song.hpp"
 
-#include "vfs.hpp"
+#include "filesystem.hpp"
 
 namespace MidiPlayer
 {

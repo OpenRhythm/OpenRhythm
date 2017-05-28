@@ -171,7 +171,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/filesystem.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.hpp
 )
 set(CORE_SOURCE
@@ -188,7 +188,7 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/vfs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/filesystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/extern/glad/src/glad.c
 )

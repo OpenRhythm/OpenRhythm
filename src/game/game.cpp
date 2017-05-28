@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "vfs.hpp"
+#include "filesystem.hpp"
 namespace ORGame
 {
     const float neck_speed_divisor = 0.5;
@@ -25,37 +25,18 @@ namespace ORGame
 
         m_logger = spdlog::get("default");
 
-
         m_window.make_current(&m_context);
 
         m_window.disable_sync();
 
-        //VFS.AddLoader(new ttvfs::DiskLoader);
-
-        //
-        // AppPath gets mounted on osx
-        // BasePath gets mounted and overwrites any files similar to those in AppPath (data)
-        // HomePath gets mounted and overwrites any files similar to those in BasePath (configs)
-        // std::cout << ORCore::GetBasePath() << std::endl;
     #if OSX_APP_BUNDLE
-        ORCore::mount(ORCore::GetAppPath(), "");
+        m_logger->info("OSX app path: {}", ORCore::get_app_path());
     #endif
-        ORCore::mount(ORCore::GetBasePath(), "/bob");
-        std::vector<std::string> paths = ORCore::resolveSystemPath("/bob");
-        for (auto &i: paths) {
-            auto bob = ORCore::sysGetPathContents(i);
-            std::cout << i << " " << bob.size() << std::endl;
-        }
-        //VFS.Mount( ORCore::GetBasePath().c_str(), "" );
-        //VFS.Mount( ORCore::GetHomePath().c_str(), "" );
+        auto basePath = ORCore::get_path_contents(ORCore::get_base_path());
+        m_logger->info("Game root info: {} {}", ORCore::get_base_path(), basePath.size());
+        m_logger->info("Home path: {}", ORCore::get_home_path());
 
-        //ORCore::mount( "./data", "data" );
         m_song.load();
-
-        //std::cout << "Song: " << (m_song.length() / 1000) / 60 << " minutes long" << std::endl;
-
-        //ORCore::Track *track = m_song.getTrack( ORCore::TrackType::Guitar, ORCore::Difficulty::Expert );
-        //std::cout << "Song: loaded track for " << ORCore::TrackNameForType( track->info().type ) << std::endl;
 
         m_tempoTrack = m_song.get_tempo_track();
 
@@ -326,7 +307,8 @@ namespace ORGame
 
     void GameManager::update()
     {
-        // TODO - move songtime to song class, and create a new timer type which can be started and stopped/paused/rewound etc\.
+        // TODO - move songtime to song class, and create a new timer type which can be started and stopped/paused/rewound etc.
+        // TODO - Convert all timing in game/engine back to seconds instead of milliseconds. Midi parser has already been switched.
         m_songTime = m_clock.get_current_time()/1000.0;
 
         auto notesInWindow = m_playerTrack->get_notes_in_frame(m_songTime-0.020, m_songTime+0.100);

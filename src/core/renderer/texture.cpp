@@ -2,7 +2,7 @@
 #include "texture.hpp"
 #include <iostream>
 
-#include "vfs.hpp"
+#include "filesystem.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_NO_STDIO

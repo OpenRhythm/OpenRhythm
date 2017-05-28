@@ -5,7 +5,7 @@
 #include <cmath>
 #include "song.hpp"
 
-#include "vfs.hpp"
+#include "filesystem.hpp"
 
 namespace ORGame
 {

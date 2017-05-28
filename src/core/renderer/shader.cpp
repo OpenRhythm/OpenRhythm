@@ -4,7 +4,7 @@
 
 #include <spdlog/spdlog.h>
 #include <glad/glad.h>
-#include "vfs.hpp"
+#include "filesystem.hpp"
 #include "shader.hpp"
 
 namespace ORCore
