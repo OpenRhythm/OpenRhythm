@@ -58,7 +58,7 @@ namespace ORCore
         return value;
     }
 
-    void SmfReader::read_midi_event(SmfEventInfo &event)
+    void SmfReader::read_midi_event(const SmfEventInfo &event)
     {
         MidiEvent midiEvent;
         midiEvent.info = event;
@@ -92,13 +92,13 @@ namespace ORCore
                 midiEvent.data2 = read_type<uint8_t>(m_smfFile); // pitch_high
                 break;
             default:
-                m_logger->warn(_("Bad Midi control message"));
+                m_logger->warn("Bad Midi control message {}", midiEvent.message);
         }
 
         m_currentTrack->midiEvents.push_back(midiEvent);
     }
 
-    void SmfReader::read_meta_event(SmfEventInfo &eventInfo)
+    void SmfReader::read_meta_event(const SmfEventInfo &eventInfo)
     {
         MetaEvent event {eventInfo, read_type<MidiMetaEvent>(m_smfFile), read_var_len()};
 
@@ -246,13 +246,13 @@ namespace ORCore
         }
     }
 
-    void SmfReader::read_sysex_event(SmfEventInfo &event)
+    void SmfReader::read_sysex_event(const SmfEventInfo &event)
     {
         auto length = read_var_len();
         std::vector<char> sysex;
         sysex.resize(length);
         read_type<char>(m_smfFile, &sysex[0], length);
-        m_logger->info(_("sysex event at position {}"), m_smfFile.get_pos());
+        m_logger->trace(_("sysex event at position {}"), m_smfFile.get_pos());
     }
 
     // Convert from deltaPulses to deltaTime.
@@ -340,15 +340,17 @@ namespace ORCore
     void SmfReader::read_events(uint32_t chunkEnd)
     {
         uint32_t pulseTime = 0;
-        uint8_t prevStatus = 0;
+        uint8_t oldRunningStatus = 0;
+        bool runningStatusReset = false;
 
         // find a ballpark size estimate for the track 
         uint32_t sizeGuess = (chunkEnd - m_smfFile.get_pos()) / 3;
         m_currentTrack->midiEvents.reserve(sizeGuess);
 
+        SmfEventInfo eventInfo;
+
         while (m_smfFile.get_pos() < chunkEnd)
         {
-            SmfEventInfo eventInfo;
 
             eventInfo.deltaPulses = read_var_len();
 
@@ -358,25 +360,37 @@ namespace ORCore
             pulseTime += eventInfo.deltaPulses;
 
             eventInfo.pulseTime = pulseTime;
+
             auto status = peek_type<uint8_t>(m_smfFile);
 
             if (status == status_MetaEvent) {
-                prevStatus = 0; // reset running status
+                if (runningStatusReset == false) {
+                    runningStatusReset = true;
+                    oldRunningStatus = eventInfo.status;
+                    m_logger->trace("Old Running Status: {}", oldRunningStatus);
+                }
                 eventInfo.status = read_type<uint8_t>(m_smfFile);
                 read_meta_event(eventInfo);
             } else if (status == status_SysexEvent || status == status_SysexEvent2) {
-                prevStatus = 0;  // reset running status
+                if (runningStatusReset == false) {
+                    runningStatusReset = true;
+                    oldRunningStatus = eventInfo.status;
+                    m_logger->trace("Old Running Status: {}", oldRunningStatus);
+                }
                 eventInfo.status = read_type<uint8_t>(m_smfFile);
                 read_sysex_event(eventInfo);
             } else {
                 // Check if we should use the running status.
                 if ((status & 0xF0) >= 0x80) {
                     eventInfo.status = read_type<uint8_t>(m_smfFile);
-                } else {
-                    eventInfo.status = prevStatus;
+                } else if (runningStatusReset) {
+                    m_logger->warn("Running status after a reset. This is non-standard. Attempting to correct...");
+                    m_logger->trace("Using status: {}", oldRunningStatus);
+                    eventInfo.status = oldRunningStatus;
                 }
+
+                runningStatusReset = false;
                 read_midi_event(eventInfo);
-                prevStatus = eventInfo.status;
             }
         }
     }

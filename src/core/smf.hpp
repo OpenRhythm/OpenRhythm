@@ -90,13 +90,9 @@ namespace ORCore
 
     struct SmfEventInfo
     {
+        uint32_t deltaPulses; // number of pulses relative to the previous event
+        uint32_t pulseTime; // Time in pulses from start to now
         uint8_t status;
-
-        // number of pulses relative to the previous event
-        uint32_t deltaPulses;
-
-        // Time in pulses from start to now
-        uint32_t pulseTime;
     };
 
     struct MetaEvent
@@ -206,9 +202,9 @@ namespace ORCore
         SmfTrack *m_currentTrack;
 
         uint32_t read_var_len();
-        void read_midi_event(SmfEventInfo &event);
-        void read_meta_event(SmfEventInfo &event);
-        void read_sysex_event(SmfEventInfo &event);
+        void read_midi_event(const SmfEventInfo &event);
+        void read_meta_event(const SmfEventInfo &event);
+        void read_sysex_event(const SmfEventInfo &event);
         double delta_tick_to_delta_time(TempoEvent* tempo, uint32_t deltaPulses);
         void set_default_tempo_ts();
         TempoEvent* get_last_tempo_via_pulses(uint32_t pulseTime);
