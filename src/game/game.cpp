@@ -56,6 +56,9 @@ namespace ORGame
 
         m_fpsTime = 0.0;
 
+        m_videoOffset = 0.1;
+        m_audioOffset = 0.0;
+
         m_ss = std::cout.precision();
         m_renderer.init_gl();
 
@@ -311,10 +314,12 @@ namespace ORGame
         // TODO - Convert all timing in game/engine back to seconds instead of milliseconds. Midi parser has already been switched.
         m_songTime = m_clock.get_current_time()/1000.0;
 
-        auto notesInWindow = m_playerTrack->get_notes_in_frame(m_songTime-0.020, m_songTime+0.100);
+        // Notes will effectively be hit m_videoOffset into the future so we need to go m_videoOffset into the past in order to get the proper notes.
+        auto notesInWindow = m_playerTrack->get_notes_in_frame((m_songTime-m_videoOffset)-0.100, (m_songTime-m_videoOffset)+0.100);
+        
         for (auto *note : notesInWindow)
         {
-            if (!note->played && note->time <= m_songTime)
+            if (!note->played && note->time + m_videoOffset <= m_songTime)
             {
                 auto *tailObj = m_renderer.get_object(note->objTailID);
                 auto *noteObj = m_renderer.get_object(note->objNoteID);

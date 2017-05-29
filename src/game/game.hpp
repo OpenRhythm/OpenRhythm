@@ -57,6 +57,9 @@ namespace ORGame
 
         int m_mouseX = 0;
         int m_mouseY = 0;
+        
+        float m_videoOffset;
+        float m_audioOffset;
 
         TempoTrack *m_tempoTrack;
         Track *m_playerTrack;
