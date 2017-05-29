@@ -10,9 +10,12 @@ namespace ORCore
     {
         m_logger->info(_("Loading MIDI"));
 
-        try {
+        try
+        {
             m_smfFile.load(filename);
-        } catch (std::runtime_error &err) {
+        }
+        catch (std::runtime_error &err)
+        {
             throw std::runtime_error(_("Failed to load MIDI file."));
         }
 
@@ -31,6 +34,7 @@ namespace ORCore
         }
         return tracks;
     }
+
     TempoTrack* SmfReader::get_tempo_track()
     {
         return &m_tempoTrack;
@@ -46,13 +50,16 @@ namespace ORCore
         uint8_t c = read_type<uint8_t>(m_smfFile);
         uint32_t value = static_cast<uint32_t>(c & 0x7F);
 
-        if (c & 0x80) {
+        if (c & 0x80)
+        {
 
-            do {
+            do
+            {
                 c = read_type<uint8_t>(m_smfFile);
                 value = (value << 7) + (c & 0x7F);
 
-            } while (c & 0x80);
+            }
+            while (c & 0x80);
 
         }
         return value;
@@ -65,7 +72,8 @@ namespace ORCore
         midiEvent.message = static_cast<MidiChannelMessage>(event.status & 0xF0);
         midiEvent.channel = static_cast<uint8_t>(event.status & 0xF);
 
-        switch (midiEvent.message) {
+        switch (midiEvent.message)
+        {
             case NoteOff:      // note off           (2 more bytes)
             case NoteOn:       // note on            (2 more bytes)
                 midiEvent.data1 = read_type<uint8_t>(m_smfFile); // note
@@ -143,7 +151,8 @@ namespace ORCore
                 m_currentTrack->name = std::string(textData.get());
                 break;
             }
-            case meta_MIDIChannelPrefix: {
+            case meta_MIDIChannelPrefix:
+            {
                 // TODO - Add channel 
                 auto midiChannel = read_type<uint8_t>(m_smfFile);
                 m_logger->trace(_("Midi Channel {}"), midiChannel);
@@ -322,12 +331,15 @@ namespace ORCore
         }
 
         // Ignore the cached last tempo value if the new pulse time is older.
-        if (lastPulseTime > pulseTime) {
+        if (lastPulseTime > pulseTime)
+        {
             value = 0;
         }
 
-        for (unsigned int i = value; i < tempos.size(); i++) {
-            if (tempos[i].info.info.pulseTime > pulseTime) {
+        for (unsigned int i = value; i < tempos.size(); i++)
+        {
+            if (tempos[i].info.info.pulseTime > pulseTime)
+            {
                 value = i-1;
                 lastPulseTime = pulseTime;
                 return &tempos[value];
@@ -363,27 +375,37 @@ namespace ORCore
 
             auto status = peek_type<uint8_t>(m_smfFile);
 
-            if (status == status_MetaEvent) {
-                if (runningStatusReset == false) {
+            if (status == status_MetaEvent)
+            {
+                if (runningStatusReset == false)
+                {
                     runningStatusReset = true;
                     oldRunningStatus = eventInfo.status;
                     m_logger->trace("Old Running Status: {}", oldRunningStatus);
                 }
                 eventInfo.status = read_type<uint8_t>(m_smfFile);
                 read_meta_event(eventInfo);
-            } else if (status == status_SysexEvent || status == status_SysexEvent2) {
-                if (runningStatusReset == false) {
+            }
+            else if (status == status_SysexEvent || status == status_SysexEvent2)
+            {
+                if (runningStatusReset == false)
+                {
                     runningStatusReset = true;
                     oldRunningStatus = eventInfo.status;
                     m_logger->trace("Old Running Status: {}", oldRunningStatus);
                 }
                 eventInfo.status = read_type<uint8_t>(m_smfFile);
                 read_sysex_event(eventInfo);
-            } else {
+            }
+            else
+            {
                 // Check if we should use the running status.
-                if ((status & 0xF0) >= 0x80) {
+                if ((status & 0xF0) >= 0x80)
+                {
                     eventInfo.status = read_type<uint8_t>(m_smfFile);
-                } else if (runningStatusReset) {
+                }
+                else if (runningStatusReset)
+                {
                     m_logger->warn("Running status after a reset. This is non-standard. Attempting to correct...");
                     m_logger->trace("Using status: {}", oldRunningStatus);
                     eventInfo.status = oldRunningStatus;
