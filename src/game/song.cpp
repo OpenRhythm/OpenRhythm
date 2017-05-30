@@ -9,8 +9,6 @@
 
 namespace ORGame
 {
-
-
     static std::shared_ptr<spdlog::logger> logger;
 
     /////////////////////////////////////
@@ -78,8 +76,10 @@ namespace ORGame
     std::vector<TempoEvent*> TempoTrack::get_events(double start, double end)
     {
         std::vector<TempoEvent*> events;
-        for (auto &tempo : m_tempo) {
-            if (tempo.time >= start && tempo.time <= end) {
+        for (auto &tempo : m_tempo)
+        {
+            if (tempo.time >= start && tempo.time <= end)
+            {
                 events.push_back(&tempo);
             }
         }
@@ -89,7 +89,8 @@ namespace ORGame
     std::vector<TempoEvent*> TempoTrack::get_events()
     {
         std::vector<TempoEvent*> events;
-        for (auto &tempo : m_tempo) {
+        for (auto &tempo : m_tempo)
+        {
             events.push_back(&tempo);
         }
         return events;
@@ -193,8 +194,10 @@ namespace ORGame
     std::vector<BarEvent*> TempoTrack::get_bars(double start, double end)
     {
         std::vector<BarEvent*> events;
-        for (auto &bar : m_bars) {
-            if (bar.time >= start && bar.time <= end) {
+        for (auto &bar : m_bars)
+        {
+            if (bar.time >= start && bar.time <= end)
+            {
                 events.push_back(&bar);
             }
         }
@@ -204,7 +207,8 @@ namespace ORGame
     std::vector<BarEvent*> TempoTrack::get_bars()
     {
         std::vector<BarEvent*> events;
-        for (auto &bar : m_bars) {
+        for (auto &bar : m_bars)
+        {
             events.push_back(&bar);
         }
         return events;
@@ -229,11 +233,14 @@ namespace ORGame
     {
         static std::vector<std::pair<NoteType, int>> activeNotes;
 
-        if (on) {
+        if (on)
+        {
             int index = m_notes.size();
             activeNotes.emplace_back(type, index);
             m_notes.push_back({type, time, 0.0});
-        } else {
+        }
+        else
+        {
             auto findFunc = [&](const auto& element)
             {
                 return element.first == type;
@@ -252,23 +259,25 @@ namespace ORGame
     {
         static std::vector<std::pair<EventType, int>> activeEvents;
 
-        if (on) {
+        if (on)
+        {
             int index = m_events.size();
             activeEvents.emplace_back(type, index);
             m_events.push_back({type, time, 0.0});
-        } else {
+        }
+        else
+        {
             auto findFunc = [&](const auto& element)
             {
                 return element.first == type;
             };
-            auto item = std::find_if( activeEvents.begin(), activeEvents.end(), findFunc);
+            auto item = std::find_if(activeEvents.begin(), activeEvents.end(), findFunc);
             if (item != activeEvents.end())
             {
                 auto &event = m_events[item->second];
                 event.length = time - event.time;
                 activeEvents.erase(item);
             }
-
         }
     }
 
@@ -277,14 +286,14 @@ namespace ORGame
         return &m_events;
     }
 
-    // void set_
-
     std::vector<TrackNote*> Track::get_notes_in_frame(double start, double end)
     {   
         std::vector<TrackNote*> notes;
-        for ( auto &note : m_notes) {
-            if (note.time >= start && note.time <= end) {
-                notes.emplace_back( &note );
+        for ( auto &note : m_notes)
+        {
+            if (note.time >= start && note.time <= end)
+            {
+                notes.emplace_back(&note);
             }
         }
         return notes;
@@ -293,8 +302,9 @@ namespace ORGame
     std::vector<TrackNote*> Track::get_notes()
     {   
         std::vector<TrackNote*> notes;
-        for ( auto &note : m_notes) {
-            notes.emplace_back( &note );
+        for ( auto &note : m_notes)
+        {
+            notes.emplace_back(&note);
         }
         return notes;
     }
@@ -365,27 +375,36 @@ namespace ORGame
     // Convenence functions for accessing the maps.
     const std::string diff_type_to_name(Difficulty diff)
     {
-        try {
+        try
+        {
             return diffNameMap.at(diff);
-        } catch (std::out_of_range &err) {
+        }
+        catch (std::out_of_range &err)
+        {
             return "";
         }
     }
 
     const std::string track_type_to_name(TrackType type)
     {
-        try {
+        try
+        {
             return trackNameMap.at(type);
-        } catch (std::out_of_range &err) {
+        }
+        catch (std::out_of_range &err)
+        {
             return "";
         }
     }
 
     const TrackType get_track_type(std::string trackName)
     {
-        try {
+        try
+        {
             return midiTrackTypeMap.at(trackName);
-        } catch (std::out_of_range &err) {
+        }
+        catch (std::out_of_range &err)
+        {
             return TrackType::NONE;
         }
     }
@@ -401,10 +420,11 @@ namespace ORGame
         logger = spdlog::get("default");
     }
 
-    void Song::add( TrackType type, Difficulty difficulty )
+    void Song::add(TrackType type, Difficulty difficulty)
     {
-        if ( type < TrackType::Events ) {
-            m_tracksInfo.push_back( {type, difficulty} );
+        if (type < TrackType::Events)
+        {
+            m_tracksInfo.push_back({type, difficulty});
         }
     }
 
@@ -475,53 +495,86 @@ namespace ORGame
             TrackType type = get_track_type(midiTrack->name);
             if (type == trackInfo.type)
             {
-
                 for (auto &midiEvent : midiTrack->midiEvents)
                 {
                     // TODO - Clean this up this WILL get very messy eventually.
-                    if (midiEvent.message == ORCore::NoteOn) {
-                        if (midiEvent.data1 == solo_marker) {
+                    if (midiEvent.message == ORCore::NoteOn)
+                    {
+                        // Event markers
+                        if (midiEvent.data1 == solo_marker)
+                        {
+                            // Handle velocity = 0 to turn notes off
                             if (midiEvent.data2 != 0)
                             {
                                 track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
-                            } else {
-                                track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
-
                             }
-                        } else if (midiEvent.data1 == drive_marker) {
+                            else
+                            {
+                                track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                            }
+                        }
+                        else if (midiEvent.data1 == drive_marker)
+                        {
+                            // Handle velocity = 0 to turn notes off
                             if (midiEvent.data2 != 0)
                             {
                                 track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
-                            } else {
+                            }
+                            else
+                            {
                                 track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
                             }
-                        } else {
-                            try {
+                        }
+                        else
+                        {
+                            // Track Notes
+                            try
+                            {
                                 note = noteMap.at(midiEvent.data1);
-                            } catch (std::out_of_range &err) {
+                            }
+                            catch (std::out_of_range &err)
+                            {
                                 continue;
                             }
-                            if (note != NoteType::NONE) {
+                            if (note != NoteType::NONE)
+                            {
+                                // Handle velocity = 0 to turn notes off
                                 if (midiEvent.data2 != 0)
                                 {
                                     track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
-                                } else {
+                                }
+                                else
+                                {
                                     track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
                                 }
                             }
                         }
-                    } else if (midiEvent.message == ORCore::NoteOff) {
-                        if (midiEvent.data1 == solo_marker) {
+                    }
+                    else if (midiEvent.message == ORCore::NoteOff)
+                    {
+
+                        // Event markers
+                        if (midiEvent.data1 == solo_marker)
+                        {
                             track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
-                        } else if (midiEvent.data1 == drive_marker) {
+                        }
+                        else if (midiEvent.data1 == drive_marker)
+                        {
                             track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
-                        } else {
-                            try {
+                        }
+                        else
+                        {
+                            // Track Notes
+                            try
+                            {
                                 note = noteMap.at(midiEvent.data1);
-                            } catch (std::out_of_range &err) {
+                            }
+                            catch (std::out_of_range &err)
+                            {
                                 continue;
                             }
-                            if (note != NoteType::NONE) {
+                            if (note != NoteType::NONE)
+                            {
                                 track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
                             }
                         }

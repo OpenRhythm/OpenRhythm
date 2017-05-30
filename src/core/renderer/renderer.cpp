@@ -122,11 +122,13 @@ namespace ORCore
         if (primitive == Primitive::triangle)
         {
             mesh.vertexSize = 3;
-        } else if (primitive == Primitive::line)
+        }
+        else if (primitive == Primitive::line)
         {
             mesh.vertexSize = 2;
 
-        } else if (primitive == Primitive::point)
+        }
+        else if (primitive == Primitive::point)
         {
             mesh.vertexSize = 1;
         }
@@ -137,7 +139,9 @@ namespace ORCore
         if (batchID == -1 || geometry.size() == mesh.vertices.size())
         {
             mesh.vertices = geometry;
-        } else {
+        }
+        else
+        {
             throw std::length_error("Geometry size does not match original.");
         }
     }
@@ -236,7 +240,8 @@ namespace ORCore
                     errorFound = true;
                     break;
             }
-        } while(error != GL_NO_ERROR);
+        }
+        while(error != GL_NO_ERROR);
 
         return errorFound;
     }
@@ -313,9 +318,12 @@ namespace ORCore
 
     void Renderer::set_camera_transform(std::string name, glm::mat4&& transform)
     {
-        try {
+        try
+        {
             m_cameraUniforms.at(name) = transform;
-        } catch (std::out_of_range &err) {
+        }
+        catch (std::out_of_range &err)
+        {
             m_cameraUniforms.insert({name, transform});
         }
     }

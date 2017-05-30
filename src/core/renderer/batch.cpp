@@ -84,7 +84,9 @@ namespace ORCore
             m_vertices.insert(std::end(m_vertices), std::begin(mesh.vertices), std::end(mesh.vertices));
 
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -132,7 +134,8 @@ namespace ORCore
 
     void Batch::render()
     {
-        if (m_matrices.size() > 0) {
+        if (m_matrices.size() > 0)
+        {
 
             glBindVertexArray(m_vao);
 
@@ -141,7 +144,6 @@ namespace ORCore
             m_matTexBuffer.bind(m_matBufTexID);
 
             glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
-
         }
 
     }

@@ -43,7 +43,7 @@ namespace ORGame
         m_song.load_tracks();
         m_playerTrack = &(*m_song.get_tracks())[0];
 
-        if(!gladLoadGL())
+        if (!gladLoadGL())
         {
             throw std::runtime_error(_("Error: GLAD failed to load."));
         }
@@ -207,9 +207,11 @@ namespace ORGame
         {
             float z = note->time / neck_speed_divisor;
             glm::vec4 color;
-            try {
+            try
+            {
                 color = noteColorMap.at(note->type);
-            } catch (std::out_of_range &err) {
+            }
+            catch (std::out_of_range &err) {
                 color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
             }
 
@@ -270,26 +272,31 @@ namespace ORGame
 
     bool GameManager::event_handler(const ORCore::Event &event)
     {
-        switch(event.type) {
-            case ORCore::Quit: {
+        switch (event.type)
+        {
+            case ORCore::Quit:
+            {
                 m_running = false;
                 break;
             }
-            case ORCore::MouseMove: {
+            case ORCore::MouseMove:
+            {
                 auto ev = ORCore::event_cast<ORCore::MouseMoveEvent>(event);
                 //std::cout << "mouse x: " << ev.x << " mouse y" << ev.y << std::endl;
                 m_mouseX = ev.x;
                 m_mouseY = ev.y;
                 break;
             }
-            case ORCore::WindowSize: {
+            case ORCore::WindowSize:
+            {
                 auto ev = ORCore::event_cast<ORCore::WindowSizeEvent>(event);
                 resize(ev.width, ev.height);
                 break;
             }
             case ORCore::KeyDown: {
                 auto ev = ORCore::event_cast<ORCore::KeyDownEvent>(event);
-                switch(ev.key) {
+                switch(ev.key)
+                {
                     case ORCore::KeyCode::KEY_F:
                         std::cout << "Key F" << std::endl;
                         break;
@@ -325,9 +332,12 @@ namespace ORGame
                 auto *noteObj = m_renderer.get_object(note->objNoteID);
 
                 glm::vec4 color;
-                try {
+                try
+                {
                     color = noteColorMapActive.at(note->type);
-                } catch (std::out_of_range &err) {
+                }
+                catch (std::out_of_range &err)
+                {
                     color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
                 }
 

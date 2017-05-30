@@ -45,18 +45,22 @@ namespace ORCore
     std::string read_file(std::string filename, FileMode mode)
     {
         auto fileMode = std::ios::in | std::ios_base::ate;
-        if (mode == FileMode::Binary) {
+        if (mode == FileMode::Binary)
+        {
              fileMode |= std::ios_base::binary;
         }
         std::ifstream in(filename, fileMode);
-        if (in) {
+        if (in)
+        {
             std::string contents;
             contents.resize(static_cast<unsigned int>(in.tellg()));
             in.seekg(0, std::ios::beg);
             in.read(&contents[0], contents.size());
             in.close();
             return contents;
-        } else {
+        }
+        else
+        {
             throw std::runtime_error(fmt::format("Failed to load {}", filename));
         }
     }
@@ -90,15 +94,21 @@ namespace ORCore
 
             dp = readdir(dir); // This is for next loop iteration
 
-            if (S_ISDIR(sb.st_mode)) {
+            if (S_ISDIR(sb.st_mode))
+            {
                 file.fileType = FileType::Folder;
-            } else if (S_ISREG(sb.st_mode)) {
+            }
+            else if (S_ISREG(sb.st_mode))
+            {
                 file.fileType = FileType::File;
-            } else {
+            }
+            else
+            {
                 continue;
             }
             contents.push_back(std::move(file));
-        } while(dp);
+        }
+        while(dp);
         closedir(dir);
         #endif
 
@@ -119,7 +129,7 @@ namespace ORCore
             char path[8192];
             uint32_t size = sizeof(path);
 
-            if ( _NSGetExecutablePath( path, &size ) < 0 )
+            if (_NSGetExecutablePath( path, &size ) < 0)
             {
                 return "";
             }
@@ -133,8 +143,11 @@ namespace ORCore
             {
                 buff[len] = '\0';
                 basePath = buff;
-            } else
+            }
+            else
+            {
                 basePath = "";
+            }
 #endif
 
             // remove executable name so we just have the path
@@ -168,7 +181,9 @@ namespace ORCore
                     pos = basePath.rfind( APP_NAME );
 
                     if ( pos != std::string::npos )
+                    {
                         basePath = basePath.substr( 0, pos );
+                    }
                 }
             }
 #endif
@@ -198,7 +213,7 @@ namespace ORCore
 
         if( homePath.empty() )
         {
-            if( !SUCCEEDED( SHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, szPath ) ) )
+            if(!SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath)))
             {
                 return NULL;
             }
@@ -214,7 +229,7 @@ namespace ORCore
         if( homePath.empty() )
         {
 
-            if( ( p = getenv( "HOME" ) ) != NULL )
+            if((p = getenv( "HOME" )) != NULL)
             {
                 homePath = p ;
                 homePath += PATH_SEP ;

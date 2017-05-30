@@ -16,7 +16,8 @@ namespace ORCore
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, m_profile);
 
-        if (m_msaa > 0) {
+        if (m_msaa > 0)
+        {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_msaa);
         }
@@ -30,7 +31,8 @@ namespace ORCore
     void Context::set_window(Window* window)
     {
         m_window = window;
-        if (m_context == nullptr) {
+        if (m_context == nullptr)
+        {
             m_context = SDL_GL_CreateContext(m_window->get_platform_window());
         }
     }

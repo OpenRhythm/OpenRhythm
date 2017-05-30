@@ -6,12 +6,16 @@ namespace ORCore
     {
         std::size_t start = 0;
         int count = 0;
-        while (true){
+        while (true)
+        {
             start = str.find(substr, start);
-            if (start != std::string::npos) {
+            if (start != std::string::npos)
+            {
                 count++;
                 start += substr.size();
-            } else {
+            }
+            else
+            {
                 break;
             }
         }
@@ -49,9 +53,11 @@ namespace ORCore
         size_t end = 0;
         bool running = true;
 
-        while (running) {
+        while (running)
+        {
             end = str.find(delimiter, start);
-            if (end == std::string::npos) {
+            if (end == std::string::npos)
+            {
                 end = str.size();
                 running = false;
             }
