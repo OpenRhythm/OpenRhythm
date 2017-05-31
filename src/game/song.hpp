@@ -61,6 +61,8 @@ namespace ORGame
     {
         NoteType type;
         double time;
+        int32_t pulseTimeStart;
+        int32_t pulseTimeEnd;
         double length;
         int objNoteID;
         int objTailID;
@@ -140,7 +142,7 @@ namespace ORGame
 
         TrackInfo info();
 
-        void add_note(NoteType type, double time, bool on);
+        void add_note(NoteType type, double time, int32_t pulseTime, bool on);
         std::vector<TrackNote*> get_notes_in_frame(double start, double end);
         std::vector<TrackNote*> get_notes();
 

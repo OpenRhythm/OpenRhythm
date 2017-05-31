@@ -229,7 +229,7 @@ namespace ORGame
         return m_info;
     }
 
-    void Track::add_note(NoteType type, double time, bool on)
+    void Track::add_note(NoteType type, double time, int32_t pulseTime, bool on)
     {
         static std::vector<std::pair<NoteType, int>> activeNotes;
 
@@ -237,7 +237,7 @@ namespace ORGame
         {
             int index = m_notes.size();
             activeNotes.emplace_back(type, index);
-            m_notes.push_back({type, time, 0.0});
+            m_notes.push_back({type, time, pulseTime});
         }
         else
         {
@@ -250,6 +250,7 @@ namespace ORGame
             {
                 auto &note = m_notes[item->second];
                 note.length = time - note.time;
+                note.pulseTimeEnd = pulseTime;
                 activeNotes.erase(item);
             }
         }
@@ -541,11 +542,11 @@ namespace ORGame
                                 // Handle velocity = 0 to turn notes off
                                 if (midiEvent.data2 != 0)
                                 {
-                                    track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                                    track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, true);
                                 }
                                 else
                                 {
-                                    track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                                    track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, false);
                                 }
                             }
                         }
@@ -575,7 +576,7 @@ namespace ORGame
                             }
                             if (note != NoteType::NONE)
                             {
-                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, false);
                             }
                         }
                     }
