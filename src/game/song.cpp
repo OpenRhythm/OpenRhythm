@@ -468,6 +468,12 @@ namespace ORGame
                 add(type, Difficulty::Easy);
                 foundUsable = true;
             }
+
+            // find the longest midi track
+            if (m_length < midiTrack->endTime)
+            {
+                m_length = midiTrack->endTime;
+            }
         }
         if (!foundUsable)
         {
@@ -582,7 +588,6 @@ namespace ORGame
                     }
 
                 }
-                m_length = midiTrack->endTime;
                 break;
             }
         }
@@ -614,9 +619,14 @@ namespace ORGame
         return &m_tempoTrack;
     };
 
+    int16_t Song::get_divison()
+    {
+        return m_midi.get_header()->division;
+    }
+
     double Song::length()
     {
-        return m_length;
+        return m_midi.pulsetime_to_abstime(m_length);
     };
 
 } // namespace ORGame

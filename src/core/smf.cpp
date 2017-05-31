@@ -349,6 +349,11 @@ namespace ORCore
         return &tempos.back();  
     }
 
+    SmfHeaderChunk* SmfReader::get_header()
+    {
+        return &m_header;
+    }
+
     void SmfReader::read_events(uint32_t chunkEnd)
     {
         uint32_t pulseTime = 0;

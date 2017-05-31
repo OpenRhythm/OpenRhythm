@@ -166,7 +166,7 @@ namespace ORGame
         std::vector<Track> *get_tracks();
         std::vector<TrackInfo> *get_track_info();
         TempoTrack *get_tempo_track();
-
+        int16_t get_divison();
         double length();
 
     private:

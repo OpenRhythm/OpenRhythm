@@ -196,12 +196,16 @@ namespace ORGame
         std::vector<TrackNote*> notes = m_playerTrack->get_notes();
         std::cout << "Note Count: " << notes.size() << std::endl;
 
+        int tailCutoff = std::ceil(m_song.get_divison()/3.0); // Anything below 1/12th we hide
+
         // reuse the same container when creating notes as add_obj wont modify the original.
         ORCore::RenderObject obj;
         obj.set_program(m_program);
 
         float noteWidth = 1.0f/5.0f;
         float tailWidth = noteWidth/3.0f;
+
+        bool firstTailMarked = false;
 
         for (auto &note : notes)
         {
@@ -217,13 +221,34 @@ namespace ORGame
 
             float noteLength = note->length/neck_speed_divisor;
 
-            obj.set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
-            obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
-            obj.set_primitive_type(ORCore::Primitive::triangle);
-            obj.set_geometry(ORCore::create_rect_z_mesh(color));
-            obj.set_texture(m_tailTexture);
+            int pulseLength = note->pulseTimeEnd - note->pulseTimeStart;
 
-            note->objTailID = m_renderer.add_object(obj);
+            if (pulseLength <= tailCutoff)
+            {
+                if (!firstTailMarked) // quick hack to make sure we have proper batch ordering
+                {
+                    obj.set_scale(glm::vec3{tailWidth, 1.0f, 0.0});
+                    obj.set_translation(glm::vec3{0.0f, 0.0f, 200});
+                    obj.set_primitive_type(ORCore::Primitive::triangle);
+                    obj.set_geometry(ORCore::create_rect_z_mesh(color));
+                    obj.set_texture(m_tailTexture);
+                    m_renderer.add_object(obj);
+                }
+                note->objTailID = -1;
+
+            }
+            else
+            {
+                obj.set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
+                obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
+                obj.set_primitive_type(ORCore::Primitive::triangle);
+                obj.set_geometry(ORCore::create_rect_z_mesh(color));
+                obj.set_texture(m_tailTexture);
+
+                note->objTailID = m_renderer.add_object(obj);
+            }
+            firstTailMarked = true;
+
             obj.set_texture(-1); // -1 gets set to the default texture.
 
             obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/2.0f});
@@ -326,11 +351,10 @@ namespace ORGame
         
         for (auto *note : notesInWindow)
         {
-            if (!note->played && note->time + m_videoOffset <= m_songTime)
+            if (!note->played && note->time + m_videoOffset <= m_songTime && note->objTailID != -1)
             {
-                auto *tailObj = m_renderer.get_object(note->objTailID);
-                auto *noteObj = m_renderer.get_object(note->objNoteID);
 
+                auto *tailObj = m_renderer.get_object(note->objTailID);
                 glm::vec4 color;
                 try
                 {
@@ -342,13 +366,13 @@ namespace ORGame
                 }
 
                 tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
-                // noteObj->set_geometry(ORCore::create_cube_mesh(color));
-                //tailObj->set_scale(glm::vec3(1.0f,1.0f,1.0f));
-                //noteObj->set_scale(glm::vec3(1.0f,1.0f,1.0f));
 
                 m_renderer.update_object(note->objTailID);
-                m_renderer.update_object(note->objNoteID);
                 note->played = true;
+
+                
+                //auto *noteObj = m_renderer.get_object(note->objNoteID);
+                //m_renderer.update_object(note->objNoteID);
             }
         }
 

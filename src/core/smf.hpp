@@ -191,6 +191,7 @@ namespace ORCore
         std::vector<SmfTrack*> get_tracks();
         TempoTrack* get_tempo_track();
         double pulsetime_to_abstime(uint32_t pulseTime);
+        SmfHeaderChunk* get_header();
         void release();
 
     private:
