@@ -11,11 +11,12 @@ OpenRhythm currently depends on the following libs:
 ### Submodules
 This project contains submodules. There are two ways to handle this.
 
-When cloning:
+To clone the repo and all submodules do:
 ```
 git clone --recursive https://github.com/OpenRhythm/OpenRhythm
 ```
-After clone:
+
+Otherwise if you have just cloned the repo you will need to run these to clone the submodules:
 ```
 git submodule init
 git submodule update
@@ -26,7 +27,6 @@ You will need a compiler that supports C++14
 
 * Makedepends : dependencies for compiling but not for executing :
     - CMake (3.0 minimum)
-    - TCLAP (Args parsing, header only)
     - GLM   (Graphics, header only)
 
 * Dependencies : for compiling and executing :
@@ -36,7 +36,6 @@ You will need a compiler that supports C++14
     - Samplerate (SRC)
     - SDL2
     - SoundIO
-    - Yaml-cpp
 
 
 #### Windows
@@ -44,7 +43,7 @@ You will need to get Visual Studio 2015 Community Edition (please expand)
 
 Download the pre-built dependancies and make sure they are in the extern folder.
 
-https://dl.dropboxusercontent.com/u/37405488/extern.zip
+https://drive.google.com/file/d/0BwN4qYrZTBNbaW1Tb3pycm1aTlE/view?usp=sharing
 This are x64 release builds done with VS 2015
 
 #### Unix: (MacOS/Linux)
