@@ -56,7 +56,7 @@ namespace ORGame
 
         m_fpsTime = 0.0;
 
-        m_videoOffset = 0.1;
+        m_videoOffset = 0.015;
         m_audioOffset = 0.0;
 
         m_ss = std::cout.precision();
@@ -351,10 +351,9 @@ namespace ORGame
         
         for (auto *note : notesInWindow)
         {
-            if (!note->played && note->time + m_videoOffset <= m_songTime && note->objTailID != -1)
+            if (!note->played && note->time + m_videoOffset <= m_songTime)
             {
 
-                auto *tailObj = m_renderer.get_object(note->objTailID);
                 glm::vec4 color;
                 try
                 {
@@ -365,14 +364,22 @@ namespace ORGame
                     color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
                 }
 
-                tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
+                if (note->objTailID != -1)
+                {
+                    auto *tailObj = m_renderer.get_object(note->objTailID);
 
-                m_renderer.update_object(note->objTailID);
+                    tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
+
+                    m_renderer.update_object(note->objTailID);
+
+                }
+
+                auto *noteObj = m_renderer.get_object(note->objNoteID);
+                noteObj->set_geometry(ORCore::create_cube_mesh(color));
+                m_renderer.update_object(note->objNoteID);
+
                 note->played = true;
 
-                
-                //auto *noteObj = m_renderer.get_object(note->objNoteID);
-                //m_renderer.update_object(note->objNoteID);
             }
         }
 

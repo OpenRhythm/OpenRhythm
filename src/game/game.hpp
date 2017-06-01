@@ -27,9 +27,9 @@ namespace ORGame
     };
     
     const std::map<NoteType, glm::vec4> noteColorMapActive = {
-        {NoteType::Green, {0.25f,1.5f,0.25f,1.0f}},
-        {NoteType::Red, {1.5f,0.25f,0.25f,1.0f}},
-        {NoteType::Yellow, {1.5f,1.5f,0.25f,1.0f}},
+        {NoteType::Green, {0.35f,1.5f,0.35f,1.0f}},
+        {NoteType::Red, {1.5f,0.35f,0.35f,1.0f}},
+        {NoteType::Yellow, {1.5f,1.5f,0.35f,1.0f}},
         {NoteType::Blue, {0.25f,1.5f,4.5f,1.0f}},
         {NoteType::Orange, {3.0f,1.5f,0.5f,1.0f}},
     };
