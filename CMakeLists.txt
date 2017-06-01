@@ -49,10 +49,8 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(ENV{SAMPLERATE_ROOT} "${PROJECT_SOURCE_DIR}/extern/samplerate")
     set(ENV{SDL2DIR}         "${PROJECT_SOURCE_DIR}/extern/sdl2")
     set(ENV{SOUNDIO_ROOT}    "${PROJECT_SOURCE_DIR}/extern/soundio")
-    set(ENV{TCLAP_ROOT}      "${PROJECT_SOURCE_DIR}/extern/tclap")    # TODO add the TCLAP files
     set(ENV{VORBIS_ROOT}     "${PROJECT_SOURCE_DIR}/extern/vorbis")
-    set(ENV{YAMLCPP_ROOT}    "${PROJECT_SOURCE_DIR}/extern/yaml-cpp")
-    set(ENV{FMT_ROOT}    "${PROJECT_SOURCE_DIR}/extern/fmt")
+    set(ENV{FMT_ROOT}        "${PROJECT_SOURCE_DIR}/extern/fmt")
     set(Gettext_BINARIES     "${PROJECT_SOURCE_DIR}/extern/gettext")
 
 
@@ -92,8 +90,6 @@ find_package(OpenGL     REQUIRED)
 find_package(SampleRate REQUIRED)
 find_package(SDL2       REQUIRED)
 find_package(SoundIO    REQUIRED)
-find_package(TCLAP      REQUIRED)
-find_package(YamlCpp    REQUIRED)
 find_package(fmt        REQUIRED)
 
 set(LIBRARIES
@@ -114,7 +110,6 @@ set(LIBRARIES
 # don't get shown during compilation.
 include_directories(SYSTEM
     ${CMAKE_SOURCE_DIR}/extern/glad/include
-    ${CMAKE_SOURCE_DIR}/extern/readerwriterqueue
     ${CMAKE_SOURCE_DIR}/extern/spdlog/include
     ${CMAKE_SOURCE_DIR}/extern/stb
     ${FREETYPE_INCLUDE_DIRS}
@@ -124,9 +119,7 @@ include_directories(SYSTEM
     ${SAMPLERATE_INCLUDE_DIR}
     ${SDL2_INCLUDE_DIR}
     ${SOUNDIO_INCLUDE_DIR}
-    ${TCLAP_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
-    ${YAMLCPP_INCLUDE_DIR}
     ${FMT_INCLUDE_DIR}
 )
 
@@ -194,12 +187,10 @@ set(CORE_SOURCE
 )
 
 set(GAME_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/song.hpp
 )
 set(GAME_SOURCE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/song.cpp
 )
@@ -208,7 +199,6 @@ set(ALL_SOURCE
     ${CORE_SOURCE} ${CORE_HEADERS} ${GAME_SOURCE} ${GAME_HEADERS}
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/general_tests.cpp
 )
 
 include_directories(
@@ -264,8 +254,7 @@ endif()
 
 add_executable(audiotests
     $<TARGET_OBJECTS:ORCore-obj>
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp)
 
 target_link_libraries(audiotests ${LIBRARIES})
 install(TARGETS audiotests DESTINATION bin)

@@ -9,8 +9,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "configuration.hpp"
-
 
 int main(int argc, char *argv[]) {
 
@@ -47,12 +45,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Read configuration
-    readConfiguration(argc, argv);
-    std::string OggTestFile     = debug_song1.getValue();
-    std::string OggAnotherFile  = debug_song2.getValue();
-
-
+    std::string OggTestFile     = "song.ogg";
+    std::string OggAnotherFile  = "guitar.ogg";
 
     // You may change that to change your config
     int outputSampleRate = 44100;
