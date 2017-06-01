@@ -257,6 +257,8 @@ namespace ORCore
 
     void SmfReader::read_sysex_event(const SmfEventInfo &event)
     {
+        // TODO - Actually implement sysex events, they arent currently saved anywhere.
+        // This will be needed for open notes, or many of the phase shift midi extensions.
         auto length = read_var_len();
         std::vector<char> sysex;
         sysex.resize(length);

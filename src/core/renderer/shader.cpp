@@ -39,7 +39,6 @@ namespace ORCore
         GLint status;
 
         glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-        // TODO - probably need to make a custom exception class for this..
         if (status != GL_TRUE) {
             GLint length;
             glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
@@ -94,7 +93,6 @@ namespace ORCore
         GLint status;
 
         glGetProgramiv(m_program, GL_LINK_STATUS, &status);
-        // TODO - probably need to make a custom exception class for this..
         if (status != GL_TRUE) {
             GLint length;
             glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &length);

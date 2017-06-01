@@ -10,11 +10,24 @@
 #include "game.hpp"
 
 // Eventually we will want to load configuration files somewhere in here.
-// This also means the VFS needs to be setup here as well
 int main(int argc, char** argv)
 {
 
 // TODO - Move this to into a function/class within a future i18n module.
+// TODO - Plans here are to not use gettext and either use an alternative more cross platform
+// alternative or make our own/somewhere in the middle.
+// Here is a few random alternatives i've found:
+// https://github.com/kaishiqi/I18N-Gettext-Supported
+//    - Haven't dug into much, MIT licensed cross platform, uses mo files.
+// https://github.com/tinygettext/tinygettext
+//    - tbh the code is pretty bad, and if we were going to use this it would only be as a beginning.
+//    - Uses po files.
+// https://github.com/laurent22/simple-gettext
+//    - GPL Licensed, mo file parser.
+// https://github.com/clawoo/mofilereader
+//    - MIT License, mo file parser. Only supports UTF-8 (Totally fine with me)
+// https://github.com/vslavik/poedit
+//    - Useful translation editor.
 #if defined(TRANSLATION_ENABLED)
     // Setting the i18n environment
     setlocale (LC_ALL, "");

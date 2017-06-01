@@ -27,7 +27,6 @@ namespace ORCore
         FileType fileType;
     };
 
-    // TODO - Merge these functions to be more integrated with the VFS
     std::vector<FileInfo> get_path_contents(std::string sysPath);
     std::string read_file(std::string filename, FileMode mode = FileMode::Normal);
     std::string get_base_path(); // executable path

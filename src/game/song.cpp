@@ -504,7 +504,7 @@ namespace ORGame
             {
                 for (auto &midiEvent : midiTrack->midiEvents)
                 {
-                    // TODO - Clean this up this WILL get very messy eventually.
+                    // TODO - Clean this up this WILL get very messy eventually. Hell its already stupid.
                     if (midiEvent.message == ORCore::NoteOn)
                     {
                         // Event markers

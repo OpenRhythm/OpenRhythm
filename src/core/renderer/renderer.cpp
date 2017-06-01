@@ -5,6 +5,7 @@
 namespace ORCore
 {
 
+    // TODO - Remove these out of the renderer...
     std::vector<Vertex> create_rect_mesh(const glm::vec4& color)
     {
         return {
@@ -99,6 +100,9 @@ namespace ORCore
             {{1.0f,0.0f,0.5f}, {1.0f, 0.0f}, color}
         };
     }
+
+
+    // TODO - A lot can still be done here in general.
 
 
     RenderObject::RenderObject()
@@ -352,6 +356,8 @@ namespace ORCore
     void Renderer::render()
     {
         // TODO - Do sorting of batches to minimize state changes.
+        // TODO - We need to be able to better define render order
+        // TODO - We just dont really handle transparency at all atm other than using the order batches are created.
         for (auto &batch : m_batches)
         {
             ShaderProgram* program = batch->get_program();

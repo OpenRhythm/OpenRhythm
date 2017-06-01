@@ -73,6 +73,7 @@ namespace ORCore
     // Also since this has a lot of template stuff in it, I decided to put the entire implementation
     // in the header.
     // Once we move to C++17 this will likely go away in favor of std::any
+    // TODO - replace with std::any
     struct Event
     {
         EventType type;

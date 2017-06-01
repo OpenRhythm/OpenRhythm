@@ -3,6 +3,10 @@
 
 namespace ORCore {
 
+    // Tbh this template is pretty pointless now.
+    // What this will likely be replaced with is a config class
+    // Which uses std::any to store several types of values
+    // This should be FAR better imo than using a string for the same thing as i've seen others do.
     template<typename T>
     class Parameter
     {
@@ -15,33 +19,25 @@ namespace ORCore {
         {
         };
 
-        std::string getName()
+        std::string get_name()
         {
             return m_name;
         }
 
-        std::string getDescription()
+        std::string get_description()
         {
             return m_description;
         }
 
         // Used to set the value from the config file
-        void setConfigValue(T value)
+        void set_value(T value)
         {
             m_valueConfigFile = value;
-            m_setFromConfigFile = true;
         }
 
         // Get the currently used/set value
-        T getValue()
+        T get_value()
         {
-            return m_value;
-        }
-
-        // Get the value to save in the config file
-        T getConfigValue()
-        {
-
             return m_value;
         }
 
@@ -50,10 +46,6 @@ namespace ORCore {
         std::string m_description;
         T m_value;
         T m_valueDefault;
-
-        bool m_setFromCommandLine = false,
-             m_setFromConfigFile  = false,
-             m_setFromInterface   = false;
     };
 
 } // namespace ORGame
