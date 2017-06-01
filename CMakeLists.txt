@@ -270,14 +270,6 @@ add_executable(audiotests
 target_link_libraries(audiotests ${LIBRARIES})
 install(TARGETS audiotests DESTINATION bin)
 
-add_executable(general_tests
-    $<TARGET_OBJECTS:ORCore-obj>
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/general_tests.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/configuration.cpp)
-
-target_link_libraries(general_tests ${LIBRARIES})
-install(TARGETS general_tests DESTINATION bin)
-
 add_executable(midiplayer
     $<TARGET_OBJECTS:ORCore-obj>
     ${CMAKE_CURRENT_SOURCE_DIR}/src/midiplayer/midimain.cpp
