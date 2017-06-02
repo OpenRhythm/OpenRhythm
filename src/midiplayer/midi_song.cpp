@@ -142,24 +142,24 @@ namespace MidiPlayer
     void Song::load()
     {
 
-
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
         logger->info("tracks: {}", midiTracks.size());
         
-        for (auto midiTrack : midiTracks) {
+        for (auto midiTrack : midiTracks)
+        {
             Track track;
-            for (auto &midiEvent : midiTrack->midiEvents) {
-                try {
-                    if (midiEvent.message == ORCore::NoteOn) {
-                        track.add_note(midiEvent.data1, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
-                    } else if (midiEvent.message == ORCore::NoteOff) {
-                        track.add_note(midiEvent.data1, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
-                    }
-                } catch (std::out_of_range &err) {
-                    continue;
+            for (auto &midiEvent : midiTrack->midiEvents)
+            {
+                if (midiEvent.message == ORCore::NoteOn)
+                {
+                    track.add_note(midiEvent.data1, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                }
+                else if (midiEvent.message == ORCore::NoteOff)
+                {
+                    track.add_note(midiEvent.data1, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
                 }
             }
-            m_length = midiTrack->endTime;
+            m_length = m_midi.pulsetime_to_abstime(midiTrack->endTime);
             m_tracks.push_back(track);
         }
 

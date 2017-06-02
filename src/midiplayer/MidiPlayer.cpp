@@ -44,11 +44,12 @@ namespace MidiPlayer
 
         m_ss = std::cout.precision();
 
+        m_renderer.init_gl();
+
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
         m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
-        m_texture = m_renderer.add_texture(ORCore::loadSTB("data/blank.png"));
 
         resize(m_width, m_height);
 
@@ -77,27 +78,25 @@ namespace MidiPlayer
     {
         int trackColorIndex = 0;
         ORCore::RenderObject obj;
-        obj.set_texture(m_texture);
         obj.set_program(m_program);
+        obj.set_primitive_type(ORCore::Primitive::triangle);
         for (auto track: *m_song.get_tracks())
         {
             glm::vec4 color = m_colorArray[trackColorIndex];
             m_colorArray[trackColorIndex] += m_colorMutator[trackColorIndex];
             trackColorIndex++;
             auto noteInfo = track.get_notes();//get_notes_in_frame(time, time+length);
-            for(int i = noteInfo.start; i < noteInfo.end; i++) {
 
+            for(int i = noteInfo.start; i < noteInfo.end; i++)
+            {
 
                 auto &note = (*noteInfo.notes)[i];
                 float z = note.time;
-                //std::cout << "Length: " << note.length << std::endl;
 
                 float noteLength = note.length*m_boardSpeed;
 
-                ORCore::RenderObject obj;
                 obj.set_scale(glm::vec3{0.005f, noteLength, 0.0f});
                 obj.set_translation(glm::vec3{(static_cast<int>(note.noteValue)/(m_maxNotes*1.0)), -(z*m_boardSpeed), 0.0f}); // center the line on the screen
-                obj.set_primitive_type(ORCore::Primitive::triangle);
                 obj.set_geometry(ORCore::create_rect_mesh(color));
 
                 m_renderer.add_object(obj);
