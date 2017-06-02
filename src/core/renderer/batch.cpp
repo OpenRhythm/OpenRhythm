@@ -150,16 +150,21 @@ namespace ORCore
 
     Batch::~Batch()
     {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glBindVertexArray(m_vao);
         glDisableVertexAttribArray(m_colorLoc);
         glDisableVertexAttribArray(m_uvLoc);
         glDisableVertexAttribArray(m_vertLoc);
         glDisableVertexAttribArray(m_matIndexLoc);
+        glDeleteVertexArrays(1, &m_vao);
 
+        // Make sure the buffers arent bound
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_TEXTURE_BUFFER, 0);
+        
         glDeleteBuffers(1, &m_vbo); 
         glDeleteBuffers(1, &m_matBufferObject);
 
-        glDeleteVertexArrays(1, &m_vao);
     }
 
 } // namespace ORCore
