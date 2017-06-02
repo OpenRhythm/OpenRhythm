@@ -288,6 +288,7 @@ namespace ORCore
 
     void SmfReader::set_default_tempo_ts()
     {
+        // TODO - fix bug causing only a missing ts to be ordered at the end of the event orderings.
         if (m_tempoTrack.timeSignature.size() == 0)
         {
             m_logger->info(_("Setting default time signature of 4/4."));

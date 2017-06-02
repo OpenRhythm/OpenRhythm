@@ -8,7 +8,6 @@
 
 namespace ORCore
 {
-    // TODO - Could be useful to move into the VFS at some point.
     // Also in the future we can have an alternative memory mapped file
     // implementation when speed is less important than memory usage.
     // This is just mainly a basic starting point.

@@ -201,6 +201,7 @@ namespace ORGame
         // reuse the same container when creating notes as add_obj wont modify the original.
         ORCore::RenderObject obj;
         obj.set_program(m_program);
+        obj.set_primitive_type(ORCore::Primitive::triangle);
 
         float noteWidth = 1.0f/5.0f;
         float tailWidth = noteWidth/3.0f;
@@ -229,7 +230,6 @@ namespace ORGame
                 {
                     obj.set_scale(glm::vec3{tailWidth, 1.0f, 0.0});
                     obj.set_translation(glm::vec3{0.0f, 0.0f, 200});
-                    obj.set_primitive_type(ORCore::Primitive::triangle);
                     obj.set_geometry(ORCore::create_rect_z_mesh(color));
                     obj.set_texture(m_tailTexture);
                     m_renderer.add_object(obj);
@@ -241,7 +241,6 @@ namespace ORGame
             {
                 obj.set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
                 obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
-                obj.set_primitive_type(ORCore::Primitive::triangle);
                 obj.set_geometry(ORCore::create_rect_z_mesh(color));
                 obj.set_texture(m_tailTexture);
 
@@ -253,7 +252,6 @@ namespace ORGame
 
             obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/2.0f});
             obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
-            obj.set_primitive_type(ORCore::Primitive::triangle);
             obj.set_geometry(ORCore::create_cube_mesh(color));
 
             note->objNoteID = m_renderer.add_object(obj);

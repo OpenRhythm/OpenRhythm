@@ -431,28 +431,6 @@ namespace ORGame
 
     bool Song::load()
     {
-        const ORCore::TempoTrack &tempoTrack = *m_midi.get_tempo_track();
-
-        int32_t lastQnLength;
-
-        for (auto &eventOrder : tempoTrack.tempoOrdering)
-        {
-
-            if (eventOrder.type == ORCore::TtOrderType::TimeSignature)
-            {
-                auto &ts = tempoTrack.timeSignature[eventOrder.index];
-                m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, m_midi.pulsetime_to_abstime(ts.info.info.pulseTime));
-                logger->trace(_("Time signature change recieved at time {} {}/{}"), m_midi.pulsetime_to_abstime(ts.info.info.pulseTime), ts.numerator, ts.denominator);
-            }
-            else if (eventOrder.type == ORCore::TtOrderType::Tempo)
-            {
-                auto &tempo = tempoTrack.tempo[eventOrder.index];
-                lastQnLength = tempo.qnLength;
-                m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.absTime);
-                logger->trace(_("Tempo change recieved at time {} {}"), tempo.absTime, tempo.qnLength);
-            } 
-        }
-
 
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
 
@@ -474,11 +452,33 @@ namespace ORGame
             // find the longest midi track
             if (m_length < midiTrack->endTime)
             {
-                m_length = midiTrack->endTime;
+                m_length = m_midi.pulsetime_to_abstime(midiTrack->endTime);
             }
         }
 
-        m_tempoTrack.add_tempo_event(lastQnLength, m_midi.pulsetime_to_abstime(m_length)); // add final tempo change for bar barking purposes.
+        const ORCore::TempoTrack &tempoTrack = *m_midi.get_tempo_track();
+
+        int32_t lastQnLength;
+
+        for (auto &eventOrder : tempoTrack.tempoOrdering)
+        {
+
+            if (eventOrder.type == ORCore::TtOrderType::TimeSignature)
+            {
+                auto &ts = tempoTrack.timeSignature[eventOrder.index];
+                m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, m_midi.pulsetime_to_abstime(ts.info.info.pulseTime));
+                logger->info(_("Time signature change recieved at time {} {}/{}"), m_midi.pulsetime_to_abstime(ts.info.info.pulseTime), ts.numerator, ts.denominator);
+            }
+            else if (eventOrder.type == ORCore::TtOrderType::Tempo)
+            {
+                auto &tempo = tempoTrack.tempo[eventOrder.index];
+                lastQnLength = tempo.qnLength;
+                m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.absTime);
+                logger->info(_("Tempo change recieved at time {} {}"), tempo.absTime, tempo.qnLength);
+            } 
+        }
+
+        m_tempoTrack.add_tempo_event(lastQnLength, m_length); // add final tempo change for bar barking purposes.
         m_tempoTrack.mark_bars();
 
         if (!foundUsable)
