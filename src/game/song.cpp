@@ -433,6 +433,8 @@ namespace ORGame
     {
         const ORCore::TempoTrack &tempoTrack = *m_midi.get_tempo_track();
 
+        int32_t lastQnLength;
+
         for (auto &eventOrder : tempoTrack.tempoOrdering)
         {
 
@@ -445,12 +447,12 @@ namespace ORGame
             else if (eventOrder.type == ORCore::TtOrderType::Tempo)
             {
                 auto &tempo = tempoTrack.tempo[eventOrder.index];
+                lastQnLength = tempo.qnLength;
                 m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.absTime);
                 logger->trace(_("Tempo change recieved at time {} {}"), tempo.absTime, tempo.qnLength);
             } 
         }
 
-        m_tempoTrack.mark_bars();
 
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
 
@@ -475,6 +477,10 @@ namespace ORGame
                 m_length = midiTrack->endTime;
             }
         }
+
+        m_tempoTrack.add_tempo_event(lastQnLength, m_midi.pulsetime_to_abstime(m_length)); // add final tempo change for bar barking purposes.
+        m_tempoTrack.mark_bars();
+
         if (!foundUsable)
         {
             throw std::runtime_error("Invalid song format.");
