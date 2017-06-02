@@ -16,7 +16,7 @@ namespace MidiPlayer
     m_window(m_width, m_height, m_fullscreen, m_title),
     m_eventManager(),
     m_eventPump(&m_eventManager),
-    m_boardSpeed(0.001),
+    m_boardSpeed(0.5),
     m_maxNotes(127)
     {
         m_running = true;
@@ -82,9 +82,10 @@ namespace MidiPlayer
         obj.set_primitive_type(ORCore::Primitive::triangle);
         for (auto track: *m_song.get_tracks())
         {
-            glm::vec4 color = m_colorArray[trackColorIndex];
-            m_colorArray[trackColorIndex] += m_colorMutator[trackColorIndex];
-            trackColorIndex++;
+            // glm::vec4 color = m_colorArray[trackColorIndex];
+            // m_colorArray[trackColorIndex] += m_colorMutator[trackColorIndex];
+            // trackColorIndex++;
+            obj.set_geometry(ORCore::create_rect_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
             auto noteInfo = track.get_notes();//get_notes_in_frame(time, time+length);
 
             for(int i = noteInfo.start; i < noteInfo.end; i++)
@@ -97,7 +98,6 @@ namespace MidiPlayer
 
                 obj.set_scale(glm::vec3{0.005f, noteLength, 0.0f});
                 obj.set_translation(glm::vec3{(static_cast<int>(note.noteValue)/(m_maxNotes*1.0)), -(z*m_boardSpeed), 0.0f}); // center the line on the screen
-                obj.set_geometry(ORCore::create_rect_mesh(color));
 
                 m_renderer.add_object(obj);
             } 
@@ -167,7 +167,7 @@ namespace MidiPlayer
 
     void MidiDisplayManager::update()
     {
-        m_songTime = m_clock.get_current_time();
+        m_songTime = m_clock.get_current_time()/1000.0;
 
         m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, m_songTime*m_boardSpeed, 0.0f))); // translate projection with song
 
