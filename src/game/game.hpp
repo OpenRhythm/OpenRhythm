@@ -41,7 +41,6 @@ namespace ORGame
         ~GameManager();
         void start();
         bool event_handler(const ORCore::Event &event);
-        void handle_song();
         void update();
         void prep_render_bars();
         void prep_render_notes();

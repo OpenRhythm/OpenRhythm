@@ -334,10 +334,6 @@ namespace ORGame
         return true;
     }
 
-    void GameManager::handle_song()
-    {
-    }
-
     void GameManager::update()
     {
         // TODO - move songtime to song class, and create a new timer type which can be started and stopped/paused/rewound etc.
