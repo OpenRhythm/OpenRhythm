@@ -22,6 +22,7 @@ namespace ORCore
         m_logger->info(_("Parsing midi."));
 
         read_file();
+        set_default_tempo_ts();
         m_smfFile.release();
     }
 
@@ -288,22 +289,21 @@ namespace ORCore
 
     void SmfReader::set_default_tempo_ts()
     {
-        // TODO - fix bug causing only a missing ts to be ordered at the end of the event orderings.
-        if (m_tempoTrack.timeSignature.size() == 0)
+        if (m_tempoTrack.timeSignature.size() == 0 ||
+            (m_tempoTrack.timeSignature.size() > 0 && m_tempoTrack.timeSignature[0].info.info.pulseTime != 0))
         {
             m_logger->info(_("Setting default time signature of 4/4."));
 
             MetaEvent tsEvent {{meta_TimeSignature,0,0}, meta_Tempo, 3};
-
-            m_tempoTrack.tempoOrdering.push_back({
-                TtOrderType::TimeSignature,
-                static_cast<int>(m_tempoTrack.timeSignature.size())
-            });
+            m_tempoTrack.tempoOrdering.insert(
+                std::begin(m_tempoTrack.tempoOrdering),
+                {TtOrderType::TimeSignature, static_cast<int>(0)});
 
             m_tempoTrack.timeSignature.push_back({tsEvent, 4, 4, 24, 8});
         }
 
-        if (m_tempoTrack.tempo.size() == 0)
+        if (m_tempoTrack.tempo.size() == 0 ||
+            (m_tempoTrack.tempo.size() > 0 && m_tempoTrack.tempo[0].info.info.pulseTime != 0))
         {
             m_logger->info(_("Setting default tempo of 120 BPM."));
 
@@ -312,10 +312,10 @@ namespace ORCore
             // for the time signature meta event.
             MetaEvent tempoEvent {{status_MetaEvent,0,0}, meta_Tempo, 3};
 
-            m_tempoTrack.tempoOrdering.push_back({
-                TtOrderType::Tempo,
-                static_cast<int>(m_tempoTrack.tempo.size())
-            });
+
+            m_tempoTrack.tempoOrdering.insert(
+                std::begin(m_tempoTrack.tempoOrdering)+1,
+                {TtOrderType::Tempo, static_cast<int>(1)});
 
             m_tempoTrack.tempo.push_back({tempoEvent, 500'000, 0.0}); // ppqn, absTime
         }
@@ -327,11 +327,6 @@ namespace ORCore
         static uint32_t lastPulseTime = 0;
 
         std::vector<TempoEvent> &tempos = m_tempoTrack.tempo;
-
-        if (pulseTime > 0)
-        {
-            set_default_tempo_ts();
-        }
 
         // Ignore the cached last tempo value if the new pulse time is older.
         if (lastPulseTime > pulseTime)
