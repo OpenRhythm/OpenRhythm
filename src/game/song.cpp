@@ -218,8 +218,8 @@ namespace ORGame
     // Track Class
     /////////////////////////////////////
 
-    Track::Track(TrackInfo info)
-    : m_info(info)
+    Track::Track(Song* song, TrackInfo info)
+    : m_song(song), m_info(info)
     {
         logger = spdlog::get("default");
     }
@@ -245,12 +245,26 @@ namespace ORGame
             {
                 return element.first == type;
             };
-            auto item = std::find_if( activeNotes.begin(), activeNotes.end(), findFunc);
+            auto item = std::find_if(activeNotes.begin(), activeNotes.end(), findFunc);
             if (item != activeNotes.end())
             {
+
                 auto &note = m_notes[item->second];
-                note.length = time - note.time;
-                note.pulseTimeEnd = pulseTime;
+
+                int tailCutoff = std::ceil(m_song->get_divison()/3.0);
+                int pulseLength = pulseTime - note.pulseTimeStart;
+
+
+                if (pulseLength <= tailCutoff)
+                {
+                    note.length = 0.0;
+                    note.pulseTimeEnd = note.pulseTimeStart;
+                }
+                else
+                {
+                    note.length = time - note.time;
+                    note.pulseTimeEnd = pulseTime;
+                }
                 activeNotes.erase(item);
             }
         }
@@ -493,7 +507,7 @@ namespace ORGame
 
     void Song::load_track(TrackInfo& trackInfo)
     {
-        Track track(trackInfo);
+        Track track(this, trackInfo);
 
         logger->debug(_("Loading Track {} {}"), track_type_to_name(trackInfo.type), diff_type_to_name(trackInfo.difficulty));
 

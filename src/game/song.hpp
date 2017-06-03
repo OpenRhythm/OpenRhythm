@@ -116,6 +116,8 @@ namespace ORGame
         Difficulty difficulty;
     };
 
+    class Song;
+
     class TempoTrack
     {
     public:
@@ -139,7 +141,7 @@ namespace ORGame
     {
     public:
 
-        Track(TrackInfo info);
+        Track(Song* song, TrackInfo info);
 
         TrackInfo info();
 
@@ -151,6 +153,7 @@ namespace ORGame
         std::vector<Event> *get_events();
 
     private:
+        Song* m_song;
         TrackInfo m_info;
         std::vector<TrackNote> m_notes;
         std::vector<Event> m_events;

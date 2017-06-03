@@ -196,8 +196,6 @@ namespace ORGame
         std::vector<TrackNote*> notes = m_playerTrack->get_notes();
         std::cout << "Note Count: " << notes.size() << std::endl;
 
-        int tailCutoff = std::ceil(m_song.get_divison()/3.0); // Anything below 1/12th we hide
-
         // reuse the same container when creating notes as add_obj wont modify the original.
         ORCore::RenderObject obj;
         obj.set_program(m_program);
@@ -222,29 +220,12 @@ namespace ORGame
 
             float noteLength = note->length/neck_speed_divisor;
 
-            int pulseLength = note->pulseTimeEnd - note->pulseTimeStart;
+            obj.set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
+            obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
+            obj.set_geometry(ORCore::create_rect_z_mesh(color));
+            obj.set_texture(m_tailTexture);
 
-            if (pulseLength <= tailCutoff)
-            {
-                if (!firstTailMarked) // quick hack to make sure we have proper batch ordering
-                {
-                    obj.set_scale(glm::vec3{tailWidth, 1.0f, 0.0});
-                    obj.set_translation(glm::vec3{0.0f, 0.0f, 200});
-                    obj.set_geometry(ORCore::create_rect_z_mesh(color));
-                    obj.set_texture(m_tailTexture);
-                    m_renderer.add_object(obj);
-                }
-                note->objTailID = -1;
-            }
-            else
-            {
-                obj.set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
-                obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
-                obj.set_geometry(ORCore::create_rect_z_mesh(color));
-                obj.set_texture(m_tailTexture);
-
-                note->objTailID = m_renderer.add_object(obj);
-            }
+            note->objTailID = m_renderer.add_object(obj);
             firstTailMarked = true;
 
             obj.set_texture(-1); // -1 gets set to the default texture.
@@ -360,23 +341,19 @@ namespace ORGame
                 {
                     color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
                 }
+                color[3] = 0.0f; // Dissapear notes
 
-                if (note->objTailID != -1)
-                {
-                    auto *tailObj = m_renderer.get_object(note->objTailID);
+                auto *tailObj = m_renderer.get_object(note->objTailID);
 
-                    tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
+                tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
 
-                    m_renderer.update_object(note->objTailID);
-
-                }
+                m_renderer.update_object(note->objTailID);
 
                 auto *noteObj = m_renderer.get_object(note->objNoteID);
                 noteObj->set_geometry(ORCore::create_cube_mesh(color));
                 m_renderer.update_object(note->objNoteID);
 
                 note->played = true;
-
             }
         }
 
@@ -393,6 +370,7 @@ namespace ORGame
 
         m_renderer.commit();
 
+        // TODO - Allow renderer to be able to specify uniforms and set them per batch/shader
         auto neckProgram = m_renderer.get_program(m_neckProgram);
 
         neckProgram->use();
