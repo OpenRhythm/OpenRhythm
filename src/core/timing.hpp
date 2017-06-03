@@ -16,11 +16,19 @@ namespace ORCore
     public:
         Timer();
         virtual ~Timer();
+        void reset();
+        void set_pause(bool pause);
+        void set_resume_target(double negTimeAmount, double revSpeed);
+        bool is_paused();
         double tick();
         double get_current_time();
 
     protected:
         int m_tickCount;
+        bool m_paused;
+        double m_pausedTimeAmount;
+        double m_reversalTarget;
+        double m_reversalSpeed;
         double m_currentTime;
         double m_previousTime;
         double m_startTime;

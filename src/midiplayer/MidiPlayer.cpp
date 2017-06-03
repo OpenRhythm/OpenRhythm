@@ -125,7 +125,7 @@ namespace MidiPlayer
             } while(error != GL_NO_ERROR);
 
             m_window.flip();
-            if (m_fpsTime >= 2000.0) {
+            if (m_fpsTime >= 2.0) {
                 std::cout.precision (5);
                 std::cout << "FPS: " << m_clock.get_fps() << std::endl;
                 std::cout << "Song Time: " << m_songTime << std::endl;
@@ -167,7 +167,7 @@ namespace MidiPlayer
 
     void MidiDisplayManager::update()
     {
-        m_songTime = m_clock.get_current_time()/1000.0;
+        m_songTime = m_clock.get_current_time();
 
         m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, m_songTime*m_boardSpeed, 0.0f))); // translate projection with song
 

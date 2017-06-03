@@ -9,41 +9,6 @@
 
 namespace ORCore
 {
-
-// Get time in milliseconds.
-#if defined(PLATFORM_WINDOWS)
-    double Timer::get_time()
-    {
-        LARGE_INTEGER startingTime;
-        QueryPerformanceCounter(&startingTime);
-        return (startingTime.QuadPart * 1000.0) / m_frequency.QuadPart;
-    }
-
-#elif defined(PLATFORM_LINUX)
-    double Timer::get_time()
-    {
-        timespec mt;
-        clock_gettime(CLOCK_MONOTONIC, &mt);
-        return (mt.tv_sec * 1000.0) + (mt.tv_nsec * 0.000001);
-    }
-
-#elif defined(PLATFORM_OSX)
-    double Timer::get_time()
-    {
-        mach_timespec_t mts;
-        clock_get_time(m_cclock, &mts);
-        return (mts.tv_sec * 1000.0) + (mts.tv_nsec * 0.000001);
-    }
-
-#else
-    double Timer::get_time()
-    {
-        return 1000.0;
-    }
-
-#endif
-
-
     Timer::Timer()
     {
 
@@ -52,10 +17,7 @@ namespace ORCore
 #elif defined(PLATFORM_WINDOWS)
         QueryPerformanceFrequency(&m_frequency);
 #endif
-        m_tickCount = 1;
-        m_currentTime = get_time();
-        m_previousTime = m_currentTime;
-        m_startTime = m_currentTime;
+        reset();
     }
 
     Timer::~Timer()
@@ -65,18 +27,120 @@ namespace ORCore
 #endif
     }
 
+    void Timer::reset()
+    {
+        m_tickCount = 1;
+        m_currentTime = get_time();
+        m_previousTime = m_currentTime;
+        m_startTime = m_currentTime;
+        m_pausedTimeAmount = 0.0;
+        m_paused = false;
+    }
+
+    void Timer::set_pause(bool pause)
+    {
+        if (pause)
+        {
+            m_pausedTimeAmount = get_current_time();
+        }
+        else 
+        {
+            m_currentTime = get_time();
+            m_previousTime = m_currentTime;
+            m_startTime = m_currentTime;
+        }
+        m_paused = pause;
+
+    }
+
+
+    void Timer::set_resume_target(double negTimeAmount, double revSpeed)
+    {
+        m_reversalTarget = m_pausedTimeAmount - negTimeAmount;
+        m_reversalSpeed = revSpeed;
+    }
+
+    bool Timer::is_paused()
+    {
+        return m_paused;
+    }
+
     double Timer::tick()
     {
-        m_tickCount++;
-        m_previousTime = m_currentTime;
-        m_currentTime = get_time();
+        if (m_paused)
+        {
+            return 0.0;
+        }
+        else
+        {
+            m_tickCount++;
+            m_previousTime = m_currentTime;
+            m_currentTime = get_time();
 
-        return m_currentTime - m_previousTime;
+            return m_currentTime - m_previousTime;
+        }
     }
 
     double Timer::get_current_time() {
-        return m_currentTime - m_startTime;
+        if (m_paused)
+        {
+            return m_pausedTimeAmount;
+        }
+        else if (m_reversalTarget != 0.0)
+        {
+            double time = m_pausedTimeAmount - (m_currentTime - m_startTime) * m_reversalSpeed;
+
+            if (time <= m_reversalTarget)
+            {
+                m_reversalTarget = 0.0;
+                m_reversalSpeed = 1.0;
+                m_pausedTimeAmount = time;
+
+                m_currentTime = get_time();
+                m_previousTime = m_currentTime;
+                m_startTime = m_currentTime;
+            }
+            return time;
+        }
+        else
+        {
+            return m_pausedTimeAmount + (m_currentTime - m_startTime);
+        }
     }
+
+// Get time in seconds.
+#if defined(PLATFORM_WINDOWS)
+    double Timer::get_time()
+    {
+        LARGE_INTEGER startingTime;
+        QueryPerformanceCounter(&startingTime);
+        return startingTime.QuadPart / (m_frequency.QuadPart*1.0);
+    }
+
+#elif defined(PLATFORM_LINUX)
+    double Timer::get_time()
+    {
+        timespec mt;
+        clock_gettime(CLOCK_MONOTONIC, &mt);
+        return mt.tv_sec + (mt.tv_nsec * 0.000000001);
+    }
+
+#elif defined(PLATFORM_OSX)
+    double Timer::get_time()
+    {
+        mach_timespec_t mts;
+        clock_get_time(m_cclock, &mts);
+        return mts.tv_sec + (mts.tv_nsec * 0.000000001);
+    }
+
+#else
+    double Timer::get_time()
+    {
+        // TODO - implement this fallback with std::chrono::high_resolution_clock
+        return 1.0;
+    }
+
+#endif
 
     FpsTimer::FpsTimer()
     :Timer()
@@ -86,7 +150,7 @@ namespace ORCore
 
     double FpsTimer::get_fps()
     {
-        double fps = (m_tickCount*1000.0) / (m_currentTime - m_fpsPreviousTime);
+        double fps = m_tickCount / (m_currentTime - m_fpsPreviousTime);
         m_tickCount = 0;
         m_fpsPreviousTime = m_currentTime;
         return fps;

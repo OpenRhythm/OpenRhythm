@@ -5,6 +5,7 @@
 #include <spdlog/spdlog.h>
 
 #include "smf.hpp"
+#include "timing.hpp"
 
 namespace ORGame
 {
@@ -168,6 +169,8 @@ namespace ORGame
         TempoTrack *get_tempo_track();
         int16_t get_divison();
         double length();
+        double get_song_time();
+        void set_pause(bool pause);
 
     private:
         ORCore::SmfReader m_midi;
@@ -176,6 +179,7 @@ namespace ORGame
         TempoTrack m_tempoTrack;
         std::string m_path;
         double m_length;
+        ORCore::Timer m_songTimer;
 
     };
 

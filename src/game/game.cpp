@@ -273,7 +273,7 @@ namespace ORGame
             m_renderer.check_error();
 
             m_window.flip();
-            if (m_fpsTime >= 2000.0) {
+            if (m_fpsTime >= 2.0) {
                 std::cout.precision (5);
                 std::cout << "FPS: " << m_clock.get_fps() << std::endl;
                 std::cout << "Song Time: " << m_songTime << std::endl;
@@ -323,6 +323,12 @@ namespace ORGame
                     case ORCore::KeyCode::KEY_F:
                         std::cout << "Key F" << std::endl;
                         break;
+                    case ORCore::KeyCode::KEY_P:
+                        m_song.set_pause(true);
+                        break;
+                    case ORCore::KeyCode::KEY_R:
+                        m_song.set_pause(false);
+                        break;
                     default:
                         std::cout << "Other Key" << std::endl;
                         break;
@@ -336,9 +342,7 @@ namespace ORGame
 
     void GameManager::update()
     {
-        // TODO - move songtime to song class, and create a new timer type which can be started and stopped/paused/rewound etc.
-        // TODO - Convert all timing in game/engine back to seconds instead of milliseconds. Midi parser has already been switched.
-        m_songTime = m_clock.get_current_time()/1000.0;
+        m_songTime = m_song.get_song_time();
 
         // Notes will effectively be hit m_videoOffset into the future so we need to go m_videoOffset into the past in order to get the proper notes.
         auto notesInWindow = m_playerTrack->get_notes_in_frame((m_songTime-m_videoOffset)-0.100, (m_songTime-m_videoOffset)+0.100);

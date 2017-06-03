@@ -633,6 +633,18 @@ namespace ORGame
     double Song::length()
     {
         return m_midi.pulsetime_to_abstime(m_length);
-    };
+    }
+
+    double Song::get_song_time()
+    {
+        m_songTimer.tick(); // TODO - there is likely a better place for this...
+        return m_songTimer.get_current_time();
+    }
+
+    void Song::set_pause(bool pause)
+    {
+        m_songTimer.set_pause(pause);
+        m_songTimer.set_resume_target(1.5, 2.0);
+    }
 
 } // namespace ORGame
