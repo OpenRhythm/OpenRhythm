@@ -180,6 +180,7 @@ namespace ORGame
         std::string m_path;
         double m_length;
         ORCore::Timer m_songTimer;
+        double m_pauseTime;
 
     };
 

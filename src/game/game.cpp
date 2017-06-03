@@ -235,7 +235,6 @@ namespace ORGame
                     m_renderer.add_object(obj);
                 }
                 note->objTailID = -1;
-
             }
             else
             {

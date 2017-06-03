@@ -643,8 +643,12 @@ namespace ORGame
 
     void Song::set_pause(bool pause)
     {
-        m_songTimer.set_pause(pause);
-        m_songTimer.set_resume_target(1.5, 2.0);
+        double time = m_songTimer.set_pause(pause);
+        if (time > m_pauseTime)
+        {
+            m_pauseTime = time;
+        }
+        m_songTimer.set_resume_target(m_pauseTime-1.5, 2.0);
     }
 
 } // namespace ORGame

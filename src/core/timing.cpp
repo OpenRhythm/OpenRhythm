@@ -37,8 +37,9 @@ namespace ORCore
         m_paused = false;
     }
 
-    void Timer::set_pause(bool pause)
+    double Timer::set_pause(bool pause)
     {
+        double time;
         if (pause)
         {
             m_pausedTimeAmount = get_current_time();
@@ -50,13 +51,13 @@ namespace ORCore
             m_startTime = m_currentTime;
         }
         m_paused = pause;
+        return m_pausedTimeAmount;
 
     }
 
-
-    void Timer::set_resume_target(double negTimeAmount, double revSpeed)
+    void Timer::set_resume_target(double negTimeTarget, double revSpeed)
     {
-        m_reversalTarget = m_pausedTimeAmount - negTimeAmount;
+        m_reversalTarget = negTimeTarget;
         m_reversalSpeed = revSpeed;
     }
 

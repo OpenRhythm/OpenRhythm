@@ -17,8 +17,8 @@ namespace ORCore
         Timer();
         virtual ~Timer();
         void reset();
-        void set_pause(bool pause);
-        void set_resume_target(double negTimeAmount, double revSpeed);
+        double set_pause(bool pause);
+        void set_resume_target(double negTimeTarget, double revSpeed);
         bool is_paused();
         double tick();
         double get_current_time();
