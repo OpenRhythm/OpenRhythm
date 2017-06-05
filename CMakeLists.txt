@@ -46,9 +46,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 
     set(ENV{GLM_ROOT_DIR}    "${PROJECT_SOURCE_DIR}/extern/glm")
     set(ENV{OGG_ROOT}        "${PROJECT_SOURCE_DIR}/extern/ogg")
-    set(ENV{SAMPLERATE_ROOT} "${PROJECT_SOURCE_DIR}/extern/samplerate")
     set(ENV{SDL2DIR}         "${PROJECT_SOURCE_DIR}/extern/sdl2")
-    set(ENV{SOUNDIO_ROOT}    "${PROJECT_SOURCE_DIR}/extern/soundio")
     set(ENV{VORBIS_ROOT}     "${PROJECT_SOURCE_DIR}/extern/vorbis")
     set(ENV{FMT_ROOT}        "${PROJECT_SOURCE_DIR}/extern/fmt")
     set(Gettext_BINARIES     "${PROJECT_SOURCE_DIR}/extern/gettext")
@@ -87,18 +85,14 @@ find_package(Gettext    )
 find_package(GLM        REQUIRED)
 find_package(OggVorbis  REQUIRED)
 find_package(OpenGL     REQUIRED)
-find_package(SampleRate REQUIRED)
 find_package(SDL2       REQUIRED)
-find_package(SoundIO    REQUIRED)
 find_package(fmt        REQUIRED)
 
 set(LIBRARIES
     ${CMAKE_DL_LIBS}
     ${OGG_LIBRARY}
     ${OPENGL_LIBRARIES}
-    ${SAMPLERATE_LIBRARY}
     ${SDL2_LIBRARY}
-    ${SOUNDIO_LIBRARY}
     ${VORBIS_LIBRARY}
     ${VORBISFILE_LIBRARY}
     ${YAMLCPP_LIBRARY}
@@ -116,9 +110,7 @@ include_directories(SYSTEM
     ${GLM_INCLUDE_DIRS}
     ${OGG_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIRS}
-    ${SAMPLERATE_INCLUDE_DIR}
     ${SDL2_INCLUDE_DIR}
-    ${SOUNDIO_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
     ${FMT_INCLUDE_DIR}
 )
@@ -148,10 +140,10 @@ configure_file (
 )
 
 set(CORE_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/stream.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/vorbissource.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/cubeboutput.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/mixer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/configuration/parameter.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/batch.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/renderer.hpp
@@ -168,9 +160,9 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.hpp
 )
 set(CORE_SOURCE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/codecs/vorbis.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/output/soundio.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams/resample.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/vorbissource.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/cubeboutput.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/mixer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/batch.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/shader.cpp
@@ -251,13 +243,6 @@ endif()
 ####################################################################
 #   Test binaries
 ####################################################################
-
-add_executable(audiotests
-    $<TARGET_OBJECTS:ORCore-obj>
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp)
-
-target_link_libraries(audiotests ${LIBRARIES})
-install(TARGETS audiotests DESTINATION bin)
 
 add_executable(midiplayer
     $<TARGET_OBJECTS:ORCore-obj>
