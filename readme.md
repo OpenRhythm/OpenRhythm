@@ -33,9 +33,8 @@ You will need a compiler that supports C++14
     - Freetype2
     - Gettext
     - OggVorbis
-    - Samplerate (SRC)
     - SDL2
-    - SoundIO
+    - cubeb
 
 
 #### Windows

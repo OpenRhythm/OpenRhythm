@@ -43,7 +43,8 @@ int main(int argc, char** argv)
 
     std::shared_ptr<spdlog::logger> logger;
 
-    try {
+    try
+    {
         std::vector<spdlog::sink_ptr> sinks;
         // I would like to use the sink that does color output to the console
         // but it doesnt yet work for windows.
@@ -58,16 +59,21 @@ int main(int argc, char** argv)
         // Should be set by the configuration eventually.
         logger->set_level(spdlog::level::info);
 
-    } catch (const spdlog::spdlog_ex& err) {
+    }
+    catch (const spdlog::spdlog_ex& err)
+    {
         std::cout << _("Logging Failed: ") << err.what() << std::endl;
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _("Runtime Error"), err.what(), nullptr);
         return 1;
     }
 
-    try {
+    try
+    {
         ORGame::GameManager game;
         game.start();
-    } catch (std::runtime_error &err) {
+    }
+    catch (std::runtime_error &err)
+    {
         logger->critical(_("Runtime Error:\n{}"), err.what());
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _("Runtime Error"), err.what(), nullptr);
         return 1;
