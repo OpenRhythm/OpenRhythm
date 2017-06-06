@@ -4,6 +4,8 @@
 #pragma once
 #include "streams.hpp"
 
+#include "cubeb/cubeb.h"
+
 namespace ORCore
 {
     class CubebOutput: public Consumer
