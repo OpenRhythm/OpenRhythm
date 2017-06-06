@@ -18,7 +18,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 11)
 if(MSVC)
-    add_definitions("/W4 /MP")
+    add_definitions("/MP")
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     add_definitions("-Wall")
     # Clean unused sections on link
@@ -227,7 +227,10 @@ source_group("src\\core"  FILES ${CORE_SOURCE}  ${CORE_HEADERS})
 source_group("src\\game"  FILES ${GAME_SOURCE}  ${GAME_HEADERS})
 
 add_library(ORCore-obj OBJECT ${CORE_SOURCE})
-add_dependencies(ORCore-obj cubeb)
+
+if(NOT CUBEB_FOUND)
+    add_dependencies(ORCore-obj cubeb)
+endif()
 
 add_executable(openrhythm $<TARGET_OBJECTS:ORCore-obj>
                           ${GAME_SOURCE}

@@ -399,6 +399,7 @@ namespace ORGame
         }
         catch (std::out_of_range &err)
         {
+            err;
             return "";
         }
     }
@@ -411,6 +412,7 @@ namespace ORGame
         }
         catch (std::out_of_range &err)
         {
+            err;
             return "";
         }
     }
@@ -423,6 +425,7 @@ namespace ORGame
         }
         catch (std::out_of_range &err)
         {
+            err;
             return TrackType::NONE;
         }
     }
@@ -564,6 +567,7 @@ namespace ORGame
                             }
                             catch (std::out_of_range &err)
                             {
+                                err;
                                 continue;
                             }
                             if (note != NoteType::NONE)
@@ -601,6 +605,7 @@ namespace ORGame
                             }
                             catch (std::out_of_range &err)
                             {
+                                err;
                                 continue;
                             }
                             if (note != NoteType::NONE)
