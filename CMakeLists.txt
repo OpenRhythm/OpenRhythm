@@ -227,6 +227,7 @@ source_group("src\\core"  FILES ${CORE_SOURCE}  ${CORE_HEADERS})
 source_group("src\\game"  FILES ${GAME_SOURCE}  ${GAME_HEADERS})
 
 add_library(ORCore-obj OBJECT ${CORE_SOURCE})
+add_dependencies(ORCore-obj cubeb)
 
 add_executable(openrhythm $<TARGET_OBJECTS:ORCore-obj>
                           ${GAME_SOURCE}
