@@ -38,12 +38,16 @@ You will need a compiler that supports C++14
 
 
 #### Windows
-You will need to get Visual Studio 2015 Community Edition (please expand)
+The following instructions are using "Build Tools for Visual Studio 2017" 
 
 Download the pre-built dependancies and make sure they are in the extern folder.
 
 https://drive.google.com/file/d/0BwN4qYrZTBNbaW1Tb3pycm1aTlE/view?usp=sharing
 This are x64 release builds done with VS 2015
+
+Then run win-release-build.bat
+
+
 
 #### Unix: (MacOS/Linux)
 GCC-4.9+ or Clang-3.4+ (MacOS: download Xcode Command Line Utils)

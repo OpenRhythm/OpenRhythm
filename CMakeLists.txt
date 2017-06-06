@@ -50,6 +50,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(ENV{VORBIS_ROOT}     "${PROJECT_SOURCE_DIR}/extern/vorbis")
     set(ENV{FMT_ROOT}        "${PROJECT_SOURCE_DIR}/extern/fmt")
     set(Gettext_BINARIES     "${PROJECT_SOURCE_DIR}/extern/gettext")
+    set(ENV{CUBEB_ROOT}      "${PROJECT_SOURCE_DIR}/extern/cubeb")
 
 
     if(MSVC)
@@ -78,10 +79,29 @@ endif()
 ####################################################################
 #   Libraries
 ####################################################################
-# The *_ROOT variables specify the location of a local clone
-# to be used if a system-wide library is not found
 
-find_package(Gettext    )
+find_package(cubeb)
+
+if (NOT CUBEB_FOUND)
+    message(STATUS "Didn't find cubeb, building from git.")
+    include(ExternalProject)
+
+    ExternalProject_Add(cubeb
+        PREFIX "${CMAKE_BINARY_DIR}/cubeb"
+        GIT_REPOSITORY "https://github.com/mdsitton/cubeb.git" # Original repo here: https://github.com/kinetiknz/cubeb.git
+        INSTALL_DIR "${PROJECT_SOURCE_DIR}/extern/cubeb"
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_CONFIGURATION_TYPES=Release
+        )
+
+    ExternalProject_Get_Property(cubeb INSTALL_DIR)
+
+    # Set package locations manually
+    set(CUBEB_LIBRARY ${INSTALL_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}cubeb${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(CUBEB_INCLUDE_DIR "${INSTALL_DIR}/include/")
+    set(CUBEB_FOUND TRUE)
+endif()
+
+find_package(Gettext)
 find_package(GLM        REQUIRED)
 find_package(OggVorbis  REQUIRED)
 find_package(OpenGL     REQUIRED)
@@ -95,7 +115,7 @@ set(LIBRARIES
     ${SDL2_LIBRARY}
     ${VORBIS_LIBRARY}
     ${VORBISFILE_LIBRARY}
-    ${YAMLCPP_LIBRARY}
+    ${CUBEB_LIBRARY}
     ${FMT_LIBRARY}
 )
 
@@ -112,6 +132,7 @@ include_directories(SYSTEM
     ${OPENGL_INCLUDE_DIRS}
     ${SDL2_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
+    ${CUBEB_INCLUDE_DIR}
     ${FMT_INCLUDE_DIR}
 )
 
@@ -217,12 +238,19 @@ install(TARGETS       openrhythm DESTINATION bin)
 set(BINARY_DATA_DIR ${CMAKE_BINARY_DIR}/data)
 set(SOURCE_DATA_DIR ${CMAKE_SOURCE_DIR}/data)
 
-add_custom_command(TARGET openrhythm PRE_BUILD
+add_custom_command(TARGET openrhythm POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E make_directory
                 ${BINARY_DATA_DIR})
-add_custom_command(TARGET openrhythm PRE_BUILD
+add_custom_command(TARGET openrhythm POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_directory
                 ${SOURCE_DATA_DIR} $<TARGET_FILE_DIR:openrhythm>/data/)
+
+
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    add_custom_command(TARGET openrhythm POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy
+                    "${CMAKE_SOURCE_DIR}/extern/sdl2/lib/SDL2.dll" $<TARGET_FILE_DIR:openrhythm>/SDL2.dll)
+endif()
 
 
 if(OSX_APP_BUNDLE)
