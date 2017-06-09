@@ -88,7 +88,7 @@ if (NOT CUBEB_FOUND)
 
     ExternalProject_Add(cubeb
         PREFIX "${CMAKE_BINARY_DIR}/cubeb"
-        GIT_REPOSITORY "https://github.com/mdsitton/cubeb.git" # Original repo here: https://github.com/kinetiknz/cubeb.git
+        GIT_REPOSITORY "https://github.com/kinetiknz/cubeb.git"
         INSTALL_DIR "${PROJECT_SOURCE_DIR}/extern/cubeb"
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_CONFIGURATION_TYPES=Release
         )
