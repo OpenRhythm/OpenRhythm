@@ -376,6 +376,7 @@ namespace ORGame
         {TrackType::Guitar, "Guitar"},
         {TrackType::Bass, "Bass"},
         {TrackType::Drums, "Drums"},
+        {TrackType::Keys, "Keys"},
         {TrackType::Vocals, "Vocals"},
         {TrackType::Events, "Events"},
         {TrackType::NONE, "None"}
@@ -385,6 +386,7 @@ namespace ORGame
         {"PART GUITAR", TrackType::Guitar},
         {"PART BASS", TrackType::Bass},
         {"PART DRUMS", TrackType::Drums},
+        {"PART KEYS", TrackType::Keys},
         {"PART VOCALS", TrackType::Vocals},
         {"EVENTS", TrackType::Events},
         {"", TrackType::NONE}
