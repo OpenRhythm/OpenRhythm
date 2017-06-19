@@ -119,6 +119,9 @@ set(LIBRARIES
     ${FMT_LIBRARY}
 )
 
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(LIBRARIES ${LIBRARIES} winmm avrt)
+endif()
 
 # These includes are defined a system headers so any warnings within
 # don't get shown during compilation.
