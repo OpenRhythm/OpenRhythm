@@ -4,23 +4,25 @@
 #pragma once
 #include "streams.hpp"
 
-#include "cubeb/cubeb.h"
+#include <spdlog/spdlog.h>
+#include <cubeb/cubeb.h>
 
 namespace ORCore
 {
     class CubebOutput: public Consumer
     {
     public:
+        CubebOutput();
+        ~CubebOutput();
         bool start();
         void stop();
-        
-        bool set_stream(Stream* stream)
-        {
-            m_stream = stream;
-        }
-
+        int process(float* buffer, int frameCount);
+        void set_source(Stream* stream);
 
     private:
-        Stream* m_stream;
+        std::shared_ptr<spdlog::logger> m_logger;
+        Stream* m_source = nullptr;
+        cubeb* m_context;
+        cubeb_stream* m_stream;
     };
 }
