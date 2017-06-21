@@ -28,6 +28,7 @@ namespace ORGame
         Guitar,
         Bass,
         Drums,
+        Keys,
         Vocals,
         // Non-player track types
         Events
