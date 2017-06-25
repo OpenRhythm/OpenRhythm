@@ -164,6 +164,7 @@ configure_file (
 )
 
 set(CORE_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/buffer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/vorbissource.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/cubeboutput.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams.hpp
@@ -184,6 +185,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/window.hpp
 )
 set(CORE_SOURCE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/vorbissource.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/cubeboutput.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/mixer.cpp

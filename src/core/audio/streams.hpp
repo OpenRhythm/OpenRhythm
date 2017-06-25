@@ -6,6 +6,8 @@
 #include <atomic>
 #include <algorithm>
 
+#include "buffer.hpp"
+
 namespace ORCore
 {
 
@@ -13,26 +15,6 @@ namespace ORCore
     {
         int sample_rate;
         int channels;
-    };
-
-    // TODO - Actually move away from unique_ptr here to raw new/delete if needed because we need
-    // to be able to pass in direct device pointers and such which would be bad if we tried to
-    // free them. new/delete will only be called when the constructor with only size is passed in.
-    struct Buffer
-    {
-        std::unique_ptr<float[]> data;
-        int size;
-
-        Buffer(int _size)
-        :size(_size)
-        {
-            data = std::make_unique<float[]>(size);
-        }
-
-        void clear()
-        {
-            std::fill(data.get(), data.get()+size, 0.0f);
-        }
     };
 
     // Stream defines the basic interface that is needed between pipeline stages.
@@ -90,6 +72,28 @@ namespace ORCore
     protected:
         std::atomic_bool paused;
         std::atomic<double> m_time;
+    };
+
+    class SineStream: public ProducerStream
+    {
+    public:
+        StreamFormat get_format()
+        {
+            return {44100, 2};
+        }
+
+        void pull(Buffer& buffer)
+        {
+            float *buf = buffer;
+            for (auto i = 0; i < buffer.size(); i++)
+            {
+                buf[i] = sin(2*3.14159265 * (i + m_framePosition) * 350/44100);
+            }
+            m_framePosition += buffer.get_info().frames;
+        }
+    private:
+        int m_framePosition = 0;
+
     };
 
 

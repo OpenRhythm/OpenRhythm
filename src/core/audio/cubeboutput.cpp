@@ -27,9 +27,9 @@ namespace ORCore
     }
 
 
-    int CubebOutput::process(float* buffer, int frameCount)
+    void CubebOutput::build_buffer(Buffer& audioBuffer)
     {
-        return frameCount;
+        m_source->pull(audioBuffer);
     }
 
 
@@ -40,12 +40,13 @@ namespace ORCore
             m_logger->error("Audio output source stream null.");
             return false;
         }
-        StreamFormat format = m_source->get_format();
+        m_format = m_source->get_format();
+
 
         cubeb_stream_params params;
         params.format = CUBEB_SAMPLE_FLOAT32NE; // Our entire audio pipeline will work in 32bit float.
-        params.rate = format.sample_rate;
-        params.channels = format.channels;
+        params.rate = m_format.sample_rate;
+        params.channels = m_format.channels;
         params.layout = CUBEB_LAYOUT_STEREO;
 
         uint32_t frameLatency = 0;
@@ -59,7 +60,10 @@ namespace ORCore
         auto data_callback = [](cubeb_stream* stream, void* user_ptr,
             const void* input_buffer, void* output_buffer, long nframes) -> long
         {
-            return static_cast<CubebOutput*>(user_ptr)->process(static_cast<float*>(output_buffer), nframes);
+            auto* cubebOut = static_cast<CubebOutput*>(user_ptr);
+            Buffer audioBuffer(static_cast<float*>(output_buffer), {nframes, cubebOut->m_format.channels});
+            cubebOut->build_buffer(audioBuffer);
+            return nframes;
         };
 
         auto state_callback = [](cubeb_stream* stream, void* user_ptr, cubeb_state state) -> void
@@ -73,11 +77,21 @@ namespace ORCore
             return false;
         }
 
+        if (cubeb_stream_start(m_stream) != CUBEB_OK)
+        {
+            m_logger->error("cubeb: Failed to start stream.");
+            return false;
+        }
+
         return true;
     }
 
     void CubebOutput::stop()
     {
+        if (cubeb_stream_stop(m_stream) != CUBEB_OK)
+        {
+            m_logger->error("cubeb: Failed to stop stream.");
+        }
         cubeb_stream_destroy(m_stream);
     }
 }

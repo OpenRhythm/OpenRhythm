@@ -14,8 +14,11 @@ namespace ORCore
     void Mixer::pull(Buffer& buffer)
     {
         buffer.clear();// clear output buffer
+        float* buf = buffer;
 
-        Buffer tempBuffer(buffer.size);
+        Buffer tempBuffer(buffer.get_info());
+        float* tempbuf = buffer;
+
 
         // Go through all streams that are not paused and mix them into the output.
         for (auto &stream : m_streams)
@@ -24,9 +27,9 @@ namespace ORCore
             {
                 stream->pull(tempBuffer);
                 // DO MIXING HERE
-                for (int i = 0; i < buffer.size; ++i)
+                for (int i = 0; i < buffer.size(); ++i)
                 {
-                    buffer.data[i] += tempBuffer.data[i];
+                    buf[i] += tempbuf[i];
                 }
             }
         }
