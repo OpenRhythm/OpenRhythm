@@ -281,6 +281,13 @@ endif()
 #   Test binaries
 ####################################################################
 
+
+add_executable(audiotest
+    $<TARGET_OBJECTS:ORCore-obj>
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/audiotests.cpp)
+
+target_link_libraries(audiotest ${LIBRARIES})
+
 add_executable(midiplayer
     $<TARGET_OBJECTS:ORCore-obj>
     ${CMAKE_CURRENT_SOURCE_DIR}/src/midiplayer/midimain.cpp
