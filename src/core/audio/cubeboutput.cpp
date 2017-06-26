@@ -1,14 +1,25 @@
 // Copyright (c) 2015-2017 Matthew Sitton <matthewsitton@gmail.com>
 // See LICENSE in the project root for license information.
 
+
+#include <cstdarg>
+
 #include "cubeboutput.hpp"
 
 namespace ORCore
 {
+    void print_log(const char * msg, ...)
+    {
+      va_list args;
+      va_start(args, msg);
+      vprintf(msg, args);
+      va_end(args);
+    }
 
     CubebOutput::CubebOutput()
     :m_logger(spdlog::get("default"))
     {
+        cubeb_set_log_callback(CUBEB_LOG_VERBOSE, print_log);
 
         if (cubeb_init(&m_context, "OpenRhythm", nullptr) != CUBEB_OK)
         {
@@ -29,7 +40,14 @@ namespace ORCore
 
     void CubebOutput::build_buffer(Buffer& audioBuffer)
     {
-        m_source->pull(audioBuffer);
+        if (!m_source->is_paused())
+        {
+            m_source->pull(audioBuffer);
+        }
+        else
+        {
+            audioBuffer.clear();
+        }
     }
 
 
@@ -41,13 +59,26 @@ namespace ORCore
             return false;
         }
         m_format = m_source->get_format();
+        cubeb_channel_layout lay;
+
+        cubeb_get_preferred_channel_layout(m_context, &lay);
+
+
+        m_logger->info("defult: {} picked: {}", lay, CUBEB_LAYOUT_STEREO);
 
 
         cubeb_stream_params params;
         params.format = CUBEB_SAMPLE_FLOAT32NE; // Our entire audio pipeline will work in 32bit float.
-        params.rate = m_format.sample_rate;
+        params.rate = m_format.sampleRate;
         params.channels = m_format.channels;
         params.layout = CUBEB_LAYOUT_STEREO;
+
+
+        uint32_t rate;
+
+        cubeb_get_preferred_sample_rate(m_context, &rate);
+
+        m_logger->info("defult: {} picked: {}", rate, m_format.sampleRate);
 
         uint32_t frameLatency = 0;
 

@@ -13,7 +13,7 @@ namespace ORCore
 
     struct StreamFormat
     {
-        int sample_rate;
+        int sampleRate;
         int channels;
     };
 
@@ -58,44 +58,26 @@ namespace ORCore
             return m_time.load(std::memory_order_acquire);
         }
 
+        void set_time(double time)
+        {
+            m_time.store(time, std::memory_order_release);
+        }
+
         // Thread safe pausing.
         bool is_paused()
         {
-            return paused.load(std::memory_order_acquire);
+            return m_paused.load(std::memory_order_acquire);
         }
 
         void set_pause(bool pause)
         {
-            paused.store(pause, std::memory_order_release);
+            m_paused.store(pause, std::memory_order_release);
         }
 
     protected:
-        std::atomic_bool paused;
+        std::atomic_bool m_paused;
         std::atomic<double> m_time;
     };
-
-    class SineStream: public ProducerStream
-    {
-    public:
-        StreamFormat get_format()
-        {
-            return {44100, 2};
-        }
-
-        void pull(Buffer& buffer)
-        {
-            float *buf = buffer;
-            for (auto i = 0; i < buffer.size(); i++)
-            {
-                buf[i] = sin(2*3.14159265 * (i + m_framePosition) * 350/44100);
-            }
-            m_framePosition += buffer.get_info().frames;
-        }
-    private:
-        int m_framePosition = 0;
-
-    };
-
 
     // A consumer is not a stream, it is the endpoint.
     // Some examples of a consumer is an output device or a network output stream.

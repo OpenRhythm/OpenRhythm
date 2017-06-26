@@ -11,7 +11,7 @@ namespace ORCore
     class Mixer: public InputStream
     {
     public:
-        bool add_stream(Stream* stream);
+        bool add_source(Stream* stream);
         void pull(Buffer& buffer);
         StreamFormat get_format();
 

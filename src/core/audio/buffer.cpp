@@ -5,6 +5,11 @@
 
 namespace ORCore
 {
+    Buffer::Buffer()
+    :m_allocated(false), m_info({0,0}), m_size(0)
+    {
+    }
+
     Buffer::Buffer(BufferInfo info)
     :m_allocated(true), m_info(info), m_size(info.channels * info.frames)
     {
@@ -88,6 +93,28 @@ namespace ORCore
     Buffer::operator float*()
     {
         return m_buffer;
+    }
+
+
+    void Buffer::clone_type(const Buffer& other)
+    {
+        if (this != &other)
+        {
+            if (m_size != other.m_size)
+            {
+                // If we previously allocated and the new buffer size is different
+                // free the old memory
+                if (m_allocated)
+                {
+                    delete[] m_buffer;
+                }
+                m_buffer = new float[m_size];
+                m_allocated = true;
+
+            }
+            m_info = other.m_info;
+            m_size = other.m_size;
+        }
     }
 
     BufferInfo Buffer::get_info()

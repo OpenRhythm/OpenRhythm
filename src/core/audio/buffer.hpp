@@ -20,6 +20,7 @@ namespace ORCore
     class Buffer
     {
     public:
+        Buffer();
         Buffer(BufferInfo info);
         Buffer(float* buffer, BufferInfo info);
         Buffer(const Buffer& other);
@@ -30,6 +31,8 @@ namespace ORCore
         Buffer& operator=(Buffer&& other);
 
         operator float*();
+
+        void clone_type(const Buffer& other);
 
         BufferInfo get_info();
         int size();

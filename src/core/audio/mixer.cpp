@@ -1,11 +1,12 @@
 // Copyright (c) 2015-2017 Matthew Sitton <matthewsitton@gmail.com>
 // See LICENSE in the project root for license information.
 
+#include <iostream>
 #include "mixer.hpp"
 
 namespace ORCore
 {
-    bool Mixer::add_stream(Stream* stream)
+    bool Mixer::add_source(Stream* stream)
     {
         m_streams.push_back(stream);
         return true;
@@ -17,7 +18,8 @@ namespace ORCore
         float* buf = buffer;
 
         Buffer tempBuffer(buffer.get_info());
-        float* tempbuf = buffer;
+        tempBuffer.clear();
+        float* tempbuf = tempBuffer;
 
 
         // Go through all streams that are not paused and mix them into the output.

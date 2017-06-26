@@ -6,9 +6,9 @@
 #include <spdlog/spdlog.h>
 
 #include "core/audio/streams.hpp"
+#include "core/audio/mixer.hpp"
+#include "core/audio/vorbissource.hpp"
 #include "core/audio/cubeboutput.hpp"
-
-
 
 int main() {
 
@@ -33,13 +33,20 @@ int main() {
         std::cout << "Logging Failed: " << err.what() << std::endl;
         return 1;
     }
-    ORCore::SineStream prod;
+    ORCore::VorbisSource oggSource("song.ogg");
+    //ORCore::Mixer mix;
     ORCore::CubebOutput out;
 
-    out.set_source(&prod);
+    // mix.add_source(&prod);
+
+    out.set_source(&oggSource);
     out.start();
 
     // Wait 10 seconds then exit..
-    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(20000));
+    oggSource.set_pause(true);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    oggSource.set_pause(false);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     out.stop();
 }
