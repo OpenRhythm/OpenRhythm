@@ -10,6 +10,39 @@
 #include "core/audio/vorbissource.hpp"
 #include "core/audio/cubeboutput.hpp"
 
+class SineStream: public ORCore::ProducerStream 
+{ 
+public:
+    SineStream(int frequency)
+    :m_frequency(frequency)
+    {
+        set_pause(false);
+    }
+    ORCore::StreamFormat get_format() 
+    { 
+        return {44100, 2}; 
+    } 
+
+    void pull(ORCore::Buffer& buffer) 
+    { 
+        float *buf = buffer;
+        auto bufferInfo = buffer.get_info();
+        for (auto i = 0; i < bufferInfo.frames; i++) 
+        {
+            float sample = sin(2*3.14159265 * (i + m_framePosition) * m_frequency/44100) * 0.5;
+            for (auto c = 0; c < bufferInfo.channels; c++)
+            {
+                buf[(i*bufferInfo.channels)+c] = sample;
+            } 
+        } 
+        m_framePosition += buffer.get_info().frames; 
+    } 
+private:
+    int m_frequency;
+    int m_framePosition = 0; 
+
+}; 
+
 int main() {
 
     std::shared_ptr<spdlog::logger> logger;
@@ -34,19 +67,22 @@ int main() {
         return 1;
     }
     ORCore::VorbisSource oggSource("song.ogg");
-    //ORCore::Mixer mix;
+    ORCore::Mixer mix;
+    SineStream sine(350);
+    SineStream sine2(440);
     ORCore::CubebOutput out;
 
-    // mix.add_source(&prod);
+    mix.add_source(&sine);
+    mix.add_source(&sine2);
 
-    out.set_source(&oggSource);
+    out.set_source(&mix);
     out.start();
 
     // Wait 10 seconds then exit..
     std::this_thread::sleep_for(std::chrono::milliseconds(20000));
-    oggSource.set_pause(true);
+    sine.set_pause(true);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    oggSource.set_pause(false);
+    sine.set_pause(false);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     out.stop();
 }
