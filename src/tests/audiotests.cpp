@@ -29,7 +29,7 @@ public:
         auto bufferInfo = buffer.get_info();
         for (auto i = 0; i < bufferInfo.frames; i++) 
         {
-            float sample = sin(2*3.14159265 * (i + m_framePosition) * m_frequency/44100) * 0.5;
+            float sample = sin(2*3.14159265 * (i + m_framePosition) * m_frequency/44100) * 0.125;
             for (auto c = 0; c < bufferInfo.channels; c++)
             {
                 buf[(i*bufferInfo.channels)+c] = sample;
@@ -67,6 +67,7 @@ int main() {
         return 1;
     }
     ORCore::VorbisSource oggSource("song.ogg");
+
     ORCore::Mixer mix;
     SineStream sine(350);
     SineStream sine2(440);
@@ -74,12 +75,13 @@ int main() {
 
     mix.add_source(&sine);
     mix.add_source(&sine2);
+    mix.add_source(&oggSource);
 
     out.set_source(&mix);
     out.start();
 
     // Wait 10 seconds then exit..
-    std::this_thread::sleep_for(std::chrono::milliseconds(20000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     sine.set_pause(true);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     sine.set_pause(false);

@@ -22,8 +22,12 @@ namespace ORGame
     m_window(m_width, m_height, m_fullscreen, m_title),
     m_eventManager(),
     m_eventPump(&m_eventManager),
-    m_song("/data/songs/testsong")
+    m_song("/data/songs/testsong"),
+    m_songOgg("song.ogg")
     {
+        m_audioOut.set_source(&m_songOgg);
+        m_audioOut.start();
+
         m_running = true;
 
         m_logger = spdlog::get("default");
@@ -156,6 +160,7 @@ namespace ORGame
 
     GameManager::~GameManager()
     {
+        m_audioOut.stop();
         m_window.make_current(nullptr);
     }
 
@@ -260,6 +265,7 @@ namespace ORGame
                 std::cout.precision (5);
                 std::cout << "FPS: " << m_clock.get_fps() << std::endl;
                 std::cout << "Song Time: " << m_songTime << std::endl;
+                std::cout << "Audio Time: " << m_songOgg.get_time() << std::endl;
                 std::cout.precision (m_ss);
                 m_fpsTime = 0;
             }
