@@ -92,7 +92,7 @@ namespace ORCore
             const void* input_buffer, void* output_buffer, long nframes) -> long
         {
             auto* cubebOut = static_cast<CubebOutput*>(user_ptr);
-            Buffer audioBuffer(static_cast<float*>(output_buffer), {nframes, cubebOut->m_format.channels});
+            Buffer audioBuffer(static_cast<float*>(output_buffer), {cubebOut->m_format.channels, nframes});
             cubebOut->build_buffer(audioBuffer);
             return nframes;
         };

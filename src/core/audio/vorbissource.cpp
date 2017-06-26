@@ -91,12 +91,10 @@ namespace ORCore
             {
                 for (auto s = 0; s < samplesRead; s++)
                 {
-                    buff[framesRead+(samplesRead*bufferInfo.channels)+c] = frameData[c][s];
+                    buff[((framesRead+s)*bufferInfo.channels)+c] = frameData[c][s];
                 }
             }
             framesRead += samplesRead;
-
-            //std::cout << "samplesRead: " << samplesRead << " remain: " << (bufferInfo.frames - framesRead) << "\n";
         }
         set_time(ov_time_tell(&m_vorbisFile));
         
