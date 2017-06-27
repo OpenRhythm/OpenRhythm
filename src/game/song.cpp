@@ -542,33 +542,22 @@ namespace ORGame
             {
                 for (auto &midiEvent : midiTrack->midiEvents)
                 {
-                    // TODO - Clean this up this WILL get very messy eventually. Hell its already stupid.
+                    // Handle velocity = 0 to turn notes off
+                    if (midiEvent.message == ORCore::NoteOn && midiEvent.data2 == 0)
+                    {
+                        midiEvent.message = ORCore::NoteOff;
+                    }
+
                     if (midiEvent.message == ORCore::NoteOn)
                     {
                         // Event markers
                         if (midiEvent.data1 == solo_marker)
                         {
-                            // Handle velocity = 0 to turn notes off
-                            if (midiEvent.data2 != 0)
-                            {
-                                track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
-                            }
-                            else
-                            {
-                                track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
-                            }
+                            track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
                         }
                         else if (midiEvent.data1 == drive_marker)
                         {
-                            // Handle velocity = 0 to turn notes off
-                            if (midiEvent.data2 != 0)
-                            {
-                                track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
-                            }
-                            else
-                            {
-                                track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
-                            }
+                            track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
                         }
                         else
                         {
@@ -584,15 +573,7 @@ namespace ORGame
                             }
                             if (note != NoteType::NONE)
                             {
-                                // Handle velocity = 0 to turn notes off
-                                if (midiEvent.data2 != 0)
-                                {
-                                    track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, true);
-                                }
-                                else
-                                {
-                                    track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, false);
-                                }
+                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, true);
                             }
                         }
                     }
