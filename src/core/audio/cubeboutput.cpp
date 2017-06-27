@@ -82,7 +82,7 @@ namespace ORCore
 
         uint32_t frameLatency = 0;
 
-        if (cubeb_get_min_latency(m_context, params, &frameLatency) != CUBEB_OK)
+        if (cubeb_get_min_latency(m_context, &params, &frameLatency) != CUBEB_OK)
         {
             m_logger->error("cubeb: Failed to get minimum audio latency.");
             return false;
@@ -92,7 +92,7 @@ namespace ORCore
             const void* input_buffer, void* output_buffer, long nframes) -> long
         {
             auto* cubebOut = static_cast<CubebOutput*>(user_ptr);
-            Buffer audioBuffer(static_cast<float*>(output_buffer), {cubebOut->m_format.channels, nframes});
+            Buffer audioBuffer(static_cast<float*>(output_buffer), {cubebOut->m_format.channels, static_cast<int>(nframes)});
             cubebOut->build_buffer(audioBuffer);
             return nframes;
         };

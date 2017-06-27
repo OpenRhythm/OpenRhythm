@@ -121,6 +121,12 @@ set(LIBRARIES
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(LIBRARIES ${LIBRARIES} winmm avrt)
+elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+
+    set(LIBRARIES ${LIBRARIES}
+    "-framework AudioUnit"
+    "-framework CoreAudio")
+
 endif()
 
 # These includes are defined a system headers so any warnings within

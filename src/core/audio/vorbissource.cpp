@@ -48,7 +48,7 @@ namespace ORCore
 
     StreamFormat VorbisSource::get_format()
     {
-        return {m_info->rate, m_info->channels};
+        return {static_cast<int>(m_info->rate), static_cast<int>(m_info->channels)};
     }
 
 
