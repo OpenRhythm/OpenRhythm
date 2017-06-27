@@ -13,6 +13,7 @@
 namespace ORCore
 {
     Timer::Timer()
+    :m_reversalTarget(0.0), m_reversalSpeed(1.0)
     {
 
 #if defined(PLATFORM_OSX)
@@ -74,6 +75,13 @@ namespace ORCore
         if (m_paused)
         {
             return 0.0;
+        }
+        else if (m_reversalTarget != 0.0)
+        {
+            m_tickCount++;
+            m_previousTime = m_currentTime;
+            m_currentTime = get_time();
+            return - (m_currentTime - m_previousTime);
         }
         else
         {

@@ -19,7 +19,7 @@ namespace ORCore
     CubebOutput::CubebOutput()
     :m_logger(spdlog::get("default"))
     {
-        cubeb_set_log_callback(CUBEB_LOG_VERBOSE, print_log);
+        cubeb_set_log_callback(CUBEB_LOG_NORMAL, print_log);
 
         if (cubeb_init(&m_context, "OpenRhythm", nullptr) != CUBEB_OK)
         {

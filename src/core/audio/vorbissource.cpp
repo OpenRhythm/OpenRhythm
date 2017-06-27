@@ -96,7 +96,18 @@ namespace ORCore
             }
             framesRead += samplesRead;
         }
+        if (m_timeSeek != -1.0)
+        {
+            double newtime = m_timeSeek.load(std::memory_order_acquire);
+            ov_time_seek(&m_vorbisFile, newtime);
+            m_timeSeek.store(-1.0, std::memory_order_release);
+        }
         set_time(ov_time_tell(&m_vorbisFile));
         
+    }
+
+    void VorbisSource::seek(double time)
+    {
+        m_timeSeek.store(time, std::memory_order_release);
     }
 }

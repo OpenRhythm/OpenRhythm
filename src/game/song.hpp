@@ -10,6 +10,9 @@
 #include "smf.hpp"
 #include "timing.hpp"
 
+#include "core/audio/vorbissource.hpp"
+#include "core/audio/cubeboutput.hpp"
+
 namespace ORGame
 {
 
@@ -167,6 +170,7 @@ namespace ORGame
     {
     public:
         Song(std::string songpath);
+        ~Song();
         void add(TrackType type, Difficulty difficulty);
         bool load();
         void load_track(TrackInfo& trackInfo);
@@ -176,7 +180,9 @@ namespace ORGame
         TempoTrack *get_tempo_track();
         int16_t get_divison();
         double length();
+        void start();
         double get_song_time();
+        double get_audio_time();
         void set_pause(bool pause);
 
     private:
@@ -187,6 +193,8 @@ namespace ORGame
         std::string m_path;
         double m_length;
         ORCore::Timer m_songTimer;
+        ORCore::VorbisSource m_songOgg;
+        ORCore::CubebOutput m_audioOut;
         double m_pauseTime;
 
     };

@@ -438,9 +438,19 @@ namespace ORGame
 
     Song::Song(std::string songpath)
     : m_path(songpath),
-    m_midi("notes.mid")
+    m_midi("notes.mid"),
+    m_songOgg("song.ogg")
     {
         logger = spdlog::get("default");
+
+        m_songTimer.reset();
+        m_audioOut.set_source(&m_songOgg);
+        m_audioOut.start();
+    }
+
+    Song::~Song()
+    {
+        m_audioOut.stop();
     }
 
     void Song::add(TrackType type, Difficulty difficulty)
@@ -659,10 +669,26 @@ namespace ORGame
         return m_midi.pulsetime_to_abstime(m_length);
     }
 
+    void Song::start()
+    {
+        m_audioOut.start();
+        m_songTimer.reset();
+    }
+
     double Song::get_song_time()
     {
-        m_songTimer.tick(); // TODO - there is likely a better place for this...
-        return m_songTimer.get_current_time();
+        double tick = m_songTimer.tick(); // TODO - there is likely a better place for this...
+        double time = m_songTimer.get_current_time();
+        if (time < m_pauseTime && tick > 0.0)
+        {
+            m_songOgg.set_pause(false);
+        }
+        return time;
+    }
+
+    double Song::get_audio_time()
+    {
+        return m_songOgg.get_time();
     }
 
     void Song::set_pause(bool pause)
@@ -673,6 +699,12 @@ namespace ORGame
             m_pauseTime = time;
         }
         m_songTimer.set_resume_target(m_pauseTime-1.5, 2.0);
+        if (pause)
+        {
+            m_songOgg.set_pause(true);
+            m_songOgg.seek(m_pauseTime-1.5);
+        }
+
     }
 
 } // namespace ORGame

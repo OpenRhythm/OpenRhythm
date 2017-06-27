@@ -18,9 +18,11 @@ namespace ORCore
         StreamFormat get_format();
         void do_pause();
         void pull(Buffer& buffer);
+        void seek(double time);
 
     private:
         std::string m_filename;
+        std::atomic<double> m_timeSeek;
 
         OggVorbis_File m_vorbisFile;
         vorbis_info *m_info;

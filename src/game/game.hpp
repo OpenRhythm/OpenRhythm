@@ -14,8 +14,6 @@
 #include "renderer/shader.hpp"
 #include "renderer/renderer.hpp"
 #include "renderer/texture.hpp"
-#include "core/audio/vorbissource.hpp"
-#include "core/audio/cubeboutput.hpp"
 #include "song.hpp"
 
 #include <spdlog/spdlog.h>
@@ -69,9 +67,6 @@ namespace ORGame
         TempoTrack *m_tempoTrack;
         Track *m_playerTrack;
         double m_songTime;
-
-        ORCore::VorbisSource m_songOgg;
-        ORCore::CubebOutput m_audioOut;
 
         Song m_song;
         ORCore::FpsTimer m_clock;
