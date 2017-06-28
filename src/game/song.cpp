@@ -443,9 +443,7 @@ namespace ORGame
     {
         logger = spdlog::get("default");
 
-        m_songTimer.reset();
         m_audioOut.set_source(&m_songOgg);
-        m_audioOut.start();
     }
 
     Song::~Song()
@@ -652,13 +650,15 @@ namespace ORGame
 
     void Song::start()
     {
-        m_audioOut.start();
         m_songTimer.reset();
+        m_audioOut.start();
     }
 
     double Song::get_song_time()
     {
-        double tick = m_songTimer.tick(); // TODO - there is likely a better place for this...
+        // TODO - there is likely a better place for this...
+        // Basically the plan here is have an update method.
+        double tick = m_songTimer.tick();
         double time = m_songTimer.get_current_time();
         if (time < m_pauseTime && tick > 0.0)
         {

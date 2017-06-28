@@ -153,6 +153,7 @@ namespace ORGame
         m_logger->info("GL_SAMPLE_BUFFERS: {}, GL_SAMPLES: {} ", iMultiSample, iNumSamples);
 
         glClearColor(0.5, 0.5, 0.5, 1.0);
+        m_song.start();
     }
 
     GameManager::~GameManager()
