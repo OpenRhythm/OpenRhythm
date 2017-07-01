@@ -179,6 +179,7 @@ namespace ORGame
         ORCore::VorbisSource m_songOgg;
         ORCore::CubebOutput m_audioOut;
         double m_pauseTime;
+        std::shared_ptr<spdlog::logger> m_logger;
 
     };
 

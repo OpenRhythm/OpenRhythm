@@ -223,7 +223,7 @@ namespace ORCore
 
                 tsEvent.thirtySecondPQN = read_type<uint8_t>(m_smfFile); // 8 default
 
-                m_logger->info(_("Time signature  {}/{} CPC: {} TSPQN: {}"),
+                m_logger->debug(_("Time signature  {}/{} CPC: {} TSPQN: {}"),
                                     tsEvent.numerator,
                                     tsEvent.denominator,
                                     tsEvent.clocksPerBeat,

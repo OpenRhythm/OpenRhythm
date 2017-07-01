@@ -435,7 +435,8 @@ namespace ORGame
     Song::Song(std::string songpath)
     : m_path(songpath),
     m_midi("notes.mid"),
-    m_songOgg("song.ogg")
+    m_songOgg("song.ogg"),
+    m_logger(spdlog::get("default"))
     {
         logger = spdlog::get("default");
 
@@ -493,14 +494,14 @@ namespace ORGame
             {
                 auto &ts = tempoTrack.timeSignature[eventOrder.index];
                 m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, m_midi.pulsetime_to_abstime(ts.info.info.pulseTime));
-                logger->info(_("Time signature change recieved at time {} {}/{}"), m_midi.pulsetime_to_abstime(ts.info.info.pulseTime), ts.numerator, ts.denominator);
+                logger->debug(_("Time signature change recieved at time {} {}/{}"), m_midi.pulsetime_to_abstime(ts.info.info.pulseTime), ts.numerator, ts.denominator);
             }
             else if (eventOrder.type == ORCore::TtOrderType::Tempo)
             {
                 auto &tempo = tempoTrack.tempo[eventOrder.index];
                 lastQnLength = tempo.qnLength;
                 m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.absTime);
-                logger->info(_("Tempo change recieved at time {} {}"), tempo.absTime, tempo.qnLength);
+                logger->debug(_("Tempo change recieved at time {} {}"), tempo.absTime, tempo.qnLength);
             } 
         }
 
@@ -524,57 +525,68 @@ namespace ORGame
 
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
 
-        for (auto midiTrack : midiTracks)
+        ORCore::SmfTrack* midiTrack = nullptr;
+
+        // Find midi track
+        for (ORCore::SmfTrack* _midiTrack : midiTracks)
         {
-            TrackType type = get_track_type(midiTrack->name);
+            TrackType type = get_track_type(_midiTrack->name);
             if (type == trackInfo.type)
             {
-                Track track(this, trackInfo);
-                for (auto &midiEvent : midiTrack->midiEvents)
+                midiTrack = _midiTrack;
+            }
+        }
+
+        // If we didnt find a track skip it.
+        if (midiTrack == nullptr)
+        {
+            return;
+        }
+
+        m_tracks.emplace_back(this, trackInfo);
+        auto &track = m_tracks.back();
+
+        for (auto &midiEvent : midiTrack->midiEvents)
+        {
+            // Handle velocity = 0 to turn notes off
+            if (midiEvent.message == ORCore::NoteOn && midiEvent.data2 == 0)
+            {
+                midiEvent.message = ORCore::NoteOff;
+            }
+
+            if (midiEvent.message == ORCore::NoteOn || midiEvent.message == ORCore::NoteOff)
+            {
+                // To reduce code duplication use the same codepath for notes on/off but convert event types to bool.
+                bool noteOn = false;
+                if (midiEvent.message == ORCore::NoteOn)
                 {
-                    // Handle velocity = 0 to turn notes off
-                    if (midiEvent.message == ORCore::NoteOn && midiEvent.data2 == 0)
-                    {
-                        midiEvent.message = ORCore::NoteOff;
-                    }
-
-                    if (midiEvent.message == ORCore::NoteOn || midiEvent.message == ORCore::NoteOff)
-                    {
-                        // To reduce code duplication use the same codepath for notes on/off but convert event types to bool.
-                        bool noteOn = false;
-                        if (midiEvent.message == ORCore::NoteOn)
-                        {
-                            noteOn = true;
-                        }
-
-                        NoteType note = midi_to_note_type(trackInfo.difficulty, midiEvent.data1);
-
-                        double time = m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime);
-
-                        switch (note)
-                        {
-                            // Event markers
-                            case NoteType::Solo:
-                                track.set_event(EventType::solo, time, noteOn);
-                                break;
-                            case NoteType::Drive:
-                                track.set_event(EventType::drive, time, noteOn);
-                                break;
-
-                            // Track Notes
-                            case NoteType::Green:
-                            case NoteType::Red:
-                            case NoteType::Yellow:
-                            case NoteType::Blue:
-                            case NoteType::Orange:
-                                track.add_note(note, time, midiEvent.info.pulseTime, noteOn);
-                                break;
-                            default: break;
-                        }
-                    }
+                    noteOn = true;
                 }
-                m_tracks.push_back(track);
-                break;
+
+                NoteType note = midi_to_note_type(trackInfo.difficulty, midiEvent.data1);
+
+                double time = m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime);
+
+                switch (note)
+                {
+                    // Event markers
+                    case NoteType::Solo:
+                        track.set_event(EventType::solo, time, noteOn);
+                        break;
+                    case NoteType::Drive:
+                        track.set_event(EventType::drive, time, noteOn);
+                        break;
+
+                    // Track Notes
+                    case NoteType::Green:
+                    case NoteType::Red:
+                    case NoteType::Yellow:
+                    case NoteType::Blue:
+                    case NoteType::Orange:
+                        track.add_note(note, time, midiEvent.info.pulseTime, noteOn);
+                        break;
+                    default: break;
+                }
             }
         }
     }
@@ -618,6 +630,7 @@ namespace ORGame
     {
         m_songTimer.reset();
         m_audioOut.start();
+        m_logger->info("Song started");
     }
 
     double Song::get_song_time()
