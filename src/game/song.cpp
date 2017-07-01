@@ -546,62 +546,38 @@ namespace ORGame
                         midiEvent.message = ORCore::NoteOff;
                     }
 
-                    if (midiEvent.message == ORCore::NoteOn)
+                    if (midiEvent.message == ORCore::NoteOn || midiEvent.message == ORCore::NoteOff)
                     {
-                        // Event markers
-                        if (midiEvent.data1 == solo_marker)
+                        // To reduce code duplication use the same codepath for notes on/off but convert event types to bool.
+                        bool noteOn = false;
+                        if (midiEvent.message == ORCore::NoteOn)
                         {
-                            track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
+                            noteOn = true;
                         }
-                        else if (midiEvent.data1 == drive_marker)
-                        {
-                            track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), true);
-                        }
-                        else
-                        {
-                            // Track Notes
-                            try
-                            {
-                                note = noteMap.at(midiEvent.data1);
-                            }
-                            catch (std::out_of_range &err)
-                            {
-                                err;
-                                continue;
-                            }
-                            if (note != NoteType::NONE)
-                            {
-                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, true);
-                            }
-                        }
-                    }
-                    else if (midiEvent.message == ORCore::NoteOff)
-                    {
 
                         // Event markers
                         if (midiEvent.data1 == solo_marker)
                         {
-                            track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                            track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), noteOn);
                         }
                         else if (midiEvent.data1 == drive_marker)
                         {
-                            track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
+                            track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), noteOn);
                         }
+                        // Track Notes
                         else
                         {
-                            // Track Notes
                             try
                             {
                                 note = noteMap.at(midiEvent.data1);
                             }
-                            catch (std::out_of_range &err)
+                            catch (std::out_of_range &)
                             {
-                                err;
                                 continue;
                             }
                             if (note != NoteType::NONE)
                             {
-                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, false);
+                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, noteOn);
                             }
                         }
                     }

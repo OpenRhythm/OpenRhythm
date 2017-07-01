@@ -96,7 +96,7 @@ namespace ORCore
             }
             framesRead += samplesRead;
         }
-        if (m_timeSeek != -1.0)
+        if (m_timeSeek >= 0.0)
         {
             double newtime = m_timeSeek.load(std::memory_order_acquire);
             ov_time_seek(&m_vorbisFile, newtime);
