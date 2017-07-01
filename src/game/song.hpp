@@ -33,8 +33,6 @@ namespace ORGame
         Drums,
         Keys,
         Vocals,
-        // Non-player track types
-        Events
     };
 
     enum class NoteType
@@ -45,24 +43,9 @@ namespace ORGame
         Yellow,
         Blue,
         Orange,
-    };
-
-    enum class TempoEventType
-    {
-        Note,
-        Tempo,
-        TimeSignature,
-        Bar,
-    };
-
-    struct MidiNoteDefinition
-    {
-        int green;
-        int red;
-        int yellow;
-        int blue;
-        int orange;
-        int power;
+        Solo,
+        Drive,
+        Freestyle
     };
 
     struct TrackNote
@@ -131,12 +114,12 @@ namespace ORGame
         void add_tempo_event(int ppqn, double time);
         void add_time_sig_event(int numerator, int denominator, int compoundFactor, double time);
 
-        std::vector<TempoEvent*> get_events(double start, double end);
-        std::vector<TempoEvent*> get_events();
+        std::vector<TempoEvent*> &get_events(double start, double end);
+        std::vector<TempoEvent> &get_events();
 
         void mark_bars();
-        std::vector<BarEvent*> get_bars(double start, double end);
-        std::vector<BarEvent*> get_bars();
+        std::vector<BarEvent*> &get_bars(double start, double end);
+        std::vector<BarEvent> &get_bars();
 
     private:
     	std::vector<TempoEvent> m_tempo;
@@ -153,11 +136,11 @@ namespace ORGame
         TrackInfo info();
 
         void add_note(NoteType type, double time, int32_t pulseTime, bool on);
-        std::vector<TrackNote*> get_notes_in_frame(double start, double end);
-        std::vector<TrackNote*> get_notes();
+        std::vector<TrackNote*> &get_notes_in_frame(double start, double end);
+        std::vector<TrackNote> &get_notes();
 
         void set_event(EventType type, double time, bool on);
-        std::vector<Event> *get_events();
+        std::vector<Event> &get_events();
 
     private:
         Song* m_song;
@@ -176,7 +159,7 @@ namespace ORGame
         void load_track(TrackInfo& trackInfo);
         void load_tracks();
         std::vector<Track> *get_tracks();
-        std::vector<TrackInfo> *get_track_info();
+        std::vector<TrackInfo> &get_track_info();
         TempoTrack *get_tempo_track();
         int16_t get_divison();
         double length();

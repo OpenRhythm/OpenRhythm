@@ -22,7 +22,7 @@ namespace ORGame
     m_window(m_width, m_height, m_fullscreen, m_title),
     m_eventManager(),
     m_eventPump(&m_eventManager),
-    m_song("/data/songs/testsong")
+    m_song("data/songs/testsong")
     {
 
         m_running = true;
@@ -80,9 +80,10 @@ namespace ORGame
         m_neckTexture = m_renderer.add_texture(ORCore::loadSTB("data/neck.png"));
 
         resize(m_width, m_height);
-        // glEnable(GL_DEPTH_TEST);
 
         ORCore::RenderObject obj;
+
+        // Background Neck
         obj.set_program(m_neckProgram);
 
         obj.set_primitive_type(ORCore::Primitive::triangle);
@@ -94,14 +95,14 @@ namespace ORGame
         m_neckObj = m_renderer.add_object(obj);
 
 
+        // Solos
         obj.set_program(m_program);
         obj.set_texture(m_soloNeckTexture);
 
-        auto *events = m_playerTrack->get_events();
+        auto &events = m_playerTrack->get_events();
 
-        // Solos
         glm::vec4 solo_color = glm::vec4{0.0f,1.0f,1.0f,0.75f};
-        for (auto &event : *events)
+        for (auto &event : events)
         {
 
             if (event.type == EventType::solo) {
@@ -118,7 +119,7 @@ namespace ORGame
         // drive
         glm::vec4 drive_color = glm::vec4{1.5f,1.5f,1.5f,0.75f};
 
-        for (auto &event : *events)
+        for (auto &event : events)
         {
             if (event.type == EventType::drive)
             {
@@ -136,6 +137,7 @@ namespace ORGame
 
         prep_render_notes();
 
+        // Frets
         obj.set_texture(m_fretsTexture);
         obj.set_scale(glm::vec3{1.0f, 1.0f, 0.05f});
         obj.set_translation(glm::vec3{0.0f, 0.0f, -1.0f}); // center the line on the screen
@@ -164,7 +166,7 @@ namespace ORGame
     void GameManager::prep_render_bars()
     {
 
-        std::vector<BarEvent*> bars = m_tempoTrack->get_bars();
+        std::vector<BarEvent> &bars = m_tempoTrack->get_bars();
         std::cout << "Bar Count: " << bars.size() << " Song Length: " << m_song.length() << std::endl;
 
         // reuse the same container when creating bars as add_obj wont modify the original.
@@ -173,13 +175,13 @@ namespace ORGame
         obj.set_program(m_program);
 
         for (size_t i = 0; i < bars.size(); i++) {
-            float z = (bars[i]->time / neck_speed_divisor);
+            float z = (bars[i].time / neck_speed_divisor);
 
-            if (bars[i]->type == BarType::measure)
+            if (bars[i].type == BarType::measure)
             {
                 obj.set_scale(glm::vec3{1.0f, 1.0f, 0.021});
             }
-            else if (bars[i]->type == BarType::upbeat)
+            else if (bars[i].type == BarType::upbeat)
             {
                 obj.set_scale(glm::vec3{1.0f, 1.0f, 0.003});
             }
@@ -198,7 +200,7 @@ namespace ORGame
 
     void GameManager::prep_render_notes()
     {
-        std::vector<TrackNote*> notes = m_playerTrack->get_notes();
+        std::vector<TrackNote> &notes = m_playerTrack->get_notes();
         std::cout << "Note Count: " << notes.size() << std::endl;
 
         // reuse the same container when creating notes as add_obj wont modify the original.
@@ -213,33 +215,33 @@ namespace ORGame
 
         for (auto &note : notes)
         {
-            float z = note->time / neck_speed_divisor;
+            float z = note.time / neck_speed_divisor;
             glm::vec4 color;
             try
             {
-                color = noteColorMap.at(note->type);
+                color = noteColorMap.at(note.type);
             }
             catch (std::out_of_range &err) {
                 color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
             }
 
-            float noteLength = note->length/neck_speed_divisor;
+            float noteLength = note.length/neck_speed_divisor;
 
             obj.set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
-            obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
+            obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
             obj.set_geometry(ORCore::create_rect_z_mesh(color));
             obj.set_texture(m_tailTexture);
 
-            note->objTailID = m_renderer.add_object(obj);
+            note.objTailID = m_renderer.add_object(obj);
             firstTailMarked = true;
 
             obj.set_texture(-1); // -1 gets set to the default texture.
 
             obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/2.0f});
-            obj.set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
+            obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - noteWidth, 0.0f, -z}); // center the line on the screen
             obj.set_geometry(ORCore::create_cube_mesh(color));
 
-            note->objNoteID = m_renderer.add_object(obj);
+            note.objNoteID = m_renderer.add_object(obj);
 
         }
     }
@@ -331,7 +333,7 @@ namespace ORGame
         m_songTime = m_song.get_song_time();
 
         // Notes will effectively be hit m_videoOffset into the future so we need to go m_videoOffset into the past in order to get the proper notes.
-        auto notesInWindow = m_playerTrack->get_notes_in_frame((m_songTime-m_videoOffset)-0.100, (m_songTime-m_videoOffset)+0.100);
+        auto &notesInWindow = m_playerTrack->get_notes_in_frame((m_songTime-m_videoOffset)-0.100, (m_songTime-m_videoOffset)+0.100);
         
         for (auto *note : notesInWindow)
         {
@@ -347,7 +349,7 @@ namespace ORGame
                 {
                     color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
                 }
-                color[3] = 0.0f; // Dissapear notes
+                //1920x1080color[3] = 0.0f; // Dissapear notes
 
                 auto *tailObj = m_renderer.get_object(note->objTailID);
 
@@ -394,7 +396,7 @@ namespace ORGame
 
     void GameManager::render()
     {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
         m_renderer.render();
     }
 }

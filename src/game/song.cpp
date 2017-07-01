@@ -76,9 +76,10 @@ namespace ORGame
         }
     }
 
-    std::vector<TempoEvent*> TempoTrack::get_events(double start, double end)
+    std::vector<TempoEvent*> &TempoTrack::get_events(double start, double end)
     {
-        std::vector<TempoEvent*> events;
+        static std::vector<TempoEvent*> events;
+        events.clear();
         for (auto &tempo : m_tempo)
         {
             if (tempo.time >= start && tempo.time <= end)
@@ -89,14 +90,9 @@ namespace ORGame
         return events;
     }
 
-    std::vector<TempoEvent*> TempoTrack::get_events()
+    std::vector<TempoEvent> &TempoTrack::get_events()
     {
-        std::vector<TempoEvent*> events;
-        for (auto &tempo : m_tempo)
-        {
-            events.push_back(&tempo);
-        }
-        return events;
+        return m_tempo;
     }
 
     static double round_dbl(double d)
@@ -194,9 +190,10 @@ namespace ORGame
         }
     }
 
-    std::vector<BarEvent*> TempoTrack::get_bars(double start, double end)
+    std::vector<BarEvent*> &TempoTrack::get_bars(double start, double end)
     {
-        std::vector<BarEvent*> events;
+        static std::vector<BarEvent*> events;
+        events.clear();
         for (auto &bar : m_bars)
         {
             if (bar.time >= start && bar.time <= end)
@@ -207,14 +204,9 @@ namespace ORGame
         return events;
     }
 
-    std::vector<BarEvent*> TempoTrack::get_bars()
+    std::vector<BarEvent> &TempoTrack::get_bars()
     {
-        std::vector<BarEvent*> events;
-        for (auto &bar : m_bars)
-        {
-            events.push_back(&bar);
-        }
-        return events;
+        return m_bars;
     }
 
     /////////////////////////////////////
@@ -299,14 +291,16 @@ namespace ORGame
         }
     }
 
-    std::vector<Event> *Track::get_events()
+    std::vector<Event> &Track::get_events()
     {
-        return &m_events;
+        return m_events;
     }
 
-    std::vector<TrackNote*> Track::get_notes_in_frame(double start, double end)
+    std::vector<TrackNote*> &Track::get_notes_in_frame(double start, double end)
     {   
-        std::vector<TrackNote*> notes;
+        static std::vector<TrackNote*> notes;
+        // The idea here is to reuse the same vector each frame to reduce allocations.
+        notes.clear();
         for ( auto &note : m_notes)
         {
             if (note.time >= start && note.time <= end)
@@ -317,70 +311,74 @@ namespace ORGame
         return notes;
     }
 
-    std::vector<TrackNote*> Track::get_notes()
-    {   
-        std::vector<TrackNote*> notes;
-        for ( auto &note : m_notes)
-        {
-            notes.emplace_back(&note);
-        }
-        return notes;
+    std::vector<TrackNote> &Track::get_notes()
+    {
+        return m_notes;
     }
 
-    using MidiNoteMap = std::map<int, NoteType>;
-    const int solo_marker = 0x67;
-    const int drive_marker = 0x74;
-    const std::map<Difficulty, MidiNoteMap> midiDiffMap {
-        {Difficulty::Expert, {
-                {0x60, NoteType::Green},
-                {0x61, NoteType::Red},
-                {0x62, NoteType::Yellow},
-                {0x63, NoteType::Blue},
-                {0x64, NoteType::Orange}
-            }
-        },
-        {Difficulty::Hard, {
-                {0x54, NoteType::Green},
-                {0x55, NoteType::Red},
-                {0x56, NoteType::Yellow},
-                {0x57, NoteType::Blue},
-                {0x58, NoteType::Orange}
-            }
-        },
-        {Difficulty::Medium, {
-                {0x48, NoteType::Green},
-                {0x49, NoteType::Red},
-                {0x4a, NoteType::Yellow},
-                {0x4b, NoteType::Blue},
-                {0x4c, NoteType::Orange}
-            }
-        },
-        {Difficulty::Easy, {
-                {0x3c, NoteType::Green},
-                {0x3d, NoteType::Red},
-                {0x3e, NoteType::Yellow},
-                {0x3f, NoteType::Blue},
-                {0x40, NoteType::Orange}
-            }
+    NoteType midi_to_note_type(Difficulty diff, int midiNote)
+    {
+        // Difficulty based notes
+        switch(diff)
+        {
+            case Difficulty::Expert:
+                switch(midiNote)
+                {
+                    case 0x60: return NoteType::Green;
+                    case 0x61: return NoteType::Red;
+                    case 0x62: return NoteType::Yellow;
+                    case 0x63: return NoteType::Blue;
+                    case 0x64: return NoteType::Orange;
+                    default: break;
+                }
+                break;
+
+            case Difficulty::Hard:
+                switch(midiNote)
+                {
+                    case 0x54: return NoteType::Green;
+                    case 0x55: return NoteType::Red;
+                    case 0x56: return NoteType::Yellow;
+                    case 0x57: return NoteType::Blue;
+                    case 0x58: return NoteType::Orange;
+                    default: break;
+                }
+                break;
+
+            case Difficulty::Medium:
+                switch(midiNote)
+                {
+                    case 0x48: return NoteType::Green;
+                    case 0x49: return NoteType::Red;
+                    case 0x4a: return NoteType::Yellow;
+                    case 0x4b: return NoteType::Blue;
+                    case 0x4c: return NoteType::Orange;
+                    default: break;
+                }
+                break;
+
+            case Difficulty::Easy:
+                switch(midiNote)
+                {
+                    case 0x3c: return NoteType::Green;
+                    case 0x3d: return NoteType::Red;
+                    case 0x3e: return NoteType::Yellow;
+                    case 0x3f: return NoteType::Blue;
+                    case 0x40: return NoteType::Orange;
+                    default: break;
+                }
+                break;
+
+            default: break;
         }
-    };
-
-    const std::map<Difficulty, std::string> diffNameMap {
-        {Difficulty::Expert, "Expert"},
-        {Difficulty::Hard, "Hard"},
-        {Difficulty::Medium, "Medium"},
-        {Difficulty::Easy, "Easy"}
-    };
-
-    const std::map<TrackType, std::string> trackNameMap {
-        {TrackType::Guitar, "Guitar"},
-        {TrackType::Bass, "Bass"},
-        {TrackType::Drums, "Drums"},
-        {TrackType::Keys, "Keys"},
-        {TrackType::Vocals, "Vocals"},
-        {TrackType::Events, "Events"},
-        {TrackType::NONE, "None"}
-    };
+        // Global note types
+        switch(midiNote)
+        {
+            case 0x67: return NoteType::Solo;
+            case 0x74: return NoteType::Drive;
+            default: return NoteType::NONE;
+        }
+    }
 
     const std::map<std::string, TrackType> midiTrackTypeMap {
         {"PART GUITAR", TrackType::Guitar},
@@ -388,34 +386,32 @@ namespace ORGame
         {"PART DRUMS", TrackType::Drums},
         {"PART KEYS", TrackType::Keys},
         {"PART VOCALS", TrackType::Vocals},
-        {"EVENTS", TrackType::Events},
         {"", TrackType::NONE}
     };
 
     // Convenence functions for accessing the maps.
     const std::string diff_type_to_name(Difficulty diff)
     {
-        try
+        switch(diff)
         {
-            return diffNameMap.at(diff);
-        }
-        catch (std::out_of_range &err)
-        {
-            err;
-            return "";
+            case Difficulty::Expert: return "Expert";
+            case Difficulty::Hard: return "Hard";
+            case Difficulty::Medium: return "Medium";
+            case Difficulty::Easy: return "Easy";
+            default: return "";
         }
     }
 
     const std::string track_type_to_name(TrackType type)
     {
-        try
+        switch(type)
         {
-            return trackNameMap.at(type);
-        }
-        catch (std::out_of_range &err)
-        {
-            err;
-            return "";
+            case TrackType::Guitar: return "Guitar";
+            case TrackType::Bass: return "Bass";
+            case TrackType::Drums: return "Drums";
+            case TrackType::Keys: return "Keys";
+            case TrackType::Vocals: return "Vocals";
+            default: return "None";
         }
     }
 
@@ -453,7 +449,7 @@ namespace ORGame
 
     void Song::add(TrackType type, Difficulty difficulty)
     {
-        if (type < TrackType::Events)
+        if (type != TrackType::NONE)
         {
             m_tracksInfo.push_back({type, difficulty});
         }
@@ -523,21 +519,17 @@ namespace ORGame
 
     void Song::load_track(TrackInfo& trackInfo)
     {
-        Track track(this, trackInfo);
 
         logger->debug(_("Loading Track {} {}"), track_type_to_name(trackInfo.type), diff_type_to_name(trackInfo.difficulty));
 
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
-
-        const MidiNoteMap &noteMap = midiDiffMap.at(trackInfo.difficulty);
-
-        NoteType note;
 
         for (auto midiTrack : midiTracks)
         {
             TrackType type = get_track_type(midiTrack->name);
             if (type == trackInfo.type)
             {
+                Track track(this, trackInfo);
                 for (auto &midiEvent : midiTrack->midiEvents)
                 {
                     // Handle velocity = 0 to turn notes off
@@ -555,38 +547,36 @@ namespace ORGame
                             noteOn = true;
                         }
 
-                        // Event markers
-                        if (midiEvent.data1 == solo_marker)
+                        NoteType note = midi_to_note_type(trackInfo.difficulty, midiEvent.data1);
+
+                        double time = m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime);
+
+                        switch (note)
                         {
-                            track.set_event(EventType::solo, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), noteOn);
-                        }
-                        else if (midiEvent.data1 == drive_marker)
-                        {
-                            track.set_event(EventType::drive, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), noteOn);
-                        }
-                        // Track Notes
-                        else
-                        {
-                            try
-                            {
-                                note = noteMap.at(midiEvent.data1);
-                            }
-                            catch (std::out_of_range &)
-                            {
-                                continue;
-                            }
-                            if (note != NoteType::NONE)
-                            {
-                                track.add_note(note, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), midiEvent.info.pulseTime, noteOn);
-                            }
+                            // Event markers
+                            case NoteType::Solo:
+                                track.set_event(EventType::solo, time, noteOn);
+                                break;
+                            case NoteType::Drive:
+                                track.set_event(EventType::drive, time, noteOn);
+                                break;
+
+                            // Track Notes
+                            case NoteType::Green:
+                            case NoteType::Red:
+                            case NoteType::Yellow:
+                            case NoteType::Blue:
+                            case NoteType::Orange:
+                                track.add_note(note, time, midiEvent.info.pulseTime, noteOn);
+                                break;
+                            default: break;
                         }
                     }
-
                 }
+                m_tracks.push_back(track);
                 break;
             }
         }
-        m_tracks.push_back(track);
     }
 
     // Load all tracks
@@ -604,9 +594,9 @@ namespace ORGame
         return &m_tracks;
     }
 
-    std::vector<TrackInfo> *Song::get_track_info()
+    std::vector<TrackInfo> &Song::get_track_info()
     {
-        return &m_tracksInfo; 
+        return m_tracksInfo; 
     }
 
     TempoTrack *Song::get_tempo_track()
@@ -661,7 +651,6 @@ namespace ORGame
             m_songOgg.set_pause(true);
             m_songOgg.seek(m_pauseTime-1.5);
         }
-
     }
 
 } // namespace ORGame
