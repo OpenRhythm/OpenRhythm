@@ -316,6 +316,11 @@ namespace ORGame
         return m_notes;
     }
 
+    /////////////////////////////////////
+    // Conversion functions for taking data from the midi into internal formats.
+    /////////////////////////////////////
+
+    // Convert midi notes into a note type
     NoteType midi_to_note_type(Difficulty diff, int midiNote)
     {
         // Difficulty based notes
@@ -371,6 +376,7 @@ namespace ORGame
 
             default: break;
         }
+        
         // Global note types
         switch(midiNote)
         {
@@ -380,16 +386,6 @@ namespace ORGame
         }
     }
 
-    const std::map<std::string, TrackType> midiTrackTypeMap {
-        {"PART GUITAR", TrackType::Guitar},
-        {"PART BASS", TrackType::Bass},
-        {"PART DRUMS", TrackType::Drums},
-        {"PART KEYS", TrackType::Keys},
-        {"PART VOCALS", TrackType::Vocals},
-        {"", TrackType::NONE}
-    };
-
-    // Convenence functions for accessing the maps.
     const std::string diff_type_to_name(Difficulty diff)
     {
         switch(diff)
@@ -414,6 +410,15 @@ namespace ORGame
             default: return "None";
         }
     }
+
+    static const std::map<std::string, TrackType> midiTrackTypeMap {
+        {"PART GUITAR", TrackType::Guitar},
+        {"PART BASS", TrackType::Bass},
+        {"PART DRUMS", TrackType::Drums},
+        {"PART KEYS", TrackType::Keys},
+        {"PART VOCALS", TrackType::Vocals},
+        {"", TrackType::NONE}
+    };
 
     const TrackType get_track_type(std::string trackName)
     {

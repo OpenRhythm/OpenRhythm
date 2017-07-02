@@ -14,8 +14,8 @@ namespace ORGame
     const float neck_board_length = 2.0f;
 
     GameManager::GameManager()
-    :m_width(800),
-    m_height(600),
+    :m_width(1920),
+    m_height(1080),
     m_fullscreen(false),
     m_title("OpenRhythm"),
     m_context(3, 2, 8),
@@ -330,17 +330,18 @@ namespace ORGame
 
     void GameManager::update()
     {
-        m_songTime = m_song.get_song_time();
+        m_songTime = m_song.get_song_time(); 
 
         // Notes will effectively be hit m_videoOffset into the future so we need to go m_videoOffset into the past in order to get the proper notes.
         auto &notesInWindow = m_playerTrack->get_notes_in_frame((m_songTime-m_videoOffset)-0.100, (m_songTime-m_videoOffset)+0.100);
         
+        glm::vec4 color;
+
         for (auto *note : notesInWindow)
         {
             if (!note->played && note->time + m_videoOffset <= m_songTime)
             {
 
-                glm::vec4 color;
                 try
                 {
                     color = noteColorMapActive.at(note->type);
@@ -349,20 +350,47 @@ namespace ORGame
                 {
                     color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
                 }
-                //1920x1080color[3] = 0.0f; // Dissapear notes
-
-                auto *tailObj = m_renderer.get_object(note->objTailID);
-
-                tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
-
-                m_renderer.update_object(note->objTailID);
+                color[3] = 0.0f; // Dissapear notes
 
                 auto *noteObj = m_renderer.get_object(note->objNoteID);
                 noteObj->set_geometry(ORCore::create_cube_mesh(color));
                 m_renderer.update_object(note->objNoteID);
 
                 note->played = true;
+                m_heldNotes.push_back(note);
             }
+        }
+
+
+        // Todo - do we need to think about video cal here if we are talking about scoring?
+        m_heldNotes.erase(std::remove_if(m_heldNotes.begin(), m_heldNotes.end(),
+                [&](TrackNote *note){return (note->time + note->length) <= m_songTime;}),
+                m_heldNotes.end());
+
+        for (auto *note : m_heldNotes)
+        {
+            try
+            {
+                color = noteColorMapActive.at(note->type);
+            }
+            catch (std::out_of_range &err)
+            {
+                color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
+            }
+
+            auto *tailObj = m_renderer.get_object(note->objTailID);
+
+            float noteWidth = 1.0f/5.0f;
+            float tailWidth = noteWidth/3.0f;
+
+            float z = m_songTime / neck_speed_divisor;
+            float noteLength = (note->length - (m_songTime-note->time))/neck_speed_divisor;
+
+            tailObj->set_scale(glm::vec3{tailWidth, 1.0f, -noteLength});
+            tailObj->set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, -z}); // center the line on the screen
+            tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
+
+            m_renderer.update_object(note->objTailID);
         }
 
         float boardPos = (m_songTime/neck_speed_divisor);
