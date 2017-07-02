@@ -313,6 +313,7 @@ namespace ORGame
                         break;
                     case ORCore::KeyCode::KEY_P:
                         m_song.set_pause(true);
+                        m_heldNotes.clear();
                         break;
                     case ORCore::KeyCode::KEY_R:
                         m_song.set_pause(false);
