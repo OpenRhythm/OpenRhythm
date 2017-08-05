@@ -80,26 +80,20 @@ endif()
 #   Libraries
 ####################################################################
 
-find_package(cubeb)
+include(ExternalProject)
 
-if (NOT CUBEB_FOUND)
-    message(STATUS "Didn't find cubeb, building from git.")
-    include(ExternalProject)
+ExternalProject_Add(cubeb
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/cubeb
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/cubeb"
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_CONFIGURATION_TYPES=Release
+    )
 
-    ExternalProject_Add(cubeb
-        PREFIX "${CMAKE_BINARY_DIR}/cubeb"
-        GIT_REPOSITORY "https://github.com/kinetiknz/cubeb.git"
-        INSTALL_DIR "${PROJECT_SOURCE_DIR}/extern/cubeb"
-        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_CONFIGURATION_TYPES=Release
-        )
+ExternalProject_Get_Property(cubeb INSTALL_DIR)
 
-    ExternalProject_Get_Property(cubeb INSTALL_DIR)
-
-    # Set package locations manually
-    set(CUBEB_LIBRARY ${INSTALL_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}cubeb${CMAKE_STATIC_LIBRARY_SUFFIX})
-    set(CUBEB_INCLUDE_DIR "${INSTALL_DIR}/include/")
-    set(CUBEB_FOUND TRUE)
-endif()
+# Set package locations manually
+set(CUBEB_LIBRARY ${INSTALL_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}cubeb${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(CUBEB_INCLUDE_DIR "${INSTALL_DIR}/include/")
+set(CUBEB_FOUND TRUE)
 
 find_package(Gettext)
 find_package(GLM        REQUIRED)
@@ -239,9 +233,7 @@ source_group("src\\game"  FILES ${GAME_SOURCE}  ${GAME_HEADERS})
 
 add_library(ORCore-obj OBJECT ${CORE_SOURCE})
 
-if(NOT CUBEB_FOUND)
-    add_dependencies(ORCore-obj cubeb)
-endif()
+add_dependencies(ORCore-obj cubeb)
 
 add_executable(openrhythm $<TARGET_OBJECTS:ORCore-obj>
                           ${GAME_SOURCE}

@@ -7,3 +7,6 @@
 [submodule "extern/spdlog"]
 	path = extern/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "extern/cubeb"]
+	path = extern/cubeb
+	url = https://github.com/kinetiknz/cubeb.git
