@@ -1,7 +1,7 @@
 # If CMakeCache.txt is present, it has to be deleted to use the new build root
-rm CMakeCache.txt -r
-mkdir build/ -p
-cd    build/
+rm -r CMakeCache.txt 
+mkdir -p build/ 
+cd build/
 
 export NO_APP="False"
 
