@@ -53,6 +53,7 @@ namespace ORCore
         // Matrix Texture Buffer Objects
         glGenBuffers(1, &m_matBufferObject);
         glBindBuffer(GL_TEXTURE_BUFFER, m_matBufferObject);
+        m_matTexBuffer.assign_buffer(m_matBufferObject);
 
         glBindBuffer(GL_TEXTURE_BUFFER, 0);
 
@@ -128,7 +129,6 @@ namespace ORCore
 
         glBindBuffer(GL_TEXTURE_BUFFER, m_matBufferObject);
         glBufferData(GL_TEXTURE_BUFFER, m_matrices.size()*sizeof(glm::mat4), &m_matrices[0], GL_STATIC_DRAW);
-        m_matTexBuffer.assign_buffer(m_matBufferObject);
 
         glBindBuffer(GL_TEXTURE_BUFFER, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);

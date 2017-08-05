@@ -133,10 +133,6 @@ namespace ORGame
             }
         }
 
-        prep_render_bars();
-
-        prep_render_notes();
-
         // Frets
         obj.set_texture(m_fretsTexture);
         obj.set_scale(glm::vec3{1.0f, 1.0f, 0.05f});
@@ -144,6 +140,10 @@ namespace ORGame
         obj.set_primitive_type(ORCore::Primitive::triangle);
         obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
         m_fretObj = m_renderer.add_object(obj);
+
+        prep_render_bars();
+
+        prep_render_notes();
 
         m_renderer.commit();
 
