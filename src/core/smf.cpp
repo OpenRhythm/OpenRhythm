@@ -104,7 +104,7 @@ namespace ORCore
                 midiEvent.data2 = read_type<uint8_t>(m_smfFile); // pitch_high
                 break;
             default:
-                m_logger->warn("Bad Midi control message {}", midiEvent.message);
+                m_logger->warn("Bad Midi control message {}", static_cast<uint8_t>(midiEvent.message));
         }
 
         m_currentTrack->midiEvents.push_back(midiEvent);
