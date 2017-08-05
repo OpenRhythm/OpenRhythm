@@ -247,7 +247,7 @@ namespace ORCore
             default:
             {
                 // store data for unused event for later save passthrough.
-                m_logger->debug(_("Unused event type {}."), event.type);
+                m_logger->debug(_("Unused event type {}."), static_cast<uint8_t>(event.type));
                 std::vector<char> eventData;
                 for (int i=0;i<event.length;++i)
                 {
