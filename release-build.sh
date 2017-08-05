@@ -1,5 +1,4 @@
-# If CMakeCache.txt is present, it has to be deleted to use the new build root
-rm -r CMakeCache.txt 
+
 mkdir -p build/ 
 cd build/
 
