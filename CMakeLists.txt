@@ -83,6 +83,7 @@ endif()
 include(ExternalProject)
 
 ExternalProject_Add(cubeb
+    DOWNLOAD_COMMAND ""
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/cubeb
     INSTALL_DIR "${CMAKE_BINARY_DIR}/cubeb"
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_CONFIGURATION_TYPES=Release
