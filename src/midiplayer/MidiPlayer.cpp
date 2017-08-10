@@ -85,10 +85,10 @@ namespace MidiPlayer
         obj.set_primitive_type(ORCore::Primitive::triangle);
         for (auto track: *m_song.get_tracks())
         {
-            // glm::vec4 color = m_colorArray[trackColorIndex];
-            // m_colorArray[trackColorIndex] += m_colorMutator[trackColorIndex];
-            // trackColorIndex++;
-            obj.set_geometry(ORCore::create_rect_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+            glm::vec4 color = m_colorArray[trackColorIndex];
+            m_colorArray[trackColorIndex] += m_colorMutator[trackColorIndex];
+            trackColorIndex++;
+            obj.set_geometry(ORCore::create_rect_mesh(color));
             auto noteInfo = track.get_notes();//get_notes_in_frame(time, time+length);
 
             for(int i = noteInfo.start; i < noteInfo.end; i++)
