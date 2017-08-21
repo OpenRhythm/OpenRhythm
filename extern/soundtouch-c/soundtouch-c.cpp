@@ -101,12 +101,12 @@ SOUNDTOUCH_C_API void CDECL soundtouch_clear(ST_INSTANCE st)
 	((SoundTouch*)st)->clear(st);
 }
 
-SOUNDTOUCH_C_API bool CDECL soundtouch_setSetting(ST_INSTANCE st, SoundTouch_Setting setting, int value)
+SOUNDTOUCH_C_API bool CDECL soundtouch_setSetting(ST_INSTANCE st, SoundTouchC_Setting setting, int value)
 {
 	return ((SoundTouch*)st)->setSetting(st, setting, value);
 }
 
-SOUNDTOUCH_C_API int CDECL soundtouch_getSetting(ST_INSTANCE st, SoundTouch_Setting setting)
+SOUNDTOUCH_C_API int CDECL soundtouch_getSetting(ST_INSTANCE st, SoundTouchC_Setting setting)
 {
 	return ((SoundTouch*)st)->getSetting(st, setting);
 }
