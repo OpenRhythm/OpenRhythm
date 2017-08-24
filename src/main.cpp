@@ -31,6 +31,45 @@ int main(int argc, char** argv)
 //    - MIT License, mo file parser. Only supports UTF-8 (Totally fine with me)
 // https://github.com/vslavik/poedit
 //    - Useful translation editor.
+
+// Other random useful libraries i want to keep track of:
+// https://bitbucket.org/knight666/utf8rewind
+//    - Useful UTF-8 functions. C Library.
+// https://sourceforge.net/projects/utfcpp/
+//    - C++ UTF-8 library.
+// https://bitbucket.org/SpartanJ/efsw
+//    - Filesystem change notification.
+// http://msgpack.org/
+//    - Basically a binary json based serialization format.
+// https://github.com/google/flatbuffers
+//    - Binary data serialization, could be used for networking or any other data serialization. Has own language for definitions.
+// https://capnproto.org/
+//    - Very similar to flatbuffers, 3x faster. Also has an RPC layer with so-so performance. Has own language for defitions.
+// http://uscilab.github.io/cereal/
+//    - Another data serialization library very slightly faster than flatbuffers.
+// https://grpc.io/
+//    - RPC Library can use protobuf, or flatbuffers. Relatively slow compared to other options.
+// http://think-async.com/Asio
+//    - asynchronous Network and i/o library.
+// http://libevent.org/
+//    - Async networking library.
+// https://github.com/rpclib/rpclib
+//    - msgpack/asio based RPC system. Could be even faster if it used capnproto?
+// https://github.com/emilk/Configuru
+//    - JSON / Config system
+// https://github.com/google/snappy
+//    - Fast compression/decompression.
+// https://github.com/google/angle
+//    - OpenGL ES Implementation ontop of other graphics api's.
+// https://github.com/google/boringssl
+//    - Faster better ssl implementation
+// https://github.com/taka-no-me/android-cmake
+//    - Cmake tools for android.
+// https://github.com/libuv/libuv
+//    - Async networking/IO library.
+
+
+
 #if defined(TRANSLATION_ENABLED)
     // Setting the i18n environment
     setlocale (LC_ALL, "");

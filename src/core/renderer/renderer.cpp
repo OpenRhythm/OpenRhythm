@@ -323,6 +323,12 @@ namespace ORCore
         return m_programs[id].get();
     }
 
+    void Renderer::set_camera_transform(std::string name, const glm::mat4& transform)
+    {
+        glm::mat4 transformCopy = transform;
+        set_camera_transform(name, std::move(transformCopy));
+    }
+
     void Renderer::set_camera_transform(std::string name, glm::mat4&& transform)
     {
         try

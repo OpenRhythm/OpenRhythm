@@ -21,7 +21,7 @@ typedef float sampletype_t;
 #define SOUNDTOUCH_C_API __declspec(dllimport)
 #endif
 #else
-#define SOUNDTOUCH_C_API
+#define SOUNDTOUCH_C_API __attribute__((visibility("default")))
 #endif // _WIN32
 
 
@@ -80,7 +80,7 @@ SOUNDTOUCH_C_API int CDECL soundtouch_isEmpty(ST_INSTANCE st);
 
 }
 
-#else
+#endif
 
 
 #endif /* #ifndef SOUNDTOUCH_C_H */

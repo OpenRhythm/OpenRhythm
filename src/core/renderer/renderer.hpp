@@ -57,6 +57,7 @@ namespace ORCore
         TextureID add_texture(Image&& img);
         ProgramID add_program(Shader&& vertex, Shader&& fragment);
         ShaderProgram* get_program(ProgramID id);
+        void set_camera_transform(std::string name, const glm::mat4& transform);
         void set_camera_transform(std::string name, glm::mat4&& transform);
         // add global attribute/uniforms for shaders ?
         void commit();

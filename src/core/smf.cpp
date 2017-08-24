@@ -105,6 +105,7 @@ namespace ORCore
                 break;
             default:
                 m_logger->warn("Bad Midi control message {}", static_cast<uint8_t>(midiEvent.message));
+                break;
         }
 
         m_currentTrack->midiEvents.push_back(midiEvent);

@@ -8,6 +8,9 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
+#include <vector>
+#include <string.h>
+#include <cmath>
 #include "parseutils.hpp"
 
 namespace ORCore

@@ -94,7 +94,6 @@ ExternalProject_Get_Property(cubeb INSTALL_DIR)
 # Set package locations manually
 set(CUBEB_LIBRARY ${INSTALL_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}cubeb${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(CUBEB_INCLUDE_DIR "${INSTALL_DIR}/include/")
-set(CUBEB_FOUND TRUE)
 
 find_package(Gettext)
 find_package(GLM        REQUIRED)
