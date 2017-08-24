@@ -75,6 +75,7 @@ SOUNDTOUCH_C_API int CDECL soundtouch_getSetting(ST_INSTANCE st, SoundTouchC_Set
 SOUNDTOUCH_C_API unsigned int CDECL soundtouch_numUnprocessedSamples(ST_INSTANCE st);
 SOUNDTOUCH_C_API unsigned int CDECL soundtouch_numSamples(ST_INSTANCE st);
 SOUNDTOUCH_C_API int CDECL soundtouch_isEmpty(ST_INSTANCE st);
+SOUNDTOUCH_C_API unsigned int CDECL numChannels(ST_INSTANCE st);
 
 #ifdef __cplusplus
 

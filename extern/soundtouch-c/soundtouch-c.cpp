@@ -129,3 +129,8 @@ SOUNDTOUCH_C_API int CDECL soundtouch_isEmpty(ST_INSTANCE st)
 {
 	return ((SoundTouch*)st)->isEmpty();
 }
+
+SOUNDTOUCH_C_API unsigned int CDECL numChannels(ST_INSTANCE st)
+{
+	return ((SoundTouch*)st)->numChannels();
+}

@@ -1,0 +1,26 @@
+
+set(SOUNDTOUCH_SRC
+	${CMAKE_CURRENT_SOURCE_DIR}/src/AAFilter.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/BPMDetect.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/cpu_detect_x86.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/FIFOSampleBuffer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/FIRFilter.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/InterpolateCubic.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/InterpolateLinear.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/InterpolateShannon.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/mmx_optimized.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/PeakFinder.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/RateTransposer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/SoundTouch.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/sse_optimized.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/TDStretch.cpp
+PARENT_SCOPE)
+
+set(SOUNDTOUCH_INCLUDE
+	${CMAKE_CURRENT_SOURCE_DIR}/src
+PARENT_SCOPE)
+
+
+set(SOUNDTOUCH_INCLUDE_PUB
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+PARENT_SCOPE)
