@@ -4,11 +4,13 @@
 #include <thread>
 
 #include <spdlog/spdlog.h>
+#include <cmath>
 
 #include "core/audio/streams.hpp"
 #include "core/audio/mixer.hpp"
 #include "core/audio/vorbissource.hpp"
 #include "core/audio/cubeboutput.hpp"
+#include "core/audio/timestretch.hpp"
 
 class SineStream: public ORCore::ProducerStream 
 { 
@@ -72,10 +74,15 @@ int main() {
     SineStream sine(350);
     SineStream sine2(440);
     ORCore::CubebOutput out;
+    ORCore::TimeStretch timeStretch;
+    timeStretch.add_source(&oggSource);
+    timeStretch.set_speed(1.0); // 200% speed
 
     mix.add_source(&sine);
     mix.add_source(&sine2);
-    mix.add_source(&oggSource);
+    std::cout << "Test4:" << std::endl;
+    mix.add_source(&timeStretch);
+    std::cout << "Test5:" << std::endl;
 
     out.set_source(&mix);
     out.start();

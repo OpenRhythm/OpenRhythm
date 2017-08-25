@@ -95,6 +95,21 @@ ExternalProject_Get_Property(cubeb INSTALL_DIR)
 set(CUBEB_LIBRARY ${INSTALL_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}cubeb${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(CUBEB_INCLUDE_DIR "${INSTALL_DIR}/include/")
 
+ExternalProject_Add(soundtouchc
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/extern/soundtouch-c
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/soundtouch-c"
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_CONFIGURATION_TYPES=Release
+    )
+
+ExternalProject_Get_Property(soundtouchc INSTALL_DIR)
+
+# Set package locations manually
+set(SOUNDTOUCH_C_LIBRARY ${INSTALL_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}soundtouchc${CMAKE_SHARED_LIBRARY_SUFFIX})
+message(STATUS ${SOUNDTOUCH_C_LIBRARY})
+set(SOUNDTOUCH_C_INCLUDE_DIR "${INSTALL_DIR}/include")
+message(STATUS ${SOUNDTOUCH_C_INCLUDE_DIR})
+
 find_package(Gettext)
 find_package(GLM        REQUIRED)
 find_package(OggVorbis  REQUIRED)
@@ -110,11 +125,20 @@ set(LIBRARIES
     ${VORBIS_LIBRARY}
     ${VORBISFILE_LIBRARY}
     ${CUBEB_LIBRARY}
+    ${SOUNDTOUCH_C_LIBRARY}
     ${FMT_LIBRARY}
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(LIBRARIES ${LIBRARIES} winmm avrt)
+
+elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
+
+    find_package(ALSA REQUIRED)
+    set(LIBRARIES ${LIBRARIES}
+        ${ALSA_LIBRARIES}
+    )
+
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
     set(LIBRARIES ${LIBRARIES}
@@ -136,6 +160,7 @@ include_directories(SYSTEM
     ${SDL2_INCLUDE_DIR}
     ${VORBIS_INCLUDE_DIR}
     ${CUBEB_INCLUDE_DIR}
+    ${SOUNDTOUCH_C_INCLUDE_DIR}
     ${FMT_INCLUDE_DIR}
 )
 
@@ -169,6 +194,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/cubeboutput.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/streams.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/mixer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/timestretch.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/configuration/parameter.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/batch.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/renderer.hpp
@@ -189,6 +215,7 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/vorbissource.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/cubeboutput.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/mixer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/audio/timestretch.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/batch.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/renderer/shader.cpp
@@ -234,6 +261,8 @@ source_group("src\\game"  FILES ${GAME_SOURCE}  ${GAME_HEADERS})
 add_library(ORCore-obj OBJECT ${CORE_SOURCE})
 
 add_dependencies(ORCore-obj cubeb)
+add_dependencies(ORCore-obj soundtouchc)
+
 
 add_executable(openrhythm $<TARGET_OBJECTS:ORCore-obj>
                           ${GAME_SOURCE}
