@@ -213,7 +213,7 @@ namespace ORCore
         void read_meta_event(const SmfEventInfo &event);
         void read_sysex_event(const SmfEventInfo &event);
         double delta_tick_to_delta_time(TempoEvent* tempo, uint32_t deltaPulses);
-        void set_default_tempo_ts();
+        void init_tempo_ts();
         TempoEvent* get_last_tempo_via_pulses(uint32_t pulseTime);
         void read_events(uint32_t chunkEnd);
         void read_file();
