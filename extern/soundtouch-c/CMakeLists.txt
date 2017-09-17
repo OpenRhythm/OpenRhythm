@@ -8,6 +8,8 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
 add_subdirectory(soundtouch)
 
+add_definitions(-DDLL_EXPORTS)
+
 add_library(SoundTouch OBJECT ${SOUNDTOUCH_SRC})
 target_include_directories(SoundTouch PUBLIC ${SOUNDTOUCH_INCLUDE} PRIVATE ${SOUNDTOUCH_INCLUDE_PUB})
 set_property(TARGET SoundTouch PROPERTY POSITION_INDEPENDENT_CODE ON)

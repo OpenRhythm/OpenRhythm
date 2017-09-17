@@ -105,8 +105,14 @@ ExternalProject_Add(soundtouchc
 ExternalProject_Get_Property(soundtouchc INSTALL_DIR)
 
 # Set package locations manually
-set(SOUNDTOUCH_C_LIBRARY ${INSTALL_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}soundtouchc${CMAKE_SHARED_LIBRARY_SUFFIX})
-message(STATUS ${SOUNDTOUCH_C_LIBRARY})
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(SOUNDTOUCH_C_LINK_LIBRARY ${INSTALL_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}soundtouchc${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(SOUNDTOUCH_C_RUNTIME_LIBRARY ${INSTALL_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}soundtouchc${CMAKE_SHARED_LIBRARY_SUFFIX})
+else()
+    set(SOUNDTOUCH_C_LINK_LIBRARY ${INSTALL_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}soundtouchc${CMAKE_SHARED_LIBRARY_SUFFIX})
+endif()
+
+message(STATUS ${SOUNDTOUCH_C_LINK_LIBRARY})
 set(SOUNDTOUCH_C_INCLUDE_DIR "${INSTALL_DIR}/include")
 message(STATUS ${SOUNDTOUCH_C_INCLUDE_DIR})
 
@@ -125,7 +131,7 @@ set(LIBRARIES
     ${VORBIS_LIBRARY}
     ${VORBISFILE_LIBRARY}
     ${CUBEB_LIBRARY}
-    ${SOUNDTOUCH_C_LIBRARY}
+    ${SOUNDTOUCH_C_LINK_LIBRARY}
     ${FMT_LIBRARY}
 )
 
@@ -286,8 +292,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_custom_command(TARGET openrhythm POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy
                     "${CMAKE_SOURCE_DIR}/extern/sdl2/lib/SDL2.dll" $<TARGET_FILE_DIR:openrhythm>/SDL2.dll)
+    add_custom_command(TARGET openrhythm POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy
+                    ${SOUNDTOUCH_C_RUNTIME_LIBRARY} $<TARGET_FILE_DIR:openrhythm>/soundtouchc.dll)
 endif()
-
 
 if(OSX_APP_BUNDLE)
     set_target_properties(openrhythm PROPERTIES MACOSX_BUNDLE TRUE)
