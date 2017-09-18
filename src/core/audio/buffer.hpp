@@ -13,10 +13,6 @@ namespace ORCore
         int frames;
     };
 
-    // TODO - Actually move away from unique_ptr here to raw new/delete if needed because we need
-    // to be able to pass in direct device pointers and such which would be bad if we tried to
-    // free them. new/delete will only be called when the constructor with only size is passed in.
-    // TODO - put channel # and number of frames in here.
     class Buffer
     {
     public:
