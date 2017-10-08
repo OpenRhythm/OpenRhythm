@@ -22,12 +22,12 @@ namespace ORCore
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        m_vertLoc = m_program->vertex_attribute("position");
-        m_uvLoc = m_program->vertex_attribute("vertexUV");
-        m_colorLoc = m_program->vertex_attribute("color");
-        m_matIndexLoc = m_program->vertex_attribute("matrixIndex");
-        m_texSampID = m_program->uniform_attribute("textureSampler");
-        m_matBufTexID = m_program->uniform_attribute("matrixBuffer");
+        m_vertLoc = glGetAttribLocation(*m_program, "position");
+        m_uvLoc = glGetAttribLocation(*m_program, "vertexUV");
+        m_colorLoc = glGetAttribLocation(*m_program, "color");
+        m_matIndexLoc = glGetAttribLocation(*m_program, "matrixIndex");
+        m_texSampID = glGetUniformLocation(*m_program, "textureSampler");
+        m_matBufTexID = glGetUniformLocation(*m_program, "matrixBuffer");
 
 
         glGenVertexArrays(1, &m_vao);

@@ -5,6 +5,7 @@
 #include <string>
 #include <array>
 #include <glm/glm.hpp>
+#include <glad/glad.h>
 
 namespace ORCore
 {
@@ -18,7 +19,7 @@ namespace ORCore
     struct Shader
     {
         // TODO - Implement move and disable copy for shader...
-        unsigned int shader;
+        GLuint shader;
         ShaderInfo info;
         Shader(ShaderInfo);
         void init_gl();
@@ -32,41 +33,16 @@ namespace ORCore
         // TODO - Implement move and disable copy for Program...
         ShaderProgram(Shader& vertex, Shader& fragment);
         ~ShaderProgram();
-
-        int get_id();
         
         void check_error();
 
         void use();
         void disuse();
-
-        int vertex_attribute(std::string name);
-        int uniform_attribute(std::string name);
-
-        void set_uniform(int uniform, int value);
-        void set_uniform(int uniform, float value);
-
-        void set_uniform(int uniform, const glm::vec2& value);
-        void set_uniform(int uniform, const glm::vec3& value);
-        void set_uniform(int uniform, const glm::vec4& value);
-
-        void set_uniform(int uniform, const glm::mat2& value);
-        void set_uniform(int uniform, const glm::mat3& value);
-        void set_uniform(int uniform, const glm::mat4& value);
-
-        void set_uniform(int uniform, const std::array<float, 2>& value);
-        void set_uniform(int uniform, const std::array<float, 3>& value);
-        void set_uniform(int uniform, const std::array<float, 4>& value);
-
-        void set_uniform(int uniform, const std::array<int, 2>& value);
-        void set_uniform(int uniform, const std::array<int, 3>& value);
-        void set_uniform(int uniform, const std::array<int, 4>& value);
-
+        operator GLuint();
     private:
         Shader m_vertex;
         Shader m_fragment;
-        unsigned int m_program;
-        int m_programID;
+        GLuint m_program;
 
     };
 } // namespace ORCore

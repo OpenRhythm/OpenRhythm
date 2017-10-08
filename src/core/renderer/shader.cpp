@@ -6,14 +6,12 @@
 #include <stdexcept>
 
 #include <spdlog/spdlog.h>
-#include <glad/glad.h>
 #include "filesystem.hpp"
 #include "shader.hpp"
 
 namespace ORCore
 {
     static std::shared_ptr<spdlog::logger> logger;
-    static int _programCount = 0;
 
     Shader::Shader(ShaderInfo _info): info(_info)
     {
@@ -65,8 +63,6 @@ namespace ORCore
     : m_vertex(vertex), m_fragment(fragment)
     {
         logger = spdlog::get("default");
-        _programCount++;
-        m_programID = _programCount;
         m_program = glCreateProgram();
 
         glAttachShader(m_program, m_vertex.shader);
@@ -78,11 +74,6 @@ namespace ORCore
     ShaderProgram::~ShaderProgram()
     {
         glDeleteProgram(m_program);
-    }
-
-
-    int ShaderProgram::get_id() {
-        return m_programID;
     }
 
     void ShaderProgram::check_error()
@@ -124,91 +115,10 @@ namespace ORCore
     }
 
 
-    int ShaderProgram::vertex_attribute(std::string name)
+    ShaderProgram::operator GLuint()
     {
-        return glGetAttribLocation(m_program, name.c_str());
+        return m_program;
     }
-
-    int ShaderProgram::uniform_attribute(std::string name)
-    {
-        return glGetUniformLocation(m_program, name.c_str());
-    }
-
-
-    void ShaderProgram::set_uniform(int uniform, int value)
-    {
-        glUniform1i(uniform, value);
-    }
-
-    void ShaderProgram::set_uniform(int uniform, float value)
-    {
-        glUniform1f(uniform, value);
-    }
-
-
-    void ShaderProgram::set_uniform(int uniform, const glm::vec2& value)
-    {
-        glUniform2fv(uniform, 1, &value[0]);
-    }
-
-    void ShaderProgram::set_uniform(int uniform, const glm::vec3& value)
-    {
-        glUniform3fv(uniform, 1, &value[0]);
-    }
-
-    void ShaderProgram::set_uniform(int uniform, const glm::vec4& value)
-    {
-        glUniform4fv(uniform, 1, &value[0]);
-    }
-
-
-    void ShaderProgram::set_uniform(int uniform, const glm::mat2& value)
-    {
-        glUniformMatrix2fv(uniform, 1, GL_FALSE, &value[0][0]);
-    }
-
-    void ShaderProgram::set_uniform(int uniform, const glm::mat3& value)
-    {
-        glUniformMatrix3fv(uniform, 1, GL_FALSE, &value[0][0]);
-    }
-
-    void ShaderProgram::set_uniform(int uniform, const glm::mat4& value)
-    {
-        glUniformMatrix4fv(uniform, 1, GL_FALSE, &value[0][0]);
-    }
-
-
-    void ShaderProgram::set_uniform(int uniform, const std::array<float, 2>& value)
-    {
-        glUniform2fv(uniform, 1, &value[0]);
-    }
-
-    void ShaderProgram::set_uniform(int uniform, const std::array<float, 3>& value)
-    {
-        glUniform3fv(uniform, 1, &value[0]);
-    }
-
-    void ShaderProgram::set_uniform(int uniform, const std::array<float, 4>& value)
-    {
-        glUniform4fv(uniform, 1, &value[0]);
-    }
-
-
-    void ShaderProgram::set_uniform(int uniform, const std::array<int, 2>& value)
-    {
-        glUniform2iv(uniform, 1, &value[0]);
-    }
-
-    void ShaderProgram::set_uniform(int uniform, const std::array<int, 3>& value)
-    {
-        glUniform3iv(uniform, 1, &value[0]);
-    }
-
-    void ShaderProgram::set_uniform(int uniform, const std::array<int, 4>& value)
-    {
-        glUniform4iv(uniform, 1, &value[0]);
-    }
-
 
 
 } // namespace ORCore

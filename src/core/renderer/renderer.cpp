@@ -373,7 +373,7 @@ namespace ORCore
             program->use();
             for (auto &cam : m_cameraUniforms)
             {
-                program->set_uniform(program->uniform_attribute(cam.first), cam.second);
+                glUniformMatrix4fv(glGetUniformLocation(*program, cam.first.c_str()), 1, GL_FALSE, &cam.second[0][0]);
             }
             batch->render();
         }

@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include "game.hpp"
 
+#include <glad/glad.h>
 #include <iostream>
 #include <stdexcept>
 
@@ -411,10 +412,11 @@ namespace ORGame
         auto neckProgram = m_renderer.get_program(m_neckProgram);
 
         neckProgram->use();
-
-        int necID = neckProgram->uniform_attribute("neckPos");
         
-        neckProgram->set_uniform(necID, boardPos/neck_board_length);
+        // TODO - FIX ME No gl calls outside of renderer.
+        glUniform1f(
+            glGetUniformLocation(*neckProgram, "neckPos"),
+            boardPos/neck_board_length);
 
         neckProgram->disuse();
 
