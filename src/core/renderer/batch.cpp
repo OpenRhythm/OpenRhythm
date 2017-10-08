@@ -97,18 +97,21 @@ namespace ORCore
 
     void Batch::update_mesh(Mesh& mesh, const glm::mat4& transform)
     {
-        // TODO - Make this smarter about what it updates if performance becomes an issue. Maybe provide a seperate update_mesh_immediate?
-        // Could glBufferSubdata just the parts needed?
-        // Only downside to using glBufferSubdata, it makes it harder to batch together multiple updates of the same buffer.
-        // As it is currently we can update 1 object or every object witout much extra api overhead. Updating 1 object
-        // is likely slower with the current method than if we switched to glBufferSubdata.
-        m_committed = false;
         m_matrices[mesh.transformOffset] = transform;
         for (auto &vertex : mesh.vertices)
         {
             vertex.matIndex = mesh.transformOffset;
         }
         std::copy(std::begin(mesh.vertices), std::end(mesh.vertices), std::begin(m_vertices)+mesh.verticesOffset);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferSubData(GL_ARRAY_BUFFER,  mesh.verticesOffset*sizeof(Vertex), mesh.vertices.size()*sizeof(Vertex), &mesh.vertices[0]);
+
+        glBindBuffer(GL_TEXTURE_BUFFER, m_matBufferObject);
+        glBufferSubData(GL_TEXTURE_BUFFER, mesh.transformOffset*sizeof(glm::mat4), sizeof(glm::mat4), &transform[0]);
+
+        glBindBuffer(GL_TEXTURE_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     void Batch::set_state(RenderState state)
@@ -132,7 +135,6 @@ namespace ORCore
 
         glBindBuffer(GL_TEXTURE_BUFFER, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     }
 
     void Batch::render()
