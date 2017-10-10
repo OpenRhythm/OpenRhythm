@@ -148,6 +148,10 @@ namespace ORGame
 
         m_renderer.commit();
 
+        auto neckProgram = m_renderer.get_program(m_neckProgram);
+
+        m_boardPosID = glGetUniformLocation(*neckProgram, "neckPos");
+
         GLint  iMultiSample = 0;
         GLint  iNumSamples = 0;
         glGetIntegerv(GL_SAMPLE_BUFFERS, &iMultiSample);
@@ -409,16 +413,12 @@ namespace ORGame
         m_renderer.commit();
 
         // TODO - Allow renderer to be able to specify uniforms and set them per batch/shader
-        auto neckProgram = m_renderer.get_program(m_neckProgram);
 
+        auto neckProgram = m_renderer.get_program(m_neckProgram);
         neckProgram->use();
         
         // TODO - FIX ME No gl calls outside of renderer.
-        glUniform1f(
-            glGetUniformLocation(*neckProgram, "neckPos"),
-            boardPos/neck_board_length);
-
-        neckProgram->disuse();
+        glUniform1f(m_boardPosID, boardPos/neck_board_length);
 
         // m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, 1.0f, (-m_songTime)/3.0f))); // translate projection with song
         m_renderer.set_camera_transform("ortho", glm::translate(m_rotPerspective, glm::vec3(-0.5f, -1.0f, boardPos-0.5))); // translate projection with song

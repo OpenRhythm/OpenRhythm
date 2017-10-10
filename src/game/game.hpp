@@ -98,5 +98,6 @@ namespace ORGame
         glm::mat4 m_ortho;
         glm::mat4 m_perspective;
         glm::mat4 m_rotPerspective;
+        unsigned int m_boardPosID;
     };
 }
