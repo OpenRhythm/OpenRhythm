@@ -37,7 +37,13 @@ namespace ORCore
         {
             throw std::runtime_error("Error seeking file to position 0.");
         }
+        m_timeLength = ov_time_total(&m_vorbisFile, -1);
 
+    }
+
+    double VorbisSource::get_length()
+    {
+        return m_timeLength;
     }
 
 
