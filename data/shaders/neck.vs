@@ -9,7 +9,7 @@ in int matrixIndex;
 out vec2 UV;
 out vec4 fragColor;
 
-uniform mat4 ortho;
+uniform mat4 proj;
 uniform float neckPos;
 
 uniform samplerBuffer matrixBuffer;
@@ -24,7 +24,7 @@ mat4 read_matrix(int offset)
 
 void main(void)
 {
-    gl_Position = ortho * read_matrix(matrixIndex * 4) * vec4(position, 1.0);
-    UV = vertexUV + vec2(1.0f, neckPos); // transform neck texture coord.
+    gl_Position = proj * read_matrix(matrixIndex * 4) * vec4(position, 1.0);
+    UV = vertexUV + vec2(0.0f, neckPos); // transform neck texture coord.
     fragColor = color;
 }

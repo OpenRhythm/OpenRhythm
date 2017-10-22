@@ -63,7 +63,7 @@ namespace MidiPlayer
         std::shared_ptr<spdlog::logger> m_logger;
 
         std::streamsize m_ss;
-        glm::mat4 m_ortho;
+        ORCore::CameraID m_orthoCamera;
 
         std::vector<glm::vec4> m_colorArray = {glm::vec4{1.0, 0.0, 0.0, 1.0},
                                 glm::vec4{0.0, 0.0, 1.0, 1.0},

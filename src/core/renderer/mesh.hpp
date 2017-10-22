@@ -11,6 +11,7 @@ namespace ORCore
     using ProgramID = int;
     using ObjectID = int;
     using BatchID = int;
+    using CameraID = int;
 
     struct Vertex
     {
@@ -40,6 +41,7 @@ namespace ORCore
     {
         ProgramID program;
         TextureID texture;
+        CameraID camera;
     };
 
     struct Mesh

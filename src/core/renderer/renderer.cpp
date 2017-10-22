@@ -1,14 +1,19 @@
 // Copyright (c) 2015-2017 Matthew Sitton <matthewsitton@gmail.com>
 // See LICENSE in the project root for license information.
 
+#define GLM_ENABLE_EXPERIMENTAL
+#define GLM_GTX_transform
 #include "config.hpp"
 #include "renderer.hpp"
 #include <iostream>
 
+#include <glm/gtx/transform.hpp>
+
 namespace ORCore
 {
+    const double pi = 3.14159265359;
 
-    // TODO - Remove these out of the renderer...
+    // TODO - Remove these out of the renderer... PLZZZZ gah i hate these here lol
     std::vector<Vertex> create_rect_mesh(const glm::vec4& color)
     {
         return {
@@ -104,9 +109,7 @@ namespace ORCore
         };
     }
 
-
     // TODO - A lot can still be done here in general.
-
 
     RenderObject::RenderObject()
     :state{-1, -1}, id(-1), batchID(-1)
@@ -163,11 +166,46 @@ namespace ORCore
         state.program = program;
     }
 
-    void RenderObject::update()
+    void RenderObject::set_camera(CameraID camera)
     {
-        modelMatrix = glm::scale(glm::translate(glm::mat4(1.0f), mesh.translate), mesh.scale);
+        state.camera = camera;
     }
 
+    void RenderObject::update()
+    {
+        modelMatrix = glm::scale(glm::translate(mesh.translate), mesh.scale);
+    }
+
+    CameraObject::CameraObject()
+    :id(-1)
+    {
+    }
+
+    void CameraObject::set_projection(glm::mat4&& proj)
+    {
+        projection = proj;
+    }
+
+    void CameraObject::set_rotation(float rot, glm::vec3&& axis)
+    {
+        axes = axis;
+        rotation = glm::radians(rot);
+    }
+
+    void CameraObject::set_translation(glm::vec3&& translate)
+    {
+        translation = translate;
+    }
+
+    void CameraObject::set_uniform_name(std::string&& name)
+    {
+        uniformName = name;
+    }
+
+    void CameraObject::update()
+    {
+        cameraMatrix = projection * glm::rotate(rotation, axes) * glm::scale(glm::vec3(1.0f, 1.0f, -1.0f)) * glm::translate(-translation);
+    }
 
     Renderer::Renderer()
     : m_logger(spdlog::get("default"))
@@ -201,7 +239,9 @@ namespace ORCore
         {
 
             auto& bState = batch->get_state();
-            if (!batch->is_committed() && bState.texture == state.texture && bState.program == state.program)
+            // TODO - Clean this up with a custom data structure that allows faster iteration over render states vs something like a map.
+            // The current struct implementation is just a bit to manuall to add new render states for my tastes.
+            if (!batch->is_committed() && bState.texture == state.texture && bState.program == state.program && state.camera == bState.camera)
             {
                 return batch->get_id();
             }
@@ -300,6 +340,24 @@ namespace ORCore
         m_batches[obj.batchID]->update_mesh(obj.mesh, obj.modelMatrix);
     }
 
+    CameraID Renderer::add_camera(CameraObject& camera)
+    {
+        CameraID camID = m_cameras.size();
+        m_cameras.push_back(camera);
+        m_cameras.back().id = camID;
+        return camID;
+    }
+
+    CameraObject* Renderer::get_camera(CameraID camID)
+    {
+        return &m_cameras[camID];
+    }
+
+    void Renderer::update_camera(CameraID camID)
+    {
+        m_cameras[camID].update();
+    }
+
     int Renderer::add_texture(Image&& img)
     {
         int id = m_textures.size();
@@ -321,24 +379,6 @@ namespace ORCore
     ShaderProgram* Renderer::get_program(int id)
     {
         return m_programs[id].get();
-    }
-
-    void Renderer::set_camera_transform(std::string name, const glm::mat4& transform)
-    {
-        glm::mat4 transformCopy = transform;
-        set_camera_transform(name, std::move(transformCopy));
-    }
-
-    void Renderer::set_camera_transform(std::string name, glm::mat4&& transform)
-    {
-        try
-        {
-            m_cameraUniforms.at(name) = transform;
-        }
-        catch (std::out_of_range &err)
-        {
-            m_cameraUniforms.insert({name, transform});
-        }
     }
 
     // commit all remaining batches.
@@ -371,10 +411,11 @@ namespace ORCore
         {
             ShaderProgram* program = batch->get_program();
             program->use();
-            for (auto &cam : m_cameraUniforms)
-            {
-                glUniformMatrix4fv(glGetUniformLocation(*program, cam.first.c_str()), 1, GL_FALSE, &cam.second[0][0]);
-            }
+
+            int camID = batch->get_state().camera;
+            auto& camera = m_cameras[camID];
+            glUniformMatrix4fv(glGetUniformLocation(*program, camera.uniformName.c_str()), 1, GL_FALSE, &camera.cameraMatrix[0][0]);
+
             batch->render();
         }
     }

@@ -182,7 +182,7 @@ public:
     m_height(1080),
     m_fullscreen(false),
     m_title("OpenRhythm"),
-    m_context(3, 2, 8),
+    m_context(3, 3, 8),
     m_window(m_width, m_height, m_fullscreen, m_title),
     m_eventManager(),
     m_eventPump(&m_eventManager)
@@ -216,6 +216,14 @@ public:
         m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
 
         m_texture = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
+
+        // Create cameras and register them with the renderer
+        ORCore::CameraObject camera;
+        camera.set_translation(glm::vec3(0.5f, 1.0f, -0.5));
+        camera.set_rotation(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        camera.set_uniform_name("proj");
+        m_orthoCamera = m_renderer.add_camera(camera);
+        
         resize(m_width, m_height);
 
         ORCore::RenderObject obj;
@@ -275,8 +283,10 @@ public:
         m_width = width;
         m_height = height;
         glViewport(0, 0, m_width, m_height);
-        m_ortho = glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 2.0f);
-        m_renderer.set_camera_transform("ortho", m_ortho);
+        auto orthoCamera = m_renderer.get_camera(m_orthoCamera);
+        orthoCamera->set_projection(glm::ortho(0.0f, static_cast<float>(m_width), static_cast<float>(m_height), 0.0f, -1.0f, 2.0f));
+        orthoCamera->set_translation(glm::vec3(0.0f, 0.0, 0.0f));
+        m_renderer.update_camera(m_orthoCamera);
     }
 
     bool event_handler(const ORCore::Event &event)
@@ -360,7 +370,7 @@ private:
     ORCore::ProgramID m_program;
 
     std::streamsize m_ss;
-    glm::mat4 m_ortho;
+    ORCore::CameraID m_orthoCamera;
 };
 
 

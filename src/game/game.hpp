@@ -90,14 +90,14 @@ namespace ORGame
         ORCore::ObjectID m_fretObj;
         ORCore::ObjectID m_neckObj;
 
+        ORCore::CameraID m_cameraStatic;
+        ORCore::CameraID m_cameraDynamic;
+
         std::shared_ptr<spdlog::logger> m_logger;
 
         std::vector<TrackNote*> m_heldNotes;
 
         std::streamsize m_ss;
-        glm::mat4 m_ortho;
-        glm::mat4 m_perspective;
-        glm::mat4 m_rotPerspective;
         unsigned int m_boardPosID;
     };
 }

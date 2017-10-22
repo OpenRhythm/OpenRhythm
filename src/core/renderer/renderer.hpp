@@ -33,10 +33,32 @@ namespace ORCore
         void set_translation(glm::vec3&& translation);
         void set_primitive_type(Primitive primitive);
         void set_geometry(std::vector<Vertex>&& geometry);
-        void set_texture(int _texture);
-        void set_program(int _program);
+        void set_texture(TextureID texture);
+        void set_program(ProgramID program);
+        void set_camera(CameraID camera);
         void update();
 	};
+
+    struct CameraObject
+    {
+        glm::mat4 projection;
+        glm::vec3 translation;
+
+        float rotation; // degrees
+        glm::vec3 axes;
+
+        glm::mat4 cameraMatrix;
+        CameraID id;
+
+        std::string uniformName;
+
+        CameraObject();
+        void set_projection(glm::mat4&& proj);
+        void set_rotation(float rot, glm::vec3&& axis);
+        void set_translation(glm::vec3&& translate);
+        void set_uniform_name(std::string&& name);
+        void update();
+    };
 
 	// Builds and renders batches from objects.
     class Renderer
@@ -51,14 +73,21 @@ namespace ORCore
         void init_gl();
         BatchID create_batch(RenderState state, int batchSize);
         bool check_error();
+
+        // Renderable object API
         ObjectID add_object(const RenderObject& objIn);
         RenderObject* get_object(ObjectID objID);
         void update_object(ObjectID objID);
+
+        // Camera API
+        CameraID add_camera(CameraObject& camera);
+        CameraObject* get_camera(CameraID camID);
+        void update_camera(CameraID camID);
+
         TextureID add_texture(Image&& img);
         ProgramID add_program(Shader&& vertex, Shader&& fragment);
         ShaderProgram* get_program(ProgramID id);
-        void set_camera_transform(std::string name, const glm::mat4& transform);
-        void set_camera_transform(std::string name, glm::mat4&& transform);
+        
         // add global attribute/uniforms for shaders ?
         void commit();
         void render();
@@ -68,9 +97,9 @@ namespace ORCore
         BatchID find_batch(RenderState state);
         std::vector<RenderObject> m_objects;
         std::vector<std::unique_ptr<Batch>> m_batches;
-        std::unordered_map<std::string, glm::mat4> m_cameraUniforms;
         std::vector<std::unique_ptr<Texture>> m_textures;
         std::vector<std::unique_ptr<ShaderProgram>> m_programs;
+        std::vector<CameraObject> m_cameras;
         std::shared_ptr<spdlog::logger> m_logger;
         int m_defaultTextureID;
     };

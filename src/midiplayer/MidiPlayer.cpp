@@ -15,7 +15,7 @@ namespace MidiPlayer
     m_height(600),
     m_fullscreen(false),
     m_title("MidiPlayer"),
-    m_context(3, 2, 0),
+    m_context(3, 3, 0),
     m_window(m_width, m_height, m_fullscreen, m_title),
     m_eventManager(),
     m_eventPump(&m_eventManager),
@@ -54,6 +54,13 @@ namespace MidiPlayer
 
         m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
 
+        // Create cameras and register them with the renderer
+        ORCore::CameraObject camera;
+        camera.set_translation(glm::vec3(0.5f, 1.0f, -0.5));
+        camera.set_rotation(0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        camera.set_uniform_name("proj");
+        m_orthoCamera = m_renderer.add_camera(camera);
+
         resize(m_width, m_height);
 
         m_logger->info(_("Preping notes for render"));
@@ -81,6 +88,7 @@ namespace MidiPlayer
     {
         int trackColorIndex = 0;
         ORCore::RenderObject obj;
+        obj.set_camera(m_orthoCamera);
         obj.set_program(m_program);
         obj.set_primitive_type(ORCore::Primitive::triangle);
         for (auto track: *m_song.get_tracks())
@@ -93,7 +101,6 @@ namespace MidiPlayer
 
             for(int i = noteInfo.start; i < noteInfo.end; i++)
             {
-
                 auto &note = (*noteInfo.notes)[i];
                 float z = note.time;
 
@@ -143,7 +150,10 @@ namespace MidiPlayer
         m_width = width;
         m_height = height;
         glViewport(0, 0, m_width, m_height);
-        m_ortho = glm::ortho(0.0f, static_cast<float>(1.0), static_cast<float>(1.0), 0.0f, -1.0f, 1.0f);
+
+        auto orthoCamera = m_renderer.get_camera(m_orthoCamera);
+        orthoCamera->set_projection(glm::ortho(0.0f, static_cast<float>(1.0), static_cast<float>(1.0), 0.0f, -1.0f, 1.0f));
+        m_renderer.update_camera(m_orthoCamera);
     }
 
     bool MidiDisplayManager::event_handler(const ORCore::Event &event)
@@ -172,7 +182,9 @@ namespace MidiPlayer
     {
         m_songTime = m_clock.get_current_time();
 
-        m_renderer.set_camera_transform("ortho", glm::translate(m_ortho, glm::vec3(0.0f, m_songTime*m_boardSpeed, 0.0f))); // translate projection with song
+        auto orthoCamera = m_renderer.get_camera(m_orthoCamera);
+        orthoCamera->set_translation(glm::vec3(0.0f, m_songTime*m_boardSpeed, 0.0f));
+        m_renderer.update_camera(m_orthoCamera);
 
         // m_renderer->mesh_clear();
         // prep_render_notes(m_songTime-1000, 1000.0);
