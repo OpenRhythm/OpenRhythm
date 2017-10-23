@@ -9,8 +9,8 @@ namespace ORCore
 {
 
     Batch::Batch(ShaderProgram *program, Texture *texture, int batchSize, int id)
-    : m_program(program), m_texture(texture), m_batchSize(batchSize), m_id(id), m_committed(false),
-    m_matTexBuffer(GL_RGBA32F)
+    : m_program(program), m_texture(texture), m_batchSize(batchSize), m_id(id),
+    m_committed(false), m_owned(false), m_matTexBuffer(GL_RGBA32F)
     {
         m_vertices.reserve(batchSize);
         m_matrices.reserve(batchSize);

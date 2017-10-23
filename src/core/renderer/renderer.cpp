@@ -219,6 +219,21 @@ namespace ORCore
         m_defaultTextureID = add_texture(ORCore::loadSTB("data/blank.png"));
     }
 
+    Batch* Renderer::create_batch_owned(RenderState state, int batchSize)
+    {
+        BatchID id = m_batches.size();
+        m_batches.push_back(
+            std::make_unique<Batch>(
+                m_programs[state.program].get(),
+                m_textures[state.texture].get(),
+                batchSize, id));
+        auto &batch = m_batches.back();
+        batch->set_state(state);
+        batch->set_owned(true);
+
+        return batch.get();
+    }
+
     BatchID Renderer::create_batch(RenderState state, int batchSize)
     {
         BatchID id = m_batches.size();
@@ -240,8 +255,8 @@ namespace ORCore
 
             auto& bState = batch->get_state();
             // TODO - Clean this up with a custom data structure that allows faster iteration over render states vs something like a map.
-            // The current struct implementation is just a bit to manuall to add new render states for my tastes.
-            if (!batch->is_committed() && bState.texture == state.texture && bState.program == state.program && state.camera == bState.camera)
+            // The current struct implementation is just a bit to manual to add new render states for my tastes.
+            if (!batch->is_committed() && !batch->is_owned() && bState.texture == state.texture && bState.program == state.program && state.camera == bState.camera)
             {
                 return batch->get_id();
             }

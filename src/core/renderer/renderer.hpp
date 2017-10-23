@@ -72,6 +72,7 @@ namespace ORCore
 
         void init_gl();
         BatchID create_batch(RenderState state, int batchSize);
+        Batch* create_batch_owned(RenderState state, int batchSize);
         bool check_error();
 
         // Renderable object API

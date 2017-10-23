@@ -26,7 +26,7 @@ namespace ORCore
         void commit();
         void render();
         ~Batch();
-        
+
         const RenderState& get_state()
         {
             return m_state;
@@ -35,6 +35,17 @@ namespace ORCore
         bool is_committed()
         {
             return m_committed;
+        }
+
+
+        bool is_owned()
+        {
+            return m_owned;
+        }
+
+        void set_owned(bool owned)
+        {
+            m_owned = owned;
         }
 
         BatchID get_id()
@@ -53,6 +64,7 @@ namespace ORCore
         int m_batchSize;
         BatchID m_id;
         bool m_committed;
+        bool m_owned;
         BufferTexture m_matTexBuffer;
         GLuint m_vertLoc;
         GLuint m_uvLoc;
