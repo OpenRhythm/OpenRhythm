@@ -14,6 +14,9 @@ namespace ORGame
     const float neck_speed_divisor = 0.5;
     const float neck_board_length = 2.0f;
 
+    const float hit_window_front = 0.085;
+    const float hit_window_back = 0.085;
+
     GameManager::GameManager()
     :m_width(1920),
     m_height(1080),
@@ -166,6 +169,36 @@ namespace ORGame
         prep_render_bars();
 
         prep_render_notes();
+
+        ORCore::RenderObject objLines;
+        objLines.set_camera(m_cameraStatic);
+        objLines.set_program(m_program);
+        objLines.set_primitive_type(ORCore::Primitive::line);
+        objLines.set_scale(glm::vec3{1.0f, 1.0f, 1.0f});
+        objLines.set_translation(glm::vec3{0.0f, 0.0f, 0.0f});
+
+        float hitwPosF = hit_window_front-m_videoOffset / neck_speed_divisor;
+        float hitwPosB = (-hit_window_back)-m_videoOffset / neck_speed_divisor;
+
+        glm::vec4 line_color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
+
+        objLines.set_geometry({
+            // Vertex2           UV            Color
+            {{0.0f, 0.0f, hitwPosF}, {0.0f, 0.0f}, line_color},
+            {{1.0f, 0.0f, hitwPosF}, {0.0f, 1.0f}, line_color},
+
+            {{0.0f, 0.0f, -(m_videoOffset/ neck_speed_divisor)}, {0.0f, 1.0f}, line_color},
+            {{1.0f, 0.0f, -(m_videoOffset/ neck_speed_divisor)}, {1.0f, 0.0f}, line_color},
+
+            {{0.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, line_color},
+            {{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, line_color},
+
+            {{0.0f, 0.0f, hitwPosB}, {0.0f, 1.0f}, line_color},
+            {{1.0f, 0.0f, hitwPosB}, {1.0f, 0.0f}, line_color}
+        });
+
+        m_renderer.add_object(objLines);
+
 
         m_renderer.commit();
 
@@ -368,7 +401,7 @@ namespace ORGame
         m_songTime = m_song.get_song_time(); 
 
         // Notes will effectively be hit m_videoOffset into the future so we need to go m_videoOffset into the past in order to get the proper notes.
-        auto &notesInWindow = m_playerTrack->get_notes_in_frame((m_songTime-m_videoOffset)-0.100, (m_songTime-m_videoOffset)+0.100);
+        auto &notesInWindow = m_playerTrack->get_notes_in_frame((m_songTime-m_videoOffset)-hit_window_front, (m_songTime-m_videoOffset)+hit_window_back);
         
         glm::vec4 color;
 

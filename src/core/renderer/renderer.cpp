@@ -112,7 +112,7 @@ namespace ORCore
     // TODO - A lot can still be done here in general.
 
     RenderObject::RenderObject()
-    :state{-1, -1}, id(-1), batchID(-1)
+    :state{-1, -1, -1}, id(-1), batchID(-1)
     {
     }
 
@@ -142,6 +142,7 @@ namespace ORCore
         {
             mesh.vertexSize = 1;
         }
+        state.primitive = primitive;
     }
 
     void RenderObject::set_geometry(std::vector<Vertex>&& geometry)
@@ -256,7 +257,7 @@ namespace ORCore
             auto& bState = batch->get_state();
             // TODO - Clean this up with a custom data structure that allows faster iteration over render states vs something like a map.
             // The current struct implementation is just a bit to manual to add new render states for my tastes.
-            if (!batch->is_committed() && !batch->is_owned() && bState.texture == state.texture && bState.program == state.program && state.camera == bState.camera)
+            if (!batch->is_committed() && !batch->is_owned() && bState.texture == state.texture && bState.program == state.program && state.camera == bState.camera && state.primitive == bState.primitive)
             {
                 return batch->get_id();
             }

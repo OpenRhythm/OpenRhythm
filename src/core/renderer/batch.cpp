@@ -117,6 +117,23 @@ namespace ORCore
     void Batch::set_state(RenderState state)
     {
         m_state = state;
+        
+        if (m_state.primitive == Primitive::triangle)
+        {
+            m_primitive = GL_TRIANGLES;
+        }
+        else if (m_state.primitive == Primitive::line)
+        {
+            m_primitive = GL_LINES;
+        }
+        else if (m_state.primitive == Primitive::point)
+        {
+            m_primitive = GL_POINTS;
+        }
+        else
+        {
+            m_primitive = GL_TRIANGLES;
+        }
     }
 
     // update buffer objects
@@ -148,7 +165,7 @@ namespace ORCore
             m_texture->bind(m_texSampID);
             m_matTexBuffer.bind(m_matBufTexID);
 
-            glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+            glDrawArrays(m_primitive, 0, m_vertices.size());
         }
 
     }

@@ -30,18 +30,31 @@ namespace ORCore
         primitive
     };
 
-    enum class Primitive
+    enum Primitive
     {
-        point,
+        nil = -1,
+        point = 1,
         line,
         triangle
     };
+
+    // TODO - Turn this into an easily comparable data structure.
+    // It is a huge annoyance having to manually add in each new render state into the
+    // comparison if statement.
+    // Some sort of sparse bit based map could work. Each render state would have a
+    // bitmask value accociated with it. This bitmask would be used to quickly compare if two
+    // objects have the same elements in the state. If not they arent the same. If they do
+    // Then the array of elements will be compared very easily.
+
+    // Each object in the renderstate struct should be based on int's as eventually this will
+    // be implemented as an array of ints.
 
     struct RenderState
     {
         ProgramID program;
         TextureID texture;
         CameraID camera;
+        Primitive primitive;
     };
 
     struct Mesh

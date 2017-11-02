@@ -66,6 +66,7 @@ namespace ORCore
         bool m_committed;
         bool m_owned;
         BufferTexture m_matTexBuffer;
+        GLenum m_primitive;
         GLuint m_vertLoc;
         GLuint m_uvLoc;
         GLuint m_colorLoc;
