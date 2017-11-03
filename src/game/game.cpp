@@ -399,7 +399,7 @@ namespace ORGame
                         }
                         break;
                     default:
-                        std::cout << "Other Key " << (int)ev.key << std::endl;
+                        std::cout << "Other Key " << std::endl;
                         break;
                 }
             }
