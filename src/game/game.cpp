@@ -385,8 +385,21 @@ namespace ORGame
                     case ORCore::KeyCode::KEY_R:
                         m_song.set_pause(false);
                         break;
+
+                    case ORCore::KeyCode::KEY_F11:
+                        if (m_fullscreen)
+                        {
+                            m_fullscreen = false;
+                            m_window.set_fullscreen(false);
+                        }
+                        else
+                        {
+                            m_fullscreen = true;
+                            m_window.set_fullscreen(true);
+                        }
+                        break;
                     default:
-                        std::cout << "Other Key" << std::endl;
+                        std::cout << "Other Key " << (int)ev.key << std::endl;
                         break;
                 }
             }

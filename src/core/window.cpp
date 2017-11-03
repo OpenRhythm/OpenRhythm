@@ -33,6 +33,11 @@ namespace ORCore
 
         m_sdlFlags = defaultWindowFlag;
 
+        if (m_fullscreen)
+        {
+            m_sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        }
+
         m_sdlWindow = SDL_CreateWindow(m_title.c_str(), m_x, m_y, m_width, m_height, m_sdlFlags);
         m_context = nullptr;
     }
@@ -46,6 +51,19 @@ namespace ORCore
     SDL_Window* Window::get_platform_window()
     {
         return m_sdlWindow;
+    }
+
+    void Window::set_fullscreen(bool fullscreen)
+    {
+        m_fullscreen = fullscreen;
+        if (m_fullscreen)
+        {
+            SDL_SetWindowFullscreen(m_sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        }
+        else
+        {
+            SDL_SetWindowFullscreen(m_sdlWindow, 0);
+        }
     }
 
     void Window::make_current(Context* context)

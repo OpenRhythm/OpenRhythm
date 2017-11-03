@@ -29,7 +29,8 @@ namespace ORCore
         ~Window();
 
         SDL_Window* get_platform_window();
-
+        
+        void set_fullscreen(bool fullscreen);
         void make_current(Context* context);
         void flip();
         bool disable_sync();
