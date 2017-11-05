@@ -3,7 +3,7 @@
 
 #pragma once
 #include <string>
-#include <array>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
@@ -11,19 +11,23 @@ namespace ORCore
 {
     struct ShaderInfo
     {
-        unsigned int type;
+        GLuint type;
         std::string path;
     };
 
 
     struct Shader
     {
-        // TODO - Implement move and disable copy for shader...
         GLuint shader;
         ShaderInfo info;
+
         Shader(ShaderInfo);
-        void init_gl();
+        Shader(Shader&& other);
+        Shader(const Shader& other) = delete; // disable copy
+
         ~Shader();
+
+        void init_gl();
         void check_error();
     };
 
@@ -31,8 +35,14 @@ namespace ORCore
     {
     public:
         // TODO - Implement move and disable copy for Program...
-        ShaderProgram(Shader& vertex, Shader& fragment);
+        ShaderProgram();
+        ShaderProgram(ShaderProgram&& other);
         ~ShaderProgram();
+
+        ShaderProgram(const ShaderProgram& other) = delete; // disable copy
+
+        void add_shader(Shader&& shader);
+        void link();
         
         void check_error();
 
@@ -40,8 +50,7 @@ namespace ORCore
         void disuse();
         operator GLuint();
     private:
-        Shader m_vertex;
-        Shader m_fragment;
+        std::vector<Shader> m_shaders;
         GLuint m_program;
 
     };

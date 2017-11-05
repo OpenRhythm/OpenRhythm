@@ -52,7 +52,11 @@ namespace MidiPlayer
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
-        m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
+        ORCore::ShaderProgram program;
+        program.add_shader(ORCore::Shader(vertInfo));
+        program.add_shader(ORCore::Shader(fragInfo));
+        program.link();
+        m_program = m_renderer.add_program(std::move(program));
 
         // Create cameras and register them with the renderer
         ORCore::CameraObject camera;

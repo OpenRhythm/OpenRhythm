@@ -20,6 +20,13 @@ namespace ORCore
         init_gl();
     }
 
+    Shader::Shader(Shader&& other)
+    :info(std::move(other.info)), shader(other.shader)
+    {
+        other.info = {0, ""};
+        other.shader = 0;
+    }
+
     void Shader::init_gl()
     {
         shader = glCreateShader(info.type);
@@ -58,17 +65,16 @@ namespace ORCore
         }
     }
 
-
-    ShaderProgram::ShaderProgram(Shader& vertex, Shader& fragment)
-    : m_vertex(vertex), m_fragment(fragment)
+    ShaderProgram::ShaderProgram()
     {
         logger = spdlog::get("default");
         m_program = glCreateProgram();
+    }
 
-        glAttachShader(m_program, m_vertex.shader);
-        glAttachShader(m_program, m_fragment.shader);
-
-        glLinkProgram(m_program);
+    ShaderProgram::ShaderProgram(ShaderProgram&& other)
+    :m_shaders(std::move(other.m_shaders)), m_program(other.m_program)
+    {
+        other.m_program = 0;
     }
 
     ShaderProgram::~ShaderProgram()
@@ -76,13 +82,27 @@ namespace ORCore
         glDeleteProgram(m_program);
     }
 
+    void ShaderProgram::add_shader(Shader&& shader)
+    {
+        m_shaders.push_back(std::move(shader));
+
+        glAttachShader(m_program, m_shaders.back().shader);
+    }
+
+    void ShaderProgram::link()
+    {
+        glLinkProgram(m_program);
+    }
+
     void ShaderProgram::check_error()
     {
         // We want to check the compile/link status of the shaders all at once.
         // At some place that isn't right after the shader compilation step.
         // That way the drivers can better parallelize shader compilation.
-        m_vertex.check_error();
-        m_fragment.check_error();
+        for (auto &shader : m_shaders)
+        {
+            shader.check_error();
+        }
 
         GLint status;
 
@@ -103,7 +123,6 @@ namespace ORCore
         }
     }
 
-
     void ShaderProgram::use()
     {
         glUseProgram(m_program);
@@ -113,7 +132,6 @@ namespace ORCore
     {
         glUseProgram(0);
     }
-
 
     ShaderProgram::operator GLuint()
     {

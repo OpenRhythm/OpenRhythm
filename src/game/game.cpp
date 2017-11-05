@@ -74,8 +74,17 @@ namespace ORGame
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
         ORCore::ShaderInfo neckVertInfo {GL_VERTEX_SHADER, "./data/shaders/neck.vs"};
 
-        m_program = m_renderer.add_program(ORCore::Shader(vertInfo), ORCore::Shader(fragInfo));
-        m_neckProgram = m_renderer.add_program(ORCore::Shader(neckVertInfo), ORCore::Shader(fragInfo));
+        ORCore::ShaderProgram program;
+        program.add_shader(ORCore::Shader(vertInfo));
+        program.add_shader(ORCore::Shader(fragInfo));
+        program.link();
+        m_program = m_renderer.add_program(std::move(program));
+
+        ORCore::ShaderProgram neckProgram;
+        neckProgram.add_shader(ORCore::Shader(neckVertInfo));
+        neckProgram.add_shader(ORCore::Shader(fragInfo));
+        neckProgram.link();
+        m_neckProgram = m_renderer.add_program(std::move(neckProgram));
 
         m_texture = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
         m_tailTexture = m_renderer.add_texture(ORCore::loadSTB("data/tail.png"));
@@ -202,9 +211,9 @@ namespace ORGame
 
         m_renderer.commit();
 
-        auto neckProgram = m_renderer.get_program(m_neckProgram);
+        auto neckProgramTemp = m_renderer.get_program(m_neckProgram);
 
-        m_boardPosID = glGetUniformLocation(*neckProgram, "neckPos");
+        m_boardPosID = glGetUniformLocation(*neckProgramTemp, "neckPos");
 
         GLint  iMultiSample = 0;
         GLint  iNumSamples = 0;

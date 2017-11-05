@@ -225,7 +225,7 @@ namespace ORCore
         BatchID id = m_batches.size();
         m_batches.push_back(
             std::make_unique<Batch>(
-                m_programs[state.program].get(),
+                &m_programs[state.program],
                 m_textures[state.texture].get(),
                 batchSize, id));
         auto &batch = m_batches.back();
@@ -240,7 +240,7 @@ namespace ORCore
         BatchID id = m_batches.size();
         m_batches.push_back(
             std::make_unique<Batch>(
-                m_programs[state.program].get(),
+                &m_programs[state.program],
                 m_textures[state.texture].get(),
                 batchSize, id));
         auto &batch = m_batches.back();
@@ -383,18 +383,17 @@ namespace ORCore
         return id;
     }
 
-    int Renderer::add_program(Shader&& vertex, Shader&& fragment)
+    int Renderer::add_program(ShaderProgram&& program)
     {
         ProgramID id = m_programs.size();
-        m_programs.push_back(std::make_unique<ShaderProgram>(vertex, fragment));
-        auto &program = m_programs.back();
-        program->check_error();
+        program.check_error();
+        m_programs.push_back(std::move(program));
         return id;
     }
 
     ShaderProgram* Renderer::get_program(int id)
     {
-        return m_programs[id].get();
+        return &m_programs[id];
     }
 
     // commit all remaining batches.

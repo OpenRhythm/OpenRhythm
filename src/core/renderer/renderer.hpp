@@ -86,7 +86,7 @@ namespace ORCore
         void update_camera(CameraID camID);
 
         TextureID add_texture(Image&& img);
-        ProgramID add_program(Shader&& vertex, Shader&& fragment);
+        ProgramID add_program(ShaderProgram&& program);
         ShaderProgram* get_program(ProgramID id);
         
         // add global attribute/uniforms for shaders ?
@@ -99,7 +99,7 @@ namespace ORCore
         std::vector<RenderObject> m_objects;
         std::vector<std::unique_ptr<Batch>> m_batches;
         std::vector<std::unique_ptr<Texture>> m_textures;
-        std::vector<std::unique_ptr<ShaderProgram>> m_programs;
+        std::vector<ShaderProgram> m_programs;
         std::vector<CameraObject> m_cameras;
         std::shared_ptr<spdlog::logger> m_logger;
         int m_defaultTextureID;
