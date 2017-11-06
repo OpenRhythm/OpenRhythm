@@ -84,10 +84,9 @@ namespace MidiPlayer
     MidiDisplayManager::~MidiDisplayManager()
     {
         m_window.make_current(nullptr);
-
     }
 
-    // multithread this k!
+    // TODO - look into multithreading renderer object init
     void MidiDisplayManager::prep_render_notes(double time, double length)
     {
         int trackColorIndex = 0;
@@ -116,7 +115,6 @@ namespace MidiPlayer
                 m_renderer.add_object(obj);
             } 
         }
-
     }
 
     void MidiDisplayManager::start()

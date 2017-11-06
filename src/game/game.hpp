@@ -86,6 +86,7 @@ namespace ORGame
 
         ORCore::ProgramID m_program;
         ORCore::ProgramID m_neckProgram;
+        ORCore::ProgramID m_tailProgram;
         
         ORCore::ObjectID m_fretObj;
         ORCore::ObjectID m_neckObj;

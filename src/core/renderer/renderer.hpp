@@ -97,7 +97,7 @@ namespace ORCore
     private:
         BatchID find_batch(RenderState state);
         std::vector<RenderObject> m_objects;
-        std::vector<std::unique_ptr<Batch>> m_batches;
+        std::vector<std::unique_ptr<BatchInterface>> m_batches;
         std::vector<std::unique_ptr<Texture>> m_textures;
         std::vector<ShaderProgram> m_programs;
         std::vector<CameraObject> m_cameras;

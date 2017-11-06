@@ -8,9 +8,31 @@
 namespace ORCore
 {
 
+
+    void BatchBase::set_state(const RenderState& state)
+    {
+        m_state = state;
+        
+        if (m_state.primitive == Primitive::triangle)
+        {
+            m_primitive = GL_TRIANGLES;
+        }
+        else if (m_state.primitive == Primitive::line)
+        {
+            m_primitive = GL_LINES;
+        }
+        else if (m_state.primitive == Primitive::point)
+        {
+            m_primitive = GL_POINTS;
+        }
+        else
+        {
+            m_primitive = GL_TRIANGLES;
+        }
+    }
+
     Batch::Batch(ShaderProgram *program, Texture *texture, int batchSize, int id)
-    : m_program(program), m_texture(texture), m_batchSize(batchSize), m_id(id),
-    m_committed(false), m_owned(false), m_matTexBuffer(GL_RGBA32F)
+    :BatchBase(program, batchSize, id), m_texture(texture), m_matTexBuffer(GL_RGBA32F)
     {
         m_vertices.reserve(batchSize);
         m_matrices.reserve(batchSize);
@@ -68,6 +90,11 @@ namespace ORCore
         m_vertices.clear();
     }
 
+    bool Batch::add_mesh(Mesh& mesh)
+    {
+        return add_mesh(mesh, glm::mat4(1.0f));
+    }
+
     bool Batch::add_mesh(Mesh& mesh, const glm::mat4& transform)
     {
         // Optimize this using glMapBuffer? constrain batch with m_batchSize return false if mesh doesnt fit.
@@ -95,6 +122,12 @@ namespace ORCore
         }
     }
 
+    void Batch::update_mesh(Mesh& mesh)
+    {
+        update_mesh(mesh, glm::mat4(1.0f));
+    }
+
+
     void Batch::update_mesh(Mesh& mesh, const glm::mat4& transform)
     {
         m_matrices[mesh.transformOffset] = transform;
@@ -112,28 +145,6 @@ namespace ORCore
 
         glBindBuffer(GL_TEXTURE_BUFFER, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
-
-    void Batch::set_state(RenderState state)
-    {
-        m_state = state;
-        
-        if (m_state.primitive == Primitive::triangle)
-        {
-            m_primitive = GL_TRIANGLES;
-        }
-        else if (m_state.primitive == Primitive::line)
-        {
-            m_primitive = GL_LINES;
-        }
-        else if (m_state.primitive == Primitive::point)
-        {
-            m_primitive = GL_POINTS;
-        }
-        else
-        {
-            m_primitive = GL_TRIANGLES;
-        }
     }
 
     // update buffer objects
@@ -166,6 +177,8 @@ namespace ORCore
             m_matTexBuffer.bind(m_matBufTexID);
 
             glDrawArrays(m_primitive, 0, m_vertices.size());
+
+            m_matTexBuffer.unbind();
         }
 
     }
@@ -186,6 +199,124 @@ namespace ORCore
         
         glDeleteBuffers(1, &m_vbo); 
         glDeleteBuffers(1, &m_matBufferObject);
+
+    }
+
+    SimpleBatch::SimpleBatch(ShaderProgram *program, Texture *texture, int batchSize, int id)
+    :BatchBase(program, batchSize, id), m_texture(texture)
+    {
+        m_vertices.reserve(batchSize);
+        init_gl();
+    }
+
+    void SimpleBatch::init_gl()
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        m_vertLoc = glGetAttribLocation(*m_program, "position");
+        m_colorLoc = glGetAttribLocation(*m_program, "color");
+        m_texSampID = glGetUniformLocation(*m_program, "textureSampler");
+
+        glGenVertexArrays(1, &m_vao);
+        glBindVertexArray(m_vao);
+        
+        // Vertex Buffer
+        glGenBuffers(1, &m_vbo);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glEnableVertexAttribArray(m_vertLoc);
+        glEnableVertexAttribArray(m_colorLoc);
+
+        // Setup VAO attributes for this batch. Once these are set the vbo can be replaced or allocated and these will still be valid.
+        glVertexAttribPointer(m_vertLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, vertex)));
+        glVertexAttribPointer(m_colorLoc, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void *>(offsetof(Vertex, color)));
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glBindVertexArray(0);
+
+    }
+
+    void SimpleBatch::clear()
+    {
+        m_committed = false;
+        m_vertices.clear();
+    }
+
+    bool SimpleBatch::add_mesh(Mesh& mesh)
+    {
+        return false;
+    }
+
+    bool SimpleBatch::add_mesh(Mesh& mesh, const glm::mat4& transform)
+    {
+        // Optimize this using glMapBuffer? constrain batch with m_batchSize return false if mesh doesnt fit.
+        int meshVertexCount = mesh.vertices.size();
+        if ((m_vertices.size() + meshVertexCount) <= m_batchSize)
+        {
+            mesh.verticesOffset = m_vertices.size();
+            m_vertices.insert(std::end(m_vertices), std::begin(mesh.vertices), std::end(mesh.vertices));
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void SimpleBatch::update_mesh(Mesh& mesh)
+    {
+    }
+
+    void SimpleBatch::update_mesh(Mesh& mesh, const glm::mat4& transform)
+    {
+        std::copy(std::begin(mesh.vertices), std::end(mesh.vertices), std::begin(m_vertices)+mesh.verticesOffset);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferSubData(GL_ARRAY_BUFFER,  mesh.verticesOffset*sizeof(Vertex), mesh.vertices.size()*sizeof(Vertex), &mesh.vertices[0]);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    // update buffer objects
+    void SimpleBatch::commit()
+    {
+        m_committed = true;
+
+        //std::cout << m_vertices.size() << std::endl;
+
+        // When switching to glMapBuffer
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferData(GL_ARRAY_BUFFER, m_vertices.size()*sizeof(Vertex), &m_vertices[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    void SimpleBatch::render()
+    {
+        if (m_vertices.size() > 0)
+        {
+
+            glBindVertexArray(m_vao);
+
+            // Bind textures
+            m_texture->bind(m_texSampID);
+
+            glDrawArrays(m_primitive, 0, m_vertices.size());
+        }
+    }
+
+    SimpleBatch::~SimpleBatch()
+    {
+
+        glBindVertexArray(m_vao);
+        glDisableVertexAttribArray(m_colorLoc);
+        glDisableVertexAttribArray(m_vertLoc);
+        glDeleteVertexArrays(1, &m_vao);
+
+        // Make sure the buffers arent bound
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        
+        glDeleteBuffers(1, &m_vbo);
 
     }
 

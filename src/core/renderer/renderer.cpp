@@ -223,26 +223,18 @@ namespace ORCore
     Batch* Renderer::create_batch_owned(RenderState state, int batchSize)
     {
         BatchID id = m_batches.size();
-        m_batches.push_back(
-            std::make_unique<Batch>(
-                &m_programs[state.program],
-                m_textures[state.texture].get(),
-                batchSize, id));
+
+        m_batches.emplace_back(dynamic_cast<BatchInterface*>(new Batch(&m_programs[state.program], m_textures[state.texture].get(), batchSize, id)));
         auto &batch = m_batches.back();
         batch->set_state(state);
         batch->set_owned(true);
-
-        return batch.get();
+        return dynamic_cast<Batch*>(batch.get());
     }
 
     BatchID Renderer::create_batch(RenderState state, int batchSize)
     {
         BatchID id = m_batches.size();
-        m_batches.push_back(
-            std::make_unique<Batch>(
-                &m_programs[state.program],
-                m_textures[state.texture].get(),
-                batchSize, id));
+        m_batches.emplace_back(dynamic_cast<BatchInterface*>(new Batch(&m_programs[state.program], m_textures[state.texture].get(), batchSize, id)));
         auto &batch = m_batches.back();
         batch->set_state(state);
         return id;

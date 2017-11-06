@@ -73,6 +73,7 @@ namespace ORGame
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
         ORCore::ShaderInfo neckVertInfo {GL_VERTEX_SHADER, "./data/shaders/neck.vs"};
+        ORCore::ShaderInfo tailGeoShader {GL_GEOMETRY_SHADER, "./data/shaders/tail.gs"};
 
         ORCore::ShaderProgram program;
         program.add_shader(ORCore::Shader(vertInfo));
@@ -85,6 +86,13 @@ namespace ORGame
         neckProgram.add_shader(ORCore::Shader(fragInfo));
         neckProgram.link();
         m_neckProgram = m_renderer.add_program(std::move(neckProgram));
+
+        ORCore::ShaderProgram tailProgram;
+        tailProgram.add_shader(ORCore::Shader(tailGeoShader));
+        tailProgram.add_shader(ORCore::Shader(vertInfo));
+        tailProgram.add_shader(ORCore::Shader(fragInfo));
+        tailProgram.link();
+        m_tailProgram = m_renderer.add_program(std::move(tailProgram));
 
         m_texture = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
         m_tailTexture = m_renderer.add_texture(ORCore::loadSTB("data/tail.png"));
@@ -194,20 +202,47 @@ namespace ORGame
         objLines.set_geometry({
             // Vertex2           UV            Color
             {{0.0f, 0.0f, hitwPosF}, {0.0f, 0.0f}, line_color},
-            {{1.0f, 0.0f, hitwPosF}, {0.0f, 1.0f}, line_color},
+            {{1.0f, 0.0f, hitwPosF}, {0.0f, 0.0f}, line_color},
 
-            {{0.0f, 0.0f, -(m_videoOffset/ neck_speed_divisor)}, {0.0f, 1.0f}, line_color},
-            {{1.0f, 0.0f, -(m_videoOffset/ neck_speed_divisor)}, {1.0f, 0.0f}, line_color},
+            {{0.0f, 0.0f, -(m_videoOffset/ neck_speed_divisor)}, {0.0f, 0.0f}, line_color},
+            {{1.0f, 0.0f, -(m_videoOffset/ neck_speed_divisor)}, {0.0f, 0.0f}, line_color},
 
-            {{0.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, line_color},
-            {{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, line_color},
+            {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, line_color},
+            {{1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, line_color},
 
-            {{0.0f, 0.0f, hitwPosB}, {0.0f, 1.0f}, line_color},
-            {{1.0f, 0.0f, hitwPosB}, {1.0f, 0.0f}, line_color}
+            {{0.0f, 0.0f, hitwPosB}, {0.0f, 0.0f}, line_color},
+            {{1.0f, 0.0f, hitwPosB}, {0.0f, 0.0f}, line_color}
         });
 
         m_renderer.add_object(objLines);
 
+
+
+        ORCore::RenderObject objPoints;
+        objPoints.set_camera(m_cameraStatic);
+        objPoints.set_program(m_tailProgram);
+        objPoints.set_primitive_type(ORCore::Primitive::point);
+        objPoints.set_scale(glm::vec3{1.0f, 1.0f, 1.0f});
+        objPoints.set_translation(glm::vec3{0.0f, 0.0f, 0.0f});
+
+        // std::vector<ORCore::Vertex> points;
+
+        // for (int i; i <=100; ++i)
+        // {
+        //     points.push_back({{0.5f, 0.0f, i * 0.001}, {0.0f, 0.0f}, line_color});
+        // }
+
+        objPoints.set_geometry({
+            // Vertex2           UV            Color
+            {{1.15f, 0.0f, 0.0f}, {0.0f, 0.0f}, line_color},
+            {{1.15f, 0.0f, 0.01f}, {0.0f, 0.0f}, line_color},
+            {{1.15f, 0.0f, 0.02f}, {0.0f, 0.0f}, line_color},
+            {{1.15f, 0.0f, 0.03f}, {0.0f, 0.0f}, line_color},
+            {{1.15f, 0.0f, 0.04f}, {0.0f, 0.0f}, line_color},
+            {{1.15f, 0.0f, 0.05f}, {0.0f, 0.0f}, line_color},
+        });
+
+        m_renderer.add_object(objPoints);
 
         m_renderer.commit();
 
