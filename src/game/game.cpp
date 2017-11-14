@@ -150,7 +150,7 @@ namespace ORGame
                 float z = event.time / neck_speed_divisor;
                 float length = event.length / neck_speed_divisor;
 
-                obj.set_scale(glm::vec3{1.125f, 1.0f, -length});
+                obj.set_scale(glm::vec3{1.125f, 1.0f, length});
                 obj.set_translation(glm::vec3{-0.0625f, 0.0f, z});
                 obj.set_geometry(ORCore::create_rect_z_mesh(solo_color));
                 m_renderer.add_object(obj);
@@ -167,7 +167,7 @@ namespace ORGame
                 float z = event.time / neck_speed_divisor;
                 float length = event.length / neck_speed_divisor;
 
-                obj.set_scale(glm::vec3{1.125f, 1.0f, -length});
+                obj.set_scale(glm::vec3{1.125f, 1.0f, length});
                 obj.set_translation(glm::vec3{-0.0625f, 0.0f, z});
                 obj.set_geometry(ORCore::create_rect_z_mesh(drive_color));
                 m_renderer.add_object(obj);
