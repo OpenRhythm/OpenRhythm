@@ -88,7 +88,7 @@ namespace ORGame
         m_neckProgram = m_renderer.add_program(std::move(neckProgram));
 
         ORCore::ShaderProgram tailProgram;
-        tailProgram.add_shader(ORCore::Shader(tailGeoShader));
+        // tailProgram.add_shader(ORCore::Shader(tailGeoShader));
         tailProgram.add_shader(ORCore::Shader(vertInfo));
         tailProgram.add_shader(ORCore::Shader(fragInfo));
         tailProgram.link();
