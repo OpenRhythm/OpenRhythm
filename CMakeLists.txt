@@ -20,7 +20,7 @@ set(CMAKE_C_STANDARD 11)
 if(MSVC)
     add_definitions("/MP")
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions("-Wall")
+    add_definitions("-Wall -O2")
     # Clean unused sections on link
     add_definitions("-ffunction-sections -fdata-sections -Wl,--gc-sections")
     # Colored output

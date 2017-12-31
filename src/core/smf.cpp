@@ -164,7 +164,7 @@ namespace ORCore
             case meta_EndOfTrack:
             {
                 m_logger->trace(_("End of Track {} at time"), m_currentTrack->name);
-                m_currentTrack->endTime = event.info.pulseTime;
+                m_currentTrack->endTickTime = event.info.pulseTime;
                 break;
             }
             case meta_Tempo:

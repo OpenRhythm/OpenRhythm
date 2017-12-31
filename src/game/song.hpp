@@ -67,6 +67,7 @@ namespace ORGame
         int qnScaleFactor;
         int qnLength;
         double time;
+        int64_t tickTime;
     };
 
     enum class BarType
@@ -111,8 +112,10 @@ namespace ORGame
     class TempoTrack
     {
     public:
-        void add_tempo_event(int ppqn, double time);
-        void add_time_sig_event(int numerator, int denominator, int compoundFactor, double time);
+        void set_midi(ORCore::SmfReader* midi);
+
+        void add_tempo_event(int ppqn, double time, int64_t tickTime);
+        void add_time_sig_event(int numerator, int denominator, int compoundFactor, double time, int64_t tickTime);
 
         std::vector<TempoEvent*> &get_events(double start, double end);
         std::vector<TempoEvent> &get_events();
@@ -122,6 +125,8 @@ namespace ORGame
         std::vector<BarEvent> &get_bars();
 
     private:
+        ORCore::SmfReader* m_midi;
+
     	std::vector<TempoEvent> m_tempo;
         std::vector<BarEvent> m_bars;
     };
@@ -174,7 +179,7 @@ namespace ORGame
         std::vector<Track> m_tracks;
         TempoTrack m_tempoTrack;
         std::string m_path;
-        double m_length;
+        uint32_t m_length;
         ORCore::Timer m_songTimer;
         ORCore::VorbisSource m_songOgg;
         ORCore::CubebOutput m_audioOut;

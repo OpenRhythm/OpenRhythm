@@ -162,7 +162,7 @@ namespace MidiPlayer
                     track.add_note(midiEvent.data1, m_midi.pulsetime_to_abstime(midiEvent.info.pulseTime), false);
                 }
             }
-            m_length = m_midi.pulsetime_to_abstime(midiTrack->endTime);
+            m_length = m_midi.pulsetime_to_abstime(midiTrack->endTickTime);
             m_tracks.push_back(track);
         }
 

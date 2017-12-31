@@ -177,7 +177,7 @@ namespace ORCore
     struct SmfTrack
     { 
         std::string name;
-        double endTime; // Track length
+        double endTickTime; // Track length
         std::vector<MidiEvent> midiEvents;
         std::vector<TextEvent> textEvents;
         std::vector<MetaStorageEvent> miscMeta;

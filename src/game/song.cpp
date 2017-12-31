@@ -18,18 +18,24 @@ namespace ORGame
     // TempoTrack Class methods
     /////////////////////////////////////
 
-    void TempoTrack::add_tempo_event(int qnLength, double time)
+
+    void TempoTrack::set_midi(ORCore::SmfReader* midi)
+    {
+        m_midi = midi;
+    }
+
+    void TempoTrack::add_tempo_event(int qnLength, double time, int64_t tickTime)
     {
         // If this is the first change in tempo/timesignature create an event with the other half of state
         if (m_tempo.size() == 0)
         {
-            m_tempo.push_back({0, 0, 0, qnLength, time});
+            m_tempo.push_back({0, 0, 0, qnLength, time, tickTime});
         }
         else
         {
             // If the previous event is located at the same time as the current one overwrite the data to reflect the current state.
             auto &eventLast = m_tempo.back();
-            if (eventLast.time == time)
+            if (eventLast.time == time || eventLast.tickTime == tickTime)
             {
                 eventLast.qnLength = qnLength;
             }
@@ -37,20 +43,21 @@ namespace ORGame
             {
                 // Otherwise we copy the previous change and update the data to reflect the new state.
                 TempoEvent tempoEvent = eventLast;
-                tempoEvent.time = time;
                 tempoEvent.qnLength = qnLength;
+                tempoEvent.time = time;
+                tempoEvent.tickTime = tickTime;
                 m_tempo.push_back(tempoEvent);
 
             }
         }
     }
 
-    void TempoTrack::add_time_sig_event(int numerator, int denominator, int compoundFactor, double time)
+    void TempoTrack::add_time_sig_event(int numerator, int denominator, int compoundFactor, double time, int64_t tickTime)
     {
         // If this is the first change in tempo/timesignature create an event with the other half of state
         if (m_tempo.size() == 0)
         {
-            m_tempo.push_back({numerator, denominator, compoundFactor, 0, time});
+            m_tempo.push_back({numerator, denominator, compoundFactor, 0, time, tickTime});
         }
         else
         {
@@ -95,17 +102,13 @@ namespace ORGame
         return m_tempo;
     }
 
-    static double round_dbl(double d)
-    {
-        return std::round(d * 1000000000.0) / 1000000000.0;
-    }
-
     void TempoTrack::mark_bars()
     {
         TempoEvent *currentTempo = nullptr;
+
         int beatSubdivision = 1; // How many times to subdivide the beat
-        int interMeasureBeatCount = 0;
-        double subBeatAccum = 0.0;
+        int remainingTicks = 0;
+
         for (auto &nextTempo : m_tempo)
         {
 
@@ -128,57 +131,60 @@ namespace ORGame
                 beatSubdivision = 1;
             }
 
-            double beatTsFactor = 4.0/currentTempo->denominator;
-            double incr = (currentTempo->qnLength / (beatSubdivision*1'000'000.0)) * beatTsFactor;
+            uint32_t beatTicks = (m_midi->get_header()->division * 4) / currentTempo->denominator;
 
-            // The idea here is when we have anything smaller than a beat at the end of a beat marking period
-            // we take the remainder and offset the next tempo change by that amount of its beat.
-            double timeCorrection = incr * subBeatAccum;
+            uint32_t incr = beatTicks / beatSubdivision;
 
-            double tempoPeriodBegin = currentTempo->time - timeCorrection;
+            uint32_t tickPeriodBegin = currentTempo->tickTime + remainingTicks;
 
-            double tempoTimePeriod = nextTempo.time - tempoPeriodBegin;
+            uint32_t tickTimePeriod = nextTempo.tickTime - tickPeriodBegin;
 
-            double beats = round_dbl(tempoTimePeriod / incr);
+            remainingTicks = 0;
 
             // We cant mark beats for tempo changes that are smaller than a beat.
-            // count what portion of the beat it consumed and account for it.
-            if (beats < 1.0)
+            // accumulate and continue to next tempo event.
+            if (tickTimePeriod < incr)
             {
-                subBeatAccum += round_dbl(beats);
+                remainingTicks += tickTimePeriod;
                 currentTempo = &nextTempo;
                 continue;
             }
 
-            subBeatAccum = 0.0;
+            uint32_t beats = tickTimePeriod / incr;
 
-            int beatsToMark = static_cast<int>(beats);
+            uint32_t unusedTicks = tickTimePeriod - (beats * incr);
 
-            // add any left over beat to the sub-beat accumulator
-            subBeatAccum += round_dbl(beats-beatsToMark);
-
-
-            for (int i=0; i < beatsToMark; i++)
+            // add any leftover ticks to the accumulator
+            if (unusedTicks != 0)
             {
+                remainingTicks += incr - unusedTicks;
+            }
+
+            int interMeasureBeatCount = 0;
+
+            for (int i=0; i < beats; i++)
+            {
+                uint32_t beatTickPos = tickPeriodBegin + (incr*i);
+
                 if (interMeasureBeatCount == 0)
                 {
-                    m_bars.push_back({BarType::measure, tempoPeriodBegin + (incr*i)});
+                    m_bars.push_back({BarType::measure, m_midi->pulsetime_to_abstime(beatTickPos)});
                 }
-                if (interMeasureBeatCount % beatSubdivision == 1)
+                else if (interMeasureBeatCount % beatSubdivision == 1)
                 {
-                    m_bars.push_back({BarType::upbeat, tempoPeriodBegin + (incr*i)});
+                    m_bars.push_back({BarType::upbeat, m_midi->pulsetime_to_abstime(beatTickPos)});
                 }
                 else
                 {
-                    m_bars.push_back({BarType::beat, tempoPeriodBegin + (incr*i)});
+                    m_bars.push_back({BarType::beat, m_midi->pulsetime_to_abstime(beatTickPos)});
                 }
 
                 interMeasureBeatCount++;
+
                 if (interMeasureBeatCount >= (currentTempo->numerator * beatSubdivision))
                 {
                     interMeasureBeatCount = 0;
                 }
-
             }
 
             if (currentTempo->numerator != nextTempo.numerator || currentTempo->denominator != nextTempo.denominator)
@@ -446,6 +452,7 @@ namespace ORGame
         logger = spdlog::get("default");
 
         m_audioOut.set_source(&m_songOgg);
+        m_tempoTrack.set_midi(&m_midi);
     }
 
     Song::~Song()
@@ -467,6 +474,7 @@ namespace ORGame
         std::vector<ORCore::SmfTrack*> midiTracks = m_midi.get_tracks();
 
         bool foundUsable = false;
+        m_length = 0;
         
         for (auto midiTrack : midiTracks)
         {
@@ -482,9 +490,9 @@ namespace ORGame
             }
 
             // find the longest midi track
-            if (m_length < midiTrack->endTime)
+            if (m_length < midiTrack->endTickTime)
             {
-                m_length = m_midi.pulsetime_to_abstime(midiTrack->endTime);
+                m_length = midiTrack->endTickTime;
             }
         }
 
@@ -498,19 +506,19 @@ namespace ORGame
             if (eventOrder.type == ORCore::TtOrderType::TimeSignature)
             {
                 auto &ts = tempoTrack.timeSignature[eventOrder.index];
-                m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, m_midi.pulsetime_to_abstime(ts.info.info.pulseTime));
+                m_tempoTrack.add_time_sig_event(ts.numerator, ts.denominator, ts.thirtySecondPQN/8.0, m_midi.pulsetime_to_abstime(ts.info.info.pulseTime), ts.info.info.pulseTime);
                 logger->debug(_("Time signature change recieved at time {} {}/{}"), m_midi.pulsetime_to_abstime(ts.info.info.pulseTime), ts.numerator, ts.denominator);
             }
             else if (eventOrder.type == ORCore::TtOrderType::Tempo)
             {
                 auto &tempo = tempoTrack.tempo[eventOrder.index];
                 lastQnLength = tempo.qnLength;
-                m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.absTime);
+                m_tempoTrack.add_tempo_event(tempo.qnLength, tempo.absTime, tempo.info.info.pulseTime);
                 logger->debug(_("Tempo change recieved at time {} {}"), tempo.absTime, tempo.qnLength);
             } 
         }
 
-        m_tempoTrack.add_tempo_event(lastQnLength, m_length); // add final tempo change for bar barking purposes.
+        m_tempoTrack.add_tempo_event(lastQnLength, m_midi.pulsetime_to_abstime(m_length), m_length); // add final tempo change for bar barking purposes.
         m_tempoTrack.mark_bars();
 
         if (!foundUsable)
