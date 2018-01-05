@@ -487,7 +487,14 @@ namespace ORGame
 
         // Todo - do we need to think about video cal here if we are talking about scoring?
         m_heldNotes.erase(std::remove_if(m_heldNotes.begin(), m_heldNotes.end(),
-                [&](TrackNote *note){return (note->time + note->length) <= m_songTime;}),
+                [&](TrackNote *note)
+                {
+                    // Hide notes
+                    auto *tailObj = m_renderer.get_object(note->objTailID);
+                    tailObj->set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,0.0f}));
+                    m_renderer.update_object(note->objTailID);
+                    return (note->time + note->length) <= m_songTime;
+                }),
                 m_heldNotes.end());
 
         for (auto *note : m_heldNotes)
@@ -507,19 +514,12 @@ namespace ORGame
             float tailWidth = noteWidth/3.0f;
 
             float z = m_songTime / neck_speed_divisor;
-            float noteLength = (note->length - (m_songTime-note->time))/neck_speed_divisor;
+            float noteLength = (note->length - (m_songTime-note->time)) / neck_speed_divisor;
 
             tailObj->set_scale(glm::vec3{tailWidth, 1.0f, noteLength});
             tailObj->set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, z}); // center the line on the screen
 
-            if (m_song.time_to_ticks_range(m_songTime, note->time+note->length) < (m_song.get_divison() / 16.0) )
-            {
-                tailObj->set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,0.0f}));
-            }
-            else
-            {
-                tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
-            }
+            tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
 
             m_renderer.update_object(note->objTailID);
         }
