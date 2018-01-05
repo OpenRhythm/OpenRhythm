@@ -52,8 +52,8 @@ namespace ORGame
     {
         NoteType type;
         double time;
-        int32_t pulseTimeStart;
-        int32_t pulseTimeEnd;
+        int32_t tickTimeStart;
+        int32_t tickTimeEnd;
         double length;
         int objNoteID;
         int objTailID;
@@ -140,7 +140,7 @@ namespace ORGame
 
         TrackInfo info();
 
-        void add_note(NoteType type, double time, int32_t pulseTime, bool on);
+        void add_note(NoteType type, double time, int32_t tickTime, bool on);
         std::vector<TrackNote*> &get_notes_in_frame(double start, double end);
         std::vector<TrackNote> &get_notes();
 
@@ -169,7 +169,20 @@ namespace ORGame
         int16_t get_divison();
         double length();
         void start();
+        
+        // Time methods
         double get_song_time();
+        uint32_t get_song_tick_time();
+
+        uint32_t time_to_ticks(double time);
+        double ticks_to_time(uint32_t ticks);
+
+        uint32_t time_to_ticks_length(double startTime, double length);
+        uint32_t time_to_ticks_range(double startTime, double endTime);
+
+        double ticks_to_time_length(uint32_t startTicks, uint32_t tickLength);
+        double ticks_to_time_range(uint32_t startTicks, uint32_t endTicks);
+
         double get_audio_time();
         void set_pause(bool pause);
 

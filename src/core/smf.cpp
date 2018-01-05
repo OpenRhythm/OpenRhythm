@@ -289,6 +289,20 @@ namespace ORCore
         return tempo->absTime + ((pulseTime - tempo->info.info.pulseTime) * tempo->timePerTick);
     }
 
+    uint32_t SmfReader::abstime_to_pulsetime(double absTime)
+    {
+        if (absTime == 0.0)
+        {
+            return 0;
+        }
+
+        // The basic idea here is to start from the most recent tempo event before this time.
+        // Then calculate and add the time since that tempo to the tempo time.
+        // To speed this up further we could store the result of the time per tick calculation in the tempo event and only use it here.
+        TempoEvent* tempo = get_last_tempo_via_abs_time(absTime);
+        return tempo->info.info.pulseTime + ((absTime - tempo->absTime) / tempo->timePerTick);
+    }
+
     void SmfReader::init_tempo_ts()
     {
         // We initialize the vectors in the tempo track to default 120BPM 4/4 ts as defined by the spec.
@@ -301,6 +315,32 @@ namespace ORCore
 
         MetaEvent tempoEvent {{status_MetaEvent,0,0}, meta_Tempo, 3};
         m_tempoTrack.tempo.push_back({tempoEvent, 500'000, 0.0}); // ppqn, absTime
+    }
+
+    TempoEvent* SmfReader::get_last_tempo_via_abs_time(double absTime)
+    {
+        static unsigned int value = 0;
+        static uint32_t lastAbsTime = 0;
+
+        std::vector<TempoEvent> &tempos = m_tempoTrack.tempo;
+
+        // Ignore the cached last tempo value if the new pulse time is older.
+        if (lastAbsTime > absTime)
+        {
+            value = 0;
+        }
+
+        for (unsigned int i = value; i < tempos.size(); i++)
+        {
+            if (tempos[i].absTime > absTime)
+            {
+                value = i-1;
+                lastAbsTime = absTime;
+                return &tempos[value];
+            }
+        }
+        // return last value if nothing else is found
+        return &tempos.back();  
     }
 
     TempoEvent* SmfReader::get_last_tempo_via_pulses(uint32_t pulseTime)

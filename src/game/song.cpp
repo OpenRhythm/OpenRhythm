@@ -230,7 +230,7 @@ namespace ORGame
         return m_info;
     }
 
-    void Track::add_note(NoteType type, double time, int32_t pulseTime, bool on)
+    void Track::add_note(NoteType type, double time, int32_t tickTime, bool on)
     {
         static std::vector<std::pair<NoteType, int>> activeNotes;
 
@@ -238,7 +238,7 @@ namespace ORGame
         {
             int index = m_notes.size();
             activeNotes.emplace_back(type, index);
-            m_notes.push_back({type, time, pulseTime});
+            m_notes.push_back({type, time, tickTime});
         }
         else
         {
@@ -253,18 +253,18 @@ namespace ORGame
                 auto &note = m_notes[item->second];
 
                 int tailCutoff = std::ceil(m_song->get_divison()/3.0);
-                int pulseLength = pulseTime - note.pulseTimeStart;
+                int pulseLength = tickTime - note.tickTimeStart;
 
 
                 if (pulseLength <= tailCutoff)
                 {
                     note.length = 0.0;
-                    note.pulseTimeEnd = note.pulseTimeStart;
+                    note.tickTimeEnd = note.tickTimeStart;
                 }
                 else
                 {
                     note.length = time - note.time;
-                    note.pulseTimeEnd = pulseTime;
+                    note.tickTimeEnd = tickTime;
                 }
                 activeNotes.erase(item);
             }
@@ -656,6 +656,55 @@ namespace ORGame
         {
             m_songOgg.set_pause(false);
         }
+        return time;
+    }
+
+    // time/tick convience functions
+    uint32_t Song::get_song_tick_time()
+    {
+        return m_midi.abstime_to_pulsetime(get_song_time());
+    }
+
+    uint32_t Song::time_to_ticks(double time)
+    {
+        return m_midi.abstime_to_pulsetime(time);
+    }
+
+    double Song::ticks_to_time(uint32_t ticks)
+    {
+        return m_midi.pulsetime_to_abstime(ticks);
+    }
+
+
+    // Returns the number of ticks between startTime and startTime+length
+    uint32_t Song::time_to_ticks_length(double startTime, double length)
+    {
+        uint32_t ticks = m_midi.abstime_to_pulsetime(startTime+length);
+        ticks -= m_midi.abstime_to_pulsetime(startTime);
+        return ticks;
+    }
+
+    // Returns the number of ticks between startTime and endTime
+    uint32_t Song::time_to_ticks_range(double startTime, double endTime)
+    {
+        uint32_t ticks = m_midi.abstime_to_pulsetime(endTime);
+        ticks -= m_midi.abstime_to_pulsetime(startTime);
+        return ticks;
+    }
+
+    // Returns the length of time between startTicks and startTicks+tickLength
+    double Song::ticks_to_time_length(uint32_t startTicks, uint32_t tickLength)
+    {
+        double time = m_midi.pulsetime_to_abstime(startTicks+tickLength);
+        time -= m_midi.pulsetime_to_abstime(startTicks);
+        return time;
+    }
+
+    // Returns the length of time between startTicks and endTicks
+    double Song::ticks_to_time_range(uint32_t startTicks, uint32_t endTicks)
+    {
+        double time = m_midi.pulsetime_to_abstime(endTicks);
+        time -= m_midi.pulsetime_to_abstime(startTicks);
         return time;
     }
 

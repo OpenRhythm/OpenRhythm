@@ -196,6 +196,7 @@ namespace ORCore
         SmfReader(std::string smfData);
         std::vector<SmfTrack*> get_tracks();
         TempoTrack* get_tempo_track();
+        uint32_t abstime_to_pulsetime(double absTime);
         double pulsetime_to_abstime(uint32_t pulseTime);
         SmfHeaderChunk* get_header();
         void release();
@@ -214,6 +215,7 @@ namespace ORCore
         void read_sysex_event(const SmfEventInfo &event);
         double delta_tick_to_delta_time(TempoEvent* tempo, uint32_t deltaPulses);
         void init_tempo_ts();
+        TempoEvent* get_last_tempo_via_abs_time(double absTime);
         TempoEvent* get_last_tempo_via_pulses(uint32_t pulseTime);
         void read_events(uint32_t chunkEnd);
         void read_file();
