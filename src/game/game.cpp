@@ -88,7 +88,7 @@ namespace ORGame
         m_neckProgram = m_renderer.add_program(std::move(neckProgram));
 
         ORCore::ShaderProgram tailProgram;
-        // tailProgram.add_shader(ORCore::Shader(tailGeoShader));
+        //tailProgram.add_shader(ORCore::Shader(tailGeoShader));
         tailProgram.add_shader(ORCore::Shader(vertInfo));
         tailProgram.add_shader(ORCore::Shader(fragInfo));
         tailProgram.link();
@@ -511,7 +511,15 @@ namespace ORGame
 
             tailObj->set_scale(glm::vec3{tailWidth, 1.0f, noteLength});
             tailObj->set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, z}); // center the line on the screen
-            tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
+
+            if (m_song.time_to_ticks_range(m_songTime, note->time+note->length) < (m_song.get_divison() / 16.0) )
+            {
+                tailObj->set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,0.0f}));
+            }
+            else
+            {
+                tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
+            }
 
             m_renderer.update_object(note->objTailID);
         }
