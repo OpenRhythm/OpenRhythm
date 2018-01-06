@@ -342,9 +342,18 @@ namespace ORGame
 
             obj.set_texture(-1); // -1 gets set to the default texture.
 
-            obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/2.0f});
-            obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - noteWidth, 0.0f, z}); // center the line on the screen
-            obj.set_geometry(ORCore::create_cube_mesh(color));
+            if (note.isHopo)
+            {
+                obj.set_scale(glm::vec3{noteWidth, tailWidth/2.5f, tailWidth/2.5f});
+                obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - noteWidth, 0.0f, z}); // center the line on the screen
+                obj.set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+            }
+            else
+            {
+                obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/2.0f});
+                obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - noteWidth, 0.0f, z}); // center the line on the screen
+                obj.set_geometry(ORCore::create_cube_mesh(color));
+            }
 
             note.objNoteID = m_renderer.add_object(obj);
 

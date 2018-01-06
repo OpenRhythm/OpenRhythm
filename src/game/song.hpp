@@ -57,6 +57,7 @@ namespace ORGame
         double length;
         int objNoteID;
         int objTailID;
+        bool isHopo;
         bool played;
     };
 
@@ -105,6 +106,7 @@ namespace ORGame
     {
         TrackType type;
         Difficulty difficulty;
+        bool hopoSupport;
     };
 
     class Song;
@@ -144,6 +146,8 @@ namespace ORGame
         std::vector<TrackNote*> &get_notes_in_frame(double start, double end);
         std::vector<TrackNote> &get_notes();
 
+        void mark_notes();
+
         void set_event(EventType type, double time, bool on);
         std::vector<Event> &get_events();
 
@@ -159,7 +163,7 @@ namespace ORGame
     public:
         Song(std::string songpath);
         ~Song();
-        void add(TrackType type, Difficulty difficulty);
+        void add(TrackType type, Difficulty difficulty, bool hopoSupport);
         bool load();
         void load_track(TrackInfo& trackInfo);
         void load_tracks();
@@ -169,7 +173,7 @@ namespace ORGame
         int16_t get_divison();
         double length();
         void start();
-        
+
         // Time methods
         double get_song_time();
         uint32_t get_song_tick_time();

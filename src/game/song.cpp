@@ -254,6 +254,10 @@ namespace ORGame
 
                 int tailCutoff = std::ceil(m_song->get_divison()/3.0);
                 int pulseLength = tickTime - note.tickTimeStart;
+                
+                // Init other variables for notes.
+                note.played = false;
+                note.isHopo = false;
 
 
                 if (pulseLength <= tailCutoff)
@@ -269,6 +273,63 @@ namespace ORGame
                 activeNotes.erase(item);
             }
         }
+    }
+
+    void Track::mark_notes()
+    {
+
+        // HOPO Marking brain dump
+        // - Needs to skip over potentially multiple notes within chords.
+        // - Needs to skip over consecutive notes of the same color.
+        // - Should not mark chords as hopo's
+        // - Should mark from the endTime of the last note in a chord to the startTime of the next note.
+
+        if (m_info.hopoSupport)
+        {
+            int hopoCutoff = std::ceil(m_song->get_divison()/3.0);
+            TrackNote *lastNote = nullptr;
+            for (int i = 0; i < m_notes.size();i++)
+            {
+
+                auto &n = m_notes[i];
+
+                // The first note will never be auto marked as a hopo.
+                if (lastNote == nullptr)
+                {
+                    lastNote = &n;
+                    continue;
+                }
+
+                // Loop until we find a note not at the same time.
+                if (n.tickTimeStart == m_notes[i+1].tickTimeStart)
+                {
+                    lastNote = &n;
+                    continue;
+                }
+
+                if (n.type == m_notes[i+1].type && n.type == m_notes[i-1].type)
+                {
+                    lastNote = &n;
+                    continue;
+                }
+
+
+
+                // Calculate hopo threshold from the end of the previous note to the start of the next.
+                // For notes that have had tails cut off they should be a length of 0 from the note start
+                // and this should work correctly.
+                std::cout << (n.tickTimeStart - lastNote->tickTimeEnd) << " " << hopoCutoff << std::endl;
+                if (lastNote->type != n.type && lastNote->tickTimeStart != n.tickTimeStart && (n.tickTimeStart - lastNote->tickTimeEnd) <= hopoCutoff)
+                {
+                    n.isHopo = true;
+                }
+
+                lastNote = &n;
+            }
+
+            // TODO - go through the force hopo/strum modifiers and mark those notes as hopo's or not.
+        }
+
     }
 
     void Track::set_event(EventType type, double time, bool on)
@@ -460,11 +521,11 @@ namespace ORGame
         m_audioOut.stop();
     }
 
-    void Song::add(TrackType type, Difficulty difficulty)
+    void Song::add(TrackType type, Difficulty difficulty, bool hopoSupport)
     {
         if (type != TrackType::NONE)
         {
-            m_tracksInfo.push_back({type, difficulty});
+            m_tracksInfo.push_back({type, difficulty, hopoSupport});
         }
     }
 
@@ -482,10 +543,10 @@ namespace ORGame
             if (type == TrackType::Guitar)
             {
                 // Add all difficulties for this track
-                add(type, Difficulty::Expert);
-                add(type, Difficulty::Hard);
-                add(type, Difficulty::Medium);
-                add(type, Difficulty::Easy);
+                add(type, Difficulty::Expert, true);
+                add(type, Difficulty::Hard, true);
+                add(type, Difficulty::Medium, true);
+                add(type, Difficulty::Easy, true);
                 foundUsable = true;
             }
 
@@ -602,6 +663,8 @@ namespace ORGame
                 }
             }
         }
+
+        track.mark_notes();
     }
 
     // Load all tracks
