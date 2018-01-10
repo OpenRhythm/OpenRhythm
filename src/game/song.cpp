@@ -313,12 +313,9 @@ namespace ORGame
                     continue;
                 }
 
-
-
                 // Calculate hopo threshold from the end of the previous note to the start of the next.
                 // For notes that have had tails cut off they should be a length of 0 from the note start
                 // and this should work correctly.
-                std::cout << (n.tickTimeStart - lastNote->tickTimeEnd) << " " << hopoCutoff << std::endl;
                 if (lastNote->type != n.type && lastNote->tickTimeStart != n.tickTimeStart && (n.tickTimeStart - lastNote->tickTimeEnd) <= hopoCutoff)
                 {
                     n.isHopo = true;
@@ -326,10 +323,8 @@ namespace ORGame
 
                 lastNote = &n;
             }
-
             // TODO - go through the force hopo/strum modifiers and mark those notes as hopo's or not.
         }
-
     }
 
     void Track::set_event(EventType type, double time, bool on)

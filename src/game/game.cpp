@@ -344,8 +344,8 @@ namespace ORGame
 
             if (note.isHopo)
             {
-                obj.set_scale(glm::vec3{noteWidth, tailWidth/2.5f, tailWidth/2.5f});
-                obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - noteWidth, 0.0f, z}); // center the line on the screen
+                obj.set_scale(glm::vec3{noteWidth*0.75, tailWidth/2.5f, tailWidth/2.5f});
+                obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - (noteWidth*0.875), 0.0f, z}); // center the line on the screen
                 obj.set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
             }
             else
