@@ -4,6 +4,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <type_traits>
 #include <memory>
@@ -13,6 +14,32 @@
 
 namespace ORCore
 {
+
+    enum class GuitarController
+    {
+        BUTTON_G,
+        BUTTON_R,
+        BUTTON_Y,
+        BUTTON_B,
+        BUTTON_O,
+        STRUM_U,
+        STRUM_D,
+        BUTTON_PAUSE,
+        BUTTON_ACTIVATE,
+        MAX_BUTTON
+    };
+
+    static std::unordered_map<int, GuitarController> xplorerMap {
+        {0, GuitarController::BUTTON_G},
+        {1, GuitarController::BUTTON_R},
+        {3, GuitarController::BUTTON_Y},
+        {2, GuitarController::BUTTON_B},
+        {9, GuitarController::BUTTON_O},
+        {11, GuitarController::STRUM_U},
+        {12, GuitarController::STRUM_D},
+        {6, GuitarController::BUTTON_PAUSE},
+        {4, GuitarController::BUTTON_ACTIVATE},
+    };
 
     enum class KeyCode
     {

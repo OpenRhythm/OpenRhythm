@@ -23,7 +23,9 @@ namespace ORCore
         WindowSize  = 1 << 3,
         KeyUp        = 1 << 4,
         KeyDown      = 1 << 5,
-        EventAll = Quit | MouseMove | WindowClose | WindowSize | KeyUp | KeyDown
+        GuitarControllerUp = 1 << 6,
+        GuitarControllerDown = 1 << 7,
+        EventAll = Quit | MouseMove | WindowClose | WindowSize | KeyUp | KeyDown | GuitarControllerUp | GuitarControllerDown
     };
 
 
@@ -60,13 +62,22 @@ namespace ORCore
     {
         KeyCode key;
         ModFlag mod;
-
     };
 
     struct QuitEvent
     {
         bool quit;
 
+    };
+
+    struct GuitarControllerUpEvent
+    {
+        GuitarController action;
+    };
+
+    struct GuitarControllerDownEvent
+    {
+        GuitarController action;
     };
 
     // This is functionally works similar to boost::any/std::any but customized to the event system.

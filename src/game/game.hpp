@@ -98,6 +98,10 @@ namespace ORGame
 
         std::vector<TrackNote*> m_heldNotes;
 
+        std::vector<int> m_buttons;
+        std::vector<ORCore::ObjectID> m_buttonRender;
+        std::vector<bool> m_buttonIsUpdate;
+
         std::streamsize m_ss;
         unsigned int m_boardPosID;
     };

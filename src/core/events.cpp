@@ -5,6 +5,8 @@
 
 #include <algorithm>
 #include <thread>
+#include <iostream>
+#include <stdexcept>
 
 namespace ORCore
 {
@@ -49,6 +51,20 @@ namespace ORCore
     : m_events(events)
     {
         SDL_InitSubSystem(SDL_INIT_EVENTS);
+        SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
+
+        SDL_GameController *controller = nullptr;
+        for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+            if (SDL_IsGameController(i)) {
+                std::cout << SDL_GameControllerNameForIndex(i) << std::endl;
+                controller = SDL_GameControllerOpen(i);
+                if (controller) {
+                    break;
+                } else {
+                    throw std::runtime_error("Error loading joystick");
+                }
+            }
+        }
     }
 
     void EventPumpSDL2::process()
@@ -62,6 +78,22 @@ namespace ORCore
             if (sdlEvent.type == SDL_QUIT)
             {
                 eventContainer = Event{Quit, 0.0, QuitEvent{true}};
+                eventProcessed = true;
+            }
+            else if (sdlEvent.type == SDL_CONTROLLERBUTTONDOWN)
+            {
+                if (sdlEvent.cbutton.state == SDL_PRESSED)
+                {
+                    eventContainer = Event{GuitarControllerDown, 0.0, GuitarControllerDownEvent{xplorerMap[sdlEvent.cbutton.button]}};
+                }
+                eventProcessed = true;
+            }
+            else if (sdlEvent.type == SDL_CONTROLLERBUTTONUP)
+            {
+                if (sdlEvent.cbutton.state == SDL_RELEASED)
+                {
+                    eventContainer = Event{GuitarControllerUp, 0.0, GuitarControllerUpEvent{xplorerMap[sdlEvent.cbutton.button]}};
+                }
                 eventProcessed = true;
             }
             else if (sdlEvent.type == SDL_MOUSEMOTION)

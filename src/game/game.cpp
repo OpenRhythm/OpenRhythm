@@ -62,6 +62,15 @@ namespace ORGame
 
         m_eventManager.add_listener(m_lis);
 
+        // setup buttons
+        for (auto i = 0; i < 5; i++)
+        {
+           m_buttons.push_back(0);
+           m_buttonIsUpdate.push_back(false);
+        }
+        //m_buttons.resize(static_cast<int>(ORCore::GuitarController::MAX_BUTTON));
+
+
         m_fpsTime = 0.0;
 
         m_videoOffset = 0.015f;
@@ -183,9 +192,25 @@ namespace ORGame
         obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
         m_fretObj = m_renderer.add_object(obj);
 
-        prep_render_bars();
+        // Top of frets
+        obj.set_texture(-1);
 
+        float laneWidth = 1.0f/5.0f;
+        float objheight = laneWidth/3.0f;
+
+        for (int i = 0; i < 5; i++)
+        {
+            obj.set_scale(glm::vec3{laneWidth, objheight/5.0f, objheight/2.5f});
+            obj.set_translation(glm::vec3{i*laneWidth, 0.0f, 0.0f});
+            obj.set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+            auto objID = m_renderer.add_object(obj);
+            std::cout << objID << " ";
+            m_buttonRender.push_back(objID);
+        }
+
+        prep_render_bars();
         prep_render_notes();
+
 
         ORCore::RenderObject objLines;
         objLines.set_camera(m_cameraStatic);
@@ -410,6 +435,24 @@ namespace ORGame
                 m_running = false;
                 break;
             }
+            case ORCore::GuitarControllerDown:
+            {
+                auto ev = ORCore::event_cast<ORCore::GuitarControllerDownEvent>(event);
+                int index = static_cast<int>(ev.action);
+                std::cout << "BUTT!!" << index << " " << m_buttons.size();
+                m_buttons[index] = index+1;
+                m_buttonIsUpdate[index] = true;
+                break;
+            }
+            case ORCore::GuitarControllerUp:
+            {
+                auto ev = ORCore::event_cast<ORCore::GuitarControllerUpEvent>(event);
+                int index = static_cast<int>(ev.action);
+                std::cout << "FOO!!" << index;
+                m_buttons[index] = 0;
+                m_buttonIsUpdate[index] = true;
+                break;
+            }
             case ORCore::MouseMove:
             {
                 auto ev = ORCore::event_cast<ORCore::MouseMoveEvent>(event);
@@ -506,6 +549,34 @@ namespace ORGame
                 }),
                 m_heldNotes.end());
 
+        for (int i = 0; i < m_buttons.size(); ++i)
+        {
+            //std::cout << b;
+            if (m_buttons[i] != 0)
+            {
+                if (m_buttonIsUpdate[i])
+                {
+                    auto *button = m_renderer.get_object(m_buttonRender[i]);
+
+                    // button->set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+                    button->set_scale(glm::vec3{1.0f/5.0f, 0.025f, 0.025f});
+                    m_renderer.update_object(m_buttonRender[i]);
+
+                    m_buttonIsUpdate[i] = false;
+                }
+            }
+            else
+            {
+                //if (m_buttonIsUpdate[i])
+                //{
+                    auto *button = m_renderer.get_object(m_buttonRender[i]);
+                    button->set_scale(glm::vec3{0.001f, 0.001f, 0.001f});
+                    m_renderer.update_object(m_buttonRender[i]);
+                    m_buttonIsUpdate[i] = false;
+                //}
+            }
+        }
+
         for (auto *note : m_heldNotes)
         {
             try
@@ -532,6 +603,7 @@ namespace ORGame
 
             m_renderer.update_object(note->objTailID);
         }
+
         m_renderer.commit();
 
         // TODO - Allow renderer to be able to specify uniforms and set them per batch/shader
