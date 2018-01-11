@@ -200,11 +200,10 @@ namespace ORGame
 
         for (int i = 0; i < 5; i++)
         {
-            obj.set_scale(glm::vec3{laneWidth, objheight/5.0f, objheight/2.5f});
+            obj.set_scale(glm::vec3{laneWidth, objheight/7.0f, objheight/2.5f});
             obj.set_translation(glm::vec3{i*laneWidth, 0.0f, 0.0f});
-            obj.set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+            obj.set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,0.0f}));
             auto objID = m_renderer.add_object(obj);
-            std::cout << objID << " ";
             m_buttonRender.push_back(objID);
         }
 
@@ -551,15 +550,13 @@ namespace ORGame
 
         for (int i = 0; i < m_buttons.size(); ++i)
         {
-            //std::cout << b;
             if (m_buttons[i] != 0)
             {
                 if (m_buttonIsUpdate[i])
                 {
                     auto *button = m_renderer.get_object(m_buttonRender[i]);
 
-                    // button->set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
-                    button->set_scale(glm::vec3{1.0f/5.0f, 0.025f, 0.025f});
+                    button->set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
                     m_renderer.update_object(m_buttonRender[i]);
 
                     m_buttonIsUpdate[i] = false;
@@ -567,13 +564,13 @@ namespace ORGame
             }
             else
             {
-                //if (m_buttonIsUpdate[i])
-                //{
+                if (m_buttonIsUpdate[i])
+                {
                     auto *button = m_renderer.get_object(m_buttonRender[i]);
-                    button->set_scale(glm::vec3{0.001f, 0.001f, 0.001f});
+                    button->set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,0.0f}));
                     m_renderer.update_object(m_buttonRender[i]);
                     m_buttonIsUpdate[i] = false;
-                //}
+                }
             }
         }
 
