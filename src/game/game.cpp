@@ -9,6 +9,7 @@
 #include <stdexcept>
 
 #include "filesystem.hpp"
+#include "resolver.hpp"
 namespace ORGame
 {
     const float neck_speed_divisor = 0.5;
@@ -75,6 +76,11 @@ namespace ORGame
 
         m_videoOffset = 0.015f;
         m_audioOffset = 0.0;
+
+
+        // Store class instances into resolver.
+        ORCore::Resolver::set(m_song);
+        ORCore::Resolver::set(m_renderer);
 
         m_ss = std::cout.precision();
         m_renderer.init_gl();
@@ -504,6 +510,11 @@ namespace ORGame
         return true;
     }
 
+    // void GameManager::guitar_button_up()
+    // {
+
+    // }
+
     void GameManager::update()
     {
         m_songTime = m_song.get_song_time(); 
@@ -556,7 +567,7 @@ namespace ORGame
                 {
                     auto *button = m_renderer.get_object(m_buttonRender[i]);
 
-                    button->set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+                    button->set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,0.7f}));
                     m_renderer.update_object(m_buttonRender[i]);
 
                     m_buttonIsUpdate[i] = false;
