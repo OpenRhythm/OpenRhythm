@@ -210,6 +210,7 @@ set(CORE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/parseutils.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/resolver.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.hpp
@@ -229,6 +230,7 @@ set(CORE_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/context.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/events.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/keycode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/resolver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/smf.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/stringutils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core/timing.cpp
