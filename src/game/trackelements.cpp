@@ -6,13 +6,13 @@
 
 #include "trackelements.hpp"
 
+#include <iostream>
 
 namespace ORGame
 {
-
-    TrackElements::TrackElements(CoreRenderIDs renderIDs)
-    : m_renderIDs(renderIDs)
+    void TrackElements::set_renderInfo(CoreRenderIDs renderIDs)
     {
+        m_renderIDs = renderIDs;
     }
 
     void TrackElements::update(double songTime)
@@ -36,15 +36,11 @@ namespace ORGame
 
         m_texture = renderer.add_texture(ORCore::loadSTB("data/icon.png"));
 
-        std::cout << "Bar Count: " << bars.size() << " Song Length: " << m_song.length() << std::endl;
-
         // reuse the same container when creating bars as add_obj wont modify the original.
         ORCore::RenderObject obj;
-        obj.set_camera(m_cameraDynamic);
+        obj.set_camera(m_renderIDs.cameraDynamic);
         obj.set_texture(m_texture);
-        obj.set_program(m_program);
-
-        auto& renderer = ORCore::Resolver::get<ORCore::Renderer>();
+        obj.set_program(m_renderIDs.program);
 
         for (size_t i = 0; i < bars.size(); i++) {
             float z = (bars[i].time / neck_speed_divisor);
@@ -87,10 +83,15 @@ namespace ORGame
         m_neckProgram = renderer.add_program(std::move(neckProgram));
 
 
+        auto neckProgramTemp = renderer.get_program(m_neckProgram);
+
+        m_boardPosID = glGetUniformLocation(*neckProgramTemp, "neckPos");
+
+
         // Setup Neck geometry/objects
         ORCore::RenderObject obj;
 
-        obj.set_camera(m_cameraStatic);
+        obj.set_camera(m_renderIDs.cameraStatic);
         obj.set_program(m_neckProgram);
 
         obj.set_primitive_type(ORCore::Primitive::triangle);
@@ -112,8 +113,8 @@ namespace ORGame
         // Solos
         ORCore::RenderObject obj;
         obj.set_primitive_type(ORCore::Primitive::triangle);
-        obj.set_camera(m_cameraDynamic);
-        obj.set_program(m_program);
+        obj.set_camera(m_renderIDs.cameraDynamic);
+        obj.set_program(m_renderIDs.program);
         obj.set_texture(m_soloNeckTexture);
 
         glm::vec4 solo_color = glm::vec4{0.0f,1.0f,1.0f,0.75f};
@@ -140,8 +141,8 @@ namespace ORGame
         // drive
         ORCore::RenderObject obj;
         obj.set_primitive_type(ORCore::Primitive::triangle);
-        obj.set_camera(m_cameraDynamic);
-        obj.set_program(m_program);
+        obj.set_camera(m_renderIDs.cameraDynamic);
+        obj.set_program(m_renderIDs.program);
         obj.set_texture(m_soloNeckTexture);
 
         glm::vec4 drive_color = glm::vec4{1.5f,1.5f,1.5f,0.75f};

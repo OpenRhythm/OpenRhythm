@@ -242,10 +242,13 @@ set(CORE_SOURCE
 set(GAME_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/song.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/trackelements.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/commonobjects.hpp
 )
 set(GAME_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/game.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/game/song.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/game/trackelements.cpp
 )
 
 set(ALL_SOURCE

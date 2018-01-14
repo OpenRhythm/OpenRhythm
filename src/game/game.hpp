@@ -1,7 +1,7 @@
 // Copyright (c) 2015-2017 Matthew Sitton <matthewsitton@gmail.com>
 // See LICENSE in the project root for license information.
-
 #pragma once
+
 #include <string>
 #include <vector>
 #include <ios>
@@ -15,6 +15,8 @@
 #include "renderer/renderer.hpp"
 #include "renderer/texture.hpp"
 #include "song.hpp"
+#include "commonobjects.hpp"
+#include "trackelements.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -36,13 +38,6 @@ namespace ORGame
         {NoteType::Yellow, {1.5f,1.5f,0.35f,1.0f}},
         {NoteType::Blue, {0.25f,1.5f,4.5f,1.0f}},
         {NoteType::Orange, {3.0f,1.5f,0.5f,1.0f}},
-    };
-
-    struct CoreRenderIDs
-    {
-        ORCore::CameraID m_cameraStatic;
-        ORCore::CameraID m_cameraDynamic;
-        ORCore::ProgramID m_program;
     };
 
     class GameManager
@@ -85,6 +80,8 @@ namespace ORGame
         ORCore::Renderer m_renderer;
         ORCore::Listener m_lis;
 
+        TrackElements m_trackElements;
+
         ORCore::TextureID m_tailTexture;
         ORCore::TextureID m_fretsTexture;
 
@@ -105,6 +102,5 @@ namespace ORGame
         std::vector<bool> m_buttonIsUpdate;
 
         std::streamsize m_ss;
-        unsigned int m_boardPosID;
     };
 }

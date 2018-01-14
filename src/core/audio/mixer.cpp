@@ -44,5 +44,6 @@ namespace ORCore
         {
             return m_streams[0]->get_format();
         }
+        // TODO - Return in this case.
     }
 }

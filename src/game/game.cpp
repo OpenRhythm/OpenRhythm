@@ -12,11 +12,6 @@
 #include "resolver.hpp"
 namespace ORGame
 {
-    const float neck_speed_divisor = 0.5;
-    const float neck_board_length = 2.0f;
-
-    const float hit_window_front = 0.085;
-    const float hit_window_back = 0.085;
 
     GameManager::GameManager()
     :m_width(1920),
@@ -125,6 +120,8 @@ namespace ORGame
 
         resize(m_width, m_height);
 
+        m_trackElements.set_renderInfo({m_cameraStatic, m_cameraDynamic, m_program});
+
 
         m_trackElements.init_neck();
 
@@ -222,10 +219,6 @@ namespace ORGame
         m_renderer.add_object(objPoints);
 
         m_renderer.commit();
-
-        auto neckProgramTemp = m_renderer.get_program(m_neckProgram);
-
-        m_boardPosID = glGetUniformLocation(*neckProgramTemp, "neckPos");
 
         GLint  iMultiSample = 0;
         GLint  iNumSamples = 0;
@@ -528,7 +521,7 @@ namespace ORGame
         m_renderer.commit();
 
         // translate projection with song
-        float boardPos = (songTime/neck_speed_divisor);
+        float boardPos = (m_songTime/neck_speed_divisor);
         auto cam = m_renderer.get_camera(m_cameraDynamic);
         cam->set_translation(glm::vec3(0.5f, 1.0f, boardPos-0.5));
         m_renderer.update_camera(m_cameraDynamic);
