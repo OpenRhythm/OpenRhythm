@@ -12,16 +12,16 @@
 
 namespace ORGame
 {
-	class TrackElements
-	{
-	public:
-		TrackElements(CoreRenderIDs renderIDs);
+    class TrackElements
+    {
+    public:
+        TrackElements(CoreRenderIDs renderIDs);
         void init_bars(std::vector<BarEvent> &bars);
         void init_neck();
-        void init_solo_sections();
-        void init_power_sections();
+        void init_solo_sections(std::vector<Event> &events);
+        void init_energy_sections(std::vector<Event> &events);
         void update(double songTime);
-	private:
+    private:
         ORCore::TextureID m_neckTexture;
         ORCore::TextureID m_texture;
         ORCore::TextureID m_soloNeckTexture;
@@ -30,5 +30,5 @@ namespace ORGame
 
         ORCore::ObjectID m_neckObj;
         CoreRenderIDs m_renderIDs;
-	};
+    };
 }

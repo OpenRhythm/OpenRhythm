@@ -125,61 +125,20 @@ namespace ORGame
 
         resize(m_width, m_height);
 
+
+        m_trackElements.init_neck();
+
         ORCore::RenderObject obj;
 
-        obj.set_camera(m_cameraStatic);
-
-        // Background Neck
-        obj.set_program(m_neckProgram);
-
-        obj.set_primitive_type(ORCore::Primitive::triangle);
-        obj.set_texture(m_neckTexture);
-
-        obj.set_scale(glm::vec3{1.0f, 1.0f, neck_board_length});
-        obj.set_translation(glm::vec3{0.0f, 0.0f, -0.35f});
-        obj.set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
-        m_neckObj = m_renderer.add_object(obj);
-
         // Solos
-        obj.set_camera(m_cameraDynamic);
-        obj.set_program(m_program);
-        obj.set_texture(m_soloNeckTexture);
 
         auto &events = m_playerTrack->get_events();
 
-        glm::vec4 solo_color = glm::vec4{0.0f,1.0f,1.0f,0.75f};
-        for (auto &event : events)
-        {
-
-            if (event.type == EventType::solo) {
-                float z = event.time / neck_speed_divisor;
-                float length = event.length / neck_speed_divisor;
-
-                obj.set_scale(glm::vec3{1.125f, 1.0f, length});
-                obj.set_translation(glm::vec3{-0.0625f, 0.0f, z});
-                obj.set_geometry(ORCore::create_rect_z_mesh(solo_color));
-                m_renderer.add_object(obj);
-            }
-        }
-
-        // drive
-        glm::vec4 drive_color = glm::vec4{1.5f,1.5f,1.5f,0.75f};
-
-        for (auto &event : events)
-        {
-            if (event.type == EventType::drive)
-            {
-                float z = event.time / neck_speed_divisor;
-                float length = event.length / neck_speed_divisor;
-
-                obj.set_scale(glm::vec3{1.125f, 1.0f, length});
-                obj.set_translation(glm::vec3{-0.0625f, 0.0f, z});
-                obj.set_geometry(ORCore::create_rect_z_mesh(drive_color));
-                m_renderer.add_object(obj);
-            }
-        }
+        m_trackElements.init_solo_sections(events);
+        m_trackElements.init_energy_sections(events);
 
         // Frets
+        obj.set_program(m_program);
         obj.set_camera(m_cameraStatic);
         obj.set_texture(m_fretsTexture);
         obj.set_scale(glm::vec3{1.0f, 1.0f, 0.05f});
@@ -235,8 +194,6 @@ namespace ORGame
         });
 
         m_renderer.add_object(objLines);
-
-
 
         ORCore::RenderObject objPoints;
         objPoints.set_camera(m_cameraStatic);
@@ -566,9 +523,12 @@ namespace ORGame
             m_renderer.update_object(note->objTailID);
         }
 
+        m_trackElements.update(m_songTime);
+
         m_renderer.commit();
 
         // translate projection with song
+        float boardPos = (songTime/neck_speed_divisor);
         auto cam = m_renderer.get_camera(m_cameraDynamic);
         cam->set_translation(glm::vec3(0.5f, 1.0f, boardPos-0.5));
         m_renderer.update_camera(m_cameraDynamic);

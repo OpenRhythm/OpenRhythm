@@ -95,7 +95,6 @@ namespace ORGame
         ORCore::ProgramID m_tailProgram;
         
         ORCore::ObjectID m_fretObj;
-        ORCore::ObjectID m_neckObj;
 
         std::shared_ptr<spdlog::logger> m_logger;
 

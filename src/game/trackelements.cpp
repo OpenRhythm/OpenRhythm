@@ -20,11 +20,11 @@ namespace ORGame
         auto& renderer = ORCore::Resolver::get<ORCore::Renderer>();
 
         // TODO - Allow renderer to be able to specify uniforms and set them per batch/shader
-        auto neckProgram = m_renderer.get_program(m_neckProgram);
+        auto neckProgram = renderer.get_program(m_neckProgram);
         neckProgram->use();
         
 
-        float boardPos = (m_songTime/neck_speed_divisor);
+        float boardPos = (songTime/neck_speed_divisor);
 
         // TODO - FIX ME No gl calls outside of renderer.
         glUniform1f(m_boardPosID, boardPos/neck_board_length);
@@ -74,8 +74,9 @@ namespace ORGame
     {
         auto& renderer = ORCore::Resolver::get<ORCore::Renderer>();
 
-        m_neckTexture = m_renderer.add_texture(ORCore::loadSTB("data/neck.png"));
+        m_neckTexture = renderer.add_texture(ORCore::loadSTB("data/neck.png"));
 
+        // Neck shaders
         ORCore::ShaderInfo neckVertInfo {GL_VERTEX_SHADER, "./data/shaders/neck.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
 
@@ -85,19 +86,78 @@ namespace ORGame
         neckProgram.link();
         m_neckProgram = renderer.add_program(std::move(neckProgram));
 
+
+        // Setup Neck geometry/objects
+        ORCore::RenderObject obj;
+
+        obj.set_camera(m_cameraStatic);
+        obj.set_program(m_neckProgram);
+
+        obj.set_primitive_type(ORCore::Primitive::triangle);
+        obj.set_texture(m_neckTexture);
+
+        obj.set_scale(glm::vec3{1.0f, 1.0f, neck_board_length});
+        obj.set_translation(glm::vec3{0.0f, 0.0f, -0.35f});
+        obj.set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
+        m_neckObj = renderer.add_object(obj);
+
     }
 
-    void TrackElements::init_solo_sections()
+    void TrackElements::init_solo_sections(std::vector<Event> &events)
     {
         auto& renderer = ORCore::Resolver::get<ORCore::Renderer>();
 
-        m_soloNeckTexture = m_renderer.add_texture(ORCore::loadSTB("data/soloNeck.png"));
+        m_soloNeckTexture = renderer.add_texture(ORCore::loadSTB("data/soloNeck.png"));
+
+        // Solos
+        ORCore::RenderObject obj;
+        obj.set_primitive_type(ORCore::Primitive::triangle);
+        obj.set_camera(m_cameraDynamic);
+        obj.set_program(m_program);
+        obj.set_texture(m_soloNeckTexture);
+
+        glm::vec4 solo_color = glm::vec4{0.0f,1.0f,1.0f,0.75f};
+        for (auto &event : events)
+        {
+
+            if (event.type == EventType::solo) {
+                float z = event.time / neck_speed_divisor;
+                float length = event.length / neck_speed_divisor;
+
+                obj.set_scale(glm::vec3{1.125f, 1.0f, length});
+                obj.set_translation(glm::vec3{-0.0625f, 0.0f, z});
+                obj.set_geometry(ORCore::create_rect_z_mesh(solo_color));
+                renderer.add_object(obj);
+            }
+        }
 
     }
 
-    void TrackElements::init_power_sections()
+    void TrackElements::init_energy_sections(std::vector<Event> &events)
     {
         auto& renderer = ORCore::Resolver::get<ORCore::Renderer>();
+
+        // drive
+        ORCore::RenderObject obj;
+        obj.set_primitive_type(ORCore::Primitive::triangle);
+        obj.set_camera(m_cameraDynamic);
+        obj.set_program(m_program);
+        obj.set_texture(m_soloNeckTexture);
+
+        glm::vec4 drive_color = glm::vec4{1.5f,1.5f,1.5f,0.75f};
+        for (auto &event : events)
+        {
+            if (event.type == EventType::drive)
+            {
+                float z = event.time / neck_speed_divisor;
+                float length = event.length / neck_speed_divisor;
+
+                obj.set_scale(glm::vec3{1.125f, 1.0f, length});
+                obj.set_translation(glm::vec3{-0.0625f, 0.0f, z});
+                obj.set_geometry(ORCore::create_rect_z_mesh(drive_color));
+                renderer.add_object(obj);
+            }
+        }
 
     }
 
