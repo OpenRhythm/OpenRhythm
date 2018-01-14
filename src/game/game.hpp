@@ -38,6 +38,13 @@ namespace ORGame
         {NoteType::Orange, {3.0f,1.5f,0.5f,1.0f}},
     };
 
+    struct CoreRenderIDs
+    {
+        ORCore::CameraID m_cameraStatic;
+        ORCore::CameraID m_cameraDynamic;
+        ORCore::ProgramID m_program;
+    };
+
     class GameManager
     {
     public:
@@ -78,21 +85,17 @@ namespace ORGame
         ORCore::Renderer m_renderer;
         ORCore::Listener m_lis;
 
-        ORCore::TextureID m_texture;
         ORCore::TextureID m_tailTexture;
         ORCore::TextureID m_fretsTexture;
-        ORCore::TextureID m_neckTexture;
-        ORCore::TextureID m_soloNeckTexture;
+
+        ORCore::CameraID m_cameraStatic;
+        ORCore::CameraID m_cameraDynamic;
 
         ORCore::ProgramID m_program;
-        ORCore::ProgramID m_neckProgram;
         ORCore::ProgramID m_tailProgram;
         
         ORCore::ObjectID m_fretObj;
         ORCore::ObjectID m_neckObj;
-
-        ORCore::CameraID m_cameraStatic;
-        ORCore::CameraID m_cameraDynamic;
 
         std::shared_ptr<spdlog::logger> m_logger;
 

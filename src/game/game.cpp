@@ -87,7 +87,6 @@ namespace ORGame
 
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
-        ORCore::ShaderInfo neckVertInfo {GL_VERTEX_SHADER, "./data/shaders/neck.vs"};
         ORCore::ShaderInfo tailGeoShader {GL_GEOMETRY_SHADER, "./data/shaders/tail.gs"};
 
         ORCore::ShaderProgram program;
@@ -96,12 +95,6 @@ namespace ORGame
         program.link();
         m_program = m_renderer.add_program(std::move(program));
 
-        ORCore::ShaderProgram neckProgram;
-        neckProgram.add_shader(ORCore::Shader(neckVertInfo));
-        neckProgram.add_shader(ORCore::Shader(fragInfo));
-        neckProgram.link();
-        m_neckProgram = m_renderer.add_program(std::move(neckProgram));
-
         ORCore::ShaderProgram tailProgram;
         //tailProgram.add_shader(ORCore::Shader(tailGeoShader));
         tailProgram.add_shader(ORCore::Shader(vertInfo));
@@ -109,11 +102,8 @@ namespace ORGame
         tailProgram.link();
         m_tailProgram = m_renderer.add_program(std::move(tailProgram));
 
-        m_texture = m_renderer.add_texture(ORCore::loadSTB("data/icon.png"));
         m_tailTexture = m_renderer.add_texture(ORCore::loadSTB("data/tail.png"));
         m_fretsTexture = m_renderer.add_texture(ORCore::loadSTB("data/frets.png"));
-        m_soloNeckTexture = m_renderer.add_texture(ORCore::loadSTB("data/soloNeck.png"));
-        m_neckTexture = m_renderer.add_texture(ORCore::loadSTB("data/neck.png"));
 
         // Create cameras and register them with the renderer
         ORCore::CameraObject camera;
@@ -213,7 +203,7 @@ namespace ORGame
             m_buttonRender.push_back(objID);
         }
 
-        // prep_render_bars();
+        m_trackElements.init_bars(m_tempoTrack->get_bars());
         prep_render_notes();
 
 
@@ -577,16 +567,6 @@ namespace ORGame
         }
 
         m_renderer.commit();
-
-        // TODO - Allow renderer to be able to specify uniforms and set them per batch/shader
-        auto neckProgram = m_renderer.get_program(m_neckProgram);
-        neckProgram->use();
-        
-
-        float boardPos = (m_songTime/neck_speed_divisor);
-
-        // TODO - FIX ME No gl calls outside of renderer.
-        glUniform1f(m_boardPosID, boardPos/neck_board_length);
 
         // translate projection with song
         auto cam = m_renderer.get_camera(m_cameraDynamic);
