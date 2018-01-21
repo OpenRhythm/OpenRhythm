@@ -41,6 +41,16 @@ namespace ORCore
         {4, GuitarController::BUTTON_ACTIVATE},
     };
 
+    static std::unordered_map<int, GuitarController> xplorerJoyMap {
+        {0, GuitarController::BUTTON_G},
+        {1, GuitarController::BUTTON_R},
+        {3, GuitarController::BUTTON_Y},
+        {2, GuitarController::BUTTON_B},
+        {4, GuitarController::BUTTON_O},
+        {7, GuitarController::BUTTON_PAUSE},
+        {6, GuitarController::BUTTON_ACTIVATE},
+    };
+
     enum class KeyCode
     {
         _KEY_NONE = 0,

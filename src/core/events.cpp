@@ -54,6 +54,9 @@ namespace ORCore
         SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
 
         SDL_GameController *controller = nullptr;
+        SDL_Joystick *joy = nullptr;
+
+        std::cout << SDL_NumJoysticks() << std::endl;
         for (int i = 0; i < SDL_NumJoysticks(); ++i) {
             if (SDL_IsGameController(i)) {
                 std::cout << SDL_GameControllerNameForIndex(i) << std::endl;
@@ -63,6 +66,13 @@ namespace ORCore
                 } else {
                     throw std::runtime_error("Error loading joystick");
                 }
+            }
+            else
+            {
+                joy = SDL_JoystickOpen(i);
+
+                std::cout << "Not game controller, falling back to sdl joystick" << std::endl;
+                std::cout << "Name: " << SDL_JoystickNameForIndex(i) << std::endl;
             }
         }
     }
@@ -93,6 +103,38 @@ namespace ORCore
                 if (sdlEvent.cbutton.state == SDL_RELEASED)
                 {
                     eventContainer = Event{GuitarControllerUp, 0.0, GuitarControllerUpEvent{xplorerMap[sdlEvent.cbutton.button]}};
+                }
+                eventProcessed = true;
+            }
+            else if (sdlEvent.type == SDL_JOYBUTTONDOWN)
+            {
+                if (sdlEvent.jbutton.state == SDL_PRESSED)
+                {
+                    eventContainer = Event{GuitarControllerDown, 0.0, GuitarControllerDownEvent{xplorerJoyMap[sdlEvent.jbutton.button]}};
+                }
+                eventProcessed = true;
+            }
+            else if (sdlEvent.type == SDL_JOYBUTTONUP)
+            {
+                if (sdlEvent.jbutton.state == SDL_RELEASED)
+                {
+                    eventContainer = Event{GuitarControllerUp, 0.0, GuitarControllerDownEvent{xplorerJoyMap[sdlEvent.jbutton.button]}};
+                }
+                eventProcessed = true;
+            }
+            else if (sdlEvent.jhat.type == SDL_JOYHATMOTION)
+            {
+                if (sdlEvent.jhat.value == SDL_HAT_UP)
+                {
+                    eventContainer = Event{GuitarControllerUp, 0.0, GuitarControllerUpEvent{GuitarController::STRUM_D}};
+                }
+                else if (sdlEvent.jhat.value == SDL_HAT_DOWN)
+                {
+                    eventContainer = Event{GuitarControllerUp, 0.0, GuitarControllerUpEvent{GuitarController::STRUM_D}};
+                }
+                if (sdlEvent.jhat.value == SDL_HAT_CENTERED)
+                {
+                    eventContainer = Event{GuitarControllerDown, 0.0, GuitarControllerUpEvent{GuitarController::STRUM_D}};
                 }
                 eventProcessed = true;
             }
