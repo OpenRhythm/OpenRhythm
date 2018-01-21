@@ -17,28 +17,12 @@
 #include "song.hpp"
 #include "commonobjects.hpp"
 #include "trackelements.hpp"
+#include "guitar.hpp"
 
 #include <spdlog/spdlog.h>
 
 namespace ORGame
 {
-
-
-    const std::map<NoteType, glm::vec4> noteColorMap = {
-        {NoteType::Green, {0.0f,1.0f,0.0f,1.0f}},
-        {NoteType::Red, {1.0f,0.0f,0.0f,1.0f}},
-        {NoteType::Yellow, {1.0f,1.0f,0.0f,1.0f}},
-        {NoteType::Blue, {0.0f,0.0f,1.0f,1.0f}},
-        {NoteType::Orange, {1.0f,0.5f,0.0f,1.0f}},
-    };
-    
-    const std::map<NoteType, glm::vec4> noteColorMapActive = {
-        {NoteType::Green, {0.35f,1.5f,0.35f,1.0f}},
-        {NoteType::Red, {1.5f,0.35f,0.35f,1.0f}},
-        {NoteType::Yellow, {1.5f,1.5f,0.35f,1.0f}},
-        {NoteType::Blue, {0.25f,1.5f,4.5f,1.0f}},
-        {NoteType::Orange, {3.0f,1.5f,0.5f,1.0f}},
-    };
 
     class GameManager
     {
@@ -62,9 +46,6 @@ namespace ORGame
 
         int m_mouseX = 0;
         int m_mouseY = 0;
-        
-        float m_videoOffset;
-        float m_audioOffset;
 
         TempoTrack *m_tempoTrack;
         Track *m_playerTrack;
@@ -81,25 +62,18 @@ namespace ORGame
         ORCore::Listener m_lis;
 
         TrackElements m_trackElements;
+        Guitar m_guitar;
 
-        ORCore::TextureID m_tailTexture;
-        ORCore::TextureID m_fretsTexture;
+        std::vector<int> m_buttons;
+        std::vector<ORCore::ObjectID> m_buttonRender;
+        std::vector<bool> m_buttonIsUpdate;
 
         ORCore::CameraID m_cameraStatic;
         ORCore::CameraID m_cameraDynamic;
 
         ORCore::ProgramID m_program;
-        ORCore::ProgramID m_tailProgram;
-        
-        ORCore::ObjectID m_fretObj;
 
         std::shared_ptr<spdlog::logger> m_logger;
-
-        std::vector<TrackNote*> m_heldNotes;
-
-        std::vector<int> m_buttons;
-        std::vector<ORCore::ObjectID> m_buttonRender;
-        std::vector<bool> m_buttonIsUpdate;
 
         std::streamsize m_ss;
     };

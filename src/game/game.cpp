@@ -69,8 +69,6 @@ namespace ORGame
 
         m_fpsTime = 0.0;
 
-        m_videoOffset = 0.015f;
-        m_audioOffset = 0.0;
 
 
         // Store class instances into resolver.
@@ -82,23 +80,12 @@ namespace ORGame
 
         ORCore::ShaderInfo vertInfo {GL_VERTEX_SHADER, "./data/shaders/main.vs"};
         ORCore::ShaderInfo fragInfo {GL_FRAGMENT_SHADER, "./data/shaders/main.fs"};
-        ORCore::ShaderInfo tailGeoShader {GL_GEOMETRY_SHADER, "./data/shaders/tail.gs"};
 
         ORCore::ShaderProgram program;
         program.add_shader(ORCore::Shader(vertInfo));
         program.add_shader(ORCore::Shader(fragInfo));
         program.link();
         m_program = m_renderer.add_program(std::move(program));
-
-        ORCore::ShaderProgram tailProgram;
-        //tailProgram.add_shader(ORCore::Shader(tailGeoShader));
-        tailProgram.add_shader(ORCore::Shader(vertInfo));
-        tailProgram.add_shader(ORCore::Shader(fragInfo));
-        tailProgram.link();
-        m_tailProgram = m_renderer.add_program(std::move(tailProgram));
-
-        m_tailTexture = m_renderer.add_texture(ORCore::loadSTB("data/tail.png"));
-        m_fretsTexture = m_renderer.add_texture(ORCore::loadSTB("data/frets.png"));
 
         // Create cameras and register them with the renderer
         ORCore::CameraObject camera;
@@ -120,31 +107,27 @@ namespace ORGame
 
         resize(m_width, m_height);
 
-        m_trackElements.set_renderInfo({m_cameraStatic, m_cameraDynamic, m_program});
+        CoreRenderIDs info{m_cameraStatic, m_cameraDynamic, m_program};
+
+        m_trackElements.set_renderInfo(info);
+        m_guitar.set_renderInfo(info);
 
 
         m_trackElements.init_neck();
-
-        ORCore::RenderObject obj;
-
-        // Solos
 
         auto &events = m_playerTrack->get_events();
 
         m_trackElements.init_solo_sections(events);
         m_trackElements.init_energy_sections(events);
 
-        // Frets
-        obj.set_program(m_program);
-        obj.set_camera(m_cameraStatic);
-        obj.set_texture(m_fretsTexture);
-        obj.set_scale(glm::vec3{1.0f, 1.0f, 0.05f});
-        obj.set_translation(glm::vec3{0.0f, 0.0f, 0.0f}); // center the line on the screen
-        obj.set_primitive_type(ORCore::Primitive::triangle);
-        obj.set_geometry(ORCore::create_rect_z_center_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
-        m_fretObj = m_renderer.add_object(obj);
+        m_guitar.init_frets();
+
+        ORCore::RenderObject obj;
 
         // Top of frets
+        obj.set_program(m_program);
+        obj.set_camera(m_cameraStatic);
+        obj.set_primitive_type(ORCore::Primitive::triangle);
         obj.set_texture(-1);
 
         float laneWidth = 1.0f/5.0f;
@@ -160,8 +143,7 @@ namespace ORGame
         }
 
         m_trackElements.init_bars(m_tempoTrack->get_bars());
-        prep_render_notes();
-
+        m_guitar.init_notes(m_playerTrack->get_notes());
 
         ORCore::RenderObject objLines;
         objLines.set_camera(m_cameraStatic);
@@ -170,8 +152,8 @@ namespace ORGame
         objLines.set_scale(glm::vec3{1.0f, 1.0f, 1.0f});
         objLines.set_translation(glm::vec3{0.0f, 0.0f, 0.0f});
 
-        float hitwPosF = hit_window_front-m_videoOffset / neck_speed_divisor;
-        float hitwPosB = (-hit_window_back)-m_videoOffset / neck_speed_divisor;
+        float hitwPosF = hit_window_front-videoOffset / neck_speed_divisor;
+        float hitwPosB = (-hit_window_back)-videoOffset / neck_speed_divisor;
 
         glm::vec4 line_color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
 
@@ -180,8 +162,8 @@ namespace ORGame
             {{0.0f, 0.0f, hitwPosF}, {0.0f, 0.0f}, line_color},
             {{1.0f, 0.0f, hitwPosF}, {0.0f, 0.0f}, line_color},
 
-            {{0.0f, 0.0f, -(m_videoOffset/ neck_speed_divisor)}, {0.0f, 0.0f}, line_color},
-            {{1.0f, 0.0f, -(m_videoOffset/ neck_speed_divisor)}, {0.0f, 0.0f}, line_color},
+            {{0.0f, 0.0f, -(videoOffset/ neck_speed_divisor)}, {0.0f, 0.0f}, line_color},
+            {{1.0f, 0.0f, -(videoOffset/ neck_speed_divisor)}, {0.0f, 0.0f}, line_color},
 
             {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, line_color},
             {{1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, line_color},
@@ -191,32 +173,6 @@ namespace ORGame
         });
 
         m_renderer.add_object(objLines);
-
-        ORCore::RenderObject objPoints;
-        objPoints.set_camera(m_cameraStatic);
-        objPoints.set_program(m_tailProgram);
-        objPoints.set_primitive_type(ORCore::Primitive::point);
-        objPoints.set_scale(glm::vec3{1.0f, 1.0f, 1.0f});
-        objPoints.set_translation(glm::vec3{0.0f, 0.0f, 0.0f});
-
-        // std::vector<ORCore::Vertex> points;
-
-        // for (int i; i <=100; ++i)
-        // {
-        //     points.push_back({{0.5f, 0.0f, i * 0.001}, {0.0f, 0.0f}, line_color});
-        // }
-
-        objPoints.set_geometry({
-            // Vertex2           UV            Color
-            {{1.15f, 0.0f, 0.0f}, {0.0f, 0.0f}, line_color},
-            {{1.15f, 0.0f, 0.01f}, {0.0f, 0.0f}, line_color},
-            {{1.15f, 0.0f, 0.02f}, {0.0f, 0.0f}, line_color},
-            {{1.15f, 0.0f, 0.03f}, {0.0f, 0.0f}, line_color},
-            {{1.15f, 0.0f, 0.04f}, {0.0f, 0.0f}, line_color},
-            {{1.15f, 0.0f, 0.05f}, {0.0f, 0.0f}, line_color},
-        });
-
-        m_renderer.add_object(objPoints);
 
         m_renderer.commit();
 
@@ -234,64 +190,6 @@ namespace ORGame
     GameManager::~GameManager()
     {
         m_window.make_current(nullptr);
-    }
-
-    void GameManager::prep_render_notes()
-    {
-        std::vector<TrackNote> &notes = m_playerTrack->get_notes();
-        std::cout << "Note Count: " << notes.size() << std::endl;
-
-        // reuse the same container when creating notes as add_obj wont modify the original.
-        ORCore::RenderObject obj;
-        obj.set_camera(m_cameraDynamic);
-        obj.set_program(m_program);
-        obj.set_primitive_type(ORCore::Primitive::triangle);
-
-        float noteWidth = 1.0f/5.0f;
-        float tailWidth = noteWidth/3.0f;
-
-        bool firstTailMarked = false;
-
-        for (auto &note : notes)
-        {
-            float z = note.time / neck_speed_divisor;
-            glm::vec4 color;
-            try
-            {
-                color = noteColorMap.at(note.type);
-            }
-            catch (std::out_of_range &err) {
-                color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
-            }
-
-            float noteLength = note.length/neck_speed_divisor;
-
-            obj.set_scale(glm::vec3{tailWidth, 1.0f, noteLength});
-            obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - noteWidth+tailWidth, 0.0f, z}); // center the line on the screen
-            obj.set_geometry(ORCore::create_rect_z_mesh(color));
-            obj.set_texture(m_tailTexture);
-
-            note.objTailID = m_renderer.add_object(obj);
-            firstTailMarked = true;
-
-            obj.set_texture(-1); // -1 gets set to the default texture.
-
-            if (note.isHopo)
-            {
-                obj.set_scale(glm::vec3{noteWidth*0.75, tailWidth/2.5f, tailWidth/2.5f});
-                obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - (noteWidth*0.875), 0.0f, z}); // center the line on the screen
-                obj.set_geometry(ORCore::create_cube_mesh(glm::vec4{1.0f,1.0f,1.0f,1.0f}));
-            }
-            else
-            {
-                obj.set_scale(glm::vec3{noteWidth, tailWidth/2.0f, tailWidth/2.0f});
-                obj.set_translation(glm::vec3{(static_cast<int>(note.type)*noteWidth) - noteWidth, 0.0f, z}); // center the line on the screen
-                obj.set_geometry(ORCore::create_cube_mesh(color));
-            }
-
-            note.objNoteID = m_renderer.add_object(obj);
-
-        }
     }
 
     void GameManager::start()
@@ -385,7 +283,7 @@ namespace ORGame
                         break;
                     case ORCore::KeyCode::KEY_P:
                         m_song.set_pause(true);
-                        m_heldNotes.clear();
+                        //m_heldNotes.clear(); // TODO - Move this to Guitar class
                         break;
                     case ORCore::KeyCode::KEY_R:
                         m_song.set_pause(false);
@@ -423,45 +321,9 @@ namespace ORGame
     {
         m_songTime = m_song.get_song_time(); 
 
-        // Notes will effectively be hit m_videoOffset into the future so we need to go m_videoOffset into the past in order to get the proper notes.
-        auto &notesInWindow = m_playerTrack->get_notes_in_frame((m_songTime-m_videoOffset)-hit_window_front, (m_songTime-m_videoOffset)+hit_window_back);
-        
-        glm::vec4 color;
-
-        for (auto *note : notesInWindow)
-        {
-            if (!note->played && note->time + m_videoOffset <= m_songTime)
-            {
-                try
-                {
-                    color = noteColorMapActive.at(note->type);
-                }
-                catch (std::out_of_range &err)
-                {
-                    color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
-                }
-                color[3] = 0.0f; // Dissapear notes
-
-                auto *noteObj = m_renderer.get_object(note->objNoteID);
-                noteObj->set_geometry(ORCore::create_cube_mesh(color));
-                m_renderer.update_object(note->objNoteID);
-
-                note->played = true;
-                m_heldNotes.push_back(note);
-            }
-        }
-
-        // Todo - do we need to think about video cal here if we are talking about scoring?
-        m_heldNotes.erase(std::remove_if(m_heldNotes.begin(), m_heldNotes.end(),
-                [&](TrackNote *note)
-                {
-                    // Hide notes
-                    auto *tailObj = m_renderer.get_object(note->objTailID);
-                    tailObj->set_geometry(ORCore::create_rect_z_mesh(glm::vec4{1.0f,1.0f,1.0f,0.0f}));
-                    m_renderer.update_object(note->objTailID);
-                    return (note->time + note->length) <= m_songTime;
-                }),
-                m_heldNotes.end());
+        // Notes will effectively be hit videoOffset into the future so we need to go videoOffset into the past in order to get the proper notes.
+        auto &notesInWindow = m_playerTrack->get_notes_in_frame((m_songTime-videoOffset)-hit_window_front, (m_songTime-videoOffset)+hit_window_back);
+        m_guitar.do_hit_detection(notesInWindow, m_songTime);
 
         for (int i = 0; i < m_buttons.size(); ++i)
         {
@@ -489,34 +351,8 @@ namespace ORGame
             }
         }
 
-        for (auto *note : m_heldNotes)
-        {
-            try
-            {
-                color = noteColorMapActive.at(note->type);
-            }
-            catch (std::out_of_range &err)
-            {
-                color = glm::vec4{1.0f,1.0f,1.0f,1.0f};
-            }
-
-            auto *tailObj = m_renderer.get_object(note->objTailID);
-
-            float noteWidth = 1.0f/5.0f;
-            float tailWidth = noteWidth/3.0f;
-
-            float z = m_songTime / neck_speed_divisor;
-            float noteLength = (note->length - (m_songTime-note->time)) / neck_speed_divisor;
-
-            tailObj->set_scale(glm::vec3{tailWidth, 1.0f, noteLength});
-            tailObj->set_translation(glm::vec3{(static_cast<int>(note->type)*noteWidth) - noteWidth+tailWidth, 0.0f, z}); // center the line on the screen
-
-            tailObj->set_geometry(ORCore::create_rect_z_mesh(color));
-
-            m_renderer.update_object(note->objTailID);
-        }
-
         m_trackElements.update(m_songTime);
+        m_guitar.update(m_songTime);
 
         m_renderer.commit();
 
