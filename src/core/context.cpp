@@ -16,7 +16,6 @@ namespace ORCore
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, m_major);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, m_minor);
-
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, m_profile);
 
         if (m_msaa > 0)
@@ -40,7 +39,8 @@ namespace ORCore
         }
     }
 
-    SDL_GLContext Context::get_platform_context() {
+    SDL_GLContext Context::get_platform_context()
+    {
         return m_context;
     }
 } // namespace ORCore

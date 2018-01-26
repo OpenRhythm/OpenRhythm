@@ -108,7 +108,7 @@ namespace ORGame
     {
         auto& renderer = ORCore::Resolver::get<ORCore::Renderer>();
 
-        m_soloNeckTexture = renderer.add_texture(ORCore::loadSTB("data/soloNeck.png"));
+        m_soloNeckTexture = renderer.add_texture(ORCore::loadSTB("data/soloneck.png"));
 
         // Solos
         ORCore::RenderObject obj;
